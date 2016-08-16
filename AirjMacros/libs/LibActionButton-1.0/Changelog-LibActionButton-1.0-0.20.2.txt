@@ -1,0 +1,12 @@
+tag 0.20.2
+6f074c0cf71f32d66cc240aca3217320f738959b
+Hendrik Leppkes <h.leppkes@gmail.com>
+2013-09-13 17:38:42 +0200
+
+Tag as 0.20.2
+
+
+--------------------
+
+Hendrik Leppkes:
+	- Update TOC for 5.4
