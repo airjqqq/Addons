@@ -15,13 +15,16 @@ function mod:OnDisable()
 end
 
 function mod:OnObjectCreated(event,guid,type)
-  if bit.band(type,0x100)~=0 then
+  if bit.band(type,0x100)~=0 or true then
     mod:Print("+++ ", guid)
+    local spellId = AirjGetObjectDataInt(guid,0x88)
+    print(spellId)
+    mod:Test4(guid,spellId)
   end
 end
 
 function mod:OnObjectDestroyed(event,guid,type)
-  if bit.band(type,0x100)~=0 then
+  if bit.band(type,0x100)~=0 or true then
     mod:Print("---- ", guid)
   end
 end
@@ -138,5 +141,11 @@ function mod:Test3(follow)
   	AVRMesh.GenerateMesh(self)
   end
 
+  scene:AddMesh(m,false,false)
+end
+
+function mod:Test4(follow,spellId)
+  local scene = AVR:GetTempScene(100)
+  local m=AVRUnitMesh:New(follow,spellId)
   scene:AddMesh(m,false,false)
 end

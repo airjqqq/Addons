@@ -893,7 +893,7 @@ do
 		ox,oy = ox/min(v[5])*self.projDist,oy/min(v[5])*self.projDist
 		SetPoint(tex,"CENTER",self.frame,"CENTER",x0+ox,y0+oy)
 		-- SetTextHeight(tex,h)
-		h=math.floor(h)
+		-- h=math.floor(h)
 		SetFont(tex,font,h,"OUTLINE")
 		SetText(tex,text)
 		SetVertexColor(tex,red,green,blue,alpha)
