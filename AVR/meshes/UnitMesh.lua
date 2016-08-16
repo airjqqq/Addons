@@ -1,3 +1,4 @@
+
 local ADDON_NAME="AVR"
 local L = LibStub("AceLocale-3.0"):GetLocale(ADDON_NAME, true)
 
@@ -27,7 +28,7 @@ function AVRUnitMesh:New(unit,spellId,radius)
 	s.followUnit=unit or "player"
 	s.followRotation = true
 	s.spellId=spellId
-	s.radius=radius or 5
+	s.radius=radius
 	s.vertices=nil
 	s.name=L["Unit"]
 	s.duration=10
@@ -43,6 +44,7 @@ function AVRUnitMesh:Pack()
 	-- s.uni=self.unit
 	s.sid=self.spellId
 	s.rad=self.radius
+	s.hei=self.height
 	s.dur=packDouble(self.duration)
 	s.exp=packDouble(self.expiration)
 	s.roe=self.removeOnExpire
@@ -58,6 +60,7 @@ function AVRUnitMesh:Unpack(s)
 	-- self.unit=s.uni
 	self.spellId=s.sid
 	self.radius=s.rad
+	self.height=s.hei
 
 	self.duration=unpackDouble(s.dur) or 10
 	self.expiration=unpackDouble(s.exp) or GetTime()+self.duration
@@ -66,7 +69,7 @@ function AVRUnitMesh:Unpack(s)
 	self.r2=unpackDouble(s.r2) or 1.0
 	self.g2=unpackDouble(s.g2) or 1.0
 	self.b2=unpackDouble(s.b2) or 1.0
-	self.a2=unpackDouble(s.a2) or 0.5
+	self.a2=unpackDouble(s.a2) or 0.2
 
 	self.vertices=nil
 end
@@ -95,6 +98,12 @@ end
 
 function AVRUnitMesh:SetRadius(radius)
 	self.radius=radius
+	self.vertices=nil
+	return self
+end
+
+function AVRUnitMesh:SetHeight(height)
+	self.height=height
 	self.vertices=nil
 	return self
 end
@@ -160,7 +169,7 @@ end
 
 function AVRUnitMesh:GenerateMesh()
 	self.sectors = {}
-	local radius = self.radius
+	local radius = self.radius or 5
 	local lx,ly = 0,radius
 	local snumber = 40
 	for i=1,snumber do
@@ -190,21 +199,24 @@ function AVRUnitMesh:GenerateMesh()
 
 
 
+	local height=self.height or 5
 	local spellName,_,texture = GetSpellInfo(self.spellId)
 	if texture then
-		local t=self:AddIcon( 0,0,5,texture,1200,nil,nil,0.8,1,1,1)
+		local t=self:AddIcon( 0,0,height,texture,1200,nil,nil,0.8,1,1,1)
 	end
 	local guid = self.followUnit and UnitGUID(self.followUnit) or self.followUnit or self.followPlayer and UnitGUID("player")
-	local class, classFilename, race, raceFilename, sex, name, realm
+	local classFilename, name, realm
 	if guid then
-		class, classFilename, race, raceFilename, sex, name, realm = GetPlayerInfoByGUID(guid)
+		_, classFilename, _, _, _, name, realm = GetPlayerInfoByGUID(guid)
 	end
-	local textc = {1,1,1}
-	if classFilename then
-		textc=RAID_CLASS_COLORS[classFilename]
+	local name = name or spellName
+	if name then
+		local textc = {1,1,1}
+		if classFilename then
+			textc=RAID_CLASS_COLORS[classFilename]
+		end
+		self:AddText(0,0,height,name,600,nil,-400,0.8,textc.r,textc.g,textc.b)
 	end
-	local text1 = self:AddText(0,0,5,name or spellName,600,nil,-400,0.8,textc.r,textc.g,textc.b)
-
 
 	self.expiration=GetTime()+10
 	self.duration=10
@@ -266,9 +278,9 @@ function AVRUnitMesh:OnUpdate(threed)
 					tri.visible=true
 				end
 			end
-
-			local x=sin(d*2*pi)*self.radius
-			local y=cos(d*2*pi)*self.radius
+			local radius = self.radius or 5
+			local x=sin(d*2*pi)*radius
+			local y=cos(d*2*pi)*radius
 
 			local v=self.timeV
 
