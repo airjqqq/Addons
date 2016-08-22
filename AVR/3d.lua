@@ -337,6 +337,11 @@ function T:UpdatePlayerHeight()
 	-- end
 end
 
+function T:VirtualCamera(distance,theta)
+	self.virtualR = distance
+	self.virtualT = theta
+end
+
 function T:MakeCameraMatrix()
 	local adjust,rotZ,rotX,cz,sz,cx,sx
 
@@ -365,8 +370,8 @@ function T:MakeCameraMatrix()
 --	local playerX, playerY, playerZ, playerF = AirjHack:Position(UnitGUID("player"));  -- x,y,z,f
 	local cameraR, cameraF, cameraT, cameraX, cameraY, cameraZ = AirjHack:GetCamera();  -- r,f,t,x,y,z
 
-	self.cameraPitch = cameraT
-	self.cameraDistance = cameraR
+	self.cameraPitch = self.virtualT or cameraT
+	self.cameraDistance = self.virtualR or cameraR
 	self.cameraYaw = cameraF
 
 

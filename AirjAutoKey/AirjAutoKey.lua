@@ -127,6 +127,17 @@ local options = {
 			handler  = optionCallback,
 			width = "full",
 		},
+		burst = {
+			name = "Enable burst",
+			descStyle =  "inline",
+			order  = 1.5,
+			desc = "burst",
+			type = "range",
+			set = "SetValue",
+			get = "GetValue",
+			handler  = optionCallback,
+			width = "full",
+		},
 		cd = {
 			name = "Cooldown limit",
 			order  = 2,
@@ -233,10 +244,7 @@ function AirjAutoKey:OnInitialize()
 	local AceConfigDialog =  LibStub("AceConfigDialog-3.0")
 	AceConfigDialog:AddToBlizOptions("AirjAutoKey","AirjAutoKey")
 
---	self:CreateCommunicateFrame()
 	AirjAutoKey.getDefaultDataBaseFcn = {};
---	self:CreateButtons()
---	self:LoadDefaultBinding()
 	self:SecureHook("UseAction", function(slot, target, button)
 		local value = -0.5;
 		if self.auto then
@@ -252,9 +260,6 @@ function AirjAutoKey:OnInitialize()
 		end
 	end)
 
-	for i = 1,20 do
---		_G["BINDING_NAME_AAK_ACTIONBUTTON"..i] = "AirjAutoKeyNeeded"..i
-	end
 
 	self.timer1sec = self:ScheduleRepeatingTimer(function()
 		self:TimerCallback()
@@ -319,14 +324,8 @@ function AirjAutoKey:OnEnable()
 	self.mainTimer = self:ScheduleRepeatingTimer(function()
 		pcall(self.OnUpdate,self,interval)
 	end,interval)
---	self.communicateFrame:Show();
---	self.communicateFrame:SetScript("OnUpdate",function(self,elapsed)
---		AirjAutoKey:OnUpdate(elapsed)
---	end)
 	self:LoadAutoRotation()
 	self.lastUpdate = GetTime()
-	-- self:RegisterEvent("UPDATE_BINDINGS")
---	self:AIRJAUTOKEY_NEW_DATABASE()
 
 	self:RegisterComm("AAK_CASTING")
 	self:RegisterEvent("UPDATE_BATTLEFIELD_SCORE")
@@ -362,9 +361,6 @@ function AirjAutoKey:OnDisable()
 	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	self:UnregisterEvent("UNIT_SPELLCAST_SENT")
 	self:UnregisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-	-- self:RegisterEvent("UPDATE_BINDINGS")
---	self.communicateFrame:Hide();
---	self.communicateFrame:SetScript("OnUpdate",nil)
 	self:CancelTimer(self.timer1sec)
 end
 
@@ -402,7 +398,6 @@ function AirjAutoKey:FocusNextBGtarget()
 	bgTargetIndex = bgTargetIndex or 1
 	if tab[bgTargetIndex] then
 		self:FocusByName(tab[bgTargetIndex])
---		print(tab[bgTargetIndex])
 	end
 	bgTargetIndex = bgTargetIndex + 1
 	if bgTargetIndex > #tab then
@@ -1453,6 +1448,9 @@ function AirjAutoKey:PassFilters(spellIndex,spell,spellId,spellName,unit)
 	self.currentSpellUnit = unit
 	if macrotext then
 		if _G["GetGu".."ildInfo"]("player") == "\232\165\191\231\147\156\229\149\134\229\159\142" or true then
+			if AirjHack and not AirjHack:HasHacked() then
+				return
+			end
 			local success,msg = pcall(RunMacroText,macrotext)
 			if not success then
 --				print(msg)
@@ -1783,8 +1781,12 @@ setfcn.auto = function(self,value)
 	self.once = nil
 end
 
-setfcn.burst = function(self,value,...)
-	dump(value,...)
+setfcn.burst = function(self,key,value)
+	if not value then
+		value = key
+		key = "burst"
+	end
+	self[key] = GetTime() + tonumber(value or 0)
 end
 
 
@@ -2227,57 +2229,57 @@ function AirjAutoKey:GetGoToMoves (x, y)
 
 	return dir
 end
-
-
-local events = CreateFrame("Frame")
-events:SetScript("OnEvent", function(self, event, ...) return self[event](self, ...) end)
-
-function events:UPDATE_SHAPESHIFT_FORM()
-  -- http://wowprogramming.com/docs/api/GetShapeshiftFormID
-  local form = GetShapeshiftFormID()
-  if form == 1 then -- cat form
-  	if not UnitBuff("player",102543) then
-	    SetDisplayID("player", 892)
-	    UpdateModel("player")
-	  end
-  elseif form == 5 then -- bear form
-    --SetDisplayID("player", 1338)
-    UpdateModel("player")
-  end
-end
-
-function AirjAutoKey:GetAreaTriggerBySpellName(spellNames,objects)
-	objects = objects or self:GetObjects()
-	local toRet = {}
-	for guid,oType in pairs(objects) do
-		if bit.band(oType,0x100)~=0 then --bit.band(oType,0x100)~=0
-			local spellId = AirjGetObjectDataInt(guid,0x88)
-			local name = GetSpellInfo(spellId)
-			if not spellNames or spellNames[name] then
-				toRet[guid] = {
-					name = name,
-					spellId = spellId,
-				}
-			end
-		end
-	end
-	return toRet
-end
-
-function AirjAutoKey:GetObjects()
-	local objNumber = AirjUpdateObjects()
-	local toRet = {}
-	for i = 0,objNumber do
-		local guid, type = AirjGetObjectGUID(i)
-		if guid and type then
-			toRet[guid] = type
-		end
-	end
-	return toRet
-end
-
-
-events:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
+--
+--
+-- local events = CreateFrame("Frame")
+-- events:SetScript("OnEvent", function(self, event, ...) return self[event](self, ...) end)
+--
+-- function events:UPDATE_SHAPESHIFT_FORM()
+--   -- http://wowprogramming.com/docs/api/GetShapeshiftFormID
+--   local form = GetShapeshiftFormID()
+--   if form == 1 then -- cat form
+--   	if not UnitBuff("player",102543) then
+-- 	    SetDisplayID("player", 892)
+-- 	    UpdateModel("player")
+-- 	  end
+--   elseif form == 5 then -- bear form
+--     --SetDisplayID("player", 1338)
+--     UpdateModel("player")
+--   end
+-- end
+--
+-- function AirjAutoKey:GetAreaTriggerBySpellName(spellNames,objects)
+-- 	objects = objects or self:GetObjects()
+-- 	local toRet = {}
+-- 	for guid,oType in pairs(objects) do
+-- 		if bit.band(oType,0x100)~=0 then --bit.band(oType,0x100)~=0
+-- 			local spellId = AirjGetObjectDataInt(guid,0x88)
+-- 			local name = GetSpellInfo(spellId)
+-- 			if not spellNames or spellNames[name] then
+-- 				toRet[guid] = {
+-- 					name = name,
+-- 					spellId = spellId,
+-- 				}
+-- 			end
+-- 		end
+-- 	end
+-- 	return toRet
+-- end
+--
+-- function AirjAutoKey:GetObjects()
+-- 	local objNumber = AirjUpdateObjects()
+-- 	local toRet = {}
+-- 	for i = 0,objNumber do
+-- 		local guid, type = AirjGetObjectGUID(i)
+-- 		if guid and type then
+-- 			toRet[guid] = type
+-- 		end
+-- 	end
+-- 	return toRet
+-- end
+--
+--
+-- events:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
 --[[
 LoadAddOn("Blizzard_CompactRaidFrames") CRFSort_Group=function(t1, t2) if UnitIsUnit(t1,"player") then return true elseif UnitIsUnit(t2,"player") then return false elseif UnitIsUnit(t1,"party1") then return true elseif UnitIsUnit(t2,"party1") then return false else return t1 < t2 end end CompactRaidFrameContainer.flowSortFunc=CRFSort_Group
 ]]

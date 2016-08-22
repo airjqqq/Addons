@@ -1,7 +1,17 @@
 local mod = LibStub("AceAddon-3.0"):NewAddon("AirjHack", "AceConsole-3.0", "AceTimer-3.0","AceEvent-3.0")  --, "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0","AceSerializer-3.0","AceComm-3.0"
 AirjHack = mod
 
+local function dump(...)
+	if not DevTools_Dump then
+		SlashCmdList["DUMP"]("")
+	end
+	DevTools_Dump({...})
+end
+
 function mod:OnInitialize()
+  if not _G["dump"] then
+    _G["dump"] = dump
+  end
 end
 
 function mod:OnEnable()
@@ -9,6 +19,10 @@ function mod:OnEnable()
   self.eventTimer = self:ScheduleRepeatingTimer(function()
     self:CheckAndSendMessage()
   end,0.01)
+
+  self.jumpTimer = self:ScheduleRepeatingTimer(function()
+    self:CheckAndAntiAFK()
+  end,1)
 end
 
 function mod:OnDisable()
@@ -17,6 +31,21 @@ end
 
 local function HasHacked()
   return AirjUpdateObjects and type(AirjUpdateObjects) == "function" or false
+end
+
+function mod:CheckAndAntiAFK()
+  if not HasHacked() then return end
+  local x,y,z,f = self:Position("player")
+  if not self.lastx or self.lastx~=x or self.lasty~=y or self.lastz~=z then
+    self.lastt = GetTime()
+    self.lastx,self.lasty,self.lastz = x,y,z
+  end
+  if self.lastt and GetTime()>self.lastt+120 then
+    JumpOrAscendStart()
+    AscendStop()
+    self:Print("anti-afk")
+    self.lastt = GetTime()
+  end
 end
 
 function mod:CheckAndSendMessage()
@@ -116,4 +145,9 @@ function mod:GetCamera()
     local r,f,t,x,y,z,h = AirjGetCamera()
     if not x then return nil end
   	return r,f,t,-y,x,z,h
+end
+
+function mod:SetCameraDistance(range)
+    if not HasHacked() then return end
+    return AirjSetCameraDistance(range or 50)
 end

@@ -3,7 +3,7 @@
 ## Notes: AVR!!
 ## Version: 1.0
 ## Author: Airj
-## SavedVariables: AirjAutoKeyDB
+## SavedVariables: AirjAVRDB
 ## RequiredDeps: Ace3
 
 AirjAVR.lua

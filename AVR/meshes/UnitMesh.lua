@@ -20,7 +20,7 @@ AVRUnitMesh.meshInfo={
 	guiName=L["Unit"],
 	receivable=true
 }
-function AVRUnitMesh:New(unit,spellId,radius)
+function AVRUnitMesh:New(unit,spellId,radius,onRemove)
 	if self ~= AVRUnitMesh then return end
 	local s=AVRMesh:New()
 	AVRUnitMesh:Embed(s)
@@ -36,6 +36,7 @@ function AVRUnitMesh:New(unit,spellId,radius)
 	s.removeOnExpire=true
 	s.r,s.g,s.b,s.a=1,1,1,0.1
 	s.r2,s.g2,s.b2,s.a2=1,1,1,0.2
+	s.onRemove = onRemove
 	return s
 end
 
@@ -76,7 +77,7 @@ end
 
 function AVRUnitMesh:SetTimer(duration, expiration)
 	self.duration=duration
-	self.expiration=expiration or GetTime()+duration
+	self.expiration=expiration or (GetTime()+duration)
 	self.vertices=nil
 end
 
@@ -111,6 +112,25 @@ end
 function AVRUnitMesh:SetSpellId(spellId)
 	self.spellId=spellId
 	self.vertices=nil
+	return self
+end
+
+function AVRUnitMesh:StopFollow()
+	local unit = self.followUnit or self.followPlayer and "player"
+	if unit then
+		local x,y,z,f = AVR3D:GetUnitPosition(unit)
+		self.followPlayer=nil
+		self.followUnit=nil
+		self.followRotation=nil
+		local s,c = sin(f+math.pi),cos(f+math.pi)
+		self.meshTranslateX,self.meshTranslateY,self.meshTranslateZ=
+			self.meshTranslateX*c+self.meshTranslateY*s+x,
+			self.meshTranslateX*s-self.meshTranslateY*c+y,
+			self.meshTranslateZ+z
+
+		self.meshRotateZ=self.meshRotateZ+f
+		self.vertices=nil
+	end
 	return self
 end
 
@@ -160,6 +180,13 @@ function AVRUnitMesh:GetOptions()
 				order = 50,
 				width = "full",
 				min = 1, max=40, bigStep=0.5
+			},
+			duration = {
+				type = "execute",
+				name = L["Detach"],
+				order = 60,
+				width = "full",
+				func = function() self:StopFollow() end
 			},
 		}
 	}
@@ -211,15 +238,12 @@ function AVRUnitMesh:GenerateMesh()
 	end
 	local name = name or spellName
 	if name then
-		local textc = {1,1,1}
+		local textc = {r=1,g=1,b=1}
 		if classFilename then
-			textc=RAID_CLASS_COLORS[classFilename]
+			textc=RAID_CLASS_COLORS[classFilename] or textc
 		end
 		self:AddText(0,0,height,name,600,nil,-400,0.8,textc.r,textc.g,textc.b)
 	end
-
-	self.expiration=GetTime()+10
-	self.duration=10
 	AVRMesh.GenerateMesh(self)
 end
 
@@ -243,6 +267,9 @@ function AVRUnitMesh:OnUpdate(threed)
 			if self.removeOnExpire then
 				self.visible=false
 				self:Remove()
+				if self.onRemove then
+					self.onRemove(self)
+				end
 				return
 			end
 			for i=1,#sectors do
