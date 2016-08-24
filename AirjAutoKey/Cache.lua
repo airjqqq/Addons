@@ -23,76 +23,78 @@ function Cache:OnDisable()
 	self:UnregisterEvent("UNIT_SPELLCAST_SENT")
 	self:UnregisterEvent("UNIT_SPELLCAST_FAILED")
 end
-
-function Cache:GetUnitList()
-	local subUnit = {"","target","pet","pettarget"}
-	local unitCheckList = {"player","target","targettarget","pet","pettarget","focus","focustarget","mouseover","mouseovertarget"}
-	for i = 1,5 do
-		tinsert(unitCheckList,"arena"..i)
-	end
-	if IsInRaid() then
-		for i = 1,GetNumGroupMembers() do
-			for _,sub in pairs(subUnit) do
-				tinsert(unitCheckList,"raid"..i..sub)
-			end
+--util functions
+do
+	function Cache:GetUnitList()
+		local subUnit = {"","target","pet","pettarget"}
+		local unitCheckList = {"player","target","targettarget","pet","pettarget","focus","focustarget","mouseover","mouseovertarget"}
+		for i = 1,5 do
+			tinsert(unitCheckList,"arena"..i)
 		end
-	else
-		for _,sub in pairs(subUnit) do
-			--tinsert(unitCheckList,"player"..sub)
+		if IsInRaid() then
 			for i = 1,GetNumGroupMembers() do
-				tinsert(unitCheckList,"party"..i..sub)
+				for _,sub in pairs(subUnit) do
+					tinsert(unitCheckList,"raid"..i..sub)
+				end
+			end
+		else
+			for _,sub in pairs(subUnit) do
+				--tinsert(unitCheckList,"player"..sub)
+				for i = 1,GetNumGroupMembers() do
+					tinsert(unitCheckList,"party"..i..sub)
+				end
+			end
+		end
+		return unitCheckList
+	end
+
+
+	local name2unit = {}
+	function AirjAutoKey:FindUnitByName(name)
+		local unit = name2unit[name]
+		if unit and UnitName(unit)==name then
+			return unit
+		end
+		for _,u in ipairs(self:GetUnitList()) do
+			local n = UnitName(u)
+			if n then
+				name2unit[n] = u
+				if n == name then
+					return u
+				end
 			end
 		end
 	end
-	return unitCheckList
-end
 
-
-local name2unit = {}
-function AirjAutoKey:FindUnitByName(name)
-	local unit = name2unit[name]
-	if unit and UnitName(unit)==name then
-		return unit
-	end
-	for _,u in ipairs(self:GetUnitList()) do
-		local n = UnitName(u)
-		if n then
-			name2unit[n] = u
-			if n == name then
-				return u
+	local guid2unit = {}
+	function AirjAutoKey:FindUnitByGUID(guid)
+		local unit = guid2unit[guid]
+		if unit and UnitGUID(unit)==guid then
+			return unit
+		end
+		for _,u in pairs(self:GetUnitList()) do
+			local g = UnitGUID(u)
+			if g then
+				guid2unit[g] = u
+				if g == guid then
+					return u
+				end
 			end
 		end
 	end
-end
 
-local guid2unit = {}
-function AirjAutoKey:FindUnitByGUID(guid)
-	local unit = guid2unit[guid]
-	if unit and UnitGUID(unit)==guid then
-		return unit
-	end
-	for _,u in pairs(self:GetUnitList()) do
-		local g = UnitGUID(u)
-		if g then
-			guid2unit[g] = u
-			if g == guid then
-				return u
+	function Cache:GetUnitGUIDs()
+		local toRet = {}
+		if AirjHack and AirjHack:HasHacked() then
+			local objects = AirjHack:GetObjects()
+			for guid,type in pairs(objects) do
+				if band(type,0x08)~=0 then
+					toRet[guid] = true
+				end
 			end
 		end
+		return toRet
 	end
-end
-
-function Cache:GetUnitGUIDs()
-	local toRet = {}
-	if AirjHack and AirjHack:HasHacked() then
-		local objects = AirjHack:GetObjects()
-		for guid,type in pairs(objects) do
-			if band(type,0x08)~=0 then
-				toRet[guid] = true
-			end
-		end
-	end
-	return toRet
 end
 
 function Cache:UNIT_SPELLCAST_SENT(event,unitID, spell, rank, target, lineID)
@@ -308,6 +310,7 @@ Cache.combatLogEventList = {
 			if self.cache[cacheKey][destGUID] then
 				self.cache[cacheKey][destGUID].changed = self.cache[cacheKey][destGUID].changed or {}
 				self.cache[cacheKey][destGUID].changed[spellId] = true
+				self.cache[cacheKey][destGUID].changed[spellName] = true
 			end
 		end
 	},
@@ -334,6 +337,7 @@ Cache.combatLogEventList = {
 			if self.cache[cacheKey][destGUID] then
 				self.cache[cacheKey][destGUID].changed = self.cache[cacheKey][destGUID].changed or {}
 				self.cache[cacheKey][destGUID].changed[spellId] = true
+				self.cache[cacheKey][destGUID].changed[spellName] = true
 			end
 		end
 	},
@@ -341,30 +345,25 @@ Cache.combatLogEventList = {
 
 function Cache:ScanHealth(t,guids,units)
 	-- local guids = self:GetUnitGUIDs()
+	local cache = {t=t}
+	tinsert(self.cache.health,cache,1)
 	if guids then
-		local cache = {t=t}
-		tinsert(self.cache.health,cache,1)
 		for guid in ipairs(guids) do
 			local health = AirjHack:GetObjectOffsetInt(guid,0xf0)
 			local maxHealth = AirjHack:GetObjectOffsetInt(guid,0x110)
-			cache[guid]={
-				health=health,
-				maxHealth=maxHealth,
-			}
+			cache[guid]={health,maxHealth}
 		end
 	end
 end
 
 function Cache:ScanAuras(t,guids,units)
+	wipe(self.cache.buffs)
+	wipe(self.cache.debuffs)
 	if units then
 		for i,unit in ipairs(units) do
 			local guid = UnitGUID(unit)
 			if guid and guids[guid] then
-				if self.cache.buffs[guid] then
-					wipe(self.cache.buffs[guid])
-				else
-					self.cache.buffs[guid] = {}
-				end
+				self.cache.buffs[guid] = {}
 				for i=1,100 do
 					local data = {UnitBuff(unit,i)}
 					if not data[1] then
@@ -372,11 +371,7 @@ function Cache:ScanAuras(t,guids,units)
 					end
 					self.cache.buffs[guid][i] = data
 				end
-				if self.cache.debuffs[guid] then
-					wipe(self.cache.debuffs[guid])
-				else
-					self.cache.debuffs[guid] = {}
-				end
+				self.cache.debuffs[guid] = {}
 				for i=1,100 do
 					local data = {UnitDebuff(unit,i)}
 					if not data[1] then
@@ -387,4 +382,96 @@ function Cache:ScanAuras(t,guids,units)
 			end
 		end
 	end
+end
+
+function Cache:ScanPosition(t,guids,units)
+	wipe(self.cache.position)
+	wipe(self.cache.distance)
+	local px,py,pz,pf = AirjHack:Position("player")
+	local pi = math.pi
+	if guids then
+		for guid in ipairs(guids) do
+			local x,y,z,f = AirjHack:Position(guid)
+			local dx,dy,dz = x-px, y-py, z-pz
+			local distance = sqrt(dx*dx,dy*dy,dz*dz)
+			--TODO check the size of the object to calculate spell cast distance.
+			self.cache.position[guid]={x,y,z,f,distance,1.25}
+		end
+	end
+end
+
+--SPELL_UPDATE_COOLDOWN
+function Cache:ScanSpell(t,guids,units)
+	for i=1,200 do
+		local name, rank, icon, castingTime, minRange, maxRange, spellID = GetSpellInfo(i, "spell")
+		if not name then
+			break
+		end
+		self.cache.charge[spellID] = {GetSpellCharges(spellID)}
+		self.cache.cooldown[spellID] = {GetSpellCooldown(spellID)}
+	end
+
+	for i=1,200 do
+		local name, rank, icon, castingTime, minRange, maxRange, spellID = GetSpellInfo(i, "pet")
+		if not name then
+			break
+		end
+		self.cache.charge[spellID] = {GetSpellCharges(spellID)}
+		self.cache.cooldown[spellID] = {GetSpellCooldown(spellID)}
+	end
+end
+
+function Cache:Call(fcnName,...)
+	local key = fcnName
+	for i,v in ipairs({...}) do
+		key = key.."-"..v
+	end
+	local toRet = self.cache.call[key]
+	local t = GetTime()
+	if toRet and toRet.t == t then
+		return unpack(toRet)
+	else
+		toRet = {_G[fcnName](...)}
+		toRet.t = t
+		self.cache.call[key]=toRet
+		return unpack(toRet)
+	end
+end
+
+function Cache:GetPosition(guid)
+	return unpack(self.cache.position[guid] or {})
+end
+
+function Cache:GetBuffs(guid,spellId,mine)
+	local buffs = self.cache.buffs[guid]
+	local toRet = {}
+	if not buffs then return toRet end
+	for i,v in ipairs(buffs) do
+		local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
+		if not mine or caster == "player" then
+			if not spellId or spellId == spellID then
+				tinsert(toRet,v)
+			end
+		end
+	end
+	return toRet
+end
+
+function Cache:GetSpellCooldown(spellID)
+	local know
+	if self.cache.cooldown[spellID] then
+		know = true
+	end
+	local charges, maxCharges, cstart, cduration = unpack(self.cache.charge[spellID] or {})
+	local start, duration, enable = unpack(self.cache.cooldown[spellID] or {})
+	local cd = not start and 300 or enable and 0 or (duration - (GetTime() - start))
+	local charge
+	if not charges then
+		charge = 0
+	elseif charges<maxCharges then
+		charge = (GetTime() - start)/duration + charges
+	else
+		charge=maxCharges
+	end
+	return cd, charge, know
 end
