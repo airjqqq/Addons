@@ -12,97 +12,6 @@ local gcdtime = 1
 local gcdname = ""
 local optionCallback = {}
 
-local _, pclass = UnitClass("Player")
-AirjAutoKey.GCDSpells = {
-	ROGUE		= 1752,		-- sinister strike
-	PRIEST		= 585,		-- smite
-	DRUID		= 5176,		-- wrath
-	WARRIOR		= 5308,		-- execute
-	MAGE		= 44614,	-- frostfire bolt
-	WARLOCK		= 686,		-- shadow bolt
-	PALADIN		= 7328,	-- seal of command
-	SHAMAN		= 403,		-- lightning bolt
-	HUNTER		= 3044,		-- arcane shot
-	DEATHKNIGHT = 47541,	-- death coil
-	MONK		= 100780,	-- jab
-}
-AirjAutoKey.spellStrings = {
-	--NOTE: any id prefixed with "_" will have its localized name substituted in instead of being forced to match as an ID
-	debuffs = {
-		Silenced			= "_47476;_78675;_15487;1330;114238;_18498;_25046;31935;31117;102051",
-		ReducedHealing		= "115804",
-
-		Stunned				= "_1833;_408;_91800;_113801;5211;22570;19577;24394;44572;_853;_20549;46968;132168;_30283;_7922;64044;91797;_25;_89766;105593;120086;117418;157997;115001;_131402;108194;117526;118905;119392;119381;118345;132169;163505",
-		Incapacitated		= "99;3355;_19386;20066;_118;1776;_6770;115078;115268;107079;31661;82691;123393;_137460;88625;_51514",
-		Rooted				= "339;122;64695;19387;33395;16979;45334;87194;63685;102359;128405;116706;107566;96294;105771;53148;114404;170996",
-		Shatterable			= "122;33395;_44572;_82691;63685;102051", -- by algus2
-		Disoriented			= "31661;_2094;_51514;99;123393",
-		Slowed				= "_116;_120;_13810;_5116;_8056;_3600;_1715;_12323;116095;_20170;_31589;115000;_115180;45524;50435;51490;_15407;_3409;26679;_58180;61391;44614;_7302;_63529;_15571;_7321;_7992;123586;47960;129923;6343;147531", -- by algus2
-		Feared				= "_5782;5246;_8122;10326;_137143;_5484;_6789;_87204",
-		Bleeding			= "_1822;_1079;33745;1943;_703;_115767;_11977;106830;77758;155722;16511",
-
-		CrowdControl		= "_118;33786;_1499;_19386;20066;10326;_9484;_6770;_2094;_51514;_710;_5782;_6358;_605;_82691;115078;115268;107079", -- originally by calico0 of Curse
-
-		Dot = "_164812,55078,55095,33745,1079,152221,77758,106830,164815,3674,53301,2120,114923,44457,11366,117952,14914,15407,155361,34914,129250,589,16511,1943,703,8050,103103,1949,980,27243,30108,689,772,115767,_152281,1822,_100784,122470,_31804,",
-
-		Root = "105771,170996,45334,102051",
-	},
-	buffs = {
-		IncreasedMastery	= "155522;24907;19740;116956;93435;160039;128997;160073;160198",
-		IncreasedHaste  	= "55610;49868;116956;113742;160003;135678;160074;128432;160203",
-		IncreasedSP			= "1459;61316;109773;126309;90364;160205",
-		IncreasedAP			= "57330;19506;6673",
-		IncreasedStats		= "1126;20217;90363;115921;116781;159988;160017;160077;72586;160206",
-		IncreasedVersatility= "55610;1126;167187;167188;159735;35290;160045;50518;57386;160077;172967",
-		IncreasedMultistrike= "166916;49868;113742;109773;58604;34889;57386;24844;172968",
-		BonusStamina		= "21562;166928;469;90364;160003;160014;111922;160199",
-		IncreasedCrit		= "24932;1459;61316;116781;97229;24604;90309;126373;126309;160052;160200",
-		BurstHaste			= "2825;32182;80353;90355;146555;160452",
-
-		-- From l337g0g0 of Curse:
-		DamageShield		= "_17;_11426;116849;115295;114908;110913;108416;112048;86273;114214;47753;65148;108008;1463;108366;115635;77535;145441;152118;173260;169373",
-
-		ImmuneToStun		= "642;45438;48792;1022;33786;710;46924;_19263;6615",
-		ImmuneToMagicCC		= "642;45438;48707;33786;710;46924;_19263;31224;8178;23920;49039;114028",
-		DefensiveBuffs		= "48707;30823;33206;47585;871;48792;498;22812;61336;5277;74001;47788;_19263;6940;31850;31224;42650;86657;118038;115176;115308;120954;115295;51271;12975;97463;102342;114039",
-		MiscHelpfulBuffs	= "10060;23920;68992;2983;1850;53271;1044;31821;45182;114028",
-		SpeedBoosts			= "54861;121557;_2983;_61684;68992;108843;65081;118922;137573;2379;58875;133278;85499;96268;137452;111400;116841;119085;7840;5118;13159;2645;_77761",
-		DamageBuffs			= "1719;12292;50334;5217;3045;77801;31884;51713;12472;57933;51271;_107574;114050;114051;113858;113861;113860;112071",
-	},
-	casts = {
-		--prefixing with _ doesnt really matter here since casts only match by name,
-		-- but it may prevent confusion if people try and use these as buff/debuff equivs
-		Heals				= "5185;8936;740;2060;2061;32546;596;64843;82326;19750;77472;8004;1064;73920;124682;115175;116694;33076;120517;121135;48438;116670;114163;85222;85673",
-		PvPSpells			= "33786;339;20484;982;_605;5782;5484;10326;51514;118;12051;20066",
-		Tier11Interrupts	= "_83703;_82752;_82636;_83070;_79710;_77896;_77569;_80734;_82411",
-		Tier12Interrupts	= "_97202;_100094",
-	},
-}
-
-function AirjAutoKey:RemapSpells()
-	self.tmwSpells = {}
-	local spells = self.tmwSpells
-	for group, v in pairs(self.spellStrings) do
-		spells[group] = {}
-		for type, str in pairs(v) do
-			spells[group][type] = {}
-			local list = {strsplit(";",str)}
-			for i, id in ipairs(list) do
-				local key
-				if string.sub(id,1,1) == "_" then
-					id = string.sub(id,2)
-					key = GetSpellInfo(id) or id
-				else
-					key = tonumber(id)
-				end
-				tinsert(spells[group][type],key)
-			end
-		end
-	end
-end
-
-AirjAutoKey.GCDSpell = AirjAutoKey.GCDSpells[pclass]
-
 function optionCallback:SetValue(info, value, ...)
 	local key = info[#info];
 	AirjAutoKey:SetConfigValue(key,value);
@@ -265,11 +174,6 @@ function AirjAutoKey:OnInitialize()
 		self:TimerCallback()
 	end,0.2)
 
-	self.goto = {}
-	self.moveTimer = self:ScheduleRepeatingTimer(function()
-		self:MoveTimer()
-	end,0.01)
-
 	local selectedRotationIndex = self.db.profile.selectedRotationIndex
 	local newIndex = #self.rotationDataBaseArray or 0
 	local customRotation
@@ -293,12 +197,6 @@ function AirjAutoKey:OnInitialize()
 	end
 
 	self.DRData = LibStub("DRData-1.0")
-end
-function AirjAutoKey:RestartTimer()
-	self:CancelTimer(self.mainTimer,true)
-	self.mainTimer = self:ScheduleRepeatingTimer(function()
-		pcall(self.OnUpdate,self,interval)
-	end,interval)
 end
 
 function AirjAutoKey:OnEnable()
@@ -329,17 +227,6 @@ function AirjAutoKey:OnEnable()
 
 	self:RegisterComm("AAK_CASTING")
 	self:RegisterEvent("UPDATE_BATTLEFIELD_SCORE")
-	self:RegisterChatCommand("aakm", function(str,...)
-		local args = {strsplit(" ",str)}
-		if args[1] and UnitExists(args[1]) then
-			self:KeepFollowUnit(args[1])
-			if args[2] then
-				self:KeepFacingUnit(args[2])
-			end
-		else
-			self:KeepGoToStop()
-		end
-	end)
 	self:RegisterChatCommand("aakf", function(str,...)
 		local frame = GetMouseFocus()
 		local text = frame:GetName() or ""
@@ -363,112 +250,62 @@ function AirjAutoKey:OnDisable()
 	self:UnregisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 	self:CancelTimer(self.timer1sec)
 end
-
-local bgNames0 = {
-}
-local bgNames1 = {
-}
-
-function AirjAutoKey:UPDATE_BATTLEFIELD_SCORE()
-	local numScore = GetNumBattlefieldScores()
-
-	wipe(bgNames0)
-	wipe(bgNames1)
-
-	for i = 1, numScore do
-		local name, killingBlows, honorableKills, deaths, honorGained, faction, race, class, classToken, damageDone, healingDone, bgRating, ratingChange, preMatchMMR, mmrChange, talentSpec = GetBattlefieldScore(i)
-		if faction == 0 then
-			tinsert(bgNames0,name)
-		else
-			tinsert(bgNames1,name)
-		end
-	end
-end
-
-local bgTargetIndex
-
-function AirjAutoKey:FocusNextBGtarget()
-	local faction = GetBattlefieldArenaFaction()
-	local tab
-	if faction == 1 then
-		tab = bgNames0
-	else
-		tab = bgNames1
-	end
-	bgTargetIndex = bgTargetIndex or 1
-	if tab[bgTargetIndex] then
-		self:FocusByName(tab[bgTargetIndex])
-	end
-	bgTargetIndex = bgTargetIndex + 1
-	if bgTargetIndex > #tab then
-		bgTargetIndex = 1
-	end
-end
-
-function AirjAutoKey:FocusByName(name)
-	local guid = UnitGUID("target")
-	RunMacroText("/targetexact "..name.."\n".."/focus")
-	if guid ~= UnitGUID("target") then
-		RunMacroText("/targetlasttarget")
-	end
-end
-
-
-function AirjAutoKey:OnCommReceived(prefix,data,channel,sender)
-	local match, tab = self:Deserialize(data)
-	if not match then return end
-	local guid = tab.guid
-	local list = tab.type=="harm" and self.harmCasting or self.helpCasting
-	list[guid] = list[guid] or {}
-	list[guid][tab.spell] = GetTime()
-end
-AirjAutoKey.kickCooldown = {
-	["脚踢"] = 15,
-	["拳击"] = 15,
-	["责难"] = 15,
-	["心灵冰冻"] = 15,
-	["锁喉手"] = 15,
-	["迎头痛击"] = 15,
-	["法术反制"] = 24,
-	["法术封锁"] = 24,
-	["眼棱爆炸"] = 24,
-	["反制射击"] = 24,
-	["风剪"] = 12,
-}
-
-AirjAutoKey.castProperty = {
-	["脚踢"] = 10,
-	["拳击"] = 20,
-	["责难"] = 30,
-	["心灵冰冻"] = 40,
-	["锁喉手"] = 50,
-	["迎头痛击"] = 60,
-	["法术反制"] = 70,
-	["法术封锁"] = 80,
-	["风剪"] = 90,
-	["反制射击"] = 100,
-	["群体反射"] = 110,
-	["根基图腾"] = 120,
-	["法术反射"] = 130,
-	["奥术洪流"] = 140,
-	["深度冻结"] = 150,
-}
-function AirjAutoKey:SendCasting(unit,spell,isHelp)
-	local type = isHelp and "help" or "harm"
-	local tab = {
-		type = type,
-		guid = UnitGUID(unit) or "",
-		spell = spell,
-	}
-	self:SendCommMessage("AAK_CASTING",self:Serialize(tab),"PARTY",nil,"ALERT")
-	self:OnCommReceived("AAK_CASTING",self:Serialize(tab))
-end
+--
+-- local bgNames0 = {
+-- }
+-- local bgNames1 = {
+-- }
+--
+-- function AirjAutoKey:UPDATE_BATTLEFIELD_SCORE()
+-- 	local numScore = GetNumBattlefieldScores()
+--
+-- 	wipe(bgNames0)
+-- 	wipe(bgNames1)
+--
+-- 	for i = 1, numScore do
+-- 		local name, killingBlows, honorableKills, deaths, honorGained, faction, race, class, classToken, damageDone, healingDone, bgRating, ratingChange, preMatchMMR, mmrChange, talentSpec = GetBattlefieldScore(i)
+-- 		if faction == 0 then
+-- 			tinsert(bgNames0,name)
+-- 		else
+-- 			tinsert(bgNames1,name)
+-- 		end
+-- 	end
+-- end
+--
+-- local bgTargetIndex
+--
+-- function AirjAutoKey:FocusNextBGtarget()
+-- 	local faction = GetBattlefieldArenaFaction()
+-- 	local tab
+-- 	if faction == 1 then
+-- 		tab = bgNames0
+-- 	else
+-- 		tab = bgNames1
+-- 	end
+-- 	bgTargetIndex = bgTargetIndex or 1
+-- 	if tab[bgTargetIndex] then
+-- 		self:FocusByName(tab[bgTargetIndex])
+-- 	end
+-- 	bgTargetIndex = bgTargetIndex + 1
+-- 	if bgTargetIndex > #tab then
+-- 		bgTargetIndex = 1
+-- 	end
+-- end
+--
+-- function AirjAutoKey:FocusByName(name)
+-- 	local guid = UnitGUID("target")
+-- 	RunMacroText("/targetexact "..name.."\n".."/focus")
+-- 	if guid ~= UnitGUID("target") then
+-- 		RunMacroText("/targetlasttarget")
+-- 	end
+-- end
+--
 
 
-function AirjAutoKey:HHTD_HEALER_BORN(event,isFriend, record)
-	--dump(record)
-	self.isHealer[record.guid] = record.isTrueHeal or nil
-end
+-- function AirjAutoKey:HHTD_HEALER_BORN(event,isFriend, record)
+-- 	--dump(record)
+-- 	self.isHealer[record.guid] = record.isTrueHeal or nil
+-- end
 
 
 --function AirjAutoKey:Getkeybinds()
@@ -479,186 +316,13 @@ end
 --		self.keyArray = {};
 --	end
 --end
-
-function AirjAutoKey:UI_ERROR_MESSAGE(event,msg)
-	if msg == "你必须位于目标背后。" then
-		self.backtime = GetTime()
-	end
-end
-local guids = {}
-local units = {}
-local subUnit = {"","target","pet","pettarget"}
-local function getUnitCheckList()
-	local unitCheckList = {"player","target","targettarget","pet","pettarget","focus","focustarget","mouseover","mouseovertarget"}
-	for i = 1,5 do
-		tinsert(unitCheckList,"arena"..i)
-	end
-	if IsInRaid() then
-		for i = 1,GetNumGroupMembers() do
-			for _,sub in pairs(subUnit) do
-				tinsert(unitCheckList,"raid"..i..sub)
-			end
-		end
-	else
-		for _,sub in pairs(subUnit) do
-			--tinsert(unitCheckList,"player"..sub)
-			for i = 1,GetNumGroupMembers() do
-				tinsert(unitCheckList,"party"..i..sub)
-			end
-		end
-	end
-	return unitCheckList
-end
-
-local name2unit = {}
-local function findUnitByName(name)
-	local unit = name2unit[name]
-	if unit and UnitName(unit)==name then
-		return unit
-	end
-	for _,u in ipairs(getUnitCheckList()) do
-		local n = UnitName(u)
-		if n then
-			name2unit[n] = u
-			if n == name then
-				return u
-			end
-		end
-	end
-end
-
-local guid2unit = {}
-local function findUnitByGUID(guid)
-	local unit = guid2unit[guid]
-	if unit and UnitGUID(unit)==guid then
-		return unit
-	end
-	for _,u in pairs(getUnitCheckList()) do
-		local g = UnitGUID(u)
-		if g then
-			guid2unit[g] = u
-			if g == guid then
-				return u
-			end
-		end
-	end
-end
-
-function AirjAutoKey:FindUnitByGUID(guid)
-	return findUnitByGUID(guid)
-end
-
-
-local sendLineID
-local sendUnit
-
-function AirjAutoKey:UNIT_SPELLCAST_SENT(event,unitID, spell, rank, target, lineID)
-	if unitID == "player" then
-		local spellName = spell
-		local lslunit
-		self.castSentList[spellName] = GetTime()
-		self.lastCastUnitName = target
---		local unitList = {}
 --
---		for i = 1,5 do
---			tinsert(unitList,"arena"..i)
---		end
---		for i = 1,4 do
---			tinsert(unitList,"party"..i)
---		end
---		for i = 1,40 do
---			tinsert(unitList,"raid"..i)
---		end
---		tinsert(unitList,"focus")
---		tinsert(unitList,"targettarget")
---		tinsert(unitList,"mouseover")
---		tinsert(unitList,"target")
---		tinsert(unitList,"party")
-		local eName = strsplit("-",target)
-		local unit = findUnitByName(eName)
-		if unit then
-			self.lastCastSendUnit = unit
-			self.lastCastSendTime = GetTime()
-			self.lastCastSendName = UnitName(unit)
-			sendLineID  = lineID
-			sendUnit = unit
-			lslunit = unit
-			self.lastCastSendGUID = UnitGUID(unit)
-		end
-		self.lastSentList[spellName] = UnitGUID(lslunit or target or "player") or UnitGUID("player")
-		self.lastSentUnitList[spellName] = lslunit
-	end
-end
+-- function AirjAutoKey:UI_ERROR_MESSAGE(event,msg)
+-- 	if msg == "你必须位于目标背后。" then
+-- 		self.backtime = GetTime()
+-- 	end
+-- end
 
-function AirjAutoKey:UNIT_SPELLCAST_FAILED(event,unitID, spell, rank, lineID, spellID)
-	if unitID == "player" then
-		local spellName = spell
-		self.castStartList[spellName] = self.castStartList[spellName] or {}
---		self.castStartList[spellName][self.castStartGUID] = nil
-		if sendLineID == lineID then
-			if sendUnit then
-				local guid = UnitGUID(sendUnit)
-				if guid then
-					self.notinsight[guid] = GetTime();
-				end
-			end
-		end
-	end
-end
-
-function AirjAutoKey:IsMeleeSpell(spell)
-	local meleeList = {
-		--武器
-		["致死打击"] = true,
-		["巨人打击"] = true,
-		["旋风斩"] = true,
-		["剑刃风暴"] = true,
-		["斩杀"] = true,
-		--狂暴
-		["狂风打击"] = true,
-		["嗜血"] = true,
-		--冰
-		["冰霜打击"] = true,
-		["湮灭"] = true,
-		--邪
-		["天谴打击"] = true,
-		--血
-		["灵界打击"] = true,
-		--惩戒
-		["十字军打击"] = true,
-		["圣殿骑士的裁决"] = true,
-		["最终审判"] = true,
-		["神圣风暴"] = true,
-		--增强
-		["风暴打击"] = true,
-		["熔岩猛击"] = true,
-		--刺杀
-		["毒伤"] = true,
-		["斩击"] = true,
-		["毁伤"] = true,
-		--敏锐
-		["伏击"] = true,
-		["背刺"] = true,
-		["刺骨"] = true,
-		--战斗
-		["影袭"] = true,
-		["要害打击"] = true,
-		--野
-		["撕碎"] = true,
-		["斜掠"] = true,
-		["凶猛撕咬"] = true,
-		["割碎"] = true,
-	}
-	return meleeList[spell]
-end
-
-
-function AirjAutoKey:GetCooldown(spell)
-	local spellList = {
-		["深度冻结"] = true,
-		["冰冻陷阱"] = true,
-	}
-end
 
 function AirjAutoKey:COMBAT_LOG_EVENT_UNFILTERED(realEvent,timestamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,...)
 	timestamp = GetTime()

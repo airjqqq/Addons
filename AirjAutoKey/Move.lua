@@ -22,6 +22,17 @@ function M:OnInitialize()
 			self:KeepGoToStop()
 		end
 	end)
+	self:RegisterChatCommand("aakm", function(str,...)
+		local args = {strsplit(" ",str)}
+		if args[1] and UnitExists(args[1]) then
+			self:KeepFollowUnit(args[1])
+			if args[2] then
+				self:KeepFacingUnit(args[2])
+			end
+		else
+			self:KeepGoToStop()
+		end
+	end)
 end
 
 function M:MoveTimer()
