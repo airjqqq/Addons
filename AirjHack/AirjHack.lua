@@ -1,6 +1,8 @@
 local mod = LibStub("AceAddon-3.0"):NewAddon("AirjHack", "AceConsole-3.0", "AceTimer-3.0","AceEvent-3.0")  --, "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0","AceSerializer-3.0","AceComm-3.0"
 AirjHack = mod
 
+local fcn = GetPlayerFacing
+
 local function dump(...)
 	if not DevTools_Dump then
 		SlashCmdList["DUMP"]("")
@@ -19,37 +21,25 @@ function mod:OnEnable()
   self.eventTimer = self:ScheduleRepeatingTimer(function()
     self:CheckAndSendMessage()
   end,0.01)
-
-  self.jumpTimer = self:ScheduleRepeatingTimer(function()
-    self:CheckAndAntiAFK()
-  end,1)
 end
 
 function mod:OnDisable()
   self:CancelTimer(self.eventTimer)
 end
 
-local function HasHacked()
-  return AirjUpdateObjects and type(AirjUpdateObjects) == "function" or false
-end
-
-function mod:CheckAndAntiAFK()
-  if not HasHacked() then return end
-  local x,y,z,f = self:Position("player")
-  if not self.lastx or self.lastx~=x or self.lasty~=y or self.lastz~=z then
-    self.lastt = GetTime()
-    self.lastx,self.lasty,self.lastz = x,y,z
-  end
-  if self.lastt and GetTime()>self.lastt+120 then
-    JumpOrAscendStart()
-    AscendStop()
-    self:Print("anti-afk")
-    self.lastt = GetTime()
-  end
+function mod:HasHacked()
+	if self.hacked then return true end
+	local returned = fcn("AirjGetObjectGUIDByUnit","player")
+	if type(returned) == "string" then
+		self.hacked = true
+		return true
+	else
+		return false
+	end
 end
 
 function mod:CheckAndSendMessage()
-  if not HasHacked() then return end
+  if not self:HasHacked() then return end
   local objects = mod:GetObjects()
   for guid, type in pairs(objects) do
     if self.objectCache[guid] then
@@ -64,17 +54,12 @@ function mod:CheckAndSendMessage()
   self.objectCache = objects
 end
 
-
-function mod:HasHacked()
-  return HasHacked()
-end
-
 function mod:GetObjects()
-  if not HasHacked() then return end
-	local objNumber = AirjUpdateObjects()
+  if not self:HasHacked() then return end
+	local objNumber = fcn("AirjUpdateObjects")
 	local toRet = {}
 	for i = 0,objNumber do
-		local guid, type = AirjGetObjectGUID(i)
+		local guid, type = fcn("AirjGetObjectGUID",i)
 		if guid and type then
 			toRet[guid] = type
 		end
@@ -83,12 +68,12 @@ function mod:GetObjects()
 end
 
 function mod:GetAreaTriggerBySpellName(spellNames,objects)
-  if not HasHacked() then return end
+  if not self:HasHacked() then return end
 	objects = objects or self:GetObjects()
 	local toRet = {}
 	for guid,oType in pairs(objects) do
 		if bit.band(oType,0x100)~=0 then
-			local spellId = AirjGetObjectDataInt(guid,0x88)
+			local spellId = fcn("AirjGetObjectDataInt",guid,0x88)
 			local name = GetSpellInfo(spellId)
 			if not spellNames or spellNames[name] then
 				toRet[guid] = {
@@ -102,12 +87,12 @@ function mod:GetAreaTriggerBySpellName(spellNames,objects)
 end
 
 function mod:UnitGUID (unit)
-  if not HasHacked() then return end
-  return AirjGetObjectGUIDByUnit(unit)
+  if not self:HasHacked() then return end
+  return fcn("AirjGetObjectGUIDByUnit",unit)
 end
 
 function mod:Position(key)
-  if not HasHacked() then return end
+  if not self:HasHacked() then return end
   if key == nil then return end
 	local starts = {
 		Player = true,
@@ -117,37 +102,37 @@ function mod:Position(key)
 	}
 	local subs = {string.split("-",key)}
 	if not starts[subs[1]] then
-		key = UnitGUID(key)
+		key = self:UnitGUID(key)
 	end
 
-  local x,y,z,f = AirjGetObjectPosition(key)
+  local x,y,z,f = fcn("AirjGetObjectPosition",key)
   if not x then return nil end
 	return -y,x,z,f
 end
 
 function mod:Target(guid)
-  if not HasHacked() then return end
-  return AirjTargetByGUID(guid)
+  if not self:HasHacked() then return end
+  return fcn("AirjTargetByGUID",guid)
 end
 
 function mod:Focus(guid)
-  if not HasHacked() then return end
-  return AirjFocusByGUID(guid)
+  if not self:HasHacked() then return end
+  return fcn("AirjFocusByGUID",guid)
 end
 
 function mod:Interact(guid)
-  if not HasHacked() then return end
-  return AirjInteractByGUID(guid)
+  if not self:HasHacked() then return end
+  return fcn("AirjInteractByGUID",guid)
 end
 
 function mod:GetCamera()
-    if not HasHacked() then return end
-    local r,f,t,x,y,z,h = AirjGetCamera()
+    if not self:HasHacked() then return end
+    local r,f,t,x,y,z,h = fcn("AirjGetCamera")
     if not x then return nil end
   	return r,f,t,-y,x,z,h
 end
 
 function mod:SetCameraDistance(range)
-    if not HasHacked() then return end
-    return AirjSetCameraDistance(range or 50)
+    if not self:HasHacked() then return end
+    return fcn("AirjSetCameraDistance",range or 50)
 end

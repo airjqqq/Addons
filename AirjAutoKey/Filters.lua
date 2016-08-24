@@ -717,14 +717,14 @@ function AirjAutoKey.HDRANGE(self,filter,unit)
 	local airunit = unit2 == "air" and self.raidUnit or unit2 == "airtarget" and (self.raidUnit.."target") or unit2 == "lcu" and (self:FindUnitByGUID(self.lastCastGUID) or self.lastCastUnit)
 	airunit = airunit or unit2 == "bgu" and self.groupUnit
 	unit2 = airunit or unit2 or "player"
-	local xs,ys = AirjHudMap:GetUnitPosition(unit)
-	local xe,ye = AirjHudMap:GetUnitPosition(unit2)
+	local xs,ys,zs = AirjHack:Position(unit)
+	local xe,ye,ze = AirjHack:Position(unit2)
 	local value
 	if not xs or xs == 0 or not xe or xe == 0 then
 		value = 120
 	else
 		--print(xs,ys,xe,ye)
-		value = sqrt((xs-xe)^2+(ys-ye)^2)
+		value = sqrt((xs-xe)^2+(ys-ye)^2+(zs-ze)^2)
 	end
 	if filter.rv then
 		return value

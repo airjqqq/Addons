@@ -3,7 +3,7 @@
 ## Version: 2.0
 ## Author: Airj
 ## SavedVariables: AirjAutoKeyDB
-## RequiredDeps: Ace3
+## RequiredDeps: Ace3,AirjHack
 
 #embeds.xml
 Libs\DRData-1.0\DRData-1.0.xml

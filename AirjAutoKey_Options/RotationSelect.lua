@@ -14,13 +14,13 @@ for i = 1,300 do
 end
 
 local function SetDescription(widget,desc)
-	widget:SetCallback("OnEnter",function(widget) 
+	widget:SetCallback("OnEnter",function(widget)
 		GameTooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT");
 		GameTooltip:AddLine(desc, 1, 1, 1, 1);
 		GameTooltip:Show();
 		GameTooltip:SetFrameLevel(50);
 	end)
-	widget:SetCallback("OnLeave", function(widget) 
+	widget:SetCallback("OnLeave", function(widget)
 		GameTooltip:Hide()
 	end)
 end
@@ -115,6 +115,12 @@ function mod:CreateMainConfigGroup()
 			desc = "按住Ctrl",
 		},
 		{
+			key = "showotherclass",
+			widget = "CheckBox",
+			text = "显示其他职业",
+			desc = "",
+		},
+		{
 			key = "heading1",
 			widget = "SimpleGroup",
 			text = "",
@@ -136,8 +142,8 @@ function mod:CreateMainConfigGroup()
 			desc = "",
 		},
 	}
-	
-	for i,v in ipairs(rotationConfigWidgets) do 
+
+	for i,v in ipairs(rotationConfigWidgets) do
 		local widget = AceGUI:Create(v.widget)
 		if widget.SetLabel then
 			widget:SetLabel(v.text)
@@ -156,7 +162,7 @@ function mod:CreateMainConfigGroup()
 		group:AddChild(widget)
 		group[v.key] = widget
 	end
-	
+
 	group.class:SetList(f2n)
 	group.class:SetCallback("OnValueChanged",function(widget,event,key)
 		local currentRotation = self:GetCurrentRotation()
@@ -172,15 +178,15 @@ function mod:CreateMainConfigGroup()
 		currentRotation.spec = key
 		self:UpdateRotationTreeGroup()
 	end)
-	group.note:SetCallback("OnEnterPressed",function(widget,event,text) 
+	group.note:SetCallback("OnEnterPressed",function(widget,event,text)
 		if text == "" then
 			text = nil
 		end
 		local currentRotation = self:GetCurrentRotation()
-		currentRotation.note = text 
+		currentRotation.note = text
 		self:UpdateRotationTreeGroup()
 	end)
-	
+
 	group.select:SetCallback("OnClick", function(widget,event)
 		AirjAutoKey:SelectRotationDB(self.currentRotationIndex)
 		self:UpdateRotationTreeGroup()
@@ -189,13 +195,17 @@ function mod:CreateMainConfigGroup()
 		local currentRotation = self:GetCurrentRotation()
 		currentRotation.autoSwap = key and true or nil;
 	end)
+	group.showotherclass:SetCallback("OnValueChanged", function(widget,event,key)
+		self.showotherclass = key and true or nil;
+		self:UpdateRotationTreeGroup()
+	end)
 	group.send:SetCallback("OnClick", function(widget,event)
 		local currentRotation = self:GetCurrentRotation()
 		parent:SendComm(currentRotation)
 	end)
 	group.new:SetCallback("OnClick", function(widget,event)
 		self.currentRotationIndex = self.currentRotationIndex + 1
-			
+
 		local rdb = {
 			spellArray = {},
 			macroArray = {},
@@ -209,7 +219,7 @@ function mod:CreateMainConfigGroup()
 		parent.inportStatus = {1,1,self.currentRotationIndex}
 		parent:Inport()
 	end)
-	
+
 	group.export:SetCallback("OnClick", function(widget,event)
 		local currentRotation = self:GetCurrentRotation()
 		parent:Export("rotation",currentRotation)
@@ -233,9 +243,9 @@ function mod:CreateMainConfigGroup()
 		if text == "" then
 			text = nil
 		end
-		currentRotation.inst = text 
+		currentRotation.inst = text
 	end)
-	
+
 	self.mainConfigGroup = group
 end
 
@@ -258,7 +268,7 @@ function mod:UpdateMainConfigGroup()
 	group.autoSwap:SetValue(rotation.autoSwap)
 	group.delete:SetDisabled(rotation.isDefault)
 	group.inst:SetDisabled(rotation.isDefault)
-	do 
+	do
 		local infoText = {}
 		local num = 0
 		for k,v in pairs(rotation.macroArray or {}) do
@@ -289,6 +299,7 @@ function mod:UpdateRotationTreeGroup()
 	local rotationDataBaseArray = AirjAutoKey.rotationDataBaseArray
 	local tree = {}
 	local texture = [[Interface\Glues\CharacterCreate\UI-CharacterCreate-Classes]]
+	local _,playerClass = UnitClass("player")
 	for i,v in pairs(rotationDataBaseArray) do
 		local class = v.class
 		local _, specName, _, icon = GetSpecializationInfoByID(v.spec or 0)
@@ -306,7 +317,9 @@ function mod:UpdateRotationTreeGroup()
 		elseif v.isDefault then
 			name = "|cff00ffff"..name.."|r"
 		end
-		tinsert(tree,{value = i,icon = icon,text = name})
+		if(self.showotherclass or class == playerClass) then
+			tinsert(tree,{value = i,icon = icon,text = name})
+		end
 	end
 	mainGroup:SetTree(tree)
 	mainGroup:Select(self.currentRotationIndex)
@@ -314,8 +327,8 @@ function mod:UpdateRotationTreeGroup()
 end
 
 function mod:NewRotation(rotation,index)
-	if not index then 
-		index = self.currentRotationIndex 
+	if not index then
+		index = self.currentRotationIndex
 	else
 		self.currentRotationIndex = index
 	end

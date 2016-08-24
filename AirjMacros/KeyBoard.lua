@@ -140,7 +140,7 @@ local function SetIconDescription(frame)
 			for _,sn in ipairs(spellNames) do
 				local _,_,icon = GetSpellInfo(sn)
 				if icon and icon ~= "" then
-					icons[#icon+1] = icon
+					icons[#icons+1] = icon
 				end
 			end
 			if spellName~= "" then
@@ -248,6 +248,8 @@ function mod:CreateButton(key,parent)
 		end
 
 		local type, data, subType, subData = GetCursorInfo()
+
+		if dump then dump(GetCursorInfo()) end
 		local spellName, spellId
 		if type == "spell" then
 			spellName = GetSpellInfo(subData)
@@ -258,7 +260,7 @@ function mod:CreateButton(key,parent)
 			spellId = "i"..data
 			ClearCursor()
 		elseif type == "mount" then
-			local name,id = C_MountJournal.GetMountInfo(subType)
+			local name,id = C_MountJournal.GetMountInfoByID(data)
 			spellName = name
 			spellId = id
 			ClearCursor()
@@ -619,6 +621,7 @@ function mod:CreateKeyboard(group)
 	self.spellId.editbox:SetScript("OnReceiveDrag", function(frame)
 		local self = frame.obj
 		local type, id, info = GetCursorInfo()
+		if dump then dump(GetCursorInfo()) end
 		if type == "item" then
 			local spellId = "i"..id
 			self:SetText(spellId)

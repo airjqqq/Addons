@@ -1,16 +1,17 @@
-﻿AirjAutoKey_GUI = LibStub("AceAddon-3.0"):NewAddon("AirjAutoKey_GUI", "AceConsole-3.0", "AceEvent-3.0");
+﻿AirjAutoKey_GUI = LibStub("AceAddon-3.0"):NewAddon("AirjAutoKey_GUI", "AceConsole-3.0", "AceTimer-3.0","AceEvent-3.0");
 --local L = LibStub("AceLocale-3.0"):GetLocale("AirjAutoKey_GUI", true)
 local meta = {
 __index = function(t,k) return k end
 }
 local L = setmetatable({}, meta);
 local AceGUI = LibStub("AceGUI-3.0");
+local AirjAutoKey = AirjAutoKey
 
 function AirjAutoKey_GUI:OnInitialize()
 	-- Called when the addon is loaded
 
 	-- Print a message to the chat frame
-	self:Print("OnInitialize Event Fired: Hello")
+	-- self:Print("OnInitialize Event Fired: Hello")
 	self:CreateGUI();
 	self:RegisterMessage("AIRJAUTOKEY_SPELL_TEXTURE_CHANGED");
 	self:RegisterMessage("AIRJAUTOKEY_CONFIG_CHANGED");
@@ -20,8 +21,11 @@ function AirjAutoKey_GUI:OnEnable()
 	-- Called when the addon is enabled
 
 	-- Print a message to the chat frame
-	self:Print("OnEnable Event Fired: Hello, again ;)")
+	-- self:Print("OnEnable Event Fired: Hello, again ;)")
 	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
+	self.updateTimer=self:ScheduleRepeatingTimer(function()
+    self:Update()
+  end,0.01)
 end
 
 function AirjAutoKey_GUI:OnDisable()
@@ -58,6 +62,19 @@ function AirjAutoKey_GUI:COMBAT_LOG_EVENT_UNFILTERED(realEvent,timestamp,event,h
 	end
 	if UnitGUID("player") == sourceGUID then
 --		dump({realEvent,timestamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,...})
+	end
+end
+
+function AirjAutoKey_GUI:Update()
+	local overlay = self.overlay
+	if AirjAutoKey.burst and AirjAutoKey.burst >GetTime() then
+		if overlay.animOut:IsPlaying() then
+			overlay.animIn:Play()
+			overlay.animOut:Stop()
+		end
+	else
+		overlay.animIn:Stop()
+		overlay.animOut:Play()
 	end
 end
 
@@ -128,7 +145,7 @@ function AirjAutoKey_GUI:CreateGUI()
 
 	local anchorbackground = anchor:CreateTexture(nil,"BACKGROUND");
 	anchorbackground:SetAllPoints();
-	anchorbackground:SetTexture(0,0.5,0)
+	anchorbackground:SetColorTexture(0,0.5,0)
 
 	local fontString = anchor:CreateFontString(nil,"OVERLAY","GameFontHighlight");
 	fontString:SetAllPoints();
@@ -141,7 +158,7 @@ function AirjAutoKey_GUI:CreateGUI()
 
 	local background = container:CreateTexture(nil,"BACKGROUND");
 	background:SetAllPoints();
-	background:SetTexture(0,0,0,0.2)
+	background:SetColorTexture(0,0,0,0.2)
 
 	local castIcon = CreateFrame("Frame",nil, container)
 	castIcon:SetPoint("TOPLEFT",container,"TOPLEFT",2,-2);
@@ -152,28 +169,19 @@ function AirjAutoKey_GUI:CreateGUI()
 	castIconCooldown:SetAllPoints();
 	castIconCooldown:SetCooldown(GetTime(), 1)
 	castIconCooldown:SetScript("OnUpdate",function()
---		if self.castSpellId then
---			local spellId = self.castSpellId
---			self.castIconTexture:SetTexture(self.spellTexture or "");
---			local spellName = GetSpellInfo(spellId) or ""
---			local selfName = GetSpellBookItemName(spellName) or ""
---			local start, duration, enabled = GetSpellCooldown(selfName);
---			if start and start~=0 then
---				local cd = self.castIconCooldown
---				cd:SetCooldown(start, duration,0,1);
---				cd:Show()
---				cd:SetAlpha(1)
---				cd:SetReverse(false)
---			end
---
---		end
 	end)
 	self.castIconCooldown = castIconCooldown;
 
 	local castIconTexture = castIcon:CreateTexture(nil,"BACKGROUND")
 	castIconTexture:SetAllPoints()
-	castIconTexture:SetTexture(0,0,0)
+	castIconTexture:SetColorTexture(0,0,0)
 	self.castIconTexture = castIconTexture;
+
+	local	overlay = CreateFrame("Frame", nil, castIcon, "ActionBarButtonSpellActivationAlert");
+	overlay:SetPoint("CENTER")
+	overlay:SetSize(96,96)
+	overlay.animOut:Play()
+	self.overlay = overlay
 
 	local starter = "AirjAutoKey_GUI"
 	local autoCheckBox = AceGUI:Create("CheckBox");

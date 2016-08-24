@@ -4,7 +4,7 @@ local AceGUI = LibStub("AceGUI-3.0")
 local f2n = {}
 FillLocalizedClassList(f2n)
 local specId = {}
-for i = 1,300 do
+for i = 1,1000 do
 	local _,specName,_,_,_,_,class = GetSpecializationInfoByID(i)
 	if class then
 		specId[class] = specId[class] or {}
@@ -13,13 +13,13 @@ for i = 1,300 do
 end
 
 local function SetDescription(widget,desc)
-	widget:SetCallback("OnEnter",function(widget) 
+	widget:SetCallback("OnEnter",function(widget)
 		GameTooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT");
 		GameTooltip:AddLine(desc, 1, 1, 1, 1);
 		GameTooltip:Show();
 		GameTooltip:SetFrameLevel(50);
 	end)
-	widget:SetCallback("OnLeave", function(widget) 
+	widget:SetCallback("OnLeave", function(widget)
 		GameTooltip:Hide()
 	end)
 end
@@ -114,6 +114,12 @@ function mod:CreateMainConfigGroup()
 			desc = "按住Ctrl",
 		},
 		{
+			key = "showotherclass",
+			widget = "CheckBox",
+			text = "显示其他职业",
+			desc = "",
+		},
+		{
 			key = "heading1",
 			widget = "SimpleGroup",
 			text = "",
@@ -135,8 +141,8 @@ function mod:CreateMainConfigGroup()
 			desc = "",
 		},
 	}
-	
-	for i,v in ipairs(macroConfigWidgets) do 
+
+	for i,v in ipairs(macroConfigWidgets) do
 		local widget = AceGUI:Create(v.widget)
 		if widget.SetLabel then
 			widget:SetLabel(v.text)
@@ -155,7 +161,7 @@ function mod:CreateMainConfigGroup()
 		group:AddChild(widget)
 		group[v.key] = widget
 	end
-	
+
 	group.class:SetList(f2n)
 	group.class:SetCallback("OnValueChanged",function(widget,event,key)
 		local currentData = self:GetCurrentData()
@@ -171,15 +177,15 @@ function mod:CreateMainConfigGroup()
 		currentData.spec = key
 		self:UpdateDataTreeGroup()
 	end)
-	group.note:SetCallback("OnEnterPressed",function(widget,event,text) 
+	group.note:SetCallback("OnEnterPressed",function(widget,event,text)
 		if text == "" then
 			text = nil
 		end
 		local currentData = self:GetCurrentData()
-		currentData.note = text 
+		currentData.note = text
 		self:UpdateDataTreeGroup()
 	end)
-	
+
 	group.select:SetCallback("OnClick", function(widget,event)
 		parent:SelectDataDB(self.currentDataIndex)
 		self:UpdateDataTreeGroup()
@@ -188,6 +194,11 @@ function mod:CreateMainConfigGroup()
 		local currentData = self:GetCurrentData()
 		currentData.autoSwap = key and true or nil;
 	end)
+	group.showotherclass:SetCallback("OnValueChanged", function(widget,event,key)
+		self.showotherclass = key and true or nil;
+		self:UpdateDataTreeGroup()
+	end)
+
 	group.send:SetCallback("OnClick", function(widget,event)
 		local currentData = self:GetCurrentData()
 		parent:SendComm(currentData)
@@ -204,7 +215,7 @@ function mod:CreateMainConfigGroup()
 		parent.inportStatus = {1,1,self.currentDataIndex}
 		parent:Inport()
 	end)
-	
+
 	group.export:SetCallback("OnClick", function(widget,event)
 		local currentData = self:GetCurrentData()
 		parent:Export("macrokeys",currentData)
@@ -228,9 +239,9 @@ function mod:CreateMainConfigGroup()
 		if text == "" then
 			text = nil
 		end
-		currentData.inst = text 
+		currentData.inst = text
 	end)
-	
+
 	self.mainConfigGroup = group
 end
 
@@ -253,7 +264,7 @@ function mod:UpdateMainConfigGroup()
 	group.autoSwap:SetValue(macro.autoSwap)
 	group.delete:SetDisabled(macro.isDefault)
 	group.inst:SetDisabled(macro.isDefault)
-	do 
+	do
 		local infoText = {}
 		local num = 0
 		for k,v in pairs(macro.macroArray or {}) do
@@ -284,6 +295,7 @@ function mod:UpdateDataTreeGroup()
 	local macroDataBaseArray = parent.macroDataBaseArray
 	local tree = {}
 	local texture = [[Interface\Glues\CharacterCreate\UI-CharacterCreate-Classes]]
+	local _,playerClass = UnitClass("player")
 	for i,v in pairs(macroDataBaseArray) do
 		local class = v.class
 		local _, specName, _, icon = GetSpecializationInfoByID(v.spec or 0)
@@ -299,7 +311,9 @@ function mod:UpdateDataTreeGroup()
 		if parent.selectedIndex == i then
 			name = "[|cff00ff00"..name.."|r]"
 		end
-		tinsert(tree,{value = i,icon = icon,text = name})
+		if(self.showotherclass or class == playerClass) then
+			tinsert(tree,{value = i,icon = icon,text = name})
+		end
 	end
 	mainGroup:SetTree(tree)
 	mainGroup:Select(self.currentDataIndex)
@@ -307,8 +321,8 @@ function mod:UpdateDataTreeGroup()
 end
 
 function mod:NewData(macro,index)
-	if not index then 
-		index = self.currentDataIndex 
+	if not index then
+		index = self.currentDataIndex
 	else
 		self.currentDataIndex = index
 	end
