@@ -213,30 +213,10 @@ function T:InvertCameraMatrix()
 	self.icm[9]=(a*e-b*d)/det
 end
 
-function T:GetPosition(guid)
-	local x,y,z,f = AirjHack:Position(guid)
-	if not x then return 0,0,0,0 end
-	return x,y,z,f
-end
-
 function T:GetUnitPosition(key)
-	-- local starts = {
-	-- 	Player = true,
-	-- 	Creature = true,
-	-- 	GameObject = true,
-	-- 	AreaTrigger = true,
-	-- }
-	-- local subs = {string.split("-",key)}
-	-- if not starts[subs[1]] then
-	-- 	key = UnitGUID(key)
-	-- end
-	return self:GetPosition(key)
-	-- local tx,ty,s
-	-- tx,ty=GetPlayerMapPosition(unit)
-	-- if tx==0 and ty==0 then return 0,0 end
-	-- s=self.zoneData:GetCurrentZoneScale()
-	-- if s==nil then return tx*1500,(1-ty)*1000 end
-	-- return tx*s[1],(1-ty)*s[2]
+	local x,y,z,f,s = AirjHack:Position(key)
+	if not x then return 0,0,0,0 end
+	return x,y,z,f,s
 end
 
 --[[
@@ -364,7 +344,7 @@ function T:MakeCameraMatrix()
 	-- self.cameraYaw=tonumber(GetCVar("cameraYawE"))*deg2rad
 	self.playerDirection=GetPlayerFacing()
 	self.frameF=self.screenHeight2*2.0
-	self.playerPosX,self.playerPosY,self.playerPosZ=self:GetUnitPosition("player")
+	self.playerPosX,self.playerPosY,self.playerPosZ,_,self.playerSize=self:GetUnitPosition("player")
 --	self.playerPosZ=0
 
 --	local playerX, playerY, playerZ, playerF = AirjHack:Position(UnitGUID("player"));  -- x,y,z,f

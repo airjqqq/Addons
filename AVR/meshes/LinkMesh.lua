@@ -172,19 +172,19 @@ function AVRLinkMesh:OnUpdate(threed)
 		self:GenerateMesh()
 	end
 	local px,py,pz=threed.playerPosX,threed.playerPosY,threed.playerPosZ
-	local sx,sy,sz = 0,0,0
+	local sx,sy,sz,ss = 0,0,0,threed.playerSize
 	if self.followUnit then
-		threed:GetUnitPosition(self.followUnit)
+		sx,sy,sz,_,ss = threed:GetUnitPosition(self.followUnit)
 	end
 	if not (sx==0 and sy==0 and sz==0) then
 		sx,sy,sz=sx-px,sy-py,sz-pz
 	end
-	local tx,ty,tz=0,0,0
+	local tx,ty,tz,ts=0,0,0,0
 	if self.target then
 		if self.target=="point" then
 			tx,ty,tz=self.meshTranslateX,self.meshTranslateY,self.meshTranslateZ
 		else
-			tx,ty,tz=threed:GetUnitPosition(self.target)
+			tx,ty,tz,_,ts=threed:GetUnitPosition(self.target)
 		end
 	end
 	local tarzero = tx==0 and ty==0 and tz==0
@@ -216,15 +216,39 @@ function AVRLinkMesh:OnUpdate(threed)
 			v5[2]=sy+textr*s*ct
 			v5[3]=sz+textr*z/l+mh
 			text1.visible=true
-			text1.text=string.format("%.0f",l)
+			local l5 = max(5,ss+ts+1.33)
+			local l8 = ts+8
+			local l10 = ts+10
+			local l13 = ts+ss+13
+
+			local distance
+
+			if l>l13 then
+				distance = l-ss-ts
+			elseif l>l10 then
+				distance = 10 + (l-l10)/(l13-l10)*3
+			elseif l>l8 then
+				distance = 8 + (l-l8)/(l10-l8)*2
+			elseif l>l5 then
+				distance = 5 + (l-l5)/(l8-l5)*3
+			else
+				distance = (l)/(l5)*5
+			end
+			if distance < 10 then
+				distance = math.ceil(distance*10)/10
+				text1.text=string.format("%.1f",distance)
+			else
+				distance = math.ceil(distance)
+				text1.text=string.format("%.0f",distance)
+			end
 			do
 				local r,g,b
-				if l>60 then
+				if distance>60 then
 					r,g,b = 1,0,0
-				elseif l>40 then
-					r,g,b = 1,(60-l)/20,0
-				elseif l>20 then
-					r,g,b = (l-20)/20,1,0
+				elseif distance>40 then
+					r,g,b = 1,(60-distance)/20,0
+				elseif distance>20 then
+					r,g,b = (distance-20)/20,1,0
 				else
 					r,g,b = 0,1,(20-l)/20
 				end

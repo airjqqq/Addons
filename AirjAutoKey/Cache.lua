@@ -356,6 +356,30 @@ function Cache:ScanHealth(t,guids,units)
 	end
 end
 
+function Cache:GetUnitBuffs(unit,table)
+	table = table or {}
+	for i=1,100 do
+		local data = {UnitBuff(unit,i)}
+		if not data[1] then
+			break
+		end
+		table[i] = data
+	end
+	return table
+end
+
+function Cache:GetUnitDebuffs(unit,table)
+	table = table or {}
+	for i=1,100 do
+		local data = {UnitDebuff(unit,i)}
+		if not data[1] then
+			break
+		end
+		table[i] = data
+	end
+	return table
+end
+
 function Cache:ScanAuras(t,guids,units)
 	wipe(self.cache.buffs)
 	wipe(self.cache.debuffs)
@@ -364,21 +388,9 @@ function Cache:ScanAuras(t,guids,units)
 			local guid = UnitGUID(unit)
 			if guid and guids[guid] then
 				self.cache.buffs[guid] = {}
-				for i=1,100 do
-					local data = {UnitBuff(unit,i)}
-					if not data[1] then
-						break
-					end
-					self.cache.buffs[guid][i] = data
-				end
+				Cache:GetUnitBuffs(unit,self.cache.buffs[guid])
 				self.cache.debuffs[guid] = {}
-				for i=1,100 do
-					local data = {UnitDebuff(unit,i)}
-					if not data[1] then
-						break
-					end
-					self.cache.debuffs[guid][i] = data
-				end
+				Cache:GetUnitDebuffs(unit,self.cache.debuffs[guid])
 			end
 		end
 	end
@@ -386,18 +398,23 @@ end
 
 function Cache:ScanPosition(t,guids,units)
 	wipe(self.cache.position)
-	wipe(self.cache.distance)
 	local px,py,pz,pf = AirjHack:Position("player")
 	local pi = math.pi
 	if guids then
 		for guid in ipairs(guids) do
-			local x,y,z,f = AirjHack:Position(guid)
+			local x,y,z,f,s = AirjHack:Position(guid)
 			local dx,dy,dz = x-px, y-py, z-pz
 			local distance = sqrt(dx*dx,dy*dy,dz*dz)
 			--TODO check the size of the object to calculate spell cast distance.
-			self.cache.position[guid]={x,y,z,f,distance,1.25}
+			self.cache.position[guid]={x,y,z,f,distance,s}
 		end
 	end
+end
+
+function Cache:ScanSpeed(t,guids,unit)
+	local cache = {t=t}
+	tinsert(self.cache.speed,cache,1)
+	cache.value = GetUnitSpeed("player")
 end
 
 --SPELL_UPDATE_COOLDOWN
@@ -442,14 +459,33 @@ function Cache:GetPosition(guid)
 	return unpack(self.cache.position[guid] or {})
 end
 
-function Cache:GetBuffs(guid,spellId,mine)
-	local buffs = self.cache.buffs[guid]
+function Cache:GetBuffs(guid,unit,spellKeys,mine)
 	local toRet = {}
+	if not guid then return toRet end
+	local buffs = self.cache.buffs[guid]
+	if buffs.changed then
+		local needReload
+		if spellKeys then
+			for k, v in pairs(buffs.changed) do
+				if spellKeys[k] then
+					needReload = true
+					break
+				end
+			end
+		else
+			needReload = true
+		end
+		if needReload then
+			self.cache.buffs[guid] = {}
+			Cache:GetUnitBuffs(unit,self.cache.buffs[guid])
+			buffs = self.cache.buffs[guid]
+		end
+	end
 	if not buffs then return toRet end
 	for i,v in ipairs(buffs) do
 		local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
 		if not mine or caster == "player" then
-			if not spellId or spellId == spellID then
+			if not spellKeys or spellKeys[spellID] or spellKeys[name] then
 				tinsert(toRet,v)
 			end
 		end

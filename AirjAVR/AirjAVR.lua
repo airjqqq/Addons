@@ -38,7 +38,7 @@ function mod:GetGUIDInfo(guid)
   elseif objectType == "Creature" or objectType == "GameObject" or objectType == "AreaTrigger" then
     objectType,_,serverId,instanceId,zone,id,spawn = unpack(guids)
     if objectType == "AreaTrigger" then
-      id = AirjGetObjectDataInt(guid,0x88)
+      id = AirjHack:ObjectInt(guid,0x88)
     end
   end
   return objectType,serverId,instanceId,zone,id,spawn
@@ -50,10 +50,11 @@ function mod:OnObjectCreated(event,guid,type)
     local objectType,serverId,instanceId,zone,id,spawn = self:GetGUIDInfo(guid)
 
     if id then
-      if self.debug then
+      if self.debug or true then
         if objectType == "AreaTrigger" then
           local link = GetSpellLink(id)
-          self:Print(guid,link)
+          self:Print(guid,link,id)
+          self:Print(AirjHack:ObjectFloat(guid,0x90))
         end
       end
 

@@ -73,11 +73,23 @@ function F:SRANGE(filter)
   assert(type(filter.name)=="number")
   local name, rank, icon, castingTime, minRange, maxRange, spellID = Cach:Call("GetSpellInfo",filter.name)
   if not maxRange then return false end
-  if maxRange == 0 then return true end
   local guid = Cache:Call("UnitGUID",filter.unit)
   local x,y,z,_,distance,size = Cache:GetPosition(guid)
   if not x then return false end
-  return distance < maxRange + size + 1.25
+  if maxRange == 0 then maxRange = 1.33 end
+  return distance < math.max(5,maxRange + size + 1.5)
+end
+
+function F:SRANGEAOE(filter)
+  filter.unit = filter.unit or "target"
+  assert(type(filter.name)=="number")
+  local name, rank, icon, castingTime, minRange, maxRange, spellID = Cach:Call("GetSpellInfo",filter.name)
+  if not maxRange then return false end
+  local guid = Cache:Call("UnitGUID",filter.unit)
+  local x,y,z,_,distance,size = Cache:GetPosition(guid)
+  if not x then return false end
+  if maxRange == 0 then maxRange = 8 end
+  return distance < maxRange + size
 end
 
 
@@ -86,11 +98,4 @@ function F:RSRANGE(filter)
   assert(type(filter.name)=="number")
   local name, rank, icon, castingTime, minRange, maxRange, spellID = Cach:Call("GetSpellInfo",filter.name)
   return Cache:Call("IsSpellInRange",name,filter.unit) and true or false
-end
-
-function F:CANCAST(filter)
-  local notMoving=(Cache:Call("GetUnitSpeed","player") == 0 and not Cache:Call("IsFalling"))
-  if notMoving then return true end
-  
-  return notMoving and true or false
 end

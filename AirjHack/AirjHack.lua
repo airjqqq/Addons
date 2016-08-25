@@ -91,6 +91,13 @@ function mod:UnitGUID (unit)
   return fcn("AirjGetObjectGUIDByUnit",unit)
 end
 
+function mod:ObjectInt(guid,offset)
+	return fcn("AirjGetObjectDataInt",guid,offset or 0)
+end
+function mod:ObjectFloat(guid,offset)
+	return fcn("AirjGetObjectDataFloat",guid,offset or 0)
+end
+
 function mod:Position(key)
   if not self:HasHacked() then return end
   if key == nil then return end
@@ -105,9 +112,9 @@ function mod:Position(key)
 		key = self:UnitGUID(key)
 	end
 
-  local x,y,z,f = fcn("AirjGetObjectPosition",key)
+  local x,y,z,f,s = fcn("AirjGetObjectPosition",key)
   if not x then return nil end
-	return -y,x,z,f
+	return -y,x,z,f,s
 end
 
 function mod:Target(guid)

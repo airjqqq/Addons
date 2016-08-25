@@ -43,3 +43,11 @@ function F:CSPELL(filter)
   end
   return false
 end
+
+function F:CANCAST(filter)
+  local notMoving=(Cache:Call("GetUnitSpeed","player") == 0 and not Cache:Call("IsFalling"))
+  if notMoving then return true end
+  local guid = Cache:Call("UnitGUID","player")
+  local buffs = Cache:GetBuffs(guid,"player",{[137587]=true})
+  return #buffs > 0
+end

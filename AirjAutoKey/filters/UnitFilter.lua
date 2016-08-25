@@ -46,3 +46,9 @@ end
 function F:UNITISHEALER(filter)
   return true
 end
+
+function F:SPEED(filter)
+  filter.unit = filter.unit or "player"
+  local speed = Cache:Call("GetUnitSpeed",filter.unit)
+  return speed
+end
