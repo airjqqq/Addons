@@ -16,6 +16,14 @@ function Cache:OnEnable()
 	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	self:RegisterEvent("UNIT_SPELLCAST_SENT")
 	self:RegisterEvent("UNIT_SPELLCAST_FAILED")
+	self:RegisterEvent("UNIT_HEALTH",self.OnHealthChanged,self)
+	self:RegisterEvent("UNIT_MAXHEALTH",self.OnHealthChanged,self)
+	self:RegisterEvent("UNIT_HEAL_PREDICTION",self.OnHealthChanged,self)
+	self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED",self.OnHealthChanged,self)
+	self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED",self.OnHealthChanged,self)
+	self:RegisterEvent("SPELL_UPDATE_COOLDOWN",self.OnCoolDownChanged,self)
+	self:RegisterEvent("SPELL_UPDATE_CHARGES",self.OnCoolDownChanged,self)
+	self:RegisterEvent("SPELL_UPDATE_USABLE",self.OnCoolDownChanged,self)
 end
 
 function Cache:OnDisable()
@@ -23,6 +31,25 @@ function Cache:OnDisable()
 	self:UnregisterEvent("UNIT_SPELLCAST_SENT")
 	self:UnregisterEvent("UNIT_SPELLCAST_FAILED")
 end
+
+function Cache:Call(fcnName,...)
+	local key = fcnName
+	for i,v in ipairs({...}) do
+		key = key.."-"..v
+	end
+	local toRet = self.cache.call[key]
+	local t = GetTime()
+	if toRet and toRet.t == t then
+		return unpack(toRet)
+	else
+		toRet = {_G[fcnName](...)}
+		toRet.t = t
+		self.cache.call[key]=toRet
+		return unpack(toRet)
+	end
+end
+
+
 --util functions
 do
 	function Cache:GetUnitList()
@@ -202,8 +229,8 @@ Cache.combatLogEventList = {
 			by[spellId].last={t=localtime,value=damage,guid=sourceGUID}
 			by[spellId][sourceGUID]={t=localtime,value=damage}
 
-			if self.cache.health[1] and self.cache.health[1][destGUID] then
-				self.cache.health[1][destGUID] = self.cache.health[1][destGUID] - rawDamage
+			if self.cache.health[destGUID] then
+				self.cache.health[destGUID].changed = true
 			end
 		end
 	},
@@ -234,8 +261,8 @@ Cache.combatLogEventList = {
 			by[spellId].last={t=localtime,value=heal,guid=sourceGUID}
 			by[spellId][sourceGUID]={t=localtime,value=heal}
 
-			if self.cache.health[1] and self.cache.health[1][destGUID] then
-				self.cache.health[1][destGUID] = self.cache.health[1][destGUID] + rawHeal
+			if self.cache.health[destGUID] then
+				self.cache.health[destGUID].changed = true
 			end
 		end
 	},
@@ -343,209 +370,256 @@ Cache.combatLogEventList = {
 	},
 }
 
---UNIT_HEALTH
---UNIT_MAXHEALTH
---UNIT_HEAL_PREDICTION
---UNIT_ABSORB_AMOUNT_CHANGED
---UNIT_HEAL_ABSORB_AMOUNT_CHANGED
-function Cache:ScanHealth(t,guids,units)
-	-- local guids = self:GetUnitGUIDs()
-	local cache = {t=t}
-	tinsert(self.cache.health,cache,1)
-	if guids then
-		for guid in ipairs(guids) do
-			local health, max, prediction, absorb, healAbsorb = AirjHack:UnitHealth(guid)
-			cache[guid]={health, max, prediction, absorb, healAbsorb}
+--health
+do
+	function Cache:OnHealthChanged(event,unit)
+		local guid = UnitGUID(unit)
+		if guid then
+			self.cache.health[guid].changed = true
 		end
 	end
-end
 
-function Cache:GetUnitBuffs(unit,table)
-	table = table or {}
-	for i=1,100 do
-		local data = {UnitBuff(unit,i)}
-		if not data[1] then
-			break
-		end
-		table[i] = data
-	end
-	return table
-end
-
-function Cache:GetUnitDebuffs(unit,table)
-	table = table or {}
-	for i=1,100 do
-		local data = {UnitDebuff(unit,i)}
-		if not data[1] then
-			break
-		end
-		table[i] = data
-	end
-	return table
-end
-
-function Cache:ScanAuras(t,guids,units)
-	wipe(self.cache.buffs)
-	wipe(self.cache.debuffs)
-	if units then
-		for i,unit in ipairs(units) do
-			local guid = UnitGUID(unit)
-			if guid and guids[guid] then
-				self.cache.buffs[guid] = {}
-				Cache:GetUnitBuffs(unit,self.cache.buffs[guid])
-				self.cache.debuffs[guid] = {}
-				Cache:GetUnitDebuffs(unit,self.cache.debuffs[guid])
-			end
-		end
-	end
-end
-
-function Cache:ScanPosition(t,guids,units)
-	wipe(self.cache.position)
-	local px,py,pz,pf = AirjHack:Position("player")
-	local pi = math.pi
-	if guids then
-		for guid in ipairs(guids) do
-			local x,y,z,f,s = AirjHack:Position(guid)
-			local dx,dy,dz = x-px, y-py, z-pz
-			local distance = sqrt(dx*dx,dy*dy,dz*dz)
-			--TODO check the size of the object to calculate spell cast distance.
-			self.cache.position[guid]={x,y,z,f,distance,s}
-		end
-	end
-end
-
-function Cache:ScanSpeed(t,guids,unit)
-	local cache = {t=t}
-	tinsert(self.cache.speed,cache,1)
-	cache.value = GetUnitSpeed("player")
-end
-
---SPELL_UPDATE_COOLDOWN
-function Cache:ScanSpell(t,guids,units)
-	for i=1,200 do
-		local name, rank, icon, castingTime, minRange, maxRange, spellID = GetSpellInfo(i, "spell")
-		if not name then
-			break
-		end
-		self.cache.charge[spellID] = {GetSpellCharges(spellID)}
-		self.cache.cooldown[spellID] = {GetSpellCooldown(spellID)}
+	function Cache:ScanOnesHealth(t,guid)
+		local health, max, prediction, absorb, healAbsorb = AirjHack:UnitHealth(guid)
+		self.cache.health[guid]=self.cache.health[guid] or {}
+		local cache = self.cache.health
+		cache[guid]=cache[guid] or {}
+		local array = cache[guid]
+		local current = {health, max, prediction, absorb, healAbsorb}
+		current.t = t
+		tinsert(array,current,1)
+		array.changed = nill
+		array.lastT = t
+		return array
 	end
 
-	for i=1,200 do
-		local name, rank, icon, castingTime, minRange, maxRange, spellID = GetSpellInfo(i, "pet")
-		if not name then
-			break
-		end
-		self.cache.charge[spellID] = {GetSpellCharges(spellID)}
-		self.cache.cooldown[spellID] = {GetSpellCooldown(spellID)}
-	end
-end
-
-function Cache:Call(fcnName,...)
-	local key = fcnName
-	for i,v in ipairs({...}) do
-		key = key.."-"..v
-	end
-	local toRet = self.cache.call[key]
-	local t = GetTime()
-	if toRet and toRet.t == t then
-		return unpack(toRet)
-	else
-		toRet = {_G[fcnName](...)}
-		toRet.t = t
-		self.cache.call[key]=toRet
-		return unpack(toRet)
-	end
-end
-
-function Cache:GetPosition(guid)
-	return unpack(self.cache.position[guid] or {})
-end
-
-function Cache:GetBuffs(guid,unit,spellKeys,mine)
-	local toRet = {}
-	if not guid then return toRet end
-	local buffs = self.cache.buffs[guid]
-	if buffs.changed then
-		local needReload
-		if spellKeys then
-			for k, v in pairs(buffs.changed) do
-				if spellKeys[k] then
-					needReload = true
-					break
+	function Cache:ScanHealth(t,guids,units)
+		if guids then
+			for guid in ipairs(guids) do
+				local array = self.cache.health[guid]
+				if not array or t - array.lastT>interval.health then
+					self:ScanOnesHealth(t,guid)
 				end
 			end
-		else
-			needReload = true
-		end
-		if needReload then
-			self.cache.buffs[guid] = {}
-			Cache:GetUnitBuffs(unit,self.cache.buffs[guid])
-			buffs = self.cache.buffs[guid]
 		end
 	end
-	if not buffs then return toRet end
-	for i,v in ipairs(buffs) do
-		local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
-		if not mine or caster == "player" then
-			if not spellKeys or spellKeys[spellID] or spellKeys[name] then
-				tinsert(toRet,v)
-			end
+
+	function Cache:GetHealth(guid)
+		local array = self.cache.health[guid]
+		if not array or array.changed then
+			array = self:ScanOnesHealth(GetTime(),guid)
 		end
+		return array[1]
 	end
-	return toRet
+	function Cache:GetHealthArray(guid)
+		local array = self.cache.health[guid]
+		if not array or array.changed then
+			array = self:ScanOnesHealth(GetTime(),guid)
+		end
+		return array
+	end
 end
 
-function Cache:GetDebuffs(guid,unit,spellKeys,mine)
-	local toRet = {}
-	if not guid then return toRet end
-	local debuffs = self.cache.debuffs[guid]
-	if debuffs.changed then
-		local needReload
-		if spellKeys then
-			for k, v in pairs(debuffs.changed) do
-				if spellKeys[k] then
-					needReload = true
-					break
+--auras
+do
+	function Cache:ScanOnesBuffs(t,guid,unit)
+		local data = {t=t}
+		for i=1,100 do
+			local value = {UnitBuff(unit,i)}
+			if not value[1] then
+				break
+			end
+			data[i] = value
+		end
+		self.cache.buffs[guid] = data
+		return data
+	end
+
+	function Cache:ScanOnesDebuffs(t,guid,unit)
+		local data = {t=t}
+		for i=1,100 do
+			local value = {UnitDebuff(unit,i)}
+			if not value[1] then
+				break
+			end
+			data[i] = value
+		end
+		self.cache.debuffs[guid] = data
+		return data
+	end
+
+	function Cache:ScanAuras(t,guids,units)
+		if units then
+			for i,unit in ipairs(units) do
+				local guid = UnitGUID(unit)
+				if guid and guids[guid] then
+					local data = self.cache.buffs[guid]
+					if not data or t - data.t>interval.buffs then
+						Cache:ScanOnesBuffs(t,guid,unit)
+					end
+					data = self.cache.debuffs[guid]
+					if not data or t - data.t>interval.debuffs then
+						Cache:ScanOnesDebuffs(t,guid,unit)
+					end
 				end
 			end
-		else
-			needReload = true
-		end
-		if needReload then
-			self.cache.debuffs[guid] = {}
-			Cache:GetUnitDebuffs(unit,self.cache.debuffs[guid])
-			debuffs = self.cache.debuffs[guid]
 		end
 	end
-	if not debuffs then return toRet end
-	for i,v in ipairs(debuffs) do
-		local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
-		if not mine or caster == "player" then
-			if not spellKeys or spellKeys[spellID] or spellKeys[name] then
-				tinsert(toRet,v)
+
+	function Cache:GetBuffs(guid,unit,spellKeys,mine)
+		local toRet = {}
+		if not guid then return toRet end
+		local buffs = self.cache.buffs[guid]
+		if not buffs or buffs.changed then
+			local needReload
+			if spellKeys then
+				for k, v in pairs(buffs.changed) do
+					if spellKeys[k] then
+						needReload = true
+						break
+					end
+				end
+			else
+				needReload = true
+			end
+			if needReload then
+				buffs =	Cache:ScanOnesBuffs(GetTime(),guid,unit)
+			end
+		end
+		if not buffs then return toRet end
+		for i,v in ipairs(buffs) do
+			local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
+			if not mine or caster == "player" then
+				if not spellKeys or spellKeys[spellID] or spellKeys[name] then
+					tinsert(toRet,v)
+				end
+			end
+		end
+		return toRet
+	end
+
+	function Cache:GetDebuffs(guid,unit,spellKeys,mine)
+		local toRet = {}
+		if not guid then return toRet end
+		local debuffs = self.cache.debuffs[guid]
+		if not debuffs or debuffs.changed then
+			local needReload
+			if spellKeys then
+				for k, v in pairs(debuffs.changed) do
+					if spellKeys[k] then
+						needReload = true
+						break
+					end
+				end
+			else
+				needReload = true
+			end
+			if needReload then
+				debuffs =	Cache:ScanOnesDebuffs(GetTime(),guid,unit)
+			end
+		end
+		if not debuffs then return toRet end
+		for i,v in ipairs(debuffs) do
+			local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
+			if not mine or caster == "player" then
+				if not spellKeys or spellKeys[spellID] or spellKeys[name] then
+					tinsert(toRet,v)
+				end
+			end
+		end
+		return toRet
+	end
+end
+
+--Position
+do
+	function Cache:ScanPosition(t,guids,units)
+		wipe(self.cache.position)
+		local px,py,pz,pf = AirjHack:Position("player")
+		local pi = math.pi
+		if guids then
+			for guid in ipairs(guids) do
+				local x,y,z,f,s = AirjHack:Position(guid)
+				local dx,dy,dz = x-px, y-py, z-pz
+				local distance = sqrt(dx*dx,dy*dy,dz*dz)
+				--TODO check the size of the object to calculate spell cast distance.
+				self.cache.position[guid]={x,y,z,f,distance,s}
 			end
 		end
 	end
-	return toRet
+
+	function Cache:ScanSpeed(t,guids,unit)
+		local cache = {t=t}
+		tinsert(self.cache.speed,cache,1)
+		cache.value = GetUnitSpeed("player")
+	end
+
+	function Cache:GetPosition(guid)
+		return unpack(self.cache.position[guid] or {})
+	end
+
 end
 
-function Cache:GetSpellCooldown(spellID)
-	local know
-	if self.cache.cooldown[spellID] then
-		know = true
+
+--Spell
+do
+	local scanT
+	local changed
+	function Cache:OnCoolDownChanged(event)
+		changed = true
 	end
-	local charges, maxCharges, cstart, cduration = unpack(self.cache.charge[spellID] or {})
-	local start, duration, enable = unpack(self.cache.cooldown[spellID] or {})
-	local cd = not start and 300 or enable and 0 or (duration - (GetTime() - start))
-	local charge
-	if not charges then
-		charge = 0
-	elseif charges<maxCharges then
-		charge = (GetTime() - start)/duration + charges
-	else
-		charge=maxCharges
+	function Cache:ScanAllSpell(t)
+		wipe(self.cache.charge)
+		wipe(self.cache.cooldown)
+		wipe(self.cache.usable)
+		for i=1,200 do
+			local name, rank, icon, castingTime, minRange, maxRange, spellID = GetSpellInfo(i, "spell")
+			if not name then
+				break
+			end
+			self.cache.charge[spellID] = {GetSpellCharges(spellID)}
+			self.cache.cooldown[spellID] = {GetSpellCooldown(spellID)}
+			self.cache.usable[spellID] = {IsUsableSpell(spellID)}
+		end
+
+		for i=1,200 do
+			local name, rank, icon, castingTime, minRange, maxRange, spellID = GetSpellInfo(i, "pet")
+			if not name then
+				break
+			end
+			self.cache.charge[spellID] = {GetSpellCharges(spellID)}
+			self.cache.cooldown[spellID] = {GetSpellCooldown(spellID)}
+			self.cache.usable[spellID] = {IsUsableSpell(spellID)}
+		end
+		changed = nil
+		scanT = t
 	end
-	return cd, charge, know
+	function Cache:ScanSpell(t,guids,units)
+		if not scanT or t-scanT>interval.spell then
+			Cache:ScanAllSpell(t)
+		end
+	end
+	function Cache:GetSpellCooldown(spellID)
+		local t = GetTime()
+		if changed or not scanT then
+			self:ScanAllSpell(t)
+		end
+		local know, usable = false, false
+		if self.cache.usable[spellID] then
+			know = true
+			usable = unpack(self.cache.usable[spellID]) and true or false
+		end
+		local charges, maxCharges, cstart, cduration = unpack(self.cache.charge[spellID] or {})
+		local start, duration, enable = unpack(self.cache.cooldown[spellID] or {})
+		local cd = not start and 300 or enable and 0 or (duration - (t - start))
+		local charge
+		if not charges then
+			charge = 0
+		elseif charges<maxCharges then
+			charge = (t - start)/duration + charges
+		else
+			charge=maxCharges
+		end
+		return cd, charge, know, usable
+	end
 end

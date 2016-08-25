@@ -28,6 +28,12 @@ function F:KNOWS(filter)
   return value
 end
 
+function F:ISUSABLE(filter)
+  assert(type(filter.name)=="number")
+  local _,_,_,value = Cache:GetSpellCooldown(filter.name)
+  return value
+end
+
 function F:CSPELL(filter)
   assert(filter.name)
   local keys = self:ToKeyTable(filter.name)

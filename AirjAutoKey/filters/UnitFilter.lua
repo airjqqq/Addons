@@ -173,9 +173,9 @@ function F:HTIME(filter)
   local guid = Cache:Call("UnitGUID",filter.unit)
   if not guid then return 0 end
   local t = GetTime()
-  local list = Cache.cache.health
-  for i,v in ipairs(list) do
-    local health,maxHealth = unpack(v[guid] or {})
+  local array = Cache:GetHealthArray(guid)
+  for i,v in ipairs(array) do
+    local health, max, prediction, absorb, healAbsorb = unpack(v)
     if not health or health/maxHealth>filter.name then
       return t-v.t
     end
@@ -189,9 +189,37 @@ function F:ISDEAD(filter)
 end
 
 function F:HEALTH(filter)
+  filter.name = filter.name or {"perdiction","absorb","healAbsorb"}
   filter.unit = filter.unit or "player"
   local guid = Cache:Call("UnitGUID",filter.unit)
   if not guid then return 0 end
-  local t = GetTime()
-  local list = Cache.cache.health
+  local health, max, prediction, absorb, healAbsorb = unpack(Cache:GetHealth(guid) or {})
+  if not health then return 0 end
+  local types = Core:ToKeyTable(filter.name)
+  if type.perdiction then
+    health = health + perdiction
+  end
+  if type.absorb then
+    health = health + absorb
+  end
+  if type.healAbsorb then
+    health = health - healAbsorb
+  end
+  local toRet = health
+  if filter.subtype == "ABS" then
+  else
+    toRet = health/max
+  end
+  return toRet
+end
+
+function F:POWER(filter)
+  filter.unit = filter.unit or "player"
+  local powerType = filter.subtype or Cache:Call("UnitPowerType",filter.unit)
+  local power = Cache:Call("UnitPower",filter.unit,powerType)
+  local filterValue = filter.value
+  if filterValue<0 then
+    local max = Cache:Call("UnitPowerMax",filter.unit,powerType)
+    power = power - max
+  end
 end
