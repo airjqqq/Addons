@@ -343,15 +343,19 @@ Cache.combatLogEventList = {
 	},
 }
 
+--UNIT_HEALTH
+--UNIT_MAXHEALTH
+--UNIT_HEAL_PREDICTION
+--UNIT_ABSORB_AMOUNT_CHANGED
+--UNIT_HEAL_ABSORB_AMOUNT_CHANGED
 function Cache:ScanHealth(t,guids,units)
 	-- local guids = self:GetUnitGUIDs()
 	local cache = {t=t}
 	tinsert(self.cache.health,cache,1)
 	if guids then
 		for guid in ipairs(guids) do
-			local health = AirjHack:GetObjectOffsetInt(guid,0xf0)
-			local maxHealth = AirjHack:GetObjectOffsetInt(guid,0x110)
-			cache[guid]={health,maxHealth}
+			local health, max, prediction, absorb, healAbsorb = AirjHack:UnitHealth(guid)
+			cache[guid]={health, max, prediction, absorb, healAbsorb}
 		end
 	end
 end
@@ -483,6 +487,40 @@ function Cache:GetBuffs(guid,unit,spellKeys,mine)
 	end
 	if not buffs then return toRet end
 	for i,v in ipairs(buffs) do
+		local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
+		if not mine or caster == "player" then
+			if not spellKeys or spellKeys[spellID] or spellKeys[name] then
+				tinsert(toRet,v)
+			end
+		end
+	end
+	return toRet
+end
+
+function Cache:GetDebuffs(guid,unit,spellKeys,mine)
+	local toRet = {}
+	if not guid then return toRet end
+	local debuffs = self.cache.debuffs[guid]
+	if debuffs.changed then
+		local needReload
+		if spellKeys then
+			for k, v in pairs(debuffs.changed) do
+				if spellKeys[k] then
+					needReload = true
+					break
+				end
+			end
+		else
+			needReload = true
+		end
+		if needReload then
+			self.cache.debuffs[guid] = {}
+			Cache:GetUnitDebuffs(unit,self.cache.debuffs[guid])
+			debuffs = self.cache.debuffs[guid]
+		end
+	end
+	if not debuffs then return toRet end
+	for i,v in ipairs(debuffs) do
 		local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
 		if not mine or caster == "player" then
 			if not spellKeys or spellKeys[spellID] or spellKeys[name] then

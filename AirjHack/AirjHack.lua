@@ -98,6 +98,11 @@ function mod:ObjectFloat(guid,offset)
 	return fcn("AirjGetObjectDataFloat",guid,offset or 0)
 end
 
+function mod:UnitHealth(guid)
+  if not self:HasHacked() then return end
+  return fcn("AirjGetHealth",guid)
+end
+
 function mod:Position(key)
   if not self:HasHacked() then return end
   if key == nil then return end

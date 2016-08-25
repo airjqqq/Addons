@@ -1,5 +1,6 @@
 local F = LibStub("AceAddon-3.0"):NewAddon("AirjAutoKeyUnitFilter")
 local Cache
+local Core = AirjAutoKey
 
 function OnInitialize()
   Cache = AirjAutoKeyCache
@@ -55,7 +56,7 @@ end
 
 function F:UNITISUNIT(filter)
   filter.name = filter.name or "player"
-  local units = AirjAutoKey:ToKeyTable(filter.name)
+  local units = Core:ToKeyTable(filter.name)
   for k,v in pairs(units) do
     local unit2 = self:ParseUnit(k)
     if Cache:Call("UnitIsUnit",unit2,filter.unit) then
@@ -66,7 +67,7 @@ function F:UNITISUNIT(filter)
 end
 
 function F:UNITNAME(filter)
-  local names = AirjAutoKey:ToKeyTable(filter.name)
+  local names = Core:ToKeyTable(filter.name)
   for name,v in pairs(names) do
     if Cache:Call("UnitName",filter.unit) == name then
       return true
@@ -84,7 +85,7 @@ function F:CASTING(filter)
   if not castName then return 0 end
   local match
   if filter.name then
-    local names = AirjAutoKey:ToKeyTable(filter.name)
+    local names = Core:ToKeyTable(filter.name)
     for k,v in pairs(names) do
       local name = Cache:Call("GetSpellInfo",k)
       if name == castName then
@@ -113,7 +114,7 @@ function F:CASTINGCHANNEL(filter)
   if not castName then return 0 end
   local match
   if filter.name then
-    local names = AirjAutoKey:ToKeyTable(filter.name)
+    local names = Core:ToKeyTable(filter.name)
     for k,v in pairs(names) do
       local name = Cache:Call("GetSpellInfo",k)
       if name == castName then
@@ -144,7 +145,7 @@ function F:CASTINGINTERRUPT(filter)
   if not castName or notInterruptible then return 0 end
   local match
   if filter.name then
-    local names = AirjAutoKey:ToKeyTable(filter.name)
+    local names = Core:ToKeyTable(filter.name)
     for k,v in pairs(names) do
       local name = Cache:Call("GetSpellInfo",k)
       if name == castName then
@@ -164,4 +165,33 @@ function F:CASTINGINTERRUPT(filter)
   else
     return 0
   end
+end
+
+function F:HTIME(filter)
+  filter.unit = filter.unit or "player"
+  assert(type(filter.name)=="number")
+  local guid = Cache:Call("UnitGUID",filter.unit)
+  if not guid then return 0 end
+  local t = GetTime()
+  local list = Cache.cache.health
+  for i,v in ipairs(list) do
+    local health,maxHealth = unpack(v[guid] or {})
+    if not health or health/maxHealth>filter.name then
+      return t-v.t
+    end
+  end
+  return 120
+end
+
+function F:ISDEAD(filter)
+  filter.unit = filter.unit or "player"
+  return Cache:Call("UnitIsDeadOrGhost",filter.unit)
+end
+
+function F:HEALTH(filter)
+  filter.unit = filter.unit or "player"
+  local guid = Cache:Call("UnitGUID",filter.unit)
+  if not guid then return 0 end
+  local t = GetTime()
+  local list = Cache.cache.health
 end
