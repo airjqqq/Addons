@@ -65,8 +65,8 @@ function F:HDRANGE(filter)
   local x2,y2,z2 = Cache:GetPosition(guid2)
   if not x2 then return FAR_AWAY end
 	local dx,dy,dz = x1-x2, y1-y2, z1-z2
-	local distance = sqrt(dx*dx,dy*dy,dz*dz)
-  return distance
+	local d = sqrt(dx*dx+dy*dy+dz*dz)
+  return d
 end
 function F:SRANGE(filter)
   filter.unit = filter.unit or "target"

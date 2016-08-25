@@ -52,3 +52,116 @@ function F:SPEED(filter)
   local speed = Cache:Call("GetUnitSpeed",filter.unit)
   return speed
 end
+
+function F:UNITISUNIT(filter)
+  filter.name = filter.name or "player"
+  local units = AirjAutoKey:ToKeyTable(filter.name)
+  for k,v in pairs(units) do
+    local unit2 = self:ParseUnit(k)
+    if Cache:Call("UnitIsUnit",unit2,filter.unit) then
+      return true
+    end
+  end
+  return false
+end
+
+function F:UNITNAME(filter)
+  local names = AirjAutoKey:ToKeyTable(filter.name)
+  for name,v in pairs(names) do
+    if Cache:Call("UnitName",filter.unit) == name then
+      return true
+    end
+  end
+  return false
+end
+
+function F:CASTING(filter)
+  filter.unit = filter.unit or "player"
+  local castName, _, _, _, startTime, endTime = Cache:Call("UnitCastingInfo",filter.unit)
+  if not castName then
+    castName, _, _, _, startTime, endTime = Cache:Call("UnitChannelInfo",filter.unit)
+  end
+  if not castName then return 0 end
+  local match
+  if filter.name then
+    local names = AirjAutoKey:ToKeyTable(filter.name)
+    for k,v in pairs(names) do
+      local name = Cache:Call("GetSpellInfo",k)
+      if name == castName then
+        match = true
+        break
+      end
+    end
+  else
+    match = true
+  end
+  if match then
+    if filter.subtype == "START" then
+      return GetTime()-startTime/1000
+    else
+      return endTime/1000-GetTime()
+    end
+  else
+    return 0
+  end
+end
+
+
+function F:CASTINGCHANNEL(filter)
+  filter.unit = filter.unit or "player"
+  local castName, _, _, _, startTime, endTime = Cache:Call("UnitChannelInfo",filter.unit)
+  if not castName then return 0 end
+  local match
+  if filter.name then
+    local names = AirjAutoKey:ToKeyTable(filter.name)
+    for k,v in pairs(names) do
+      local name = Cache:Call("GetSpellInfo",k)
+      if name == castName then
+        match = true
+        break
+      end
+    end
+  else
+    match = true
+  end
+  if match then
+    if filter.subtype == "START" then
+      return GetTime()-startTime/1000
+    else
+      return endTime/1000-GetTime()
+    end
+  else
+    return 0
+  end
+end
+
+function F:CASTINGINTERRUPT(filter)
+  filter.unit = filter.unit or "player"
+  local castName, _, _, _, startTime, endTime_,_,notInterruptible = Cache:Call("UnitCastingInfo",filter.unit)
+  if not castName then
+    castName, _, _, _, startTime, endTime_,notInterruptible = Cache:Call("UnitChannelInfo",filter.unit)
+  end
+  if not castName or notInterruptible then return 0 end
+  local match
+  if filter.name then
+    local names = AirjAutoKey:ToKeyTable(filter.name)
+    for k,v in pairs(names) do
+      local name = Cache:Call("GetSpellInfo",k)
+      if name == castName then
+        match = true
+        break
+      end
+    end
+  else
+    match = true
+  end
+  if match then
+    if filter.subtype == "START" then
+      return GetTime()-startTime/1000
+    else
+      return endTime/1000-GetTime()
+    end
+  else
+    return 0
+  end
+end

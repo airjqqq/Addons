@@ -51,3 +51,27 @@ function F:CANCAST(filter)
   local buffs = Cache:GetBuffs(guid,"player",{[137587]=true})
   return #buffs > 0
 end
+
+function F:STARTMOVETIME(filter)
+  local t = GetTime()
+  for i,v in ipairs(Cache.cache.speed) do
+    if v.value == 0 then
+      return t-v.t
+    end
+  end
+  return 120
+end
+
+function F:SPEEDTIME(filter)
+  local t = GetTime()
+  for i,v in ipairs(Cache.cache.speed) do
+    if v.value ~= 0 then
+      return t-v.t
+    end
+  end
+  return 120
+end
+
+function F:STANCE(filter)
+  return (filter.value or 0) == (Cache:Call("GetShapeshiftForm") or 0)
+end
