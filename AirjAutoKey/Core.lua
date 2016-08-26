@@ -139,44 +139,73 @@ do
     self.airUnit = unit
   end
 
-  function Core:ExecuteSequence(sequence)
+  function Core:ExecuteSequence(sequence,unit)
+	   self.passedSpell[tostring(sequence)] = unit or true
+     if sequence.group then
+       self:SetAirUnit(unit)
+       self:ScanSequenceArray(sequence)
+       self:SetAirUnit(nil)
+       if sequence.continue then
+         self.found = false
+       end
+     end
   end
 
-  function Core:CheckFilterArray(filterArray,unitList)
-    if unitList and not self:GetAirUnit() then
-      local checked = {}
-      local priorityList = {}
-      for _,unit in ipairs(unitList) do
-        local guid = Cache:Call("UnitGUID",unit)
-        if guid and not checked[guid] then
-          checked[guid] = true
-          self:SetAirUnit(unit)
-          local passed,priority = Core:CheckFilterArray(filterArray)
-          if passed then
-            if priority then
-              priorityList[unit] = priority
-            else
-              return unit
-            end
+  function Core:CheckFilterArray(filterArray)
+    return passed,priority
+  end
+
+  function Core:PreCheckSplitedSequence(unit,checked)
+    local guid = Cache:Call("UnitGUID",unit)
+    local passed = false
+    if guid and not checked[guid] then
+      checked[guid] = true
+      if not Cache.cache.serverRefused[guid] or GetTime() - Cache.cache.serverRefused[guid] > 1 then
+        passed = true
+      end
+    end
+    return passed
+  end
+
+  function Core:SplitAndCheckSequence(sequence,unitList)
+    if not unitList return end
+    local filterArray = sequence.filter
+    local checked = {}
+    local priorityList = {}
+    for _,unit in ipairs(unitList) do
+      if self:PreCheckSplitedSequence(unit,checked) then
+        self:SetAirUnit(unit)
+        local passed,priority = Core:CheckFilterArray(filterArray)
+        if passed then
+          if priority then
+            priorityList[unit] = priority
+          else
+            return unit
           end
         end
       end
-      local maxKey,maxValue
-      for unit,priority in pairs(priorityList) do
-        if not maxValue or priority > maxValue then
-          maxKey = unit
-        end
-      end
-      return maxKey
     end
+    local maxKey,maxValue
+    for unit,priority in pairs(priorityList) do
+      if not maxValue or priority > maxValue then
+        maxKey = unit
+      end
+    end
+    return maxKey
   end
 
   function Core:CheckAndExecuteSequence(sequence)
     if not self:CheckBasicFilters(sequence) then return end
     local unitList = self:GetUnitListByAirType(sequence.anyinraid)
-    local filterReturn = self:CheckFilterArray(sequence.filter or {},unitList)
+    local filterReturn, unit
+    if unitList not self:GetAirUnit() then
+      filterReturn = self:SplitAndCheckSequence(sequence,unitList)
+      unit = filterReturn
+    else
+      filterReturn = self:CheckFilterArray(sequence.filter or {},unitList)
+    end
     if filterReturn then
-      self:ExecuteSequence(sequence,filterReturn)
+      self:ExecuteSequence(sequence,unit)
     end
   end
 
@@ -228,8 +257,16 @@ end
 --unit
 do
   local unitListCache = {}
+  local knownAirType={
+    help = true,
+    pveharm = true,
+    pvpharm = true,
+    arena = true,
+    all = true,
+  }
   function Core:GetUnitListByAirType(airType)
     if not airType then return end
+    if not knownAirType[airType] then return {airType} end
     if unitListCache[airType] then return unitListCache[airjType] end
     local unitList = {"target","mouseover","player","targettarget","focus","pet","pettarget"};
     if airType == "help" or airType == "all" then
