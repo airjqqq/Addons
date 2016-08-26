@@ -2,7 +2,7 @@
 ## Title: [AirjAutoKey] Core
 ## Version: 2.0
 ## Author: Airj
-## SavedVariables: AirjAutoKeyDB
+## SavedVariables: AirjAutoKeyDB,AirjAutoKeyDBT
 ## RequiredDeps: Ace3,AirjHack
 
 #embeds.xml

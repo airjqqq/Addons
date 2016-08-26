@@ -1,9 +1,42 @@
 local F = LibStub("AceAddon-3.0"):NewAddon("AirjAutoKeyBuffFilter")
 local Cache = AirjAutoKeyCache
 local Core = AirjAutoKey
+local color = "FFFFFF"
+local L =setmetatable({},{__index = function(t,k) return k end}
 
-function OnInitialize()
-  Cache = AirjAutoKeyCache
+function F:RegisterFilter(key,name,keys,subtypes)
+  assert(self[key])
+  Core:RegisterFilter(key,{
+    name = name,
+    fcn = self[name],
+    color = color,
+    keys = keys,
+    subtypes = subtypes,
+  })
+end
+function F:OnInitialize()
+  self:RegisterFilter("BUFF",L["Buff"],nil,{
+  		COUNT = {
+  			name = L["Count"],
+  		},
+  		START = {
+  			name = L["From start"],
+  		},
+  		OBSERV = {
+  			name = L["Obsorb (value2)"],
+  		},
+  	},)
+  self:RegisterFilter("BUFFSELF",L["Buff (mine)"],nil,{
+      COUNT = {
+        name = L["Count"],
+      },
+      START = {
+        name = L["From start"],
+      },
+      OBSERV = {
+        name = L["Obsorb (value2)"],
+      },
+    },)
 end
 
 -- no buff ~= value<=0 any more

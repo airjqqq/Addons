@@ -36,7 +36,7 @@ end
 
 function F:CSPELL(filter)
   assert(filter.name)
-  local keys = self:ToKeyTable(filter.name)
+  local keys = Core:ToKeyTable(filter.name)
   for k,v in pairs(keys) do
     local spellName = Cache:Call("GetSpellInfo",k)
     if Cache:Call("IsCurrentSpell",spellName) then
@@ -80,4 +80,31 @@ end
 
 function F:STANCE(filter)
   return (filter.value or 0) == (Cache:Call("GetShapeshiftForm") or 0)
+end
+
+function F:RUNE(filter)
+	local offset = filter.name or 0
+  local t = GetTime()
+  local value = 0
+  for slot = 1,6 do
+    local start, duration, runeReady = Cache:Call("GetRuneCooldown",slot)
+    if runeReady or (t+offset>start+duration) then
+      value = value +1
+    end
+  end
+  return value
+end
+
+-- {"fire","eath","water","air"}
+function F:TOTEMTIME(filter)
+	assert(filter.subtype)
+  local names = Core:ToKeyTable(filter.name)
+	local value = 0
+	if filter.subtype then
+		local haveTotem, name, startTime, duration = GetTotemInfo(tonumber(filter.subtype))
+		if haveTotem and (names[name] or not filter.name) then
+			value = startTime + duration - GetTime()
+		end
+	end
+  return value
 end

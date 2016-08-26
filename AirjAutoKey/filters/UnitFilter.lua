@@ -1,9 +1,10 @@
-local F = LibStub("AceAddon-3.0"):NewAddon("AirjAutoKeyUnitFilter")
-local Cache
-local Core = AirjAutoKey
+local Core = AceAddon:GetAddon("AirjAutoKey")
+local Cache = Core:GetModule("AirjAutoKeyCache")
+local Filter = Core:GetModule("AirjAutoKeyFilter")
+
+local F = Filter:NewModule("AirjAutoKeyUnitFilter")
 
 function OnInitialize()
-  Cache = AirjAutoKeyCache
 end
 
 function F:UNITEXISTS(filter)
@@ -31,7 +32,7 @@ end
 function F:CLASS(filter)
   filter.unit = filter.unit or "target"
   assert(filter.name)
-  local classes = self:ToKeyTable(filter.name)
+  local classes = Core:ToKeyTable(filter.name)
   local _,class = Cache:Call("UnitClass",filter.unit)
   return classes[class] or false
 end
@@ -58,7 +59,7 @@ function F:UNITISUNIT(filter)
   filter.name = filter.name or "player"
   local units = Core:ToKeyTable(filter.name)
   for k,v in pairs(units) do
-    local unit2 = self:ParseUnit(k)
+    local unit2 = Core:ParseUnit(k)
     if Cache:Call("UnitIsUnit",unit2,filter.unit) then
       return true
     end
@@ -193,7 +194,7 @@ function F:HEALTH(filter)
   filter.unit = filter.unit or "player"
   local guid = Cache:Call("UnitGUID",filter.unit)
   if not guid then return 0 end
-  local health, max, prediction, absorb, healAbsorb = unpack(Cache:GetHealth(guid) or {})
+  local health, max, prediction, absorb, healAbsorb, isdead = unpack(Cache:GetHealth(guid) or {})
   if not health then return 0 end
   local types = Core:ToKeyTable(filter.name)
   if type.perdiction then
@@ -213,6 +214,9 @@ function F:HEALTH(filter)
   return toRet
 end
 
+
+--{"mana","race","focus","energy","combo point","rune","rune power","soul shards",nil,"holy power",nil,nil,nil,"chi"}
+
 function F:POWER(filter)
   filter.unit = filter.unit or "player"
   local powerType = filter.subtype or Cache:Call("UnitPowerType",filter.unit)
@@ -221,5 +225,8 @@ function F:POWER(filter)
   if filterValue<0 then
     local max = Cache:Call("UnitPowerMax",filter.unit,powerType)
     power = power - max
+  else
+    local scale = 1
+    power = power/scale
   end
 end

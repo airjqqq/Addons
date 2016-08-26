@@ -324,266 +324,266 @@ end
 -- end
 
 
-function AirjAutoKey:COMBAT_LOG_EVENT_UNFILTERED(realEvent,timestamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,...)
-	timestamp = GetTime()
-
-
-
-	if (strfind(event, "SWING_DAMAGE") or strfind(event, "SWING_MISSED")) then
-		self.beHitList[destGUID] = self.beHitList[destGUID] or {}
-
-		self.beHitList[destGUID][sourceGUID] = timestamp
-	end
-
-	if (strfind(event, "SPELL_DAMAGE") or strfind(event, "SPELL_MISSED")) and (UnitGUID("player") == sourceGUID or UnitGUID("pet") == sourceGUID)  then
-		local spellName = select(2,...)
-		if spellName then
-			if spellName == "刀扇" or spellName == "剑刃乱舞" then
-				if GetTime() -( self.daoshanTimestamp or 0 ) <0.9 then
-					self.daoshanCnt =  self.daoshanCnt + 1
-				else
-					self.daoshanCnt = 1
-				end
-				self.daoshanTimestamp = GetTime()
-			end
-			self.aoeSpellHit[spellName] = self.aoeSpellHit[spellName] or {}
-			self.aoeSpellHit[spellName].guids  =  self.aoeSpellHit[spellName].guids or {}
-			if GetTime() -( self.aoeSpellHit[spellName].timestamp or 0 ) < 0.9 then
-			else
-				wipe(self.aoeSpellHit[spellName].guids)
-				self.aoeSpellHit[spellName].timestamp = GetTime()
-			end
-			self.aoeSpellHit[spellName].guids[destGUID] = GetTime()
-		end
-	end
-
-
-	-- damage stuff
-	if strfind(event, "_DAMAGE") and destGUID then
-		local amount
-		local offset
-		if strfind(event, "SWING") then
-			offset = 0
-		else
-			offset = 3
-		end
-		local arg1 = select(1+offset,...)
-		amount = (type(arg1)=="number" and arg1 or 0) + (select(4+offset,...) or 0) + (select(5+offset,...) or 0) + (select(6+offset,...) or 0)
-		self.damageList[destGUID] = self.damageList[destGUID] or {}
-		self.damageList[destGUID][timestamp] = (self.damageList[destGUID][timestamp] or 0) + amount
-
-		local spellName = select(2,...)
-		if self:IsMeleeSpell(spellName) then
-			self.damageListMelee[destGUID] = self.damageListMelee[destGUID] or {}
-			self.damageListMelee[destGUID][timestamp] = (self.damageListMelee[destGUID][timestamp] or 0) + amount
-		end
-	end
-	if strfind(event, "SWING_DAMAGE") and destGUID then
-		local amount
-		local offset
-		if strfind(event, "SWING") then
-			offset = 0
-		else
-			offset = 3
-		end
-		local arg1 = select(1+offset,...)
-		amount = (type(arg1)=="number" and arg1 or 0) + (select(4+offset,...) or 0) + (select(5+offset,...) or 0) + (select(6+offset,...) or 0)
-		self.damageListSwing[destGUID] = self.damageListSwing[destGUID] or {}
-		self.damageListSwing[destGUID][timestamp] = (self.damageListSwing[destGUID][timestamp] or 0) + amount
-		self.damageListMelee[destGUID] = self.damageListMelee[destGUID] or {}
-		self.damageListMelee[destGUID][timestamp] = (self.damageListMelee[destGUID][timestamp] or 0) + amount
-	end
-	if (strfind(event, "_MISSED") and (select(1,...)=="ABSORB")) and destGUID then
-		local amount
-		local offset
-		if strfind(event, "SWING") then
-			offset = 0
-		else
-			offset = 3
-		end
-		amount = (select(3 + offset,...) or 0)
-		self.damageList[destGUID] = self.damageList[destGUID] or {}
-		if type(amount) ~= "number" then
-			amount = 0;
-		end
-
-		self.damageList[destGUID][timestamp] = (self.damageList[destGUID][timestamp] or 0) + amount
-	end
-
-	--swing stuff
-	if strfind(event, "SWING") and sourceGUID then
-		self.swingTime[sourceGUID] = timestamp
-	end
-
-	-- channel stuff
-	if strfind(event, "_DAMAGE") and (UnitGUID("player") == sourceGUID or UnitGUID("pet") == sourceGUID)  then
-		local spellName = select(2,...)
-		local spellId = select(1,...)
-		if spellName then
-			local channelName = UnitChannelInfo("player")
-			if spellName == channelName then
-				self.channelTime[spellName] = timestamp
-			--	print("吸取灵魂",GetTime())
-			end
-			if spellId == 15407 then
-				self.channelTime[spellName] = timestamp
-			--	print("吸取灵魂",GetTime())
-			end
-		end
-	end
-	--cast success stuff
-	if (strfind(event, "_CAST_SUCCESS")) and (UnitGUID("player") == sourceGUID or UnitGUID("pet") == sourceGUID) then
-		local spellName = select(2,...)
-		if spellName then
-			if not destGUID or destGUID == "" then
-				destGUID = self.lastSentList[spellName]
-			end
-			if not destGUID then destGUID = UnitGUID("player") end
-			if destGUID then
-				self.castSuccessList[spellName] = self.castSuccessList[spellName] or {}
-				self.castSuccessList[spellName][destGUID] = timestamp
---				print("castSuccessList",spellName)
-			end
-			self.allCastSuccessList[spellName] = timestamp
-		end
-
-		if self.debugmode then
-			if self.lastSpellIndex ~= spellIndex then
-				self:Print(GetTime(),"Casted --------- ",spellName)
-				self.lastSpellIndex = spellIndex
-			end
-		end
-	end
-
-	--cast start stuff
-	if (strfind(event, "_CAST_START")) and (UnitGUID("player") == sourceGUID or UnitGUID("pet") == sourceGUID) then
-		local spellName = select(2,...)
-		if not destGUID or destGUID == "" then
-			destGUID = self.lastSentList[spellName]
-		end
---		print(spellName,destGUID,UnitGUID("target"))
-		if destGUID and spellName then
-			self.castStartList[spellName] = self.castStartList[spellName] or {}
-			self.castStartList[spellName][destGUID] = timestamp
-		end
-		self.allCastStartList[spellName] = timestamp
-		self.castStartGUID = destGUID
-		self.lastCastUnit=self.lastCastSendUnit
-		self.lastCastGUID=self.lastCastSendGUID
---		print(spellName,self.lastCastUnit,self.lastCastGUID)
-	end
-
-	-- aura stuff
-	if (strfind(event, "_AURA_APPLIED") or strfind(event, "_AURA_REFRESH")) and (UnitGUID("player") == sourceGUID or UnitGUID("pet") == sourceGUID) then
-		local spellName = select(2,...)
-		self.auraList[spellName] = self.auraList[spellName] or {}
-		self.auraList[spellName][destGUID] = timestamp
-
-		self.dotList[spellName] = self.dotList[spellName] or {}
-		self.dotList[spellName][destGUID] = timestamp
-	end
-	if (strfind(event, "_AURA_BROKEN") or strfind(event, "_AURA_REMOVED")) and (UnitGUID("player") == sourceGUID or UnitGUID("pet") == sourceGUID) then
-		local spellName = select(2,...)
-		if destGUID and spellName then
-			self.auraList[spellName] = self.auraList[spellName] or {}
-			self.auraList[spellName][destGUID] = nil
-			self.dotList[spellName] = self.dotList[spellName] or {}
-			self.dotList[spellName][destGUID] = nil
-		end
-	end
-	--dot stuf
-
-	if (strfind(event, "SPELL_PERIODIC_DAMAGE")) and (UnitGUID("player") == sourceGUID or UnitGUID("pet") == sourceGUID) then
-		local spellName = select(2,...)
-		self.dotList[spellName] = self.dotList[spellName] or {}
-		self.dotList[spellName][destGUID] = timestamp
-	end
-
-	-- dotPower stuff
---	if (strfind(event, "_CAST_SUCCESS") or strfind(event, "_AURA_APPLIED") and not strfind(event, "_AURA_APPLIED_DOSE") or strfind(event, "_AURA_REFRESH")) and UnitGUID("player") == sourceGUID then
---		local spellName = select(2,...)
---		local spellid = select(1,...)
---		if spellid == 119678 or spellid == 86213 then
---			spellName = "痛楚"
---		end
---		if destGUID and spellName then
---			self.powerList[spellName] = self.powerList[spellName] or {}
---			self.powerList[spellName][destGUID] = {timestamp = timestamp, power = self.CurrentPower()}
---		end
---	end
---	if (strfind(event, "_AURA_BROKEN") or strfind(event, "_AURA_REMOVED")) and UnitGUID("player") == sourceGUID then
---		local spellName = select(2,...)
---		if destGUID and spellName then
---			self.powerList[spellName] = self.powerList[spellName] or {}
---			self.powerList[spellName][destGUID] = nil
---		end
---	end
-
-	if (strfind(event, "_ENERGIZE") and sourceGUID == UnitGUID("player")) then
-		local spellName = select(2,...)
-		if spellName == "刺客的尊严" then
-			self.lastZunYan = GetTime()
-		end
-	end
-	if (strfind(event, "_AURA_BROKEN_SPELL")) then
-		local spellList = {
-			["变形术"] = true,
-			["致盲"] = true,
-			["凿击"] = true,
-			["闷棍"] = true,
-		}
-		local spellName = select(2,...)
-		if spellList[spellName] then
-			local brokeName = select(5,...)
-			local type = select(7,...)
-			local pre = ""
-			if sourceGUID == UnitGUID("player") then
-				pre = "YOU_______"
-			end
-			if type == "DEBUFF" then
-				print(pre.."BROKEN:"..spellName.." of "..destName.." by "..sourceName.."'s "..brokeName)
-			end
-		end
-	end
-
-
-	--cas
-
-
-	-- dr
-	if (strfind(event, "_AURA_APPLIED") or strfind(event, "_AURA_REFRESH")) then
-		local spellId = select(1,...)
-		local type = select(4,...)
-		local cat = self.drSpells[spellId]
-		if type == "DEBUFF" and cat then
-			self.drList[destGUID] = self.drList[destGUID] or {}
-			local data = self.drList[destGUID][cat]
-			local count
-			if data and data.timestamp > timestamp then
-				count = data.count + 1
-			else
-				count = 1
-			end
-			self.drList[destGUID][cat] = {timestamp = timestamp+18.5, count = count}
-		end
-	end
-	if (strfind(event, "_AURA_BROKEN") or strfind(event, "_AURA_REMOVED"))then
-		local spellId = select(1,...)
-		local type = select(4,...)
-		local cat = self.drSpells[spellId]
-		if type == "DEBUFF" and cat then
-			self.drList[destGUID] = self.drList[destGUID] or {}
-			local data = self.drList[destGUID][cat]
-			local count
-			if data and data.timestamp > timestamp then
-				count = data.count
-			else
-				count = 1
-			end
-			self.drList[destGUID][cat] = {timestamp = timestamp+18.5, count = count}
-		end
-	end
-end
+-- function AirjAutoKey:COMBAT_LOG_EVENT_UNFILTERED(realEvent,timestamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,...)
+-- 	timestamp = GetTime()
+--
+--
+--
+-- 	if (strfind(event, "SWING_DAMAGE") or strfind(event, "SWING_MISSED")) then
+-- 		self.beHitList[destGUID] = self.beHitList[destGUID] or {}
+--
+-- 		self.beHitList[destGUID][sourceGUID] = timestamp
+-- 	end
+--
+-- 	if (strfind(event, "SPELL_DAMAGE") or strfind(event, "SPELL_MISSED")) and (UnitGUID("player") == sourceGUID or UnitGUID("pet") == sourceGUID)  then
+-- 		local spellName = select(2,...)
+-- 		if spellName then
+-- 			if spellName == "刀扇" or spellName == "剑刃乱舞" then
+-- 				if GetTime() -( self.daoshanTimestamp or 0 ) <0.9 then
+-- 					self.daoshanCnt =  self.daoshanCnt + 1
+-- 				else
+-- 					self.daoshanCnt = 1
+-- 				end
+-- 				self.daoshanTimestamp = GetTime()
+-- 			end
+-- 			self.aoeSpellHit[spellName] = self.aoeSpellHit[spellName] or {}
+-- 			self.aoeSpellHit[spellName].guids  =  self.aoeSpellHit[spellName].guids or {}
+-- 			if GetTime() -( self.aoeSpellHit[spellName].timestamp or 0 ) < 0.9 then
+-- 			else
+-- 				wipe(self.aoeSpellHit[spellName].guids)
+-- 				self.aoeSpellHit[spellName].timestamp = GetTime()
+-- 			end
+-- 			self.aoeSpellHit[spellName].guids[destGUID] = GetTime()
+-- 		end
+-- 	end
+--
+--
+-- 	-- damage stuff
+-- 	if strfind(event, "_DAMAGE") and destGUID then
+-- 		local amount
+-- 		local offset
+-- 		if strfind(event, "SWING") then
+-- 			offset = 0
+-- 		else
+-- 			offset = 3
+-- 		end
+-- 		local arg1 = select(1+offset,...)
+-- 		amount = (type(arg1)=="number" and arg1 or 0) + (select(4+offset,...) or 0) + (select(5+offset,...) or 0) + (select(6+offset,...) or 0)
+-- 		self.damageList[destGUID] = self.damageList[destGUID] or {}
+-- 		self.damageList[destGUID][timestamp] = (self.damageList[destGUID][timestamp] or 0) + amount
+--
+-- 		local spellName = select(2,...)
+-- 		if self:IsMeleeSpell(spellName) then
+-- 			self.damageListMelee[destGUID] = self.damageListMelee[destGUID] or {}
+-- 			self.damageListMelee[destGUID][timestamp] = (self.damageListMelee[destGUID][timestamp] or 0) + amount
+-- 		end
+-- 	end
+-- 	if strfind(event, "SWING_DAMAGE") and destGUID then
+-- 		local amount
+-- 		local offset
+-- 		if strfind(event, "SWING") then
+-- 			offset = 0
+-- 		else
+-- 			offset = 3
+-- 		end
+-- 		local arg1 = select(1+offset,...)
+-- 		amount = (type(arg1)=="number" and arg1 or 0) + (select(4+offset,...) or 0) + (select(5+offset,...) or 0) + (select(6+offset,...) or 0)
+-- 		self.damageListSwing[destGUID] = self.damageListSwing[destGUID] or {}
+-- 		self.damageListSwing[destGUID][timestamp] = (self.damageListSwing[destGUID][timestamp] or 0) + amount
+-- 		self.damageListMelee[destGUID] = self.damageListMelee[destGUID] or {}
+-- 		self.damageListMelee[destGUID][timestamp] = (self.damageListMelee[destGUID][timestamp] or 0) + amount
+-- 	end
+-- 	if (strfind(event, "_MISSED") and (select(1,...)=="ABSORB")) and destGUID then
+-- 		local amount
+-- 		local offset
+-- 		if strfind(event, "SWING") then
+-- 			offset = 0
+-- 		else
+-- 			offset = 3
+-- 		end
+-- 		amount = (select(3 + offset,...) or 0)
+-- 		self.damageList[destGUID] = self.damageList[destGUID] or {}
+-- 		if type(amount) ~= "number" then
+-- 			amount = 0;
+-- 		end
+--
+-- 		self.damageList[destGUID][timestamp] = (self.damageList[destGUID][timestamp] or 0) + amount
+-- 	end
+--
+-- 	--swing stuff
+-- 	if strfind(event, "SWING") and sourceGUID then
+-- 		self.swingTime[sourceGUID] = timestamp
+-- 	end
+--
+-- 	-- channel stuff
+-- 	if strfind(event, "_DAMAGE") and (UnitGUID("player") == sourceGUID or UnitGUID("pet") == sourceGUID)  then
+-- 		local spellName = select(2,...)
+-- 		local spellId = select(1,...)
+-- 		if spellName then
+-- 			local channelName = UnitChannelInfo("player")
+-- 			if spellName == channelName then
+-- 				self.channelTime[spellName] = timestamp
+-- 			--	print("吸取灵魂",GetTime())
+-- 			end
+-- 			if spellId == 15407 then
+-- 				self.channelTime[spellName] = timestamp
+-- 			--	print("吸取灵魂",GetTime())
+-- 			end
+-- 		end
+-- 	end
+-- 	--cast success stuff
+-- 	if (strfind(event, "_CAST_SUCCESS")) and (UnitGUID("player") == sourceGUID or UnitGUID("pet") == sourceGUID) then
+-- 		local spellName = select(2,...)
+-- 		if spellName then
+-- 			if not destGUID or destGUID == "" then
+-- 				destGUID = self.lastSentList[spellName]
+-- 			end
+-- 			if not destGUID then destGUID = UnitGUID("player") end
+-- 			if destGUID then
+-- 				self.castSuccessList[spellName] = self.castSuccessList[spellName] or {}
+-- 				self.castSuccessList[spellName][destGUID] = timestamp
+-- --				print("castSuccessList",spellName)
+-- 			end
+-- 			self.allCastSuccessList[spellName] = timestamp
+-- 		end
+--
+-- 		if self.debugmode then
+-- 			if self.lastSpellIndex ~= spellIndex then
+-- 				self:Print(GetTime(),"Casted --------- ",spellName)
+-- 				self.lastSpellIndex = spellIndex
+-- 			end
+-- 		end
+-- 	end
+--
+-- 	--cast start stuff
+-- 	if (strfind(event, "_CAST_START")) and (UnitGUID("player") == sourceGUID or UnitGUID("pet") == sourceGUID) then
+-- 		local spellName = select(2,...)
+-- 		if not destGUID or destGUID == "" then
+-- 			destGUID = self.lastSentList[spellName]
+-- 		end
+-- --		print(spellName,destGUID,UnitGUID("target"))
+-- 		if destGUID and spellName then
+-- 			self.castStartList[spellName] = self.castStartList[spellName] or {}
+-- 			self.castStartList[spellName][destGUID] = timestamp
+-- 		end
+-- 		self.allCastStartList[spellName] = timestamp
+-- 		self.castStartGUID = destGUID
+-- 		self.lastCastUnit=self.lastCastSendUnit
+-- 		self.lastCastGUID=self.lastCastSendGUID
+-- --		print(spellName,self.lastCastUnit,self.lastCastGUID)
+-- 	end
+--
+-- 	-- aura stuff
+-- 	if (strfind(event, "_AURA_APPLIED") or strfind(event, "_AURA_REFRESH")) and (UnitGUID("player") == sourceGUID or UnitGUID("pet") == sourceGUID) then
+-- 		local spellName = select(2,...)
+-- 		self.auraList[spellName] = self.auraList[spellName] or {}
+-- 		self.auraList[spellName][destGUID] = timestamp
+--
+-- 		self.dotList[spellName] = self.dotList[spellName] or {}
+-- 		self.dotList[spellName][destGUID] = timestamp
+-- 	end
+-- 	if (strfind(event, "_AURA_BROKEN") or strfind(event, "_AURA_REMOVED")) and (UnitGUID("player") == sourceGUID or UnitGUID("pet") == sourceGUID) then
+-- 		local spellName = select(2,...)
+-- 		if destGUID and spellName then
+-- 			self.auraList[spellName] = self.auraList[spellName] or {}
+-- 			self.auraList[spellName][destGUID] = nil
+-- 			self.dotList[spellName] = self.dotList[spellName] or {}
+-- 			self.dotList[spellName][destGUID] = nil
+-- 		end
+-- 	end
+-- 	--dot stuf
+--
+-- 	if (strfind(event, "SPELL_PERIODIC_DAMAGE")) and (UnitGUID("player") == sourceGUID or UnitGUID("pet") == sourceGUID) then
+-- 		local spellName = select(2,...)
+-- 		self.dotList[spellName] = self.dotList[spellName] or {}
+-- 		self.dotList[spellName][destGUID] = timestamp
+-- 	end
+--
+-- 	-- dotPower stuff
+-- --	if (strfind(event, "_CAST_SUCCESS") or strfind(event, "_AURA_APPLIED") and not strfind(event, "_AURA_APPLIED_DOSE") or strfind(event, "_AURA_REFRESH")) and UnitGUID("player") == sourceGUID then
+-- --		local spellName = select(2,...)
+-- --		local spellid = select(1,...)
+-- --		if spellid == 119678 or spellid == 86213 then
+-- --			spellName = "痛楚"
+-- --		end
+-- --		if destGUID and spellName then
+-- --			self.powerList[spellName] = self.powerList[spellName] or {}
+-- --			self.powerList[spellName][destGUID] = {timestamp = timestamp, power = self.CurrentPower()}
+-- --		end
+-- --	end
+-- --	if (strfind(event, "_AURA_BROKEN") or strfind(event, "_AURA_REMOVED")) and UnitGUID("player") == sourceGUID then
+-- --		local spellName = select(2,...)
+-- --		if destGUID and spellName then
+-- --			self.powerList[spellName] = self.powerList[spellName] or {}
+-- --			self.powerList[spellName][destGUID] = nil
+-- --		end
+-- --	end
+--
+-- 	if (strfind(event, "_ENERGIZE") and sourceGUID == UnitGUID("player")) then
+-- 		local spellName = select(2,...)
+-- 		if spellName == "刺客的尊严" then
+-- 			self.lastZunYan = GetTime()
+-- 		end
+-- 	end
+-- 	if (strfind(event, "_AURA_BROKEN_SPELL")) then
+-- 		local spellList = {
+-- 			["变形术"] = true,
+-- 			["致盲"] = true,
+-- 			["凿击"] = true,
+-- 			["闷棍"] = true,
+-- 		}
+-- 		local spellName = select(2,...)
+-- 		if spellList[spellName] then
+-- 			local brokeName = select(5,...)
+-- 			local type = select(7,...)
+-- 			local pre = ""
+-- 			if sourceGUID == UnitGUID("player") then
+-- 				pre = "YOU_______"
+-- 			end
+-- 			if type == "DEBUFF" then
+-- 				print(pre.."BROKEN:"..spellName.." of "..destName.." by "..sourceName.."'s "..brokeName)
+-- 			end
+-- 		end
+-- 	end
+--
+--
+-- 	--cas
+--
+--
+-- 	-- dr
+-- 	if (strfind(event, "_AURA_APPLIED") or strfind(event, "_AURA_REFRESH")) then
+-- 		local spellId = select(1,...)
+-- 		local type = select(4,...)
+-- 		local cat = self.drSpells[spellId]
+-- 		if type == "DEBUFF" and cat then
+-- 			self.drList[destGUID] = self.drList[destGUID] or {}
+-- 			local data = self.drList[destGUID][cat]
+-- 			local count
+-- 			if data and data.timestamp > timestamp then
+-- 				count = data.count + 1
+-- 			else
+-- 				count = 1
+-- 			end
+-- 			self.drList[destGUID][cat] = {timestamp = timestamp+18.5, count = count}
+-- 		end
+-- 	end
+-- 	if (strfind(event, "_AURA_BROKEN") or strfind(event, "_AURA_REMOVED"))then
+-- 		local spellId = select(1,...)
+-- 		local type = select(4,...)
+-- 		local cat = self.drSpells[spellId]
+-- 		if type == "DEBUFF" and cat then
+-- 			self.drList[destGUID] = self.drList[destGUID] or {}
+-- 			local data = self.drList[destGUID][cat]
+-- 			local count
+-- 			if data and data.timestamp > timestamp then
+-- 				count = data.count
+-- 			else
+-- 				count = 1
+-- 			end
+-- 			self.drList[destGUID][cat] = {timestamp = timestamp+18.5, count = count}
+-- 		end
+-- 	end
+-- end
 
 function AirjAutoKey:RecoverDamageList()
 	local currentTime = GetTime()

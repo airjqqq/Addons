@@ -49,11 +49,7 @@ end
 function F:HDRANGE(filter)
   filter.unit = filter.unit or "target"
   filter.name = filter.name or "player"
-  local unit2 = self:ParseUnit(filter.name)
-  -- local unit2 = filter.name
-  -- local airunit = unit2 == "air" and self.raidUnit or unit2 == "airtarget" and (self.raidUnit.."target") or unit2 == "lcu" and (self:FindUnitByGUID(self.lastCastGUID) or self.lastCastUnit)
-  -- airunit = airunit or unit2 == "bgu" and self.groupUnit
-  -- unit2 = airunit or unit2
+  local unit2 = Core:ParseUnit(filter.name)
 
   local guid1 = Cache:Call("UnitGUID",filter.unit)
   local x1,y1,z1,_,distance = Cache:GetPosition(guid1)
