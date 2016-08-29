@@ -3,25 +3,28 @@ local mod = {}
 local AirjAutoKey = AirjAutoKey
 local AceGUI = LibStub("AceGUI-3.0")
 
+local L = setmetatable({},{__index = function(t,k) return k end})
+
 local typeList
 local typeOrder
 local typeDesc
-do
-	local list = {["_"] = "未定义"}
-	local order = {"_"}
+local typesPerGroup = 39
+local typeTree = {}
+local typeTreeBack = {}
+local typeTreeBackTableGroupIndex = {}
+local function setupTypeList()
+	local list = {["UNDEFINED"] = "|cFFFF0000Undefined|r"}
+	local order = {"UNDEFINED"}
 	local descs = {"请选择"}
-	list["GROUP"] = "组"
+	list["GROUP"] = "|cFFFF8888G|r|cFFFFFF88r|r|cFF88FF88o|r|cFF88FFFFu|r|cFF8888FFp|r"
 	tinsert(order,"GROUP")
-	tinsert(descs,"使用组")
---	list["FCN"] = "自定义函数"
---	tinsert(order,"FCN")
---	tinsert(descs,"使用自定义函数")
+	tinsert(descs,"|cFFFF8888G|r|cFFFFFF88r|r|cFF88FF88o|r|cFF88FFFFu|r|cFF8888FFp|r")
 	local sorted = {}
 	local filterTypes = AirjAutoKey.filterTypes
 	for k,v in pairs(filterTypes) do
 		sorted[v.order] = k
 	end
-	for i,k in pairs(sorted) do
+	for i,k in ipairs(sorted) do
 		local v = filterTypes[k]
 		list[k] = v.name
 		tinsert(order,k)
@@ -34,21 +37,15 @@ do
 	typeList = list
 	typeOrder = order
 	typeDesc = descs
-end
-
-local typesPerGroup = 38
-local typeTree = {}
-local typeTreeBack = {}
-local typeTreeBackTableGroupIndex = {}
-for i,k in ipairs(typeOrder) do
-
-	local v = typeList[k]
-	local tableIndex = math.ceil(i/typesPerGroup)
-	local offset = i - (tableIndex-1) * typesPerGroup
-	typeTree[tableIndex] = typeTree[tableIndex] or {}
-	typeTree[tableIndex][offset] = {value = offset, text = v, key = k}
-	typeTreeBack[k] = offset
-	typeTreeBackTableGroupIndex[k] = tableIndex
+	for i,k in ipairs(typeOrder) do
+		local v = typeList[k]
+		local tableIndex = math.ceil(i/typesPerGroup)
+		local offset = i - (tableIndex-1) * typesPerGroup
+		typeTree[tableIndex] = typeTree[tableIndex] or {}
+		typeTree[tableIndex][offset] = {value = offset, text = v, key = k}
+		typeTreeBack[k] = offset
+		typeTreeBackTableGroupIndex[k] = tableIndex
+	end
 end
 
 local function copy(t)
@@ -78,16 +75,16 @@ local spellConfigWidgets = {
 	{
 		key = "refresh",
 		widget = "CheckBox",
-		text = "刷新",
+		text = L["Live Update"],
 		desc = "",
-		width = 80,
+		width = "x2",
 	},
 	{
 		key = "new",
 		widget = "Button",
-		text = "新建",
+		text = L["New Sequence"],
 		desc = "",
-		width = 400,
+		width = 320,
 	},
 	{
 		key = "heading",
@@ -98,39 +95,33 @@ local spellConfigWidgets = {
 	{
 		key = "spell",
 		widget = "EditBox",
-		text = "技能名称",
-		desc = "需要与[按键设置]中的技能名完全一致",
+		text = L["Spell Id or Macro key"],
+		desc = "",
 			width = "x2",
 	},
 	{
 		key = "note",
 		widget = "EditBox",
-		text = "注释",
-		desc = "会显示在左面的列表中,方便查找",
+		text = L["Note"],
+		desc = "",
 	},
 	{
 		key = "group",
 		widget = "CheckBox",
-		text = "组",
+		text = L["Group"],
 		desc = "",
 	},
 	{
 		key = "disable",
 		widget = "CheckBox",
-		text = "禁用",
+		text = L["Disable"],
 		desc = "",
 	},
 	{
 		key = "continue",
 		widget = "CheckBox",
-		text = "继续法术",
+		text = L["No block"],
 		desc = "",
-	},
-	{
-		key = "heading",
-		widget = "SimpleGroup",
-		text = "",
-		width = "fill",
 	},
 	{
 		key = "heading",
@@ -141,37 +132,37 @@ local spellConfigWidgets = {
 	{
 		key = "inport",
 		widget = "Button",
-		text = "导入",
+		text = L["Import S"],
 		desc = "",
 	},
 	{
 		key = "export",
 		widget = "Button",
-		text = "导出",
+		text = L["Export S"],
 		desc = "",
 	},
 	{
 		key = "copy",
 		widget = "Button",
-		text = "复制",
+		text = L["Copy S"],
 		desc = "",
 	},
 	{
 		key = "delete",
 		widget = "Button",
-		text = "删除",
-		desc = "按住Ctrl",
+		text = L["Delete S"],
+		desc = "Hold Alt and Shift",
 	},
 	{
 		key = "upper",
 		widget = "Button",
-		text = "上移",
+		text = L["Move up"],
 		desc = "",
 	},
 	{
 		key = "lower",
 		widget = "Button",
-		text = "下移",
+		text = L["Move down"],
 		desc = "",
 	},
 	{
@@ -183,26 +174,26 @@ local spellConfigWidgets = {
 	{
 		key = "anyinraid",
 		widget = "EditBox",
-		text = "多目标查询",
-		desc = "help扫描友善单位\npveharm扫描敌对单位(pve)\npvpharm扫描敌对单位(pvp)\nall扫描全部单位(pvp)\n",
+		text = L["Scan Units"],
+		desc = "help: for friend\npveharm: for enemy(pve)\narena: for arena(pvp)\npvpharm: for enemy(pvp)\nall for all\n",
 	},
 	{
 		key = "icon",
 		widget = "EditBox",
-		text = "图标名称(或路径)",
-		desc = "留空则使用技能图标",
+		text = L["Icon"],
+		desc = "",
 		width = "x2",
 	},
 	{
 		key = "cd",
 		widget = "EditBox",
-		text = "冷却时间",
-		desc = "留空则使用技能冷却",
+		text = L["Cooldown"],
+		desc = "",
 	},
 	{
 		key = "tarmin",
 		widget = "Slider",
-		text = "最小目标数",
+		text = L["Min Target"],
 		min = 0,
 		max = 6,
 		step = 1,
@@ -211,7 +202,7 @@ local spellConfigWidgets = {
 	{
 		key = "tarmax",
 		widget = "Slider",
-		text = "最大目标数",
+		text = L["Max Target"],
 		min = 0,
 		max = 6,
 		step = 1,
@@ -222,15 +213,16 @@ local filterConfigWidgets = {
 	{
 		key = "new",
 		widget = "Button",
-		text = "新建",
+		text = L["New Filter"],
 		desc = "",
-		width = 240,
+		width = "x2",
 	},
 	{
 		key = "newGroup",
 		widget = "Button",
-		text = "新组包围",
+		text = L["Surround with Group"],
 		desc = "",
+		width = "x2",
 	},
 	{
 		key = "heading",
@@ -241,29 +233,29 @@ local filterConfigWidgets = {
 	{
 		key = "type",
 		widget = "Dropdown",
-		text = "选择类型",
+		text = L["Filter Type"],
 		desc = "",
 		width = "x2",
 	},
 	{
 		key = "subtype",
 		widget = "Dropdown",
-		text = "子类型",
+		text = L["Filter Subtype"],
 		desc = "",
 		width = "x2",
 	},
 	{
 		key = "note",
 		widget = "EditBox",
-		text = "注释",
-		desc = "会显示在左面的列表中,方便查找",
+		text = L["Note"],
+		desc = "",
 		width = "x2",
 	},
 	{
 		key = "oppo",
 		widget = "CheckBox",
-		text = "翻转结果",
-		desc = "选中则翻转结果",
+		text = L["Reverse result"],
+		desc = "",
 		width = "x2",
 	},
 	{
@@ -275,25 +267,25 @@ local filterConfigWidgets = {
 	{
 		key = "expanision",
 		widget = "Button",
-		text = "展开",
+		text = L["Expand"],
 		desc = "",
 	},
 	{
 		key = "collapse",
 		widget = "Button",
-		text = "收起",
+		text = L["Collapse"],
 		desc = "",
 	},
 	{
 		key = "upper",
 		widget = "Button",
-		text = "上移",
+		text = L["Move up"],
 		desc = "",
 	},
 	{
 		key = "lower",
 		widget = "Button",
-		text = "下移",
+		text = L["Move down"],
 		desc = "",
 	},
 	{
@@ -306,29 +298,27 @@ local filterConfigWidgets = {
 	{
 		key = "inport",
 		widget = "Button",
-		text = "导入",
+		text = L["Import F"],
 		desc = "",
 	},
 	{
 		key = "export",
 		widget = "Button",
-		text = "导出",
+		text = L["Export F"],
 		desc = "",
 	},
 	{
 		key = "copy",
 		widget = "Button",
-		text = "复制",
+		text = L["Copy F"],
 		desc = "",
 	},
 	{
 		key = "delete",
 		widget = "Button",
-		text = "删除",
-		desc = "按住Ctrl",
+		text = L["Delete F"],
+		desc = "Hold Ctrl",
 	},
-
-
 	{
 		key = "heading",
 		widget = "SimpleGroup",
@@ -338,14 +328,14 @@ local filterConfigWidgets = {
 	{
 		key = "name",
 		widget = "MultiLineEditBox",
-		text = "名称",
+		text = L["Name or Spell Id"],
 		desc = "",
 		width = "x4",
 	},
 	{
 		key = "unit",
 		widget = "EditBox",
-		text = "单位",
+		text = L["Unit"],
 		desc = "",
 	},
 	{
@@ -365,14 +355,14 @@ local filterConfigWidgets = {
 	{
 		key = "greater",
 		widget = "CheckBox",
-		text = "大于",
+		text = L["Greater"],
 		desc = "",
 		--width = "x2",
 	},
 	{
 		key = "value",
 		widget = "EditBox",
-		text = "数值",
+		text = L["Value"],
 		desc = "",
 		--width = "x2",
 	},
@@ -419,7 +409,7 @@ function mod:CreateMainConfigGroup()
 	local spellDraged = function(frame)
 		local self = frame.obj
 		local type, id, info, aid = GetCursorInfo()
-		dump(GetCursorInfo())
+		-- dump(GetCursorInfo())
 		if type == "item" then
 			local spellId = "i"..id
 			self:SetText(spellId)
@@ -531,7 +521,8 @@ function mod:CreateMainConfigGroup()
 		end
 	end)
 	group.delete:SetCallback("OnClick", function(widget,event)
-		if not IsControlKeyDown() then return end
+		if not IsAltKeyDown() then return end
+		if not IsShiftKeyDown() then return end
 		local spell,parentSpell,currentIndex = mod:GetCurrentSpell()
 		tremove(parentSpell,currentIndex)
 		self:UpdateSpellTreeGroup()
@@ -542,6 +533,7 @@ function mod:CreateMainConfigGroup()
 			text = nil
 		end
 		mod:GetCurrentSpell().icon = text
+		self:UpdateSpellTreeGroup()
 	end)
 
 	group.cd:SetCallback("OnEnterPressed",function(widget,event,text)
@@ -563,12 +555,12 @@ function mod:CreateMainConfigGroup()
 
 	--filters stuff
 	local filtersHeading = AceGUI:Create("Heading")
-	filtersHeading:SetText("过滤器")
+	filtersHeading:SetText("Filters")
 	filtersHeading:SetFullWidth(true)
 	group:AddChild(filtersHeading)
 
 	local filtersGroup = AceGUI:Create("TreeGroup")
-	filtersGroup:SetTreeWidth(160,true)
+	filtersGroup:SetTreeWidth(200,true)
 	group:AddChild(filtersGroup)
 	group.filtersGroup = filtersGroup
 
@@ -585,10 +577,9 @@ function mod:CreateMainConfigGroup()
 		local filter = self:GetFilterByPath(spell.filter,path)
 		if filter then
 			GameTooltip:SetOwner(frame, "ANCHOR_TOPRIGHT");
-			local spells = AirjAutoKey:ToKeyTable(filter.name)
+			local spells = AirjAutoKey:ToValueTable(filter.name)
 			GameTooltip:AddLine(filter.type or "UNKNOWN", 1, 1, 1, 1);
-			for name,v in pairs(spells) do
---				local icon = name and GetSpellTexture(tonumber(name) or name) or ""
+			for _,name in pairs(spells) do
 				local text , spellId , icon
 				local id = name and tonumber(name) or name
 				if id then
@@ -661,6 +652,7 @@ function mod:CreateMainConfigGroup()
 	group.filter_oppo:SetCallback("OnValueChanged",function(widget,event,checked)
 		local filter = self:GetCurrentFilter()
 		filter.oppo = checked or nil
+		self:UpdateFilterTreeGroup()
 	end)
 
 	group.filter_new:SetCallback("OnClick",function(widget,event)
@@ -778,10 +770,7 @@ function mod:CreateMainConfigGroup()
 		self.currentFilterPath = table.concat(paths,"\001")
 		self:UpdateFilterTreeGroup()
 	end)
-
-
-
-	group.filter_name:SetHeight(500)
+	group.filter_name:SetNumLines(7)
 
 	local onDrag = function(self,...)
 		AIRJTEST = self
@@ -833,9 +822,7 @@ function mod:CreateMainConfigGroup()
 		else
 			local tab = {}
 			for k,v in ipairs(nameTable) do
-				if v ~="" then
-					tinsert(tab,tonumber(v) or v)
-				end
+				tinsert(tab,tonumber(v) or v)
 			end
 			if #tab <= 1 then
 				tab = tab[1]
@@ -971,16 +958,20 @@ function mod:SetupTrace ()
 	end
 		local mainGroup = self.mainGroup
 end
-
+local lastTime = {}
+local lastPassed = {}
+local lastGCD = 1
 function mod:UpdateTraceButton(spell)
 	local key = tostring(spell)
 	local button = spellToButton[key]
 	local unit = AirjAutoKey.passedSpell[key]
 	if button then
 		if unit then
+			AirjAutoKey.passedSpell[key] = nil
 			if unit == true then unit = "PASSED" end
 			button:SetAlpha(1)
-			button:SetText(unit and "["..unit.."]" or "")
+			local text = unit and "["..unit.."]" or ""
+			button:SetText(text)
 			button.animationGroup:Stop()
 			button:Show()
 		else
@@ -989,12 +980,26 @@ function mod:UpdateTraceButton(spell)
 		--			text = text .. " "
 		--			button:SetText(text)
 		--		end
+			local time
+			if lastPassed[key] then
+				if not lastTime[key] then
+					time = 0
+				else
+					time = (GetTime() - lastTime[key])/lastGCD
+				end
+				local timeText = string.format("%2.3f",time)
+				local text = button:GetText(text)
+				text = text.." - "..timeText
+				button:SetText(text)
+				lastTime[key] = GetTime()
+			end
 			button.animationGroup:Play()
 			--local alpha = button:GetAlpha()
 			--alpha = alpha - 0.1
 			--alpha = math.max(alpha,0)
 			--button:SetAlpha(alpha)
 		end
+		lastPassed[key] = unit
 	end
 	if spell.group then
 		for i,v in ipairs(spell) do
@@ -1004,6 +1009,9 @@ function mod:UpdateTraceButton(spell)
 end
 
 function mod:UpdateTrace()
+
+	local start,duration = GetSpellCooldown(61304)
+	if start ~= 0 then lastGCD = duration end
 	local spellArray = self.currentSpellArray or {}
 	for i,v in ipairs(spellArray) do
 		self:UpdateTraceButton(v)
@@ -1063,11 +1071,11 @@ function mod:GetSpellTreeElement(spell)
 			end
 		end
 	end
-	text = text or "未定义"
-	if v.note then
+	text = text or "Unknown"
+	if v.note and v.note ~= "" then
 		text = text.." - "..v.note
 	else
-		text = text.." - "..tostring(i)
+		text = text
 	end
 	if v.anyinraid then
 		text = "**"..text
@@ -1076,7 +1084,7 @@ function mod:GetSpellTreeElement(spell)
 	end
 	if v.disable then
 		text = "|cff7f00ff" .. text .. "|r"
-	elseif AirjAutoKey.macroArray[v.spell or "_"] then
+	elseif AirjAutoKey.rotationDB.macroArray[v.spell or "_"] then
 		text = "|cff00ff00" .. text .. "|r"
 	end
 
@@ -1220,23 +1228,11 @@ function mod:UpdateMainConfigGroup()
 		return
 	end
 	local spell = mod:GetCurrentSpell()
---[[
-	for k,v in pairs(spellConfigWidgets) do
-		local key = v.key
-		if key and group[key] and group[key].SetDisabled then
-			group[key]:SetDisabled(self.isDefault or (spell == nil))
-		end
-	end
-	group.new:SetDisabled(self.isDefault)
-	group.export:SetDisabled((spell == nil))
-	group.upper:SetDisabled(self.isDefault)
-	group.lower:SetDisabled(self.isDefault)
-]]
 
 	if not spell then
 		spell = {}
 	end
-	group.spell:SetText(spell.spell or "未定义")
+	group.spell:SetText(spell.spell or "")
 
 	group.disable:SetValue(spell.disable or false)
 	group.anyinraid:SetText(type(spell.anyinraid)=="boolean" and "all" or spell.anyinraid or "")
@@ -1246,7 +1242,7 @@ function mod:UpdateMainConfigGroup()
 	local spellName = strsplit("_", spell.spell or "")
 	local icon = GetSpellTexture(spell.icon or "") or spell.icon or GetSpellTexture(spellName) or ""
 	group.icon:SetText(icon)
-	local cd = spell.cd or (GetSpellBaseCooldown(spellName) or 0)/1000 or 0
+	local cd = spell.cd or (GetSpellBaseCooldown(spellName) or 0)/1000
 	group.cd:SetText(cd or "0")
 	group.tarmin:SetValue(spell.tarmin or 0)
 	group.tarmax:SetValue(spell.tarmax or 10)
@@ -1308,7 +1304,7 @@ function mod:GetFilterTreeElement(filter,isRoot)
 			element.children[k].value = k
 		end
 	end
-	element.text = filter.type and typeList[filter.type] or filter.fcn and typeList.FCN or filter.group and typeList.GROUP or "未定义"
+	element.text = filter.type and typeList[filter.type] or filter.group and typeList.GROUP or filter.type or ""
 	local	name
 	if type(filter.name) == "table" then
 		name = filter.name[1]
@@ -1323,11 +1319,11 @@ function mod:GetFilterTreeElement(filter,isRoot)
 	if filter.note then
 		element.text = element.text.." - "..filter.note
 	end
-	local raidUnit = AirjAutoKey.raidUnit
-	AirjAutoKey.raidUnit = "target"
+	local airUnit = AirjAutoKey:GetAirUnit()
+	AirjAutoKey:SetAirUnit("target")
 	local status, passed = pcall(AirjAutoKey.CheckFilter, AirjAutoKey, filter)
-	AirjAutoKey.raidUnit = raidUnit
-	if (filter.oppo) then passed = not passed end
+	AirjAutoKey:SetAirUnit(airUnit)
+	-- if (filter.oppo) then passed = not passed end
 	element.text = element.text .." " ..(passed and "√" or "×")
 	if not status then
 		local text = element.text
@@ -1480,18 +1476,6 @@ end
 function mod:UpdateFilterConfigGroup()
 	local group = self.mainConfigGroup
 	local currentFilter = self:GetCurrentFilter()
-	--[[
-	for k,v in pairs(filterConfigWidgets) do
-		local key = v.key
-		if key and group["filter_"..key] and group["filter_"..key].SetDisabled then
-			group["filter_"..key]:SetDisabled(self.isDefault or (currentFilter == nil))
-		end
-	end
-	if mod:GetCurrentSpell() then
-		group.filter_new:SetDisabled(self.isDefault)
-	end
-	group.filter_export:SetDisabled((currentFilter == nil))
-]]
 	currentFilter = currentFilter or {}
 	local maintype,subtype = currentFilter.type,currentFilter.subtype
 	if not maintype and currentFilter.fcn then
@@ -1514,7 +1498,11 @@ function mod:UpdateFilterConfigGroup()
 	group.filter_oppo:SetValue(currentFilter.oppo)
 	local nameText = currentFilter.name
 	if type(nameText) == "table" then
-		nameText = table.concat(nameText,",")
+		if #nameText > 7 then
+			nameText = table.concat(nameText,", ")
+		else
+			nameText = table.concat(nameText,"\n")
+		end
 	end
 	group.filter_name:SetText(nameText or "")
 	group.filter_note:SetText(currentFilter.note)
@@ -1523,7 +1511,7 @@ function mod:UpdateFilterConfigGroup()
 	if type(unitText) == "table" then
 		unitText = table.concat(unitText,",")
 	end
-	group.filter_unit:SetText(unitText or "player")
+	group.filter_unit:SetText(unitText or "")
 	group.filter_value:SetText(currentFilter.value or currentFilter.value or 0)
 	group.filter_greater:SetValue(currentFilter.greater)
 end
@@ -1562,15 +1550,15 @@ function mod:UpdateFilterConfigGroupType()
 		end
 	elseif subtypes then
 		group.filter_subtype:SetDisabled(self.isDefault or false)
-		group.filter_subtype:SetLabel("子类型")
-		list = {_ = "默认"}
+		group.filter_subtype:SetLabel("Subtype")
+		list = {_ = "Default"}
 		for k,v in pairs(subtypes) do
-			list[tostring(k)] = v.name
+			list[tostring(k)] = v
 		end
 	else
 		group.filter_subtype:SetDisabled(self.isDefault or true)
-		group.filter_subtype:SetLabel("无可用子类型")
-		list = {_ = "默认"}
+		group.filter_subtype:SetLabel("Subtype")
+		list = {_ = "Not available"}
 	end
 	group.filter_subtype:SetList(list)
 	local infoKeys =
@@ -1582,18 +1570,18 @@ function mod:UpdateFilterConfigGroupType()
 	}
 	local default =
 	{
-		["name"] = "名称",
-		["unit"] = "单位",
-		["value"] = "数值",
-		["greater"] = "大于",
+		["name"] = "Name or Spell ID",
+		["unit"] = "Unit",
+		["value"] = "Value",
+		["greater"] = "Greater",
 	}
 
 	local defaultDesc =
 	{
-		["name"] = "名称",
-		["unit"] = "单位",
-		["value"] = "数值",
-		["greater"] = "选中则为小于等于,否则为大于",
+		["name"] = "",
+		["unit"] = "",
+		["value"] = "",
+		["greater"] = "",
 	}
 
 	for k,v in pairs(infoKeys) do
@@ -1657,6 +1645,7 @@ function mod:NewFilter(filter,path,spellPath)
 	paths[#paths] = nil
 	local parentPath = table.concat(paths,"\001")
 	local parentFilter = mod:GetFilterByPath(spell.filter,parentPath)
+	filter.type = filter.type or "UNDEFINED"
 	tinsert(parentFilter,lastPath,filter)
 	self:UpdateFilterTreeGroup()
 end
@@ -1682,15 +1671,18 @@ function mod:SpellSetting()
 		mainGroup:SetLayout("Fill")
 		mainGroup:AddChild(self.mainConfigGroup)
 	end
+	local treeWidth = 160
 
 	if not self.typeGroup then
 		self.typeGroup = {}
 		for i,v in ipairs(typeTree) do
 			typeGroup = AceGUI:Create("TreeGroup")
-			typeGroup:SetTreeWidth(120)
-			typeGroup:SetWidth(400)
+			typeGroup:SetTreeWidth(treeWidth)
+			typeGroup:SetWidth(treeWidth*2)
 			typeGroup.frame:SetParent(mainGroup.frame)
-			local xoffset = i*120 -100
+			typeGroup.treeframe:SetBackdropColor(0, 0, 0, 1)
+			typeGroup.treeframe:SetBackdropBorderColor(0,0,0,0)
+			local xoffset = i*treeWidth -treeWidth
 			typeGroup:SetPoint("TOPLEFT", mainGroup.frame, "TOPRIGHT", xoffset, 60)
 			typeGroup:SetPoint("BOTTOMLEFT", mainGroup.frame, "BOTTOMRIGHT", xoffset, -40)
 			typeGroup.border:Hide()
@@ -1714,8 +1706,9 @@ function mod:SpellSetting()
 end
 
 function parent:SpellSetting()
-	if mod.currentSpellArray ~= AirjAutoKey.spellArray then
-		mod.currentSpellArray = AirjAutoKey.spellArray
+	setupTypeList()
+	if mod.currentSpellArray ~= AirjAutoKey.rotationDB.spellArray then
+		mod.currentSpellArray = AirjAutoKey.rotationDB.spellArray
 		local spell
 		mod.currentSpellPath,spell = next(mod.currentSpellArray)
 		local filterArray = spell and spell.filter or {}

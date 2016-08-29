@@ -53,8 +53,7 @@ function mod:OnObjectCreated(event,guid,type)
       if self.debug or true then
         if objectType == "AreaTrigger" then
           local link = GetSpellLink(id)
-          self:Print(guid,link,id)
-          self:Print(AirjHack:ObjectFloat(guid,0x90))
+          self:Print(guid,link,AirjHack:ObjectFloat(guid,0x90))
         end
       end
 

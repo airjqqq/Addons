@@ -1,15 +1,25 @@
-﻿## Interface: 62000
-## Title: [AirjAutoKey] Core
+﻿## Interface: 70300
+## Title: AirjAutoKey Core
 ## Version: 2.0
 ## Author: Airj
-## SavedVariables: AirjAutoKeyDB,AirjAutoKeyDBT
-## RequiredDeps: Ace3,AirjHack
+## SavedVariables: AirjAutoKeyDBT
+## RequiredDeps: Ace3,AirjHack,AirjCache
 
 #embeds.xml
-Libs\DRData-1.0\DRData-1.0.xml
+#Libs\DRData-1.0\DRData-1.0.xml
 
-AirjAutoKey.lua
-Filters.lua
-Operation.lua
---KeyList.lua
---Bindings.xml
+# AirjAutoKey.lua
+# Cache.lua
+Core.lua
+Filter.lua
+ModKeyPressing.lua
+Move.lua
+KickSync.lua
+GUI.lua
+filters\UtilFilter.lua
+filters\UnitFilter.lua
+filters\PositionFilter.lua
+filters\BuffFilter.lua
+filters\CombatLogFilter.lua
+filters\PriorityFilter.lua
+filters\PVPFilter.lua

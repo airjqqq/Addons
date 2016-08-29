@@ -17,8 +17,8 @@ function mod:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("AirjAutoKey_OptionsDB",default,true)
 	local mainFrame = AceGUI:Create("Frame")
 	mainFrame:SetTitle("AirjAutoKey选项")
-	mainFrame:SetWidth(800)
-	mainFrame:SetHeight(720)
+	mainFrame:SetWidth(820)
+	mainFrame:SetHeight(750)
 
 	mainFrame:Hide()
 	self.mainFrame = mainFrame
@@ -45,7 +45,13 @@ function mod:OnInitialize()
 		tabGroup:SelectTab(tab.value)
 	end
 	self:RegisterChatCommand("aako", function(str,...)
-		mod:Toggle()
+		if str == "reset" then
+			mainFrame:ClearAllPoints()
+			mainFrame:SetPoint("CENTER",UIParent)
+			-- mainFrame:
+		else
+			mod:Toggle()
+		end
 	end)
 end
 

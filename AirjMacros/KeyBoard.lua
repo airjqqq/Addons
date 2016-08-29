@@ -98,6 +98,12 @@ local macroWidgets = {
 		width = 120,
 	},
 	{
+		key = "dontStopAuto",
+		widget = "CheckBox",
+		text = "不暂停自动",
+		width = 120,
+	},
+	{
 		widget = "Heading",
 		text = "高级设置",
 		desc = "需要与[按键设置]中的技能名完全一致",
@@ -248,8 +254,6 @@ function mod:CreateButton(key,parent)
 		end
 
 		local type, data, subType, subData = GetCursorInfo()
-
-		if dump then dump(GetCursorInfo()) end
 		local spellName, spellId
 		if type == "spell" then
 			spellName = GetSpellInfo(subData)
@@ -282,12 +286,7 @@ function mod:CreateButton(key,parent)
 			end
 			self.currentData.spellId = spellId
 		end
---		if spellName then
---			if self.currentData.spell then
---				spellName = self.currentData.spell..","..spellName
---			end
---			self.currentData.spell = spellName
---		end
+
 		mod:UpdateKeyboard()
 	end
 
@@ -419,6 +418,7 @@ function mod:UpdateKeyboard()
 		self.altfocus:SetValue(data.altfocus)
 		self.stopcasting:SetValue(data.stopcasting)
 		self.startattack:SetValue(data.startattack)
+		self.dontStopAuto:SetValue(data.dontStopAuto)
 
 		local macrotext,realmacro = parent:GetMacroText(data)
 		macrotext = macrotext or ""
@@ -621,7 +621,7 @@ function mod:CreateKeyboard(group)
 	self.spellId.editbox:SetScript("OnReceiveDrag", function(frame)
 		local self = frame.obj
 		local type, id, info = GetCursorInfo()
-		if dump then dump(GetCursorInfo()) end
+		-- if dump then dump(GetCursorInfo()) end
 		if type == "item" then
 			local spellId = "i"..id
 			self:SetText(spellId)
@@ -703,6 +703,10 @@ function mod:CreateKeyboard(group)
 	end)
 	self.startattack:SetCallback("OnValueChanged",function(widget,event,checked)
 		self.currentData.startattack = checked
+		self:UpdateKeyboard()
+	end)
+	self.dontStopAuto:SetCallback("OnValueChanged",function(widget,event,checked)
+		self.currentData.dontStopAuto = checked
 		self:UpdateKeyboard()
 	end)
 	self.macrotext:SetHeight(180)

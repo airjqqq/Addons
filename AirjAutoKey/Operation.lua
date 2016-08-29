@@ -1,9 +1,0 @@
-﻿local defaulthealth = 1
-local gcdtime = 1.18
-local lagtime = 0.15
-AirjAutoKeyDB = {
-	updatetime = 0.04,
-	keyBind = {},
-	spelllist = {},
-}
-

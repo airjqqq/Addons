@@ -5,13 +5,13 @@ local AceGUI = LibStub("AceGUI-3.0")
 
 
 local function SetDescription(widget,desc)
-	widget:SetCallback("OnEnter",function(widget) 
+	widget:SetCallback("OnEnter",function(widget)
 		GameTooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT");
 		GameTooltip:AddLine(desc, 1, 1, 1, 1);
 		GameTooltip:Show();
 		GameTooltip:SetFrameLevel(50);
 	end)
-	widget:SetCallback("OnLeave", function(widget) 
+	widget:SetCallback("OnLeave", function(widget)
 		GameTooltip:Hide()
 	end)
 end
@@ -66,7 +66,7 @@ local widgets = {
 function mod:CreateMainConfigGroup()
 	local group = AceGUI:Create("ScrollFrame")
 	group:SetLayout("Flow")
-	for i,v in ipairs(widgets) do 
+	for i,v in ipairs(widgets) do
 		local widget = AceGUI:Create(v.widget)
 		if widget.SetLabel then
 			widget:SetLabel(v.text)
@@ -87,7 +87,7 @@ function mod:CreateMainConfigGroup()
 		group:AddChild(widget)
 		group[v.key] = widget
 	end
-	group.spell:SetCallback("OnEnterPressed",function(widget,event,text) 
+	group.spell:SetCallback("OnEnterPressed",function(widget,event,text)
 		if text == "" then
 			text = "_"
 		end
@@ -99,27 +99,27 @@ function mod:CreateMainConfigGroup()
 		self.currentFcnIndex = text
 		self:UpdateFcnTreeGroup()
 	end)
-	
+
 	group.new:SetCallback("OnClick",function(widget,event)
 		self:NewFcn("")
 	end)
-	
+
 	group.inport:SetCallback("OnClick", function(widget,event)
 		parent.inportStatus = {1,1,AirjAutoKey.selectedIndex}
 		parent:Inport("fcn",self.currentFcnArray[self.currentFcnIndex],self.currentFcnIndex)
 	end)
-	
+
 	group.export:SetCallback("OnClick", function(widget,event)
 		parent:Export("fcn",filter)
 	end)
-	
+
 	group.delete:SetCallback("OnClick", function(widget,event)
 		if not IsControlKeyDown() then return end
 		self.currentFcnArray[self.currentFcnIndex] = nil
 		self.currentFcnIndex = next(self.currentFcnArray)
 		self:UpdateFcnTreeGroup()
 	end)
-	
+
 	group.fcn.button:SetScript("OnClick",function(button)
 		button:Disable()
 		local text = group.fcn:GetText()
@@ -128,9 +128,9 @@ function mod:CreateMainConfigGroup()
 		currentFcnArray[currentFcnIndex] = text
 		self:UpdateFcnTreeGroup()
 	end)
-	
+
 	group.fcn:SetHeight(300)
-	
+
 	self.mainConfigGroup = group
 end
 
@@ -207,4 +207,4 @@ function parent:FunctionSetting()
 	mod:FunctionSetting()
 end
 
-parent:RegisterTab("FunctionSetting","自定义函数",mod)
+-- parent:RegisterTab("FunctionSetting","自定义函数",mod)

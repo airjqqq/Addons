@@ -172,7 +172,7 @@ function mod:UpdateMainConfigGroup()
 
 	local currentMacroArray = self.currentMacroArray
 	group.spell:SetText(currentMacroIndex)
-	local macro = AirjAutoKey:GetSpellMacroText(currentMacroArray,currentMacroIndex) or ""
+	local macro = AirjAutoKey:ToBasicMacroText(currentMacroIndex) or ""
 	--[[
 	if macro == "" then
 		local spell = currentMacroIndex and strsplit("_",currentMacroIndex)
@@ -213,8 +213,8 @@ function mod:MacroSetting()
 end
 
 function parent:MacroSetting()
-	if mod.currentMacroArray ~= AirjAutoKey.macroArray then
-		mod.currentMacroArray = AirjAutoKey.macroArray
+	if mod.currentMacroArray ~= AirjAutoKey.rotationDB.macroArray then
+		mod.currentMacroArray = AirjAutoKey.rotationDB.macroArray
 		mod.currentMacroIndex = next(mod.currentMacroArray)
 		mod.isDefault = AirjAutoKey.rotationDB.isDefault
 	end

@@ -328,7 +328,6 @@ function mod:NewData(macro,index)
 	end
 	macro.isDefault = nil
 	tinsert(parent.macroDataBaseArray,index,macro)
-	print(index)
 	if index < (parent.selectedIndex or 0) then
 		parent.selectedIndex = parent.selectedIndex + 1
 	elseif index == parent.selectedIndex then

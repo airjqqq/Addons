@@ -18,6 +18,15 @@ keyArray[6] = {"NUMPAD4","NUMPADDECIMAL","NUMPAD6","MOUSEWHEELDOWN"}
 keyArray[7] = {"NUMPAD7","NUMPAD8","NUMPAD9","BUTTON5"}
 keyArray[8] = {"NUMPAD0","NUMPADMINUS","NUMPADPLUS","BUTTON4"}
 
+local hacked
+local InCombatLockdown = function()
+	if AirjHack and AirjHack:HasHacked() then
+		hacked = true
+		return false
+	end
+	return _G.InCombatLockdown()
+end
+
 function mod:OnInitialize()
 
 	local default =
@@ -28,7 +37,7 @@ function mod:OnInitialize()
 		}
 	}
 	self.db = LibStub("AceDB-3.0"):New("AirjMacrosDB",default,true)
-	print(#self.db.profile.macroDataBaseArray)
+	-- print(#self.db.profile.macroDataBaseArray)
 
 	self.db.profile.macroDataBaseArray = self.db.profile.macroDataBaseArray or {}
 	self.macroDataBaseArray = self.db.profile.macroDataBaseArray
@@ -57,7 +66,7 @@ function mod:OnInitialize()
 	--	mainFrame:Hide()
 	end
 	InterfaceOptions_AddCategory(frame)
---	InterfaceOptionsFrame_OpenToCategory("AirjMacros")
+  --	InterfaceOptionsFrame_OpenToCategory("AirjMacros")
 
 	self.timer100ms = self:ScheduleRepeatingTimer(function()
 		self:TimerCallback()
@@ -71,7 +80,8 @@ function mod:OnInitialize()
 	self:UpdateRealButtons()
 
 	self:RegisterChatCommand("amo", function(str,...)
-		mod:Toggle()
+		self:Toggle()
+		self.modChildren.DataSelect:UpdateDataTreeGroup()
 	end)
 	self:RegisterChatCommand("amop", function(str,...)
 		local _,_,id = GameTooltip:GetSpell()
@@ -225,7 +235,14 @@ function mod:CreateRealButtons()
 						if keyIndex and keyIndex<=3 then
 							--AirjAutoKey:SetConfigValue("target", keyIndex*2-1)
 						end
-						AirjAutoKey:SetConfigValue("once", -0.4)
+						local datas = mod.macroDataBaseArray[mod.selectedIndex].macroArray
+						local data = datas[key] or {}
+						if not data.dontStopAuto then
+							AirjAutoKey:OnChatCommmand("onceGCD",-0.4)
+						end
+						if real.macrotext and hacked then
+				    	AirjHack:RunMacroText(real.macrotext)
+						end
 					end
 				end)
 			end
@@ -237,12 +254,17 @@ function mod:UpdateRealButtons()
 	if not self.selectedIndex or self.selectedIndex==0 then
 		return
 	end
+
 	if InCombatLockdown() then
 		self.UpdateWhileCombat = true
 		message("战斗状态无法更新按键设置,战斗结束后自动更新")
 		return
 	end
 	self.UpdateWhileCombat = nil
+
+	if _G.InCombatLockdown() then
+		self.UpdateWhileCombat = true
+	end
 
 	local pres = {"","SHIFT-","ALT-","CTRL-"}
 	local datas = self.macroDataBaseArray[self.selectedIndex].macroArray
@@ -273,8 +295,17 @@ function mod:SetMacro(button,macro)
 	if macro then
 		local key = button.key
 		SetOverrideBindingClick(button,true,key,button:GetName())
-		button:SetAttribute("macrotext",macro)
+		if not hacked then
+			button:SetAttribute("macrotext",macro)
+		end
+		button.macrotext = macro
 	else
+		if not hacked then
+			button:SetAttribute("macrotext",nil)
+		end
+		button.macrotext = nil
+	end
+	if hacked and not _G.InCombatLockdown() then
 		button:SetAttribute("macrotext",nil)
 	end
 end
@@ -389,7 +420,7 @@ function mod:SelectDataDB(index)
 end
 
 function mod:TimerCallback()
-	if not InCombatLockdown() and self.UpdateWhileCombat then
+	if not _G.InCombatLockdown() and self.UpdateWhileCombat then
 		mod:UpdateRealButtons()
 	end
 end

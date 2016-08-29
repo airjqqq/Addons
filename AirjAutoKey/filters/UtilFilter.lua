@@ -1,11 +1,147 @@
-local F = LibStub("AceAddon-3.0"):NewAddon("AirjAutoKeyUtilFilter")
-local Cache
-function OnInitialize()
-  Cache = AirjAutoKeyCache
+local filterName = "UtilFilter"
+local Core = LibStub("AceAddon-3.0"):GetAddon("AirjAutoKey")
+local Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
+local Filter = Core:GetModule("Filter")
+local F = Filter:NewModule(filterName)
+local color = "DFDF3F"
+local L = setmetatable({},{__index = function(t,k) return k end})
+
+local CombatLogFilter
+
+function F:OnInitialize()
+  local blue = "3F7FBF"
+  self:RegisterFilter("AUTOON",L["auto ~= 0"],{},nil,blue)
+  self:RegisterFilter("PARAMVALUE",L["Check Param"],nil,nil,blue)
+  self:RegisterFilter("BURST",L["Is Bursting"],{},nil,blue)
+  self:RegisterFilter("PARAMEXPIRED",L["Param Not Expired"],{name={}},nil,blue)
+  self:RegisterFilter("AOENUM",L["AOE Count"],{name={name=L["Radius|Scan Interval|Spell ID"]},value={},greater={}},nil,blue)
+  self:RegisterFilter("FASTSPELL",L["Fast Spell"],{unit={},name={name="spell ID|Cooldown|Range|Is help"}},nil,"FF7D0A")
+  self:RegisterFilter("CD",L["Spell Cooldown"])
+  self:RegisterFilter("ICD",L["Item Cooldown"])
+  self:RegisterFilter("CHARGE",L["Spell Charge"])
+  self:RegisterFilter("KNOWS",L["Spell Known"],{name={}})
+  self:RegisterFilter("ISUSABLE",L["Spell Usable"],{name={}})
+  self:RegisterFilter("CSPELL",L["Cursor Spell"],{name={}})
+  self:RegisterFilter("CANCAST",L["Bar Cast"],{})
+  self:RegisterFilter("STARTMOVETIME",L["Since Start Move"],{value={},greater={}})
+  self:RegisterFilter("SPEEDTIME",L["Since Stop Move"],{value={},greater={}})
+  self:RegisterFilter("STANCE",L["Stance"],{value={}})
+  self:RegisterFilter("RUNE",L["Rune"],{value={},greater={}})
+  self:RegisterFilter("TOTEMTIME",L["Totem Time"],{name={},value={},greater={}},{
+    [1]=L["Fire"],
+    [2]=L["Eath"],
+    [3]=L["Water"],
+    [4]=L["Air"],
+  })
+  CombatLogFilter = Filter:GetModule("CombatLogFilter")
+end
+
+function F:RegisterFilter(key,name,keys,subtypes,c)
+  assert(self[key])
+  Core:RegisterFilter(key,{
+    name = name,
+    fcn = self[key],
+    color = c or color,
+    keys = keys or {name= {},greater= {},value= {}},
+    subtypes = subtypes,
+  })
+end
+function F:AUTOON(filter)
+  return Core:GetParam("auto") ~= 0
+end
+function F:PARAMVALUE(filter)
+  filter.name = filter.name or "auto"
+  return Core:GetParam(filter.name)
+end
+function F:BURST(filter)
+  return Core:GetParamNotExpired("burst")
+end
+function F:PARAMEXPIRED(filter)
+  filter.name = filter.name or "burst"
+  return Core:GetParamNotExpired(filter.name)
+end
+
+local function checkSwingInRange (radius,time)
+  local t = GetTime()
+  local count = 0
+  for guid, to in pairs(Cache.cache.damageTo) do
+    if to.Swing then
+      local data = to.Swing.last
+      if data and t-data.t<time then
+        local isdead = select(6,Cache:GetHealth(guid))
+        if isdead==false and Cache:FlagIsSet(guid,COMBATLOG_OBJECT_REACTION_FRIENDLY)==false then
+          local x,y,z,f,d,s = Cache:GetPosition(guid)
+          if d and d-s<radius then
+            count = count + 1
+          end
+        end
+      end
+    end
+  end
+  return count
+end
+
+function F:AOENUM(filter)
+  filter.value = filter.value or 2
+  -- local value = Core:GetParam("target")
+  local value = 0
+  if value > filter.value then return value end
+  local pguid = Cache:Call("UnitGUID","player")
+  local radius,time,spellId = unpack(Core:ToValueTable(filter.name),1,3)
+  radius = radius or 8
+  time = time or 5
+  if spellId then
+    value = max(value,CombatLogFilter:GetSpellHitCount(pguid,spellId,time))
+    if value > filter.value then return value end
+  end
+  value = max(value,checkSwingInRange(radius,time))
+  if value > filter.value then return value end
+  return value
+end
+
+function F:FASTSPELL(filter)
+  local spellId, cdthd, range, ishelp = unpack(Core:ToValueTable(filter.name),1,4)
+  if not cdthd or cdthd == "" then cdthd = 0.2 end
+  ishelp = ishelp and ishelp ~= 0 and true or false
+  assert(spellId)
+  local cd, charge, know, usable = Cache:GetSpellCooldown(spellId)
+  if cd > cdthd or not know or not usable then
+    return false
+  end
+  local name, rank, icon, castingTime, minRange, maxRange, spellID = Cache:Call("GetSpellInfo",spellId)
+  if filter.unit and filter.unit ~= "player" then
+    local guid = Cache:Call("UnitGUID",filter.unit)
+    if not guid then return false end
+    local exists,harm,help = Cache:GetExists(guid,filter.unit)
+    if not exists or ishelp and not help or not ishelp and not harm then
+      return false
+    end
+    local isdead = select(6,Cache:GetHealth(guid))
+    if isdead then
+      return false
+    end
+    local x,y,z,f,d,s = Cache:GetPosition(guid)
+    if not x then return false end
+    if not range then
+      range = maxRange
+    end
+    assert(range)
+    if range == 0 then range = 1.33 end
+    if d > math.max(5,range + s + 1.5) then
+      return false
+    end
+  end
+  if castingTime > 0 then
+    if not F:CANCAST() then
+      return false
+    end
+  end
+    -- self:Print("FASTSPELL",unit)
+  return true
 end
 function F:CD(filter)
-  assert(type(filter.name)=="number")
-  local value = Cache:GetSpellCooldown(filter.name)
+  filter.value = filter.value or 0.2
+  local value = Cache:GetSpellCooldown(filter.name or 61304)
   return value
 end
 
@@ -95,7 +231,6 @@ function F:RUNE(filter)
   return value
 end
 
--- {"fire","eath","water","air"}
 function F:TOTEMTIME(filter)
 	assert(filter.subtype)
   local names = Core:ToKeyTable(filter.name)

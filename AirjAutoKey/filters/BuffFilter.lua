@@ -1,42 +1,51 @@
-local F = LibStub("AceAddon-3.0"):NewAddon("AirjAutoKeyBuffFilter")
-local Cache = AirjAutoKeyCache
-local Core = AirjAutoKey
-local color = "FFFFFF"
-local L =setmetatable({},{__index = function(t,k) return k end}
+local filterName = "BuffFilter"
+local Core = LibStub("AceAddon-3.0"):GetAddon("AirjAutoKey")
+local Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
+local Filter = Core:GetModule("Filter")
+local F = Filter:NewModule(filterName)
+local color = "7FFF7F"
+local L = setmetatable({},{__index = function(t,k) return k end})
 
 function F:RegisterFilter(key,name,keys,subtypes)
   assert(self[key])
   Core:RegisterFilter(key,{
     name = name,
-    fcn = self[name],
+    fcn = self[key],
     color = color,
     keys = keys,
     subtypes = subtypes,
   })
 end
+
 function F:OnInitialize()
   self:RegisterFilter("BUFF",L["Buff"],nil,{
-  		COUNT = {
-  			name = L["Count"],
-  		},
-  		START = {
-  			name = L["From start"],
-  		},
-  		OBSERV = {
-  			name = L["Obsorb (value2)"],
-  		},
-  	},)
+    COUNT = L["Count"],
+    START = L["From start"],
+    OBSERV = L["Obsorb (value2)"],
+  })
   self:RegisterFilter("BUFFSELF",L["Buff (mine)"],nil,{
-      COUNT = {
-        name = L["Count"],
-      },
-      START = {
-        name = L["From start"],
-      },
-      OBSERV = {
-        name = L["Obsorb (value2)"],
-      },
-    },)
+    COUNT = L["Count"],
+    START = L["From start"],
+    OBSERV = L["Obsorb (value2)"],
+  })
+  self:RegisterFilter("DEBUFF",L["Debuff"],nil,{
+    COUNT = L["Count"],
+    START = L["From start"],
+    NUMBER = L["Damage (value2)"],
+  })
+  self:RegisterFilter("DEBUFFSELF",L["Debuff (mine)"],nil,{
+    COUNT = L["Count"],
+    START = L["From start"],
+    NUMBER = L["Damage (value2)"],
+  })
+  self:RegisterFilter("DTYPE",L["Debuff Dispel Type"])
+  self:RegisterFilter("CANSTEAL",L["Stealable Buff"],{
+    value = {},
+    greater = {},
+    unit= {},
+  },{
+    COUNT = L["Count"],
+  })
 end
 
 -- no buff ~= value<=0 any more
@@ -207,32 +216,27 @@ function F:CANSTEAL(filter)
   if not guid then return false end
   local debuffs = Cache:GetDebuffs(guid,filter.unit)
   local t = GetTime()
-  for i,v in pairs(debuffs) do
-    local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
-    if dispelType == "Magic" or isStealable then
-      local value = (expires - t)/timeMod
-      if Core:MatchValue(value,filter) then
-        return true
+  if filter.subtype == "COUNT" then
+    local count = 0
+    for i,v in pairs(debuffs) do
+      local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
+      if dispelType == "Magic" or isStealable then
+        if expires - t then
+          count = count + 1
+        end
       end
     end
-  end
-  return false
-end
-
-function F:CANSTEALNUM(filter)
-  filter.unit = filter.unit or "player"
-  local guid = Cache:Call("UnitGUID",filter.unit)
-  if not guid then return 0 end
-  local debuffs = Cache:GetDebuffs(guid,filter.unit)
-  local t = GetTime()
-  local count = 0
-  for i,v in pairs(debuffs) do
-    local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
-    if dispelType == "Magic" or isStealable then
-      if expires - t then
-        count = count + 1
+    return count
+  else
+    for i,v in pairs(debuffs) do
+      local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
+      if dispelType == "Magic" or isStealable then
+        local value = (expires - t)/timeMod
+        if Core:MatchValue(value,filter) then
+          return true
+        end
       end
     end
+    return false
   end
-  return count
 end

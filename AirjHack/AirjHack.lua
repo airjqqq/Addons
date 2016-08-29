@@ -7,7 +7,9 @@ local function dump(...)
 	if not DevTools_Dump then
 		SlashCmdList["DUMP"]("")
 	end
-	DevTools_Dump({...})
+	if DevTools_Dump then
+		DevTools_Dump({...})
+	end
 end
 
 function mod:OnInitialize()
@@ -20,7 +22,7 @@ function mod:OnEnable()
   self.objectCache = {}
   self.eventTimer = self:ScheduleRepeatingTimer(function()
     self:CheckAndSendMessage()
-  end,0.01)
+  end,0.1)
 end
 
 function mod:OnDisable()
@@ -147,4 +149,9 @@ end
 function mod:SetCameraDistance(range)
     if not self:HasHacked() then return end
     return fcn("AirjSetCameraDistance",range or 50)
+end
+
+function mod:RunMacroText(text)
+  if not self:HasHacked() then return end
+	RunMacroText(text)
 end

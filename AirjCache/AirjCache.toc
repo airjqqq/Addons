@@ -1,0 +1,11 @@
+## Interface: 70300
+## Title: AirjCache Core
+## Version: 2.0
+## Author: Airj
+## RequiredDeps: Ace3,AirjHack
+
+#embeds.xml
+#Libs\DRData-1.0\DRData-1.0.xml
+
+# AirjAutoKey.lua
+..\AirjAutoKey\Cache.lua

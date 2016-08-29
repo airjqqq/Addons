@@ -1,8 +1,0 @@
-﻿## Interface: 62000
-## Title: [AirjAutoKey] GUI
-## Version: 1.0
-## Author: Airj
-
-#embeds.xml
-
-AirjAutoKey_GUI.lua

@@ -188,7 +188,7 @@ function mod:CreateMainConfigGroup()
 	end)
 
 	group.select:SetCallback("OnClick", function(widget,event)
-		AirjAutoKey:SelectRotationDB(self.currentRotationIndex)
+		AirjAutoKey:SelectRotation(self.currentRotationIndex)
 		self:UpdateRotationTreeGroup()
 	end)
 	group.autoSwap:SetCallback("OnValueChanged", function(widget,event,key)
@@ -209,9 +209,6 @@ function mod:CreateMainConfigGroup()
 		local rdb = {
 			spellArray = {},
 			macroArray = {},
-			fcnArray = {},
-			eventArray = {},
-			timerArray = {},
 		}
 		self:NewRotation(rdb)
 	end)
@@ -228,10 +225,10 @@ function mod:CreateMainConfigGroup()
 	group.delete:SetCallback("OnClick", function(widget,event)
 		if not IsControlKeyDown() then return end
 		tremove(AirjAutoKey.rotationDataBaseArray,self.currentRotationIndex)
-		if self.currentRotationIndex < AirjAutoKey.selectedIndex then
-			AirjAutoKey.selectedIndex = AirjAutoKey.selectedIndex - 1
-		elseif self.currentRotationIndex == AirjAutoKey.selectedIndex then
-			AirjAutoKey:SelectRotationDB(AirjAutoKey.selectedIndex - 1)
+		if self.currentRotationIndex < AirjAutoKey:GetParam("selectedRotationIndex") then
+			AirjAutoKey:SetParam("selectedRotationIndex", AirjAutoKey:GetParam("selectedRotationIndex") - 1)
+		elseif self.currentRotationIndex == AirjAutoKey:GetParam("selectedRotationIndex") then
+			AirjAutoKey:SelectRotation(AirjAutoKey:GetParam("selectedRotationIndex") - 1)
 		end
 		if self.currentRotationIndex and self.currentRotationIndex>1 then
 			self.currentRotationIndex = self.currentRotationIndex - 1
@@ -264,7 +261,7 @@ function mod:UpdateMainConfigGroup()
 	group.spec:SetDisabled(rotation.isDefault)
 	group.note:SetText(rotation.note)
 	group.note:SetDisabled(rotation.isDefault)
-	group.select:SetDisabled(AirjAutoKey.selectedIndex == self.currentRotationIndex)
+	group.select:SetDisabled(AirjAutoKey:GetParam("selectedRotationIndex") == self.currentRotationIndex)
 	group.autoSwap:SetValue(rotation.autoSwap)
 	group.delete:SetDisabled(rotation.isDefault)
 	group.inst:SetDisabled(rotation.isDefault)
@@ -310,14 +307,14 @@ function mod:UpdateRotationTreeGroup()
 		tinsert(name,note)
 		name = table.concat(name," - ")
 		if name == "" then
-			name = "未定义"
+			name = "Undefined"
 		end
-		if AirjAutoKey.selectedIndex == i then
+		if AirjAutoKey:GetParam("selectedRotationIndex") == i then
 			name = "[|cff00ff00"..name.."|r]"
 		elseif v.isDefault then
 			name = "|cff00ffff"..name.."|r"
 		end
-		if(self.showotherclass or class == playerClass) then
+		if(self.showotherclass or class == playerClass or not class) then
 			tinsert(tree,{value = i,icon = icon,text = name})
 		end
 	end
@@ -337,15 +334,16 @@ function mod:NewRotation(rotation,index)
 		index = nil
 	end
 	tinsert(AirjAutoKey.rotationDataBaseArray,index,rotation)
-	if not AirjAutoKey.selectedIndex then
-		AirjAutoKey.selectedIndex = 0
+	if not AirjAutoKey:GetParam("selectedRotationIndex") then
+		AirjAutoKey:SetParam("selectedRotationIndex", 0)
 	end
-	if index < AirjAutoKey.selectedIndex then
-		AirjAutoKey.selectedIndex = AirjAutoKey.selectedIndex + 1
-	elseif index == AirjAutoKey.selectedIndex then
-		AirjAutoKey:SelectRotationDB(AirjAutoKey.selectedIndex + 1)
+	if index < AirjAutoKey:GetParam("selectedRotationIndex") then
+		local i = AirjAutoKey:GetParam("selectedRotationIndex") + 1
+		AirjAutoKey:SetParam("selectedRotationIndex", i)
+	elseif index == AirjAutoKey:GetParam("selectedRotationIndex") then
+		AirjAutoKey:SelectRotation(AirjAutoKey:GetParam("selectedRotationIndex") + 1)
 	end
-	AirjAutoKey:SelectRotationDB(self.currentRotationIndex)
+	AirjAutoKey:SelectRotation(self.currentRotationIndex)
 	self:UpdateRotationTreeGroup()
 end
 
