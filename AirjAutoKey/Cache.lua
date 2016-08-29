@@ -79,6 +79,9 @@ function Cache:OnDisable()
 end
 
 function Cache:Call(fcnName,...)
+	do
+		return _G[fcnName](...)
+	end
 	local key = fcnName
 	for i,v in ipairs({...}) do
 		key = key.."-"..v

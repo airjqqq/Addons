@@ -31,9 +31,12 @@ function Core:OnEnable()
 
   self.mainTimerProtectorTimer = self:ScheduleRepeatingTimer(function()
     if GetTime() - (self.lastScanTime or 0) > 0.5 then
+      self:Print("RestartTimer")
+      self.lastScanTime = GetTime()
       self:RestartTimer()
     end
   end,0.1)
+
   self:SelectSuitableRotation()
 
   self:RegisterChatCommand("aak", function(str)
@@ -48,6 +51,7 @@ function Core:OnEnable()
     SetCVar("reducedLagTolerance", 1)
     SetCVar("MaxSpellStartRecoveryOffset", 50)
   end
+  -- starttest
 end
 
 function Core:OnDisable()
@@ -168,6 +172,11 @@ do
     burst = function(value)
       value = GetTime() + (tonumber(value) or 15)
       Core:SetParam("burst",value)
+    end,
+    gui = function(value)
+      if AirjAutoKey_GUI_anchor then
+        AirjAutoKey_GUI_anchor:SetPoint("BOTTOMLEFT",UIParent,"BOTTOM",0,120)
+      end
     end,
   }
   function Core:OnChatCommmand(key,value,nextString)
@@ -510,7 +519,10 @@ do
   end
 
   function Core:RestartTimer()
-  	self:CancelTimer(self.mainTimer,true)
+    if self.mainTimer then
+	    self:CancelTimer(self.mainTimer,true)
+      self.mainTimer = nil
+    end
   	self.mainTimer = self:ScheduleRepeatingTimer(function()
       self:Scan()
   	end,0.02)

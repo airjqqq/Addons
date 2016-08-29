@@ -41,6 +41,11 @@ function F:OnInitialize()
     greater = {},
     name = {name="Scan Interval"},
     unit = {},
+  },{
+    -- TIMETOFULL = L["Time To Full"]
+    NOHEAL = L["Exclude Heal"],
+    SWING = L["Swing[Exclude Heal]"],
+    MAGIC = L["Magic[Exclude Heal]"],
   })
   self:RegisterFilter("LASTCASTSEND",L["Cast Send"],{
     value = {},
@@ -172,7 +177,7 @@ function F:SPELLHITCNT(filter)
   return F:GetSpellHitCount(guid,spellId,time)
 end
 
-local function getDamageTaken(guid,time)
+function F:GetDamageTaken(guid,time)
   local by = Cache.cache.damageBy[guid]
   if not by then return 0 end
   local array = by.array or {}
@@ -188,7 +193,7 @@ local function getDamageTaken(guid,time)
   return total
 end
 
-local function getDamageTakenSwing(guid,time)
+function F:GetDamageTakenSwing(guid,time)
   local by = Cache.cache.damageBy[guid]
   if not by then return 0 end
   local array = by.array or {}
@@ -212,13 +217,13 @@ function F:DAMAGETAKEN(filter)
   local guid = Cache:Call("UnitGUID",filter.unit)
   if not guid then return false end
   if filter.subtype == "SWING" then
-    return getDamageTakenSwing(guid,time)
+    return F:GetDamageTakenSwing(guid,time)
   else
-    return getDamageTaken(guid,time)
+    return F:GetDamageTaken(guid,time)
   end
 end
 
-local function getHealTaken(guid,time)
+function F:GetHealTaken(guid,time)
   local by = Cache.cache.healBy[guid]
   if not by then return 0 end
   local array = by.array or {}
@@ -234,7 +239,7 @@ local function getHealTaken(guid,time)
   return total
 end
 
-local function getHealTakenDirect(guid,time)
+function F:GetHealTakenDirect(guid,time)
   local by = Cache.cache.healBy[guid]
   if not by then return 0 end
   local array = by.array or {}
@@ -258,9 +263,9 @@ function F:HEALTAKEN(filter)
   local guid = Cache:Call("UnitGUID",filter.unit)
   if not guid then return false end
   if filter.subtype == "DIRECT" then
-    return getHealTakenDirect(guid,time)
+    return F:GetHealTakenDirect(guid,time)
   else
-    return getHealTaken(guid,time)
+    return F:GetHealTaken(guid,time)
   end
 end
 
@@ -269,12 +274,39 @@ function F:TIMETODIE(filter)
   if not guid then return false end
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
   if not health then return 3600 end
+  if isdead then return 0 end
 	local time = tonumber(filter.name) or 5
-  local damage = getDamageTaken(guid,time)
-  local heal = getHealTaken(guid,time)
   health = health + prediction + absorb
-  if heal>=damage then return 3600 end
-  return health/(damage-heal)*time
+  if filter.subtype == "NOHEAL" then
+    local damage = F:GetDamageTaken(guid,time)
+    if damage == 0 then
+      return 3600
+    else
+      return health/(damage)*time
+    end
+  elseif filter.subtype == "SWING" then
+    local damage = F:GetDamageTakenSwing(guid,time)
+    if damage == 0 then
+      return 3600
+    else
+      return health/(damage)*time
+    end
+  elseif filter.subtype == "MAGIC" then
+    local damage = F:GetDamageTakenMagic(guid,time)
+    if damage == 0 then
+      return 3600
+    else
+      return health/(damage)*time
+    end
+  else
+    local damage = F:GetDamageTaken(guid,time)
+    local heal = F:GetHealTaken(guid,time)
+    if heal>=damage then
+      return 3600
+    else
+      return health/(damage-heal)*time
+    end
+  end
 end
 
 function F:LASTCASTSEND(filter)

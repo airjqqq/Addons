@@ -450,7 +450,7 @@ function mod:CreateMainConfigGroup()
 		if value then
 			self.refreshTimer = parent:ScheduleRepeatingTimer(function()
 				self:UpdateTrace()
-			end,0.02)
+			end,0.05)
 		else
 			parent:CancelTimer(self.refreshTimer)
 		end

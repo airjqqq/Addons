@@ -284,7 +284,8 @@ function GUI:UpdateMainIcon()
 end
 
 function GUI:Update()
-	self:UpdateOverlay()
+	do return end
+	-- self:UpdateOverlay()
   for i,data in ipairs(widgets) do
     data.update(data.widget,data)
   end
