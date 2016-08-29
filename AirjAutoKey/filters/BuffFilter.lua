@@ -52,7 +52,7 @@ end
 function F:BUFF(filter)
   assert(filter.name)
   filter.unit = filter.unit or "player"
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local spells = Core:ToKeyTable(filter.name)
   local buffs = Cache:GetBuffs(guid,filter.unit,spells)
@@ -87,7 +87,7 @@ end
 function F:BUFFSELF(filter)
   assert(filter.name)
   filter.unit = filter.unit or "player"
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local spells = Core:ToKeyTable(filter.name)
   local buffs = Cache:GetBuffs(guid,filter.unit,spells,true)
@@ -123,7 +123,7 @@ end
 function F:DEBUFF(filter)
   assert(filter.name)
   filter.unit = filter.unit or "player"
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local spells = Core:ToKeyTable(filter.name)
   local debuffs = Cache:GetDebuffs(guid,filter.unit,spells)
@@ -158,7 +158,7 @@ end
 function F:DEBUFFSELF(filter)
   assert(filter.name)
   filter.unit = filter.unit or "player"
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local spells = Core:ToKeyTable(filter.name)
   local debuffs = Cache:GetDebuffs(guid,filter.unit,spells,true)
@@ -193,7 +193,7 @@ end
 function F:DTYPE(filter)
   filter.name = filter.name or {"Magic","Curse","Poison","Disease"}
   filter.unit = filter.unit or "player"
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local debuffs = Cache:GetDebuffs(guid,filter.unit)
   local t = GetTime()
@@ -212,7 +212,7 @@ end
 
 function F:CANSTEAL(filter)
   filter.unit = filter.unit or "player"
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local debuffs = Cache:GetDebuffs(guid,filter.unit)
   local t = GetTime()

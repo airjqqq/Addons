@@ -59,8 +59,8 @@ local FAR_AWAY = 1000
 
 function F:HANGLE(filter)
   filter.unit = filter.unit or "target"
-  local guid = Cache:Call("UnitGUID",filter.unit)
-  local pguid = Cache:Call("UnitGUID","player")
+  local guid = Cache:UnitGUID(filter.unit)
+  local pguid = Core:PlayerGUID()
   local px,py,pz,f = Cache:GetPosition(pguid)
   local x,y,z = Cache:GetPosition(guid)
   if not x then return 180 end
@@ -78,8 +78,8 @@ function F:HANGLE(filter)
 end
 function F:HFRONTLINE(filter)
   filter.unit = filter.unit or "target"
-  local guid = Cache:Call("UnitGUID",filter.unit)
-  local pguid = Cache:Call("UnitGUID","player")
+  local guid = Cache:UnitGUID(filter.unit)
+  local pguid = Core:PlayerGUID()
   local px,py,pz,f = Cache:GetPosition(pguid)
   local x,y,z,_,distance = Cache:GetPosition(guid)
   if not x then return FAR_AWAY end
@@ -102,13 +102,13 @@ function F:HDRANGE(filter)
   filter.name = filter.name or "player"
   local unit2 = Core:ParseUnit(filter.name) or filter.name
 
-  local guid1 = Cache:Call("UnitGUID",filter.unit)
+  local guid1 = Cache:UnitGUID(filter.unit)
   local x1,y1,z1,_,distance = Cache:GetPosition(guid1)
   if not x1 then return FAR_AWAY end
   if unit2 == "player" then
     return distance or FAR_AWAY
   end
-  local guid2 = Cache:Call("UnitGUID",unit2)
+  local guid2 = Cache:UnitGUID(unit2)
   local x2,y2,z2 = Cache:GetPosition(guid2)
   if not x2 then return FAR_AWAY end
 	local dx,dy,dz = x1-x2, y1-y2, z1-z2
@@ -120,13 +120,13 @@ function F:EDGERANGE(filter)
   filter.name = filter.name or "player"
   local unit2 = Core:ParseUnit(filter.name) or filter.name
 
-  local guid1 = Cache:Call("UnitGUID",filter.unit)
+  local guid1 = Cache:UnitGUID(filter.unit)
   local x1,y1,z1,_,distance,s1 = Cache:GetPosition(guid1)
   if not x1 then return FAR_AWAY end
   if unit2 == "player" then
     return distance and (distance-s1-1.5) or FAR_AWAY
   end
-  local guid2 = Cache:Call("UnitGUID",unit2)
+  local guid2 = Cache:UnitGUID(unit2)
   local x2,y2,z2,_,_,s2 = Cache:GetPosition(guid2)
   if not x2 then return FAR_AWAY end
 	local dx,dy,dz = x1-x2, y1-y2, z1-z2
@@ -138,7 +138,7 @@ function F:SRANGE(filter)
   assert(type(filter.name)=="number")
   local name, rank, icon, castingTime, minRange, maxRange, spellID = Cache:Call("GetSpellInfo",filter.name)
   if not maxRange then return false end
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   local x,y,z,_,distance,size = Cache:GetPosition(guid)
   if not x then return false end
   if maxRange == 0 then maxRange = 1.33 end
@@ -156,7 +156,7 @@ function F:SRANGEAOE(filter)
   assert(type(filter.name)=="number")
   local name, rank, icon, castingTime, minRange, maxRange, spellID = Cach:Call("GetSpellInfo",filter.name)
   if not maxRange then return false end
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   local x,y,z,_,distance,size = Cache:GetPosition(guid)
   if not x then return false end
   if maxRange == 0 then maxRange = 8 end

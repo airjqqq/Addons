@@ -86,7 +86,7 @@ function F:AOENUM(filter)
   -- local value = Core:GetParam("target")
   local value = 0
   if value > filter.value then return value end
-  local pguid = Cache:Call("UnitGUID","player")
+  local pguid = Cache:UnitGUID("player")
   local radius,time,spellId = unpack(Core:ToValueTable(filter.name),1,3)
   radius = radius or 8
   time = time or 5
@@ -110,7 +110,7 @@ function F:FASTSPELL(filter)
   end
   local name, rank, icon, castingTime, minRange, maxRange, spellID = Cache:Call("GetSpellInfo",spellId)
   if filter.unit and filter.unit ~= "player" then
-    local guid = Cache:Call("UnitGUID",filter.unit)
+    local guid = CacheUnitGUID(,filter.unit)
     if not guid then return false end
     local exists,harm,help = Cache:GetExists(guid,filter.unit)
     if not exists or ishelp and not help or not ishelp and not harm then
@@ -189,7 +189,7 @@ end
 function F:CANCAST(filter)
   local notMoving=(Cache:Call("GetUnitSpeed","player") == 0 and not Cache:Call("IsFalling"))
   if notMoving then return true end
-  local guid = Cache:Call("UnitGUID","player")
+  local guid = Cache:UnitGUID("player")
   local buffs = Cache:GetBuffs(guid,"player",{[137587]=true})
   return #buffs > 0
 end

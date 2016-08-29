@@ -7,9 +7,6 @@ local stopAllMoves = {0,0,0,0,0,0,0,0,0,0}
 function M:OnInitialize()
 
 	self.goto = {}
-	self.moveTimer = self:ScheduleRepeatingTimer(function()
-		self:MoveTimer()
-	end,0.01)
 
 	self:RegisterChatCommand("aakm", function(str,...)
 		local args = {strsplit(" ",str)}
@@ -22,17 +19,11 @@ function M:OnInitialize()
 			self:KeepGoToStop()
 		end
 	end)
-	self:RegisterChatCommand("aakm", function(str,...)
-		local args = {strsplit(" ",str)}
-		if args[1] and UnitExists(args[1]) then
-			self:KeepFollowUnit(args[1])
-			if args[2] then
-				self:KeepFacingUnit(args[2])
-			end
-		else
-			self:KeepGoToStop()
-		end
-	end)
+end
+
+
+function M:OnEnable()
+	self.moveTimer = self:ScheduleRepeatingTimer(self.MoveTimer,self,0.01)
 end
 
 function M:MoveTimer()

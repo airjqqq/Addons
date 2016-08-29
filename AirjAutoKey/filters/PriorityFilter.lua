@@ -40,7 +40,7 @@ end
 
 function F:AIRRANGE(filter)
   local unit = Core:GetAirUnit()
-  local guid = unit and Cache:Call("UnitGUID",unit)
+  local guid = unit and Cache:UnitGUID(unit)
   if not guid then return end
   local x,y,z,f,d,s = Cache:GetPosition(guid)
   return exp(-d)
@@ -48,7 +48,7 @@ end
 
 function F:AIRLOWHEALTH(filter)
   local unit = Core:GetAirUnit()
-  local guid = unit and Cache:Call("UnitGUID",unit)
+  local guid = unit and Cache:UnitGUID(unit)
   if not guid then return end
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
   if not health then return end
@@ -59,7 +59,7 @@ end
 function F:AIRBUFF(filter)
   assert(type(filter.name)=="number")
   local unit = Core:GetAirUnit()
-  local guid = unit and Cache:Call("UnitGUID",unit)
+  local guid = unit and Cache:UnitGUID(unit)
   if not guid then return end
   local spells = Core:ToKeyTable(filter.name)
   local buffs = Cache:GetBuffs(guid,filter.unit,spells,true)
@@ -78,7 +78,7 @@ end
 function F:AIRDEBUFF(filter)
   assert(type(filter.name)=="number")
   local unit = Core:GetAirUnit()
-  local guid = unit and Cache:Call("UnitGUID",unit)
+  local guid = unit and Cache:UnitGUID(unit)
   if not guid then return end
   local spells = Core:ToKeyTable(filter.name)
   local buffs = Cache:GetDebuffs(guid,unit,spells,true)

@@ -89,7 +89,7 @@ end
 function F:CHANNELDAMAGE(filter)
   assert(filter.name and type(filter.name)=="number")
   filter.unit = filter.unit or "player"
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local list = Cache.cache.damageTo[guid]
   if not list then return 120 end
@@ -102,7 +102,7 @@ end
 function F:BEHITEDCNT(filter)
   filter.unit = filter.unit or "player"
 	local time = tonumber(filter.name) or 5
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return 0 end
   local by = Cache.cache.damageBy[guid]
   if not by then return 0 end
@@ -135,7 +135,7 @@ function F:GetSpellHitCount(guid,spellId,time)
   if not to then return 0 end
   local last = to.last
   if not last then return 0 end
-  local pguid = Cache:Call("UnitGUID","player")
+  local pguid = Core:PlayerGUID()
   local castTo = Cache.cache.castSuccessTo[pguid]
   if castTo then
     castTo = castTo[spellId]
@@ -172,7 +172,7 @@ function F:SPELLHITCNT(filter)
   filter.unit = filter.unit or "player"
   assert(spellId)
 	local time = time or 5
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   return F:GetSpellHitCount(guid,spellId,time)
 end
@@ -214,7 +214,7 @@ end
 function F:DAMAGETAKEN(filter)
   filter.unit = filter.unit or "player"
 	local time = tonumber(filter.name) or 5
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   if filter.subtype == "SWING" then
     return F:GetDamageTakenSwing(guid,time)
@@ -260,7 +260,7 @@ end
 function F:HEALTAKEN(filter)
   filter.unit = filter.unit or "player"
 	local time = tonumber(filter.name) or 5
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   if filter.subtype == "DIRECT" then
     return F:GetHealTakenDirect(guid,time)
@@ -270,7 +270,7 @@ function F:HEALTAKEN(filter)
 end
 
 function F:TIMETODIE(filter)
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
   if not health then return 3600 end
@@ -313,7 +313,7 @@ function F:LASTCASTSEND(filter)
   assert(filter.name)
   local guid
   if filter.unit then
-    guid = Cache:Call("UnitGUID",filter.unit)
+    guid = Cache:UnitGUID(filter.unit)
   else
     guid = "last"
   end
@@ -329,7 +329,7 @@ function F:CASTSTART(filter)
   assert(filter.name)
   local guid
   if filter.unit then
-    guid = Cache:Call("UnitGUID",filter.unit)
+    guid = Cache:UnitGUID(filter.unit)
   else
     guid = "last"
   end
@@ -354,12 +354,12 @@ function F:CASTSUCCESSED(filter)
   assert(filter.name)
   local guid
   if filter.unit then
-    guid = Cache:Call("UnitGUID",filter.unit)
+    guid = Cache:UnitGUID(filter.unit)
   else
     guid = "last"
   end
   if not guid then return false end
-  local pguid = Cache:Call("UnitGUID","player")
+  local pguid = Core:PlayerGUID()
   local data = Cache.cache.castSuccessTo[pguid]
   if not data then return 120 end
   data = data[filter.name]
@@ -371,7 +371,7 @@ end
 --Deprecated
 function F:ALLCASTSUCCESSED(filter)
   assert(filter.name)
-  local pguid = Cache:Call("UnitGUID","player")
+  local pguid = Core:PlayerGUID()
   local data = Cache.cache.castSuccessTo[pguid]
   if not data then return 120 end
   data = data[filter.name]
@@ -382,7 +382,7 @@ function F:ALLCASTSUCCESSED(filter)
 end
 
 function F:AURANUM(filter)
-  local pguid = Cache:Call("UnitGUID","player")
+  local pguid = Core:PlayerGUID()
   local data = Cache.cache.auraTo[pguid]
   local overTimeData
   if filter.subtype == "DOT" then

@@ -15,9 +15,7 @@ end
 
 function GUI:OnEnable()
 	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	self.updateTimer=self:ScheduleRepeatingTimer(function()
-    self:Update()
-  end,0.1)
+	self.updateTimer=self:ScheduleRepeatingTimer(self.Update,self,0.1)
 end
 
 function GUI:OnDisable()

@@ -102,7 +102,7 @@ end
 
 function F:UNITISTANK(filter)
   filter.unit = filter.unit or "target"
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local id, name, description, icon, background, role, class = Cache:GetSpecInfo(guid)
   return role == "TANK"
@@ -110,7 +110,7 @@ end
 
 function F:UNITISMELEE(filter)
   filter.unit = filter.unit or "target"
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local id, name, description, icon, background, role, class = Cache:GetSpecInfo(guid)
   -- F:Print(role)
@@ -120,7 +120,7 @@ end
 
 function F:UNITISHEALER(filter)
   filter.unit = filter.unit or "target"
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local id, name, description, icon, background, role, class = Cache:GetSpecInfo(guid)
   return role == "HEALER"
@@ -265,7 +265,7 @@ end
 function F:HTIME(filter)
   filter.unit = filter.unit or "player"
   assert(type(filter.name)=="number")
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local t = GetTime()
   local array = Cache:GetHealthArray(guid)
@@ -286,7 +286,7 @@ end
 function F:HEALTH(filter)
   filter.name = filter.name or {"prediction","absorb","healAbsorb"}
   filter.unit = filter.unit or "player"
-  local guid = Cache:Call("UnitGUID",filter.unit)
+  local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
   if not health then return false end
@@ -309,42 +309,40 @@ function F:HEALTH(filter)
   return toRet
 end
 
-function F:HEALTHPOINT(filter)
-  -- filter.name = filter.name or {"prediction","absorb","healAbsorb"}
-  filter.unit = filter.unit or "player"
-  filter.value = filter.value or 0.5
-  local guid = Cache:Call("UnitGUID",filter.unit)
-  if not guid then return false end
+function F:GetHealthPoint(guid)
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
   if not health then return false end
   if isdead then return false end
   health = health + prediction - healAbsorb
   local value = health/max
-  if value<filter.value then return value end
+  local minValue = value
   local time = unpack(Core:ToValueTable(filter.name),1,1)
   time = time or 5
   local damage = CombatLogFilter:GetDamageTaken(guid,time)
-  local minValue = value
-  value = 1 - damage/max/time*2
-  if value<filter.value then return value end
+  value = 1 - damage/health/time*2
+  minValue = min(value,minValue)
   local damageSwing = CombatLogFilter:GetDamageTakenSwing(guid,time)
+  value = 1 - damageSwing/health/time*5
   minValue = min(value,minValue)
-  value = 1 - damageSwing/max/time*5
-  if value<filter.value then return value end
   local heal = CombatLogFilter:GetHealTaken(guid,time)
+  value = 1 - (damage-heal)/health/time*3
   minValue = min(value,minValue)
-  value = 1 - (damage-heal)/max/time*3
-  if value<filter.value then return value end
   local thealth = getTimeHealthMax(guid,time)
-  minValue = min(value,minValue)
   value = 1 - (1 - thealth)*(1+time/5)
-  if value<filter.value then return value end
-  local thealth = getTimeHealthMax(guid,time*2)
   minValue = min(value,minValue)
-  value = 1 - (1 - thealth)*(1+time/2)
-  if value<filter.value then return value end
+  local thealth = getTimeHealthMax(guid,time*2)
+  value = 1 - (1 - thealth)*(1+time*2/5)
   minValue = min(value,minValue)
   return minValue
+end
+
+function F:HEALTHPOINT(filter)
+  -- filter.name = filter.name or {"prediction","absorb","healAbsorb"}
+  filter.unit = filter.unit or "player"
+  filter.value = filter.value or 0.5
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  return F:GetHealthPoint(guid)
 end
 
 function F:RAIDHEALTH(filter)
@@ -355,7 +353,7 @@ function F:RAIDHEALTH(filter)
   if time == 0 then time = nil end
   maxIgnore = maxIgnore or 0.5
   for _,unit in pairs(unitLst) do
-    local guid = Cache:Call("UnitGUID",unit)
+    local guid = Cache:UnitGUID(unit)
     if guid and not checked[guid] then
       checked[guid] = true
       local x,y,z,f,d,s = Cache:GetPosition(guid)

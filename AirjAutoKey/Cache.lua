@@ -78,10 +78,21 @@ function Cache:OnDisable()
 	self:UnregisterEvent("UNIT_SPELLCAST_FAILED")
 end
 
-function Cache:Call(fcnName,...)
-	do
-		return _G[fcnName](...)
+function Cache:UnitGUID(unit)
+	if not unit then return end
+	local toRet = self.cache.guid[unit]
+	local t = GetTime()
+	if toRet and toRet.t == t then
+		return unpack(toRet)
+	else
+		toRet = {UnitGUid(unit)}
+		toRet.t = t
+		self.cache.guid[unit]=toRet
+		return unpack(toRet)
 	end
+end
+
+function Cache:Call(fcnName,...)
 	local key = fcnName
 	for i,v in ipairs({...}) do
 		key = key.."-"..v
@@ -785,7 +796,7 @@ do
 		end
 		local know, usable
 		know = self.cache.known[spellID] and true or false
-		usable = self.cache.usable[spellID] and true or false
+		usable = self.cache.usable[spellID] and self.cache.usable[spellID][1] or false
 		local charges, maxCharges, cstart, cduration = unpack(self.cache.charge[spellID] or {})
 		local start, duration, enable = unpack(self.cache.cooldown[spellID] or {})
 		local cd = not start and 300 or start==0 and 0 or (duration - (t - start))

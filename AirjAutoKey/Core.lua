@@ -304,7 +304,7 @@ do
     local count = 0
     for _,unit in ipairs(unitList) do
       self:SetGroupUnit(unit)
-      local key = UnitGUID(unit)
+      local key = Cache:UnitGUID(unit)
       if key and not checked[key] then
         checked[key] = true
         if self:CheckFilterArray(tfilter) then
@@ -442,7 +442,7 @@ do
   end
 
   function Core:PreCheckSplitedUnit(unit,checked)
-    local guid = Cache:Call("UnitGUID",unit)
+    local guid = Cache:UnitGUID(unit)
     local passed = false
     if guid and not checked[guid] then
       checked[guid] = true
@@ -523,9 +523,7 @@ do
 	    self:CancelTimer(self.mainTimer,true)
       self.mainTimer = nil
     end
-  	self.mainTimer = self:ScheduleRepeatingTimer(function()
-      self:Scan()
-  	end,0.02)
+  	self.mainTimer = self:ScheduleRepeatingTimer(self.Scan,self,0.02)
   end
 end
 
@@ -646,7 +644,7 @@ do
   local array = {}
   function Core:CachePassedInfo(spellId,unit)
     if spellId and unit then
-      cache[spellId] = Cache:Call("UnitGUID",unit)
+      cache[spellId] = CacheUnitGUID(,unit)
     end
     if spellId then
       tinsert(array,1,{spellId,unit})
