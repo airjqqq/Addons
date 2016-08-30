@@ -30,7 +30,7 @@ do
   local spellTime = {}
   function GUI:COMBAT_LOG_EVENT_UNFILTERED(realEvent,timestamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool)
 		local localtime = GetTime()
-  	if (event == "SPELL_CAST_SUCCESS" or event == "SPELL_CAST_START") and Core:PlayerGUID() == sourceGUID then
+  	if (event == "SPELL_CAST_SUCCESS" or event == "SPELL_CAST_START") and Cache:PlayerGUID() == sourceGUID then
       local guid, dontCreate
       if event == "SPELL_CAST_START" then
         caststart[spellId] = true

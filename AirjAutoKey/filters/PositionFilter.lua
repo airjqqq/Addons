@@ -60,7 +60,7 @@ local FAR_AWAY = 1000
 function F:HANGLE(filter)
   filter.unit = filter.unit or "target"
   local guid = Cache:UnitGUID(filter.unit)
-  local pguid = Core:PlayerGUID()
+  local pguid = Cache:PlayerGUID()
   local px,py,pz,f = Cache:GetPosition(pguid)
   local x,y,z = Cache:GetPosition(guid)
   if not x then return 180 end
@@ -79,7 +79,7 @@ end
 function F:HFRONTLINE(filter)
   filter.unit = filter.unit or "target"
   local guid = Cache:UnitGUID(filter.unit)
-  local pguid = Core:PlayerGUID()
+  local pguid = Cache:PlayerGUID()
   local px,py,pz,f = Cache:GetPosition(pguid)
   local x,y,z,_,distance = Cache:GetPosition(guid)
   if not x then return FAR_AWAY end

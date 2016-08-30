@@ -137,7 +137,7 @@ function F:GetSpellHitCount(guid,spellId,time)
   if not to then return 0 end
   local last = to.last
   if not last then return 0 end
-  local pguid = Core:PlayerGUID()
+  local pguid = Cache:PlayerGUID()
   local castTo = Cache.cache.castSuccessTo[pguid]
   if castTo then
     castTo = castTo[spellId]
@@ -371,7 +371,7 @@ function F:CASTSUCCESSED(filter)
     guid = "last"
   end
   if not guid then return false end
-  local pguid = Core:PlayerGUID()
+  local pguid = Cache:PlayerGUID()
   local data = Cache.cache.castSuccessTo[pguid]
   if not data then return 120 end
   data = data[filter.name]
@@ -383,7 +383,7 @@ end
 --Deprecated
 function F:ALLCASTSUCCESSED(filter)
   assert(filter.name)
-  local pguid = Core:PlayerGUID()
+  local pguid = Cache:PlayerGUID()
   local data = Cache.cache.castSuccessTo[pguid]
   if not data then return 120 end
   data = data[filter.name]
@@ -394,7 +394,7 @@ function F:ALLCASTSUCCESSED(filter)
 end
 
 function F:AURANUM(filter)
-  local pguid = Core:PlayerGUID()
+  local pguid = Cache:PlayerGUID()
   local data = Cache.cache.auraTo[pguid]
   local overTimeData
   if filter.subtype == "DOT" then

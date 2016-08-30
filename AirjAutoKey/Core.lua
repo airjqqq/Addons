@@ -683,12 +683,6 @@ do
 end
 --util
 do
-  local playerGUID
-  function Core:PlayerGUID()
-    if playerGUID then return playerGUID end
-    playerGUID = UnitGUID("player")
-    return playerGUID
-  end
   function Core:DeepCopy(table)
   	if type(table) == "table" then
   		local toRet = {}

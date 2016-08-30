@@ -71,24 +71,38 @@ function Cache:OnEnable()
 		end
 	end,10)
 end
-
 function Cache:OnDisable()
 	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	self:UnregisterEvent("UNIT_SPELLCAST_SENT")
 	self:UnregisterEvent("UNIT_SPELLCAST_FAILED")
 end
 
-function Cache:UnitGUID(unit)
-	if not unit then return end
-	local toRet = self.cache.guid[unit]
-	local t = GetTime()
-	if toRet and toRet.t == t then
-		return unpack(toRet)
-	else
-		toRet = {UnitGUID(unit)}
-		toRet.t = t
-		self.cache.guid[unit]=toRet
-		return unpack(toRet)
+do
+  local playerGUID
+  function Cache:PlayerGUID()
+    if playerGUID then return playerGUID end
+    playerGUID = UnitGUID("player")
+    return playerGUID
+  end
+	local lastT
+	function Cache:UnitGUID(unit)
+		if not unit then return end
+		local t = GetTime()
+		local guids = self.cache.guid
+		if t~=lastT then
+			lastT = t
+			wipe(guids)
+		end
+		local guid = guids[unit]
+		if guid == nil then
+			guid = UnitGUID(unit)
+			guids[unit] = guid or false
+			return guid
+		elseif guid == false then
+			return nil
+		else
+			return guid
+		end
 	end
 end
 
@@ -100,12 +114,12 @@ function Cache:Call(fcnName,...)
 	local toRet = self.cache.call[key]
 	local t = GetTime()
 	if toRet and toRet.t == t then
-		return unpack(toRet)
+		return unpack(toRet,1,20)
 	else
 		toRet = {_G[fcnName](...)}
 		toRet.t = t
 		self.cache.call[key]=toRet
-		return unpack(toRet)
+		return unpack(toRet,1,20)
 	end
 end
 
