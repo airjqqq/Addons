@@ -14,8 +14,8 @@ function F:OnInitialize()
   self:RegisterFilter("PARAMVALUE",L["Check Param"],nil,nil,blue)
   self:RegisterFilter("BURST",L["Is Bursting"],{},nil,blue)
   self:RegisterFilter("PARAMEXPIRED",L["Param Not Expired"],{name={}},nil,blue)
-  self:RegisterFilter("AOENUM",L["AOE Count"],{name={name=L["Radius|Scan Interval|Spell ID"]},value={},greater={}},nil,blue)
-  self:RegisterFilter("FASTSPELL",L["Fast Spell"],{unit={},name={name="spell ID|Cooldown|Range|Is help"}},nil,"FF7D0A")
+  self:RegisterFilter("AOENUM",L["AOE Count"],{name={name=L["Radius | Scan Interval | Spell ID"]},value={},greater={}},nil,blue)
+  self:RegisterFilter("FASTSPELL",L["Fast Spell"],{unit={},name={name="spell ID | Cooldown | Range | Is help"}},nil,"FF7D0A")
   self:RegisterFilter("CD",L["Spell Cooldown"])
   self:RegisterFilter("ICD",L["Item Cooldown"])
   self:RegisterFilter("CHARGE",L["Spell Charge"])
@@ -87,10 +87,13 @@ function F:AOENUM(filter)
   local value = 0
   if value > filter.value then return value end
   local pguid = Cache:UnitGUID("player")
-  local radius,time,spellId = unpack(Core:ToValueTable(filter.name),1,3)
+  local spells = Core:ToValueTable(filter.name)
+  local radius,time = unpack(spells,1,2)
   radius = radius or 8
   time = time or 5
-  if spellId then
+  tremove(spells,1)
+  tremove(spells,1)
+  for i,spellId in ipairs(spells) do
     value = max(value,CombatLogFilter:GetSpellHitCount(pguid,spellId,time))
     if value > filter.value then return value end
   end
@@ -109,8 +112,8 @@ function F:FASTSPELL(filter)
     return false
   end
   local name, rank, icon, castingTime, minRange, maxRange, spellID = Cache:Call("GetSpellInfo",spellId)
-  if filter.unit and filter.unit ~= "player" then
-    local guid = CacheUnitGUID(,filter.unit)
+  if filter.unit and not(filter.unit == "player" and ishelp) then
+    local guid = Cache:UnitGUID(filter.unit)
     if not guid then return false end
     local exists,harm,help = Cache:GetExists(guid,filter.unit)
     if not exists or ishelp and not help or not ishelp and not harm then

@@ -110,7 +110,9 @@ function F:BEHITEDCNT(filter)
   local guids = {}
   local t = GetTime()
   local count = 0
-  for i, v in ipairs(array) do
+  for i = #array,1,-1 do
+  -- for i,v in ipairs(array) do
+    local v = array[i]
     local eventTime,sourceGUID,spellId = v.t,v.guid,v.spellId
     if t-eventTime>time then
       break
@@ -148,7 +150,9 @@ function F:GetSpellHitCount(guid,spellId,time)
   local calculated = {}
   local count = 0
   local t = GetTime()
-  for i,v in ipairs(array) do
+  for i = #array,1,-1 do
+  -- for i,v in ipairs(array) do
+    local v = array[i]
     if t - v.t > time then
       break
     end
@@ -183,7 +187,9 @@ function F:GetDamageTaken(guid,time)
   local array = by.array or {}
   local t = GetTime()
   local total = 0
-  for i, v in ipairs(array) do
+  for i = #array,1,-1 do
+  -- for i,v in ipairs(array) do
+    local v = array[i]
     local eventTime,sourceGUID,spellId,damage = v.t,v.guid,v.spellId,v.value
     if t-eventTime>time then
       break
@@ -199,7 +205,9 @@ function F:GetDamageTakenSwing(guid,time)
   local array = by.array or {}
   local t = GetTime()
   local total = 0
-  for i, v in ipairs(array) do
+  for i = #array,1,-1 do
+  -- for i,v in ipairs(array) do
+    local v = array[i]
     local eventTime,sourceGUID,spellId,damage = v.t,v.guid,v.spellId,v.value
     if t-eventTime>time then
       break
@@ -229,7 +237,9 @@ function F:GetHealTaken(guid,time)
   local array = by.array or {}
   local t = GetTime()
   local total = 0
-  for i, v in ipairs(array) do
+  for i = #array,1,-1 do
+  -- for i,v in ipairs(array) do
+    local v = array[i]
     local eventTime,sourceGUID,spellId,value = v.t,v.guid,v.spellId,v.value
     if t-eventTime>time then
       break
@@ -245,7 +255,9 @@ function F:GetHealTakenDirect(guid,time)
   local array = by.array or {}
   local t = GetTime()
   local total = 0
-  for i, v in ipairs(array) do
+  for i = #array,1,-1 do
+  -- for i,v in ipairs(array) do
+    local v = array[i]
     local eventTime,sourceGUID,spellId,value,periodic = v.t,v.guid,v.spellId,v.value,v.periodic
     if t-eventTime>time then
       break

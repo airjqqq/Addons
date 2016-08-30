@@ -7,6 +7,7 @@ local color = "7F7F3F"
 local L = setmetatable({},{__index = function(t,k) return k end})
 
 function F:OnInitialize()
+  self:RegisterFilter("AIRTYPE",L["[P] Other Filter"],{name={}})
   self:RegisterFilter("AIRSPECIFICUNIT",L["[P] Specific Unit"],{name={},value={}})
   self:RegisterFilter("AIRRANGE",L["[P] Range (near)"])
   self:RegisterFilter("AIRLOWHEALTH",L["[P] Health (low)"])
@@ -24,6 +25,19 @@ function F:RegisterFilter(key,name,keys,subtypes,c)
     subtypes = subtypes,
     priority = true,
   })
+end
+
+function F:AIRTYPE(filter)
+  local tfilter = Core:DeepCopy(filter)
+  local names = Core:ToValueTable(filter.name)
+  local type = tremove(names,1)
+  tfilter.name = names
+  tfilter.type = type
+  local data = Core.filterTypes[type]
+  if not data then error("no filter data found",1) end
+  local fcn = data.fcn
+  local value = fcn(Core,tfilter)
+  return exp(-value)
 end
 
 function F:AIRSPECIFICUNIT(filter)

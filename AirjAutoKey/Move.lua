@@ -23,7 +23,7 @@ end
 
 
 function M:OnEnable()
-	self.moveTimer = self:ScheduleRepeatingTimer(self.MoveTimer,self,0.01)
+	self.moveTimer = self:ScheduleRepeatingTimer(self.MoveTimer,0.01,self)
 end
 
 function M:MoveTimer()

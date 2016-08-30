@@ -251,7 +251,9 @@ function getTimeHealthMax(guid,time)
   local t = GetTime()
   local array = Cache:GetHealthArray(guid)
   local toRet
-  for i,v in ipairs(array) do
+  for i = #array,1,-1 do
+  -- for i,v in ipairs(array) do
+    local v = array[i]
     local health, max, prediction, absorb, healAbsorb, isdead = unpack(v)
     if not health or isdead or t-v.t>time then
       break
@@ -259,7 +261,7 @@ function getTimeHealthMax(guid,time)
     local value = (health+prediction-healAbsorb)/max
     toRet = math.max(toRet or 0,value)
   end
-  return toRet
+  return toRet or 0
 end
 
 function F:HTIME(filter)
@@ -269,7 +271,9 @@ function F:HTIME(filter)
   if not guid then return false end
   local t = GetTime()
   local array = Cache:GetHealthArray(guid)
-  for i,v in ipairs(array) do
+  for i = #array,1,-1 do
+  -- for i,v in ipairs(array) do
+    local v = array[i]
     local health, max, prediction, absorb, healAbsorb = unpack(v)
     if not health or health/max >filter.name then
       return t-v.t
@@ -309,23 +313,23 @@ function F:HEALTH(filter)
   return toRet
 end
 
-function F:GetHealthPoint(guid)
+function F:GetHealthPoint(guid,time)
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
   if not health then return false end
   if isdead then return false end
   health = health + prediction - healAbsorb
   local value = health/max
   local minValue = value
-  local time = unpack(Core:ToValueTable(filter.name),1,1)
-  time = time or 5
+  local toDiv = (health+max)/2
+  if not time or time < 1 then time = 5 end
   local damage = CombatLogFilter:GetDamageTaken(guid,time)
-  value = 1 - damage/health/time*2
+  value = 1 - damage/toDiv/time*2
   minValue = min(value,minValue)
   local damageSwing = CombatLogFilter:GetDamageTakenSwing(guid,time)
-  value = 1 - damageSwing/health/time*5
+  value = 1 - damageSwing/toDiv/time*5
   minValue = min(value,minValue)
   local heal = CombatLogFilter:GetHealTaken(guid,time)
-  value = 1 - (damage-heal)/health/time*3
+  value = 1 - (damage-heal)/toDiv/time*3
   minValue = min(value,minValue)
   local thealth = getTimeHealthMax(guid,time)
   value = 1 - (1 - thealth)*(1+time/5)
@@ -342,7 +346,8 @@ function F:HEALTHPOINT(filter)
   filter.value = filter.value or 0.5
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
-  return F:GetHealthPoint(guid)
+  local time = unpack(Core:ToValueTable(filter.name),1,1)
+  return F:GetHealthPoint(guid,time)
 end
 
 function F:RAIDHEALTH(filter)

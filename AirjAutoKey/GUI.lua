@@ -15,7 +15,8 @@ end
 
 function GUI:OnEnable()
 	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	self.updateTimer=self:ScheduleRepeatingTimer(self.Update,self,0.1)
+	-- self.updateTimer=self:ScheduleRepeatingTimer(self.Update,0.1,self)
+	self.container:SetScript("OnUpdate",self.Update)
 end
 
 function GUI:OnDisable()
@@ -282,13 +283,13 @@ function GUI:UpdateMainIcon()
 end
 
 function GUI:Update()
-	do return end
+	-- do return end
 	-- self:UpdateOverlay()
   for i,data in ipairs(widgets) do
     data.update(data.widget,data)
   end
-  self:UpdateMainIcon()
-  self:UpdateCooldown()
+  GUI:UpdateMainIcon()
+  GUI:UpdateCooldown()
 end
 
 

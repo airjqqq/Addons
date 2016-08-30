@@ -37,7 +37,7 @@ function Cache:OnEnable()
 	self.interval = {
 		buffs = 1,
 		debuffs = 1,
-		health = 0,
+		health = 1,
 		position = 0,
 		spell = 10,
 		spec = 5,
@@ -69,7 +69,7 @@ function Cache:OnEnable()
 		for k,v in pairs(self.cache) do
 			self:Recover(v,t,self.recoverDuration[k] or 300)
 		end
-	end,1)
+	end,10)
 end
 
 function Cache:OnDisable()
@@ -85,7 +85,7 @@ function Cache:UnitGUID(unit)
 	if toRet and toRet.t == t then
 		return unpack(toRet)
 	else
-		toRet = {UnitGUid(unit)}
+		toRet = {UnitGUID(unit)}
 		toRet.t = t
 		self.cache.guid[unit]=toRet
 		return unpack(toRet)
@@ -116,7 +116,11 @@ do
 			if type(v) == "table" then
 				if v.t then
 					if t-v.t > duration then
-						data[k] = nil
+						if data.isArray then
+							tremove(data,k)
+						else
+							data[k] = nil
+						end
 					end
 				else
 					self:Recover(v,t,duration)
@@ -372,18 +376,18 @@ do
 					to[spellId]=to[spellId] or {}
 					to[spellId].last={t=localtime,value=damage,guid=destGUID,periodic=periodic}
 					to[spellId][destGUID]={t=localtime,value=damage,periodic=periodic}
-					to.array = to.array or {}
-					tinsert(to.array,1,{t=localtime,value=damage,guid=destGUID,spellId=spellId,periodic=periodic})
-					to[spellId].array = to[spellId].array or {}
-					tinsert(to[spellId].array,1,{t=localtime,value=damage,guid=destGUID,periodic=periodic})
+					to.array = to.array or {isArray = true}
+					tinsert(to.array,{t=localtime,value=damage,guid=destGUID,spellId=spellId,periodic=periodic})
+					to[spellId].array = to[spellId].array or {isArray = true}
+					tinsert(to[spellId].array,{t=localtime,value=damage,guid=destGUID,periodic=periodic})
 
 					self.cache.damageBy[destGUID]=self.cache.damageBy[destGUID] or {}
 					local by = self.cache.damageBy[destGUID]
 					by[spellId]=by[spellId] or {}
 					by[spellId].last={t=localtime,value=damage,guid=sourceGUID,periodic=periodic}
 					by[spellId][sourceGUID]={t=localtime,value=damage,periodic=periodic}
-					by.array = by.array or {}
-					tinsert(by.array,1,{t=localtime,value=damage,guid=sourceGUID,spellId=spellId,periodic=periodic})
+					by.array = by.array or {isArray = true}
+					tinsert(by.array,{t=localtime,value=damage,guid=sourceGUID,spellId=spellId,periodic=periodic})
 
 					if self.cache.health[destGUID] then
 						self.cache.health[destGUID].changed = true
@@ -411,16 +415,16 @@ do
 					to[spellId]=to[spellId] or {}
 					to[spellId].last={t=localtime,value=heal,guid=destGUID,periodic=periodic}
 					to[spellId][destGUID]={t=localtime,value=heal,periodic=periodic}
-					to.array = to.array or {}
-					tinsert(to.array,1,{t=localtime,value=heal,guid=destGUID,spellId=spellId,periodic=periodic})
+					to.array = to.array or {isArray = true}
+					tinsert(to.array,{t=localtime,value=heal,guid=destGUID,spellId=spellId,periodic=periodic})
 
 					self.cache.healBy[destGUID]=self.cache.healBy[destGUID] or {}
 					local by = self.cache.healBy[destGUID]
 					by[spellId]=by[spellId] or {}
 					by[spellId].last={t=localtime,value=heal,guid=sourceGUID,periodic=periodic}
 					by[spellId][sourceGUID]={t=localtime,value=heal,periodic=periodic}
-					by.array = by.array or {}
-					tinsert(by.array,1,{t=localtime,value=heal,guid=sourceGUID,spellId=spellId,periodic=periodic})
+					by.array = by.array or {isArray = true}
+					tinsert(by.array,{t=localtime,value=heal,guid=sourceGUID,spellId=spellId,periodic=periodic})
 
 					if self.cache.health[destGUID] then
 						self.cache.health[destGUID].changed = true
@@ -548,11 +552,11 @@ do
 	function Cache:ScanOnesHealth(t,guid)
 		self.cache.health[guid]=self.cache.health[guid] or {}
 		local cache = self.cache.health
-		cache[guid]=cache[guid] or {}
+		cache[guid]=cache[guid] or {isArray = true}
 		local array = cache[guid]
 		local current = {AirjHack:UnitHealth(guid)}
 		current.t = t
-		tinsert(array,1,current)
+		tinsert(array,current)
 		array.changed = nill
 		array.lastT = t
 		return array
@@ -574,7 +578,10 @@ do
 		if not array or array.changed then
 			array = self:ScanOnesHealth(GetTime(),guid)
 		end
-		return unpack(array[1] or {})
+		local index = #array
+		if index~=0 then
+			unpack(array[index])
+		end
 	end
 	function Cache:GetHealthArray(guid)
 		local array = self.cache.health[guid]
@@ -720,7 +727,8 @@ do
 
 	function Cache:ScanSpeed(t,guids,unit)
 		local cache = {t=t}
-		tinsert(self.cache.speed,1,cache)
+		self.cache.speed.isArray = true
+		tinsert(self.cache.speed,cache)
 		cache.value = GetUnitSpeed("player")
 	end
 

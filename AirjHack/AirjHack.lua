@@ -53,6 +53,7 @@ function mod:CheckAndSendMessage()
   for guid, type in pairs(self.objectCache) do
     self:SendMessage("AIRJ_HACK_OBJECT_DESTROYED",guid,type)
   end
+	wipe(self.objectCache)
   self.objectCache = objects
 end
 

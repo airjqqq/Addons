@@ -5,7 +5,7 @@ function M:OnInitialize()
 end
 function M:OnEnable()
   self:RegisterEvent("MODIFIER_STATE_CHANGED",self.CheckAndPrint,self)
-	self.updateTimer = self:ScheduleRepeatingTimer(self.CheckAndPrint,self,0.2)
+	self.updateTimer = self:ScheduleRepeatingTimer(self.CheckAndPrint,0.2,self)
 end
 
 do
@@ -31,7 +31,7 @@ do
       end
       if not current then pressTime[name] = nil end
       if pressTime[name] and t - pressTime[name] >= 1 then
-        self:Print("Modkey "..name.."is pressing!")
+        self:Print(""..name.." is pressing!")
         pressTime[name] = t
       end
     end

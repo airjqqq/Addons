@@ -1084,7 +1084,7 @@ function mod:GetSpellTreeElement(spell)
 	end
 	if v.disable then
 		text = "|cff7f00ff" .. text .. "|r"
-	elseif AirjAutoKey.rotationDB.macroArray[v.spell or "_"] then
+	elseif AirjAutoKey.rotationDB.macroArray[v.spell or "_"] or AirjAutoKey:GetPresetMacro(v.spell or "_") then
 		text = "|cff00ff00" .. text .. "|r"
 	end
 

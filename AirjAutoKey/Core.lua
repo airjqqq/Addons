@@ -226,6 +226,14 @@ end
 
 -- main timer
 do
+  local presetMacros = {
+    stopcasting = "/stopcasting",
+    stopattack = "/stopattack",
+    startattack = "/startattack",
+    petattack = "/petattack",
+    petfollow = "/petfollow",
+  }
+
   function Core:GetAirUnit()
     return self.airUnit
   end
@@ -251,11 +259,17 @@ do
     end
   end
 
+  function Core:GetPresetMacro(key)
+    return presetMacros[key]
+  end
+
   function Core:ToBasicMacroText(key)
     if not key or key == "" then return end
     local macros = self.rotationDB.macroArray or {}
     if macros[key] then return macros[key] end
     if string.sub(key,1,1) == "/" then return key end
+    local pre = self:GetPresetMacro(key)
+    if pre then return pre end
     local name, _, _, _, _, _, spellID  = Cache:Call("GetSpellInfo",key)
     if name then return "/cast "..name, name, spellID end
   end
@@ -523,7 +537,7 @@ do
 	    self:CancelTimer(self.mainTimer,true)
       self.mainTimer = nil
     end
-  	self.mainTimer = self:ScheduleRepeatingTimer(self.Scan,self,0.02)
+  	self.mainTimer = self:ScheduleRepeatingTimer(self.Scan,0.02,self)
   end
 end
 
@@ -644,10 +658,10 @@ do
   local array = {}
   function Core:CachePassedInfo(spellId,unit)
     if spellId and unit then
-      cache[spellId] = CacheUnitGUID(,unit)
+      cache[spellId] = Cache:UnitGUID(unit)
     end
     if spellId then
-      tinsert(array,1,{spellId,unit})
+      tinsert(array,{spellId,unit})
       -- if GUI then
       --   GUI:SetMainIcon(spellId,unit)
       --   self:Print(spellId,unit)
@@ -658,7 +672,10 @@ do
     wipe(array)
   end
   function Core:GetLastCachePassed()
-    return unpack(array[1] or {})
+    local index = #array
+    if index ~= 0 then return
+      unpack(array[index])
+    end
   end
   function Core:GetPassedGuidBySpellId(spellId)
     return cache[spellId]
