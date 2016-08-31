@@ -594,7 +594,7 @@ do
 		end
 		local index = #array
 		if index~=0 then
-			unpack(array[index])
+			return unpack(array[index])
 		end
 	end
 	function Cache:GetHealthArray(guid)

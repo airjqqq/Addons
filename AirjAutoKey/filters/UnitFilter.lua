@@ -46,6 +46,7 @@ function F:OnInitialize()
     [SPELL_POWER_SOUL_SHARDS]=L["Soul Shards"],
     [SPELL_POWER_HOLY_POWER]=L["Holy Power"],
     [SPELL_POWER_CHI]=L["Chi"],
+    [SPELL_POWER_PAIN]=L["Pain"],
   })
   --{"mana","race","focus","energy","combo point","rune","rune power","soul shards",nil,"holy power",nil,nil,nil,"chi"}
 end
@@ -332,10 +333,10 @@ function F:GetHealthPoint(guid,time)
   value = 1 - (damage-heal)/toDiv/time*3
   minValue = min(value,minValue)
   local thealth = getTimeHealthMax(guid,time)
-  value = 1 - (1 - thealth)*(1+time/5)
+  value = 1 - (1 - thealth)*(1+time/10)
   minValue = min(value,minValue)
   local thealth = getTimeHealthMax(guid,time*2)
-  value = 1 - (1 - thealth)*(1+time*2/5)
+  value = 1 - (1 - thealth)*(1+time/5)
   minValue = min(value,minValue)
   return minValue
 end

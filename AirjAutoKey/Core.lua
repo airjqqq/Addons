@@ -233,6 +233,8 @@ do
     petattack = "/petattack",
     petfollow = "/petfollow",
   }
+  local found
+  local prepassed = {}
 
   function Core:GetAirUnit()
     return self.airUnit
@@ -255,7 +257,7 @@ do
     self:ScanSequenceArray(sequence)
     -- self:SetAirUnit()
     if sequence.continue then
-      self.found = false
+      found = false
     end
   end
 
@@ -302,7 +304,7 @@ do
       self:CachePassedInfo(spellId,unit)
     end
     if not sequence.continue then
-      self.found = true
+      found = true
       self:SetAirUnit()
     end
   end
@@ -460,9 +462,13 @@ do
     local passed = false
     if guid and not checked[guid] then
       checked[guid] = true
+      if prepassed[guid]~=nil then return true end
       local t = Cache.cache.serverRefused[guid]
       if not t or t.count<2 or (GetTime() - t.t > 1) then
         passed = true
+        prepassed[guid] = true
+      else
+        prepassed[guid] = false
       end
     end
     return passed
@@ -517,7 +523,7 @@ do
     for i,sequence in ipairs(sequenceArray) do
       self:SetAirUnit()
       self:CheckAndExecuteSequence(sequence)
-      if self.found then return end
+      if found then return end
     end
   end
 
@@ -525,7 +531,8 @@ do
     local t=GetTime()
     self.lastScanTime=t
     -- wipe(self.passedSpell)
-    self.found = false
+    wipe(prepassed)
+    found = false
     self:ClearCachePassedArray()
     if not self.rotationDB then return end
     local sequenceArray = self.rotationDB.spellArray
@@ -641,7 +648,8 @@ do
         return
       end
     elseif unit == "lcu" then
-      local data = Cache.cache.castStartTo.last or {}
+      local data = Cache.cache.castStartTo.last
+      if not data then return end
       local guid = data.guid
       return Cache:FindUnitByGUID(guid)
     elseif unit == "bgu" then
@@ -673,8 +681,8 @@ do
   end
   function Core:GetLastCachePassed()
     local index = #array
-    if index ~= 0 then return
-      unpack(array[index])
+    if index ~= 0 then
+      return unpack(array[index])
     end
   end
   function Core:GetPassedGuidBySpellId(spellId)

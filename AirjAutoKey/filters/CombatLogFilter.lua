@@ -282,6 +282,7 @@ function F:HEALTAKEN(filter)
 end
 
 function F:TIMETODIE(filter)
+  filter.unit = filter.unit or "player"
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
