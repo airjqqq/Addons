@@ -369,6 +369,7 @@ do
 					if strfind(event,"SWING_") then
 						args= {spellId,spellName,spellSchool,...}
 						spellId="Swing"
+						spellName = "Swing"
 					else
 						args= {...}
 					end
@@ -384,24 +385,29 @@ do
 					sourceGUID = sourceGUID or "Unknown"
 					destGUID = destGUID or "Unknown"
 					spellId = spellId or "Unknown"
+					spellName = spellName or "Unknown"
 
 					self.cache.damageTo[sourceGUID]=self.cache.damageTo[sourceGUID] or {}
-					local to = self.cache.damageTo[sourceGUID]
-					to[spellId]=to[spellId] or {}
-					to[spellId].last={t=localtime,value=damage,guid=destGUID,periodic=periodic}
-					to[spellId][destGUID]={t=localtime,value=damage,periodic=periodic}
-					to.array = to.array or {isArray = true}
-					tinsert(to.array,{t=localtime,value=damage,guid=destGUID,spellId=spellId,periodic=periodic})
-					to[spellId].array = to[spellId].array or {isArray = true}
-					tinsert(to[spellId].array,{t=localtime,value=damage,guid=destGUID,periodic=periodic})
 
-					self.cache.damageBy[destGUID]=self.cache.damageBy[destGUID] or {}
-					local by = self.cache.damageBy[destGUID]
-					by[spellId]=by[spellId] or {}
-					by[spellId].last={t=localtime,value=damage,guid=sourceGUID,periodic=periodic}
-					by[spellId][sourceGUID]={t=localtime,value=damage,periodic=periodic}
+					local to = self.cache.damageTo[sourceGUID]
+					to.array = to.array or {isArray = true}
+					tinsert(to.array,{t=localtime,value=heal,guid=destGUID,spellId=spellId,spellName=spellName,periodic=periodic})
+					to[spellId]=to[spellId] or {}
+					to[spellId].array = to[spellId].array or {isArray = true}
+					tinsert(to[spellId].array, {t=localtime,value=heal,guid=destGUID,periodic=periodic})
+					-- to[spellId].last={t=localtime,value=damage,guid=destGUID,periodic=periodic}
+					-- to[spellId][destGUID]={t=localtime,value=damage,periodic=periodic}
+
+
+					self.cache.healBy[destGUID]=self.cache.damageBy[destGUID] or {}
+					local by = self.cache.healBy[destGUID]
 					by.array = by.array or {isArray = true}
-					tinsert(by.array,{t=localtime,value=damage,guid=sourceGUID,spellId=spellId,periodic=periodic})
+					tinsert(by.array,{t=localtime,value=heal,guid=sourceGUID,spellId=spellId,spellName=spellName,periodic=periodic})
+					by[spellId]=by[spellId] or {}
+					by[spellId].array = by[spellId].array or {isArray = true}
+					tinsert(by[spellId].array, {t=localtime,value=heal,guid=sourceGUID,periodic=periodic})
+					-- by[spellId].last={t=localtime,value=damage,guid=sourceGUID,periodic=periodic}
+					-- by[spellId][sourceGUID]={t=localtime,value=damage,periodic=periodic}
 
 					if self.cache.health[destGUID] then
 						self.cache.health[destGUID].changed = true
@@ -426,19 +432,23 @@ do
 
 					self.cache.healTo[sourceGUID]=self.cache.healTo[sourceGUID] or {}
 					local to = self.cache.healTo[sourceGUID]
-					to[spellId]=to[spellId] or {}
-					to[spellId].last={t=localtime,value=heal,guid=destGUID,periodic=periodic}
-					to[spellId][destGUID]={t=localtime,value=heal,periodic=periodic}
 					to.array = to.array or {isArray = true}
 					tinsert(to.array,{t=localtime,value=heal,guid=destGUID,spellId=spellId,periodic=periodic})
+					to[spellId]=to[spellId] or {}
+					to[spellId].array = to[spellId].array or {isArray = true}
+					tinsert(to[spellId].array, {t=localtime,value=heal,guid=destGUID,periodic=periodic})
+					-- to[spellId].last={t=localtime,value=heal,guid=destGUID,periodic=periodic}
+					-- to[spellId][destGUID]={t=localtime,value=heal,periodic=periodic}
 
 					self.cache.healBy[destGUID]=self.cache.healBy[destGUID] or {}
 					local by = self.cache.healBy[destGUID]
-					by[spellId]=by[spellId] or {}
-					by[spellId].last={t=localtime,value=heal,guid=sourceGUID,periodic=periodic}
-					by[spellId][sourceGUID]={t=localtime,value=heal,periodic=periodic}
 					by.array = by.array or {isArray = true}
 					tinsert(by.array,{t=localtime,value=heal,guid=sourceGUID,spellId=spellId,periodic=periodic})
+					by[spellId]=by[spellId] or {}
+					by[spellId].array = by[spellId].array or {isArray = true}
+					tinsert(by[spellId].array, {t=localtime,value=heal,guid=sourceGUID,periodic=periodic})
+					-- by[spellId].last={t=localtime,value=heal,guid=sourceGUID,periodic=periodic}
+					-- by[spellId][sourceGUID]={t=localtime,value=heal,periodic=periodic}
 
 					if self.cache.health[destGUID] then
 						self.cache.health[destGUID].changed = true
@@ -474,7 +484,7 @@ do
 					SPELL_CAST_START=true,
 				},
 				fcn = function(localtime,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
-					if UnitGUID("player") == sourceGUID or UnitGUID("pet") == sourceGUID then
+					if self:PlayerGUID() == sourceGUID or UnitGUID("pet") == sourceGUID then
 						destGUID = destGUID or "Unknown"
 						spellId = spellId or "Unknown"
 						local data = self.cache.castSend[spellId] and self.cache.castSend[spellId].last

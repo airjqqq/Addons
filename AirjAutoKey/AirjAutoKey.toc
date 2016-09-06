@@ -17,9 +17,10 @@ Move.lua
 KickSync.lua
 GUI.lua
 filters\UtilFilter.lua
+filters\BuffFilter.lua
+filters\HealthFilter.lua
 filters\UnitFilter.lua
 filters\PositionFilter.lua
-filters\BuffFilter.lua
 filters\CombatLogFilter.lua
 filters\PriorityFilter.lua
 filters\PVPFilter.lua
