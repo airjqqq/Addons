@@ -1498,7 +1498,7 @@ function mod:UpdateFilterConfigGroup()
 	group.filter_oppo:SetValue(currentFilter.oppo)
 	local nameText
 	if type(currentFilter.name) == "table" then
-		if #nameText > 7 then
+		if #currentFilter.name > 7 then
 			nameText = table.concat(currentFilter.name,", ")
 		else
 			nameText = table.concat(currentFilter.name,"\n")

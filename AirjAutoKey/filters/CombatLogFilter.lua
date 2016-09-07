@@ -73,6 +73,11 @@ function F:OnInitialize()
     HOT = L["HOT"],
     DOT = L["DOT"],
   })
+  self:RegisterFilter("LASTSPELLINTERVAL",L["Hit Combo"],{
+    value = {},
+    greater = {},
+    name = {name="Spell ID"},
+  })
 end
 
 function F:RegisterFilter(key,name,keys,subtypes)
@@ -467,4 +472,40 @@ function F:GetFutureDamagePVE(guid,time,futureTime)
     totalDamage = dps* min(data.timeLeft,futureTime)
   end
   return totalDamage
+end
+
+local careSpellIds = {
+  [205320] = true,
+  [100784] = true,
+  [113656] = true,
+  [101546] = true,
+  [101545] = true,
+  [107428] = true,
+  [117952] = true,
+  [100780] = true,
+  [115080] = true,
+  [123986] = true,
+  [115098] = true,
+  [116847] = true,
+  [152175] = true,
+}
+
+function F:LASTSPELLINTERVAL(filter)
+  assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
+	local spellID = filter.name[1]
+  local pguid = Cache:PlayerGUID()
+  local data = Cache.cache.castSuccessTo[pguid]
+  if not data then return 120 end
+  local array = data.array
+  local interval = 0
+  for i=#array,1,-1 do
+    local spellId = array[i].spellId
+    if careSpellIds[spellId] then
+      interval = interval + 1
+    end
+    if spellId == spellID then
+      return interval
+    end
+  end
+  return 120
 end

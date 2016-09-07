@@ -27,6 +27,7 @@ function F:OnInitialize()
   self:RegisterFilter("SPEEDTIME",L["Since Stop Move"],{value={},greater={}})
   self:RegisterFilter("STANCE",L["Stance"],{value={}})
   self:RegisterFilter("RUNE",L["Rune"],{value={},greater={}})
+  self:RegisterFilter("CDENERGY",L["CD Energy"],{name={name=L["Spell ID | CD Time "]},value={},greater={}})
   self:RegisterFilter("TOTEMTIME",L["Totem Time"],{name={},value={},greater={}},{
     [1]=L["Fire"],
     [2]=L["Eath"],
@@ -50,15 +51,15 @@ function F:AUTOON(filter)
   return Core:GetParam("auto") ~= 0
 end
 function F:PARAMVALUE(filter)
-  filter.name = filter.name or "auto"
-  return Core:GetParam(filter.name)
+  local name = filter.name and filter.name[1] or "auto"
+  return Core:GetParam(name)
 end
 function F:BURST(filter)
   return Core:GetParamNotExpired("burst")
 end
 function F:PARAMEXPIRED(filter)
-  filter.name = filter.name or "burst"
-  return Core:GetParamNotExpired(filter.name)
+    local name = filter.name and filter.name[1] or "burst"
+  return Core:GetParamNotExpired(name)
 end
 
 local function checkSwingInRange (radius,time)
@@ -108,6 +109,7 @@ function F:FASTSPELL(filter)
   ishelp = ishelp and ishelp ~= 0 and true or false
   assert(spellId)
   local cd, charge, know, usable = Cache:GetSpellCooldown(spellId)
+  -- self:Print(cd, charge, know, usable)
   if cd > cdthd or not know or not usable then
     return false
   end
@@ -144,32 +146,37 @@ function F:FASTSPELL(filter)
 end
 function F:CD(filter)
   filter.value = filter.value or 0.2
-  local value = Cache:GetSpellCooldown(filter.name or 61304)
+  local name = filter.name and filter.name[1] or 61304
+  local value = Cache:GetSpellCooldown(name)
   return value
 end
 
 function F:ICD(filter)
-  assert(type(filter.name)=="number")
-  local start, duration,enable = Cache:Call("GetItemCooldown",filter.name)
+  assert(type(filter.name)=="table")
+  local name = filter.name[1]
+  local start, duration,enable = Cache:Call("GetItemCooldown",name)
   local value = not start and 300 or enable and 0 or (duration - (GetTime() - start))
   return value
 end
 
 function F:CHARGE(filter)
-  assert(type(filter.name)=="number")
-  local _,value = Cache:GetSpellCooldown(filter.name)
+  assert(type(filter.name)=="table")
+  local name = filter.name[1]
+  local _,value = Cache:GetSpellCooldown(name)
   return value
 end
 
 function F:KNOWS(filter)
-  assert(type(filter.name)=="number")
-  local _,_,value = Cache:GetSpellCooldown(filter.name)
+  assert(type(filter.name)=="table")
+  local name = filter.name[1]
+  local _,_,value = Cache:GetSpellCooldown(name)
   return value
 end
 
 function F:ISUSABLE(filter)
-  assert(type(filter.name)=="number")
-  local _,_,_,value = Cache:GetSpellCooldown(filter.name)
+  assert(type(filter.name)=="table")
+  local name = filter.name[1]
+  local _,_,_,value = Cache:GetSpellCooldown(name)
   return value
 end
 
@@ -222,7 +229,8 @@ function F:STANCE(filter)
 end
 
 function F:RUNE(filter)
-	local offset = filter.name or 0
+  assert(type(filter.name)=="table")
+  local offset = filter.name[1] or 0
   local t = GetTime()
   local value = 0
   for slot = 1,6 do
@@ -245,4 +253,17 @@ function F:TOTEMTIME(filter)
 		end
 	end
   return value
+end
+
+function F:CDENERGY(filter)
+  filter.value = filter.value or 50
+  local name = filter.name and filter.name[1]
+  assert(name)
+  local cdoffset = filter.name and filter.name[2] or 0
+  local cd = Cache:GetSpellCooldown(name)
+  cd = math.max(cd-cdoffset,0)
+  local inactiveRegen, activeRegen = GetPowerRegen()
+  local power = Cache:Call("UnitPower","player",SPELL_POWER_ENERGY)
+  power = power + cd*activeRegen
+  return power
 end

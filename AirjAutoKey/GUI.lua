@@ -148,9 +148,9 @@ do
     if interval and interval ~= 0 then
       local text
 			if interval>14 then
-				text = string.format("%0.2f",interval)
+				text = string.format("%0.1f",interval)
 			else
-				text = string.format("x%0.2f",interval/duration)
+				text = string.format("x%0.1f",interval/duration)
 			end
     	local intervalFontString = icon:CreateFontString(nil,"OVERLAY","GameFontHighlight")
     	-- local f,s = unitFontString:GetFont()

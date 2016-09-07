@@ -30,6 +30,11 @@ function Cache:OnEnable()
 	self:RegisterEvent("SPELL_UPDATE_COOLDOWN",self.OnCoolDownChanged,self)
 	self:RegisterEvent("SPELL_UPDATE_CHARGES",self.OnCoolDownChanged,self)
 	self:RegisterEvent("SPELL_UPDATE_USABLE",self.OnCoolDownChanged,self)
+	self:RegisterEvent("UNIT_POWER_FREQUENT",function(event,unit,type)
+		if unit == "player" then
+			self:OnCoolDownChanged()
+		end
+	end)
 
   self:RegisterMessage("AIRJ_HACK_OBJECT_CREATED",self.OnObjectChanged,self)
   self:RegisterMessage("AIRJ_HACK_OBJECT_DESTROYED",self.OnObjectChanged,self)
@@ -391,21 +396,21 @@ do
 
 					local to = self.cache.damageTo[sourceGUID]
 					to.array = to.array or {isArray = true}
-					tinsert(to.array,{t=localtime,value=heal,guid=destGUID,spellId=spellId,spellName=spellName,periodic=periodic})
+					tinsert(to.array,{t=localtime,value=damage,guid=destGUID,spellId=spellId,spellName=spellName,periodic=periodic})
 					to[spellId]=to[spellId] or {}
 					to[spellId].array = to[spellId].array or {isArray = true}
-					tinsert(to[spellId].array, {t=localtime,value=heal,guid=destGUID,periodic=periodic})
+					tinsert(to[spellId].array, {t=localtime,value=damage,guid=destGUID,periodic=periodic})
 					-- to[spellId].last={t=localtime,value=damage,guid=destGUID,periodic=periodic}
 					-- to[spellId][destGUID]={t=localtime,value=damage,periodic=periodic}
 
 
-					self.cache.healBy[destGUID]=self.cache.damageBy[destGUID] or {}
-					local by = self.cache.healBy[destGUID]
+					self.cache.damageBy[destGUID]=self.cache.damageBy[destGUID] or {}
+					local by = self.cache.damageBy[destGUID]
 					by.array = by.array or {isArray = true}
-					tinsert(by.array,{t=localtime,value=heal,guid=sourceGUID,spellId=spellId,spellName=spellName,periodic=periodic})
+					tinsert(by.array,{t=localtime,value=damage,guid=sourceGUID,spellId=spellId,spellName=spellName,periodic=periodic})
 					by[spellId]=by[spellId] or {}
 					by[spellId].array = by[spellId].array or {isArray = true}
-					tinsert(by[spellId].array, {t=localtime,value=heal,guid=sourceGUID,periodic=periodic})
+					tinsert(by[spellId].array, {t=localtime,value=damage,guid=sourceGUID,periodic=periodic})
 					-- by[spellId].last={t=localtime,value=damage,guid=sourceGUID,periodic=periodic}
 					-- by[spellId][sourceGUID]={t=localtime,value=damage,periodic=periodic}
 
@@ -467,6 +472,8 @@ do
 					spellId = spellId or "Unknown"
 					self.cache.castSuccessTo[sourceGUID]=self.cache.castSuccessTo[sourceGUID] or {}
 					local to = self.cache.castSuccessTo[sourceGUID]
+					to.array = to.array or {isArray = true}
+					tinsert(to.array,{t=localtime,guid=destGUID,spellId=spellId})
 					to[spellId]=to[spellId] or {}
 					to[spellId].last={t=localtime,guid=destGUID}
 					to[spellId][destGUID]={t=localtime}
@@ -767,6 +774,7 @@ do
 	local changed
 	local externSpellIDs = {}
 	function Cache:OnCoolDownChanged(event)
+		-- self:Print("changed")
 		changed = true
 	end
 	function Cache:ScanAllSpell(t)
@@ -811,6 +819,7 @@ do
 		end
 		changed = nil
 		scanT = t
+		-- self:Print(self.cache.usable[100780][1])
 	end
 	function Cache:ScanSpell(t,guids,units)
 		if not scanT or t-scanT>self.interval.spell then

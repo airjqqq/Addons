@@ -363,7 +363,7 @@ do
         unit= {},
       }
     end
-    -- self:Print("Register Filter:",data.name)
+    self:Print(AirjHack:GetDebugChatFrame(),"Register Filter:",data.name)
   end
 
   function Core:MatchValue(value,filter)
@@ -404,7 +404,7 @@ do
     else
       if type(value) == "number" then
         if filter.note == "debug" then
-          self:Print(value)
+          self:Print(AirjHack:GetDebugChatFrame(),value)
         end
         passed = Core:MatchValue(value,filter)
       else
@@ -416,6 +416,9 @@ do
 
   function Core:CheckFilter(filter,priority)
     local passed
+    if filter.name and type(filter.name) ~="table" then
+      filter.name = self:ToValueTable(filter.name)
+    end
     if filter.type == "GROUP" then
       passed,priority = self:CheckGroupFilter(filter,priority)
     else

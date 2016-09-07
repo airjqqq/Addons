@@ -11,13 +11,14 @@ function F:OnInitialize()
   CombatLogFilter = Filter:GetModule("CombatLogFilter")
   self:RegisterFilter("ISDEAD",L["Is Dead or Ghost"])
   self:RegisterFilter("HTIME",L["Low Health Time"],{unit= {},name= {name=L["Percent Threshold"]},greater={},value={}})
-  self:RegisterFilter("HEALTH",L["Health Percent"],{unit= {},name= {name=L["Include Types"]},greater={},value={}},{ABS=L["Absolute"]})
+  self:RegisterFilter("HEALTH",L["Health"],{unit= {},name= {name=L["Include Types"]},greater={},value={}},{ABS=L["Absolute"]})
   self:RegisterFilter("HEALTHPOINT",L["Health Point"],{
     unit= {},name= {name=L["Time"]},greater={},value={}
   })
   self:RegisterFilter("RAIDHEALTHLOST",L["Health Lost"],{
     name= {name=L["Max To Ignore"]},greater={},value={}
-  },{AVERAGE = L["Average"]}},"00FF00")
+  },{AVERAGE = L["Average"]},"00FF00")
+  self:RegisterFilter("STAGGER",L["Stagger"],{greater={},value={}},{ABS=L["Absolute"]})
   self:RegisterFilter("POWER",L["Power"],{unit= {},greater={},value={}},{
     [SPELL_POWER_MANA]=L["Mana"],
     [SPELL_POWER_RAGE]=L["Rage"],
@@ -62,7 +63,7 @@ end
 function F:HTIME(filter)
   filter.unit = filter.unit or "player"
   filter.name = filter.name or {0.5}
-  local toCmp = unpack(Core:ToValueTable(filter.name),1,1))
+  local toCmp = unpack(Core:ToValueTable(filter.name),1,1)
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local t = GetTime()
@@ -105,6 +106,21 @@ function F:HEALTH(filter)
   if filter.subtype == "ABS" then
   else
     toRet = health/max
+  end
+  return toRet
+end
+function F:STAGGER(filter)
+  local guid = Cache:PlayerGUID()
+  if not guid then return false end
+  local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+  if not health then return false end
+  if isdead then return false end
+  health = health + prediction + absorb - healAbsorb
+  health = math.max(health,1)
+  local toRet = UnitStagger("player")
+  if filter.subtype == "ABS" then
+  else
+    toRet = toRet/health
   end
   return toRet
 end
@@ -163,7 +179,7 @@ function F:FUTUREHEALTH(filter)
   filter.name = filter.name or {5}
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
-  local time = unpack(Core:ToValueTable(filter.name),1,1))
+  local time = unpack(Core:ToValueTable(filter.name),1,1)
   return F:GetFutureHealth(guid,time)
 end
 

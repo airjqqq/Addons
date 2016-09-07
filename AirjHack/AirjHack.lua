@@ -156,3 +156,68 @@ function mod:RunMacroText(text)
   if not self:HasHacked() then return end
 	RunMacroText(text)
 end
+
+local debugChatFrame
+
+function mod:GetDebugChatFrame()
+	if debugChatFrame then return debugChatFrame end
+	local count = 1;
+	local chatFrame, chatTab;
+	local name = "AirjDebug"
+
+	for i=1, NUM_CHAT_WINDOWS do
+		local fname, _, _, _, _, _, shown = FCF_GetChatWindowInfo(i);
+		chatFrame = _G["ChatFrame"..i];
+		chatTab = _G["ChatFrame"..i.."Tab"];
+
+		if name == fname then
+			debugChatFrame = chatFrame
+			return chatFrame
+		end
+
+		if ( (not shown and not chatFrame.isDocked) or (count == NUM_CHAT_WINDOWS) ) then
+			if ( not name or name == "" ) then
+				name = format(CHAT_NAME_TEMPLATE, i);
+			end
+
+			-- initialize the frame
+			FCF_SetWindowName(chatFrame, name);
+			FCF_SetWindowColor(chatFrame, DEFAULT_CHATFRAME_COLOR.r, DEFAULT_CHATFRAME_COLOR.g, DEFAULT_CHATFRAME_COLOR.b);
+			FCF_SetWindowAlpha(chatFrame, DEFAULT_CHATFRAME_ALPHA);
+			SetChatWindowLocked(i, false);
+
+			-- clear stale messages
+			chatFrame:Clear();
+
+			-- Listen to the standard messages
+			ChatFrame_RemoveAllMessageGroups(chatFrame);
+			ChatFrame_RemoveAllChannels(chatFrame);
+			ChatFrame_ReceiveAllPrivateMessages(chatFrame);
+
+			ChatFrame_AddMessageGroup(chatFrame, "SAY");
+			ChatFrame_AddMessageGroup(chatFrame, "YELL");
+			ChatFrame_AddMessageGroup(chatFrame, "GUILD");
+			ChatFrame_AddMessageGroup(chatFrame, "WHISPER");
+			ChatFrame_AddMessageGroup(chatFrame, "BN_WHISPER");
+			ChatFrame_AddMessageGroup(chatFrame, "PARTY");
+			ChatFrame_AddMessageGroup(chatFrame, "PARTY_LEADER");
+			ChatFrame_AddMessageGroup(chatFrame, "CHANNEL");
+
+			--Clear the edit box history.
+			chatFrame.editBox:ClearHistory();
+
+			-- Show the frame and tab
+			chatFrame:Show();
+			chatTab:Show();
+			SetChatWindowShown(i, true);
+
+			-- Dock the frame by default
+			FCF_DockFrame(chatFrame, (#FCFDock_GetChatFrames(GENERAL_CHAT_DOCK)+1), true);
+			-- FCF_FadeInChatFrame(FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK));
+			self:Print("new?>")
+			return chatFrame;
+		end
+		count = count + 1;
+	end
+	return DEFAULT_CHAT_FRAME
+end
