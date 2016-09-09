@@ -51,6 +51,10 @@ function Cache:OnEnable()
 	self.scanTimer = self:ScheduleRepeatingTimer(function()
 		local units = self:GetUnitList()
 		local guids = self:GetUnitGUIDs()
+		local tguid = UnitGUID("target")
+		if tguid and guids[tguid] == nil then
+			guids[tguid] = 9
+		end
 		local t = GetTime()
 		self:ScanAuras(t,guids,units)
 		self:ScanHealth(t,guids,units)
@@ -908,6 +912,7 @@ do
 	function Cache:ScanExists(t,guids,units)
 		if units then
 			if not scanT or t-scanT>self.interval.exists or changed then
+				-- self:Print("ScanExists")
 				wipe(self.cache.exists)
 				local checked = {}
 				for i,unit in ipairs(units) do

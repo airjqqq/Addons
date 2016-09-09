@@ -248,6 +248,11 @@ function AVRUnitMesh:GenerateMesh()
 end
 
 function AVRUnitMesh:OnUpdate(threed)
+	if self.updateCallbacks then
+		for i,v in ipairs(self.updateCallbacks) do
+			v(self,threed)
+		end
+	end
 	if self.expiration~=nil or self.vertices==nil then
 		if self.vertices==nil or self.lines==nil or self.triangles==nil or self.textures==nil then
 			self.vertices={}
@@ -321,7 +326,6 @@ function AVRUnitMesh:OnUpdate(threed)
 
 		end
 	end
-
 	AVRMesh.OnUpdate(self,threed)
 end
 

@@ -26,7 +26,7 @@ function F:OnInitialize()
   self:RegisterFilter("STARTMOVETIME",L["Since Start Move"],{value={},greater={}})
   self:RegisterFilter("SPEEDTIME",L["Since Stop Move"],{value={},greater={}})
   self:RegisterFilter("STANCE",L["Stance"],{value={}})
-  self:RegisterFilter("RUNE",L["Rune"],{value={},greater={}})
+  self:RegisterFilter("RUNE",L["Rune"],{name={name=L["Offset"]},value={},greater={}})
   self:RegisterFilter("CDENERGY",L["CD Energy"],{name={name=L["Spell ID | CD Time "]},value={},greater={}})
   self:RegisterFilter("TOTEMTIME",L["Totem Time"],{name={},value={},greater={}},{
     [1]=L["Fire"],
@@ -121,8 +121,10 @@ function F:FASTSPELL(filter)
     if not exists or ishelp and not help or not ishelp and not harm then
       return false
     end
+    -- local isdead = Cache:Call(UnitIsDeadOrGhost,filter.unit)
     local isdead = select(6,Cache:GetHealth(guid))
     if isdead then
+      -- self:Print(AirjHack:GetDebugChatFrame(),"isdead",filter.unit,name)
       return false
     end
     local x,y,z,f,d,s = Cache:GetPosition(guid)
@@ -229,8 +231,8 @@ function F:STANCE(filter)
 end
 
 function F:RUNE(filter)
-  assert(type(filter.name)=="table")
-  local offset = filter.name[1] or 0
+  -- assert(type(filter.name)=="table")
+  local offset = filter.name and filter.name[1] or 0
   local t = GetTime()
   local value = 0
   for slot = 1,6 do

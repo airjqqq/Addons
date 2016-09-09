@@ -111,6 +111,7 @@ function mod:Position(key)
   if key == nil then return end
 	local starts = {
 		Player = true,
+		Vehicle = true,
 		Creature = true,
 		GameObject = true,
 		AreaTrigger = true,

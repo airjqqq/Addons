@@ -1496,12 +1496,25 @@ function mod:UpdateFilterConfigGroup()
 	self:UpdateFilterConfigGroupType()
 	group.filter_subtype:SetValue(subtype and tostring(subtype) or subtype or "_")
 	group.filter_oppo:SetValue(currentFilter.oppo)
-	local nameText
+	local nameText = ""
 	if type(currentFilter.name) == "table" then
-		if #currentFilter.name > 7 then
-			nameText = table.concat(currentFilter.name,", ")
-		else
-			nameText = table.concat(currentFilter.name,"\n")
+		local size = 0
+		for i = 1,100 do
+			local v = currentFilter.name[i]
+			if v ~= nil then size = i end
+		end
+		if size > 0 then
+
+			local connector
+			if size > 7 then
+				connector = ", "
+			else
+				connector = "\n"
+			end
+			for i = 1,size do
+				local v = currentFilter.name[i]
+				nameText = nameText .. (v or "") .. (i==size and "" or connector)
+			end
 		end
 	end
 	group.filter_name:SetText(nameText or "")
