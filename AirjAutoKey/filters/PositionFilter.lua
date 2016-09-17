@@ -99,8 +99,9 @@ function F:HFRONTLINE(filter)
 end
 function F:HDRANGE(filter)
   filter.unit = filter.unit or "target"
-  filter.name = filter.name or "player"
-  local unit2 = Core:ParseUnit(filter.name) or filter.name
+  filter.name = filter.name or {"player"}
+  local unit2 = filter.name[1]
+  unit2 = Core:ParseUnit(unit2) or unit2
 
   local guid1 = Cache:UnitGUID(filter.unit)
   local x1,y1,z1,_,distance = Cache:GetPosition(guid1)
@@ -117,8 +118,9 @@ function F:HDRANGE(filter)
 end
 function F:EDGERANGE(filter)
   filter.unit = filter.unit or "target"
-  filter.name = filter.name or "player"
-  local unit2 = Core:ParseUnit(filter.name) or filter.name
+  filter.name = filter.name or {"player"}
+  local unit2 = filter.name[1]
+  unit2 = Core:ParseUnit(unit2) or unit2
 
   local guid1 = Cache:UnitGUID(filter.unit)
   local x1,y1,z1,_,distance,s1 = Cache:GetPosition(guid1)

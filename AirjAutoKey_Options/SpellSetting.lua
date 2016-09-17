@@ -773,7 +773,6 @@ function mod:CreateMainConfigGroup()
 	group.filter_name:SetNumLines(7)
 
 	local onDrag = function(self,...)
-		AIRJTEST = self
 		local editBox = self.obj
 		local type, id, info, aid = GetCursorInfo()
 		local text
@@ -789,8 +788,9 @@ function mod:CreateMainConfigGroup()
 			text = name
 		end
 		if text then
-			if editBox:GetText() then
-				text = editBox:GetText()..","..text
+			local oldText = editBox:GetText()
+			if oldText and oldText~="" then
+				text = oldText..","..text
 			end
 			editBox:SetText(text)
 			editBox:Fire("OnEnterPressed", text)
@@ -812,22 +812,22 @@ function mod:CreateMainConfigGroup()
 			text = gsub(text," ,",",")
 		end
 		local nameTable = {strsplit(",",text)}
-		if #nameTable <=1 then
-			if text == "" then
-				text = nil
-			elseif tonumber(text) then
-				text = tonumber(text)
-			end
-			filter.name = text
-		else
+		do
 			local tab = {}
+			local notNil = false
 			for k,v in ipairs(nameTable) do
-				tinsert(tab,tonumber(v) or v)
+				if v == "" then
+					tab[k] = nil
+				else
+					tab[k] = tonumber(v) or v
+					notNil = true
+				end
 			end
-			if #tab <= 1 then
-				tab = tab[1]
+			if notNil then
+				filter.name = tab
+			else
+				filter.name = nil
 			end
-			filter.name = tab
 		end
 		self:UpdateFilterTreeGroup()
 	end)
@@ -1496,12 +1496,25 @@ function mod:UpdateFilterConfigGroup()
 	self:UpdateFilterConfigGroupType()
 	group.filter_subtype:SetValue(subtype and tostring(subtype) or subtype or "_")
 	group.filter_oppo:SetValue(currentFilter.oppo)
-	local nameText = currentFilter.name
-	if type(nameText) == "table" then
-		if #nameText > 7 then
-			nameText = table.concat(nameText,", ")
-		else
-			nameText = table.concat(nameText,"\n")
+	local nameText = ""
+	if type(currentFilter.name) == "table" then
+		local size = 0
+		for i = 1,100 do
+			local v = currentFilter.name[i]
+			if v ~= nil then size = i end
+		end
+		if size > 0 then
+
+			local connector
+			if size > 7 then
+				connector = ", "
+			else
+				connector = "\n"
+			end
+			for i = 1,size do
+				local v = currentFilter.name[i]
+				nameText = nameText .. (v or "") .. (i==size and "" or connector)
+			end
 		end
 	end
 	group.filter_name:SetText(nameText or "")

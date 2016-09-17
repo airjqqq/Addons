@@ -14,9 +14,10 @@ function F:OnInitialize()
   self:RegisterFilter("PARAMVALUE",L["Check Param"],nil,nil,blue)
   self:RegisterFilter("BURST",L["Is Bursting"],{},nil,blue)
   self:RegisterFilter("PARAMEXPIRED",L["Param Not Expired"],{name={}},nil,blue)
-  self:RegisterFilter("AOENUM",L["AOE Count"],{name={name=L["Radius | Scan Interval | Spell ID"]},value={},greater={}},nil,blue)
+  self:RegisterFilter("AOENUM",L["AOE Count"],{name={name=L["Radius | Scan Interval | Spell ID"]},value={},greater={},unit={}},nil,blue)
   self:RegisterFilter("FASTSPELL",L["Fast Spell"],{unit={},name={name="spell ID | Cooldown | Range | Is help"}},nil,"FF7D0A")
   self:RegisterFilter("CD",L["Spell Cooldown"])
+  self:RegisterFilter("SPELLCOUNT",L["Spell Count"])
   self:RegisterFilter("ICD",L["Item Cooldown"])
   self:RegisterFilter("CHARGE",L["Spell Charge"])
   self:RegisterFilter("KNOWS",L["Spell Known"],{name={}})
@@ -26,7 +27,8 @@ function F:OnInitialize()
   self:RegisterFilter("STARTMOVETIME",L["Since Start Move"],{value={},greater={}})
   self:RegisterFilter("SPEEDTIME",L["Since Stop Move"],{value={},greater={}})
   self:RegisterFilter("STANCE",L["Stance"],{value={}})
-  self:RegisterFilter("RUNE",L["Rune"],{value={},greater={}})
+  self:RegisterFilter("RUNE",L["Rune"],{name={name=L["Offset"]},value={},greater={}})
+  self:RegisterFilter("CDENERGY",L["CD Energy"],{name={name=L["Spell ID | CD Time "]},value={},greater={}})
   self:RegisterFilter("TOTEMTIME",L["Totem Time"],{name={},value={},greater={}},{
     [1]=L["Fire"],
     [2]=L["Eath"],
@@ -50,15 +52,16 @@ function F:AUTOON(filter)
   return Core:GetParam("auto") ~= 0
 end
 function F:PARAMVALUE(filter)
-  filter.name = filter.name or "auto"
-  return Core:GetParam(filter.name)
+  local name = filter.name and filter.name[1] or "auto"
+  local value = Core:GetParam(name)
+  return value and value~=0 or false
 end
 function F:BURST(filter)
   return Core:GetParamNotExpired("burst")
 end
 function F:PARAMEXPIRED(filter)
-  filter.name = filter.name or "burst"
-  return Core:GetParamNotExpired(filter.name)
+    local name = filter.name and filter.name[1] or "burst"
+  return Core:GetParamNotExpired(name)
 end
 
 local function checkSwingInRange (radius,time)
@@ -81,33 +84,71 @@ local function checkSwingInRange (radius,time)
   return count
 end
 
+local function checkEnemyInRange (radius,time,unit)
+  local t = GetTime()
+  local count = 0
+  local center
+  if unit then
+    center = {Cache:GetPosition(unit)}
+    if not center[1] then return 0 end
+  end
+  for guid, data in pairs(Cache.cache.exists) do
+    if data[2] then
+      local isdead = select(6,Cache:GetHealth(guid))
+      if isdead==false then
+        local x,y,z,f,d,s = Cache:GetPosition(guid)
+        if x then
+          if not unit then
+            if d and d-s<radius then
+              count = count + 1
+            end
+          else
+            local dx,dy,dz = x-center[1],y-center[2],z-center[3]
+            local d = sqrt(dx*dx+dy*dy+dz*dz)
+            if d and d-s<radius then
+              count = count + 1
+            end
+          end
+        end
+      end
+    end
+  end
+  return count
+end
+
 function F:AOENUM(filter)
   filter.value = filter.value or 2
   -- local value = Core:GetParam("target")
   local value = 0
   if value > filter.value then return value end
   local pguid = Cache:UnitGUID("player")
-  local spells = Core:ToValueTable(filter.name)
-  local radius,time = unpack(spells,1,2)
+  local spells = filter.name or {}
+  local radius,time = unpack(Core:ToValueTable(filter.name),1,2)
   radius = radius or 8
   time = time or 5
-  tremove(spells,1)
-  tremove(spells,1)
-  for i,spellId in ipairs(spells) do
+  for i=3,100 do
+    spellId = spells[i]
     value = max(value,CombatLogFilter:GetSpellHitCount(pguid,spellId,time))
     if value > filter.value then return value end
   end
-  value = max(value,checkSwingInRange(radius,time))
-  if value > filter.value then return value end
+  value = max(value,checkEnemyInRange(radius,time,filter.unit))
+  if value > filter.value then
+     return value
+  end
+  value = max(value,Core:GetParam("target"))
+  if value > filter.value then
+     return value
+   end
   return value
 end
 
 function F:FASTSPELL(filter)
-  local spellId, cdthd, range, ishelp = unpack(Core:ToValueTable(filter.name),1,4)
+  local spellId, cdthd, range, ishelp = unpack(filter.name,1,4)
   if not cdthd or cdthd == "" then cdthd = 0.2 end
   ishelp = ishelp and ishelp ~= 0 and true or false
   assert(spellId)
   local cd, charge, know, usable = Cache:GetSpellCooldown(spellId)
+  -- self:Print(cd, charge, know, usable)
   if cd > cdthd or not know or not usable then
     return false
   end
@@ -119,8 +160,10 @@ function F:FASTSPELL(filter)
     if not exists or ishelp and not help or not ishelp and not harm then
       return false
     end
+    -- local isdead = Cache:Call(UnitIsDeadOrGhost,filter.unit)
     local isdead = select(6,Cache:GetHealth(guid))
     if isdead then
+      -- self:Print(AirjHack:GetDebugChatFrame(),"isdead",filter.unit,name)
       return false
     end
     local x,y,z,f,d,s = Cache:GetPosition(guid)
@@ -144,32 +187,44 @@ function F:FASTSPELL(filter)
 end
 function F:CD(filter)
   filter.value = filter.value or 0.2
-  local value = Cache:GetSpellCooldown(filter.name or 61304)
+  local name = filter.name and filter.name[1] or 61304
+  local value = Cache:GetSpellCooldown(name)
+  return value
+end
+
+function F:SPELLCOUNT(filter)
+  filter.value = filter.value or 0
+  local name = filter.name and filter.name[1] or 61304
+  local value = GetSpellCount(name)
   return value
 end
 
 function F:ICD(filter)
-  assert(type(filter.name)=="number")
-  local start, duration,enable = Cache:Call("GetItemCooldown",filter.name)
+  assert(type(filter.name)=="table")
+  local name = filter.name[1]
+  local start, duration,enable = Cache:Call("GetItemCooldown",name)
   local value = not start and 300 or enable and 0 or (duration - (GetTime() - start))
   return value
 end
 
 function F:CHARGE(filter)
-  assert(type(filter.name)=="number")
-  local _,value = Cache:GetSpellCooldown(filter.name)
+  assert(type(filter.name)=="table")
+  local name = filter.name[1]
+  local _,value = Cache:GetSpellCooldown(name)
   return value
 end
 
 function F:KNOWS(filter)
-  assert(type(filter.name)=="number")
-  local _,_,value = Cache:GetSpellCooldown(filter.name)
+  assert(type(filter.name)=="table")
+  local name = filter.name[1]
+  local _,_,value = Cache:GetSpellCooldown(name)
   return value
 end
 
 function F:ISUSABLE(filter)
-  assert(type(filter.name)=="number")
-  local _,_,_,value = Cache:GetSpellCooldown(filter.name)
+  assert(type(filter.name)=="table")
+  local name = filter.name[1]
+  local _,_,_,value = Cache:GetSpellCooldown(name)
   return value
 end
 
@@ -193,7 +248,7 @@ function F:CANCAST(filter)
   local notMoving=(Cache:Call("GetUnitSpeed","player") == 0 and not Cache:Call("IsFalling"))
   if notMoving then return true end
   local guid = Cache:UnitGUID("player")
-  local buffs = Cache:GetBuffs(guid,"player",{[137587]=true})
+  local buffs = Cache:GetBuffs(guid,"player",{[108839]=true})
   return #buffs > 0
 end
 
@@ -222,7 +277,8 @@ function F:STANCE(filter)
 end
 
 function F:RUNE(filter)
-	local offset = filter.name or 0
+  -- assert(type(filter.name)=="table")
+  local offset = filter.name and filter.name[1] or 0
   local t = GetTime()
   local value = 0
   for slot = 1,6 do
@@ -245,4 +301,17 @@ function F:TOTEMTIME(filter)
 		end
 	end
   return value
+end
+
+function F:CDENERGY(filter)
+  filter.value = filter.value or 50
+  local name = filter.name and filter.name[1]
+  assert(name)
+  local cdoffset = filter.name and filter.name[2] or 0
+  local cd = Cache:GetSpellCooldown(name)
+  cd = math.max(cd-cdoffset,0)
+  local inactiveRegen, activeRegen = GetPowerRegen()
+  local power = Cache:Call("UnitPower","player",SPELL_POWER_ENERGY)
+  power = power + cd*activeRegen
+  return power
 end

@@ -156,18 +156,22 @@ function mod:OnInitialize()
 end
 
 function mod:OnEnable()
-	self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+	self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED",function(event,unit)
+			if unit == "player" then
+				self:Reload()
+			end
+	end)
+	self:RegisterEvent("UNIT_EXITED_VEHICLE",self.Reload,self)
+
 	if not (self.selectedIndex) then
 		self:LoadAutoData()
 		self:UpdateRealButtons()
 	end
 end
 
-function mod:PLAYER_SPECIALIZATION_CHANGED(event,unit)
-	if unit == "player" then
-		self:LoadAutoData()
-		self:UpdateRealButtons()
-	end
+function mod:Reload()
+	self:LoadAutoData()
+	self:UpdateRealButtons()
 end
 
 function mod:CreateHandle()
@@ -251,6 +255,7 @@ function mod:CreateRealButtons()
 end
 
 function mod:UpdateRealButtons()
+	-- self:Print("UpdateRealButtons",self.selectedIndex)
 	if not self.selectedIndex or self.selectedIndex==0 then
 		return
 	end

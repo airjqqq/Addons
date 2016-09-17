@@ -71,7 +71,6 @@ function F:AIRLOWHEALTH(filter)
 end
 
 function F:AIRBUFF(filter)
-  assert(type(filter.name)=="number")
   local unit = Core:GetAirUnit()
   local guid = unit and Cache:UnitGUID(unit)
   if not guid then return end
@@ -90,7 +89,6 @@ function F:AIRBUFF(filter)
 end
 
 function F:AIRDEBUFF(filter)
-  assert(type(filter.name)=="number")
   local unit = Core:GetAirUnit()
   local guid = unit and Cache:UnitGUID(unit)
   if not guid then return end

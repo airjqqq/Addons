@@ -73,6 +73,11 @@ function F:OnInitialize()
     HOT = L["HOT"],
     DOT = L["DOT"],
   })
+  self:RegisterFilter("LASTSPELLINTERVAL",L["Hit Combo"],{
+    value = {},
+    greater = {},
+    name = {name="Spell ID"},
+  })
 end
 
 function F:RegisterFilter(key,name,keys,subtypes)
@@ -87,21 +92,26 @@ function F:RegisterFilter(key,name,keys,subtypes)
 end
 --LASTDAMAGEDONETIME
 function F:CHANNELDAMAGE(filter)
-  assert(filter.name and type(filter.name)=="number")
+  assert(filter.name and #filter.name==1)
   filter.unit = filter.unit or "player"
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local list = Cache.cache.damageTo[guid]
   if not list then return 120 end
-  local spellId = filter.name
+  local spellId = filter.name[1]
   list = list[spellId]
   if not list then return 120 end
-  return GetTime()-list.last.t
+  list = list.array
+  if #list == 0 then return 120 end
+  local lastT = list[#list].t
+  return GetTime()-lastT
 end
 
 function F:BEHITEDCNT(filter)
   filter.unit = filter.unit or "player"
-	local time = tonumber(filter.name) or 5
+  filter.name = filter.name or {5}
+  assert(filter.name and #filter.name==1)
+	local time = filter.name[1]
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return 0 end
   local by = Cache.cache.damageBy[guid]
@@ -135,7 +145,11 @@ function F:GetSpellHitCount(guid,spellId,time)
   if not to then return 0 end
   to = to[spellId]
   if not to then return 0 end
-  local last = to.last
+  local array = to.array
+  if not array then return 0 end
+  local array = to.array
+  if #array == 0 then return 0 end
+  local last = array[#array]
   if not last then return 0 end
   local pguid = Cache:PlayerGUID()
   local castTo = Cache.cache.castSuccessTo[pguid]
@@ -145,8 +159,6 @@ function F:GetSpellHitCount(guid,spellId,time)
       return 0
     end
   end
-  local array = to.array
-  if not array then return 0 end
   local calculated = {}
   local count = 0
   local t = GetTime()
@@ -221,7 +233,8 @@ end
 
 function F:DAMAGETAKEN(filter)
   filter.unit = filter.unit or "player"
-	local time = tonumber(filter.name) or 5
+  filter.name = filter.name or {5}
+	local time = filter.name[1]
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   if filter.subtype == "SWING" then
@@ -271,7 +284,8 @@ end
 
 function F:HEALTAKEN(filter)
   filter.unit = filter.unit or "player"
-	local time = tonumber(filter.name) or 5
+  filter.name = filter.name or {5}
+	local time = filter.name[1]
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   if filter.subtype == "DIRECT" then
@@ -282,12 +296,14 @@ function F:HEALTAKEN(filter)
 end
 
 function F:TIMETODIE(filter)
+  filter.unit = filter.unit or "player"
+  filter.name = filter.name or {5}
+	local time = filter.name[1]
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
   if not health then return 3600 end
   if isdead then return 0 end
-	local time = tonumber(filter.name) or 5
   health = health + prediction + absorb
   if filter.subtype == "NOHEAL" then
     local damage = F:GetDamageTaken(guid,time)
@@ -322,7 +338,8 @@ function F:TIMETODIE(filter)
 end
 
 function F:LASTCASTSEND(filter)
-  assert(filter.name)
+  assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
+	local spellID = filter.name[1]
   local guid
   if filter.unit then
     guid = Cache:UnitGUID(filter.unit)
@@ -330,7 +347,7 @@ function F:LASTCASTSEND(filter)
     guid = "last"
   end
   if not guid then return false end
-  local data = Cache.cache.castSend[filter.name]
+  local data = Cache.cache.castSend[spellID]
   if not data then return 120 end
   data = data[guid]
   if not data then return 120 end
@@ -338,7 +355,8 @@ function F:LASTCASTSEND(filter)
 end
 
 function F:CASTSTART(filter)
-  assert(filter.name)
+  assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
+	local spellID = filter.name[1]
   local guid
   if filter.unit then
     guid = Cache:UnitGUID(filter.unit)
@@ -346,24 +364,16 @@ function F:CASTSTART(filter)
     guid = "last"
   end
   if not guid then return false end
-  local data = Cache.cache.castStartTo[filter.name]
+  local data = Cache.cache.castStartTo[spellID]
   if not data then return 120 end
   data = data[guid]
-  if not data then return 120 end
-  return GetTime() - data.t
-end
---Deprecated
-function F:CASTSTARTALL(filter)
-  assert(filter.name)
-  local data = Cache.cache.castStartTo[filter.name]
-  if not data then return 120 end
-  data = data.last
   if not data then return 120 end
   return GetTime() - data.t
 end
 
 function F:CASTSUCCESSED(filter)
-  assert(filter.name)
+  assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
+	local spellID = filter.name[1]
   local guid
   if filter.unit then
     guid = Cache:UnitGUID(filter.unit)
@@ -374,26 +384,16 @@ function F:CASTSUCCESSED(filter)
   local pguid = Cache:PlayerGUID()
   local data = Cache.cache.castSuccessTo[pguid]
   if not data then return 120 end
-  data = data[filter.name]
+  data = data[spellID]
   if not data then return 120 end
   data = data[guid]
   if not data then return 120 end
   return GetTime() - data.t
 end
---Deprecated
-function F:ALLCASTSUCCESSED(filter)
-  assert(filter.name)
-  local pguid = Cache:PlayerGUID()
-  local data = Cache.cache.castSuccessTo[pguid]
-  if not data then return 120 end
-  data = data[filter.name]
-  if not data then return 120 end
-  data = data.last
-  if not data then return 120 end
-  return GetTime() - data.t
-end
 
 function F:AURANUM(filter)
+  assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
+	local spellID = filter.name[1]
   local pguid = Cache:PlayerGUID()
   local data = Cache.cache.auraTo[pguid]
   local overTimeData
@@ -403,8 +403,8 @@ function F:AURANUM(filter)
     overTimeData = Cache.cache.healTo[pguid]
   end
   if not data then return 0 end
-  data = data[filter.name]
-  if overTimeData then overTimeData = overTimeData[filter.name] end
+  data = data[spellID]
+  if overTimeData then overTimeData = overTimeData[spellID] end
   if not data then return 0 end
   if filter.subtype and not overTimeData then return 0 end
   local count = 0
@@ -422,4 +422,90 @@ function F:AURANUM(filter)
     end
   end
   return count
+end
+
+function F:GetFutureDamagePVE(guid,time,futureTime)
+  time = time or 5
+  local damageBy = Cache.cache.damageBy[guid]
+  if not damageBy then return {} end
+  local t = GetTime()
+  local debuffsBySpellName = {}
+  local debuffs = Cache:GetDebuffs(guid)
+  for i,v in ipairs(debuffs) do
+    local name = v[1]
+    debuffsBySpellName[name] = v
+  end
+  local periodicDamage = {}
+  for i = #damageBy,1,-1 do
+    local data = damageBy[i]
+    if t-data.t>time then break end
+    if data.periodic then -- periodic damage
+      local timeLeft
+      local spellName = data.spellName
+      if periodicDamage[spellName] then
+        if periodicDamage[spellName].first then
+          periodicDamage[spellName].interval = periodicDamage[spellName].first-data.t
+          periodicDamage[spellName].first = nil
+        end
+      else
+        local debuff = debuffsBySpellName[spellName]
+        if not debuff then
+          timeLeft = 15
+        else
+          timeLeft = debuff[7] - t
+          timeLeft = max(timeLeft,0)
+        end
+        periodicDamage[spellName] = {
+          timeLeft = timeLeft,
+          value = data.value,
+          first = data.t,
+        }
+      end
+    else -- directdamage
+      -- do nothing
+    end
+  end
+  futureTime = futureTime or 15
+  local totalDamage = 0
+  for i,data in pairs(periodicDamage) do
+    local dps = data.value/(data.interval or max(1,t-data.first))
+    totalDamage = dps* min(data.timeLeft,futureTime)
+  end
+  return totalDamage
+end
+
+local careSpellIds = {
+  [205320] = true,
+  [100784] = true,
+  [113656] = true,
+  [101546] = true,
+  [101545] = true,
+  [107428] = true,
+  [117952] = true,
+  [100780] = true,
+  [115080] = true,
+  [123986] = true,
+  [115098] = true,
+  [116847] = true,
+  [152175] = true,
+}
+
+function F:LASTSPELLINTERVAL(filter)
+  assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
+	local spellID = filter.name[1]
+  local pguid = Cache:PlayerGUID()
+  local data = Cache.cache.castSuccessTo[pguid]
+  if not data then return 120 end
+  local array = data.array
+  local interval = 0
+  for i=#array,1,-1 do
+    local spellId = array[i].spellId
+    if careSpellIds[spellId] then
+      interval = interval + 1
+    end
+    if spellId == spellID then
+      return interval
+    end
+  end
+  return 120
 end

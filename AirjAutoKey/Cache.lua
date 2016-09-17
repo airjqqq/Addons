@@ -30,6 +30,11 @@ function Cache:OnEnable()
 	self:RegisterEvent("SPELL_UPDATE_COOLDOWN",self.OnCoolDownChanged,self)
 	self:RegisterEvent("SPELL_UPDATE_CHARGES",self.OnCoolDownChanged,self)
 	self:RegisterEvent("SPELL_UPDATE_USABLE",self.OnCoolDownChanged,self)
+	self:RegisterEvent("UNIT_POWER_FREQUENT",function(event,unit,type)
+		if unit == "player" then
+			self:OnCoolDownChanged()
+		end
+	end)
 
   self:RegisterMessage("AIRJ_HACK_OBJECT_CREATED",self.OnObjectChanged,self)
   self:RegisterMessage("AIRJ_HACK_OBJECT_DESTROYED",self.OnObjectChanged,self)
@@ -46,6 +51,10 @@ function Cache:OnEnable()
 	self.scanTimer = self:ScheduleRepeatingTimer(function()
 		local units = self:GetUnitList()
 		local guids = self:GetUnitGUIDs()
+		local tguid = UnitGUID("target")
+		if tguid and guids[tguid] == nil then
+			guids[tguid] = 9
+		end
 		local t = GetTime()
 		self:ScanAuras(t,guids,units)
 		self:ScanHealth(t,guids,units)
@@ -369,6 +378,7 @@ do
 					if strfind(event,"SWING_") then
 						args= {spellId,spellName,spellSchool,...}
 						spellId="Swing"
+						spellName = "Swing"
 					else
 						args= {...}
 					end
@@ -384,24 +394,29 @@ do
 					sourceGUID = sourceGUID or "Unknown"
 					destGUID = destGUID or "Unknown"
 					spellId = spellId or "Unknown"
+					spellName = spellName or "Unknown"
 
 					self.cache.damageTo[sourceGUID]=self.cache.damageTo[sourceGUID] or {}
+
 					local to = self.cache.damageTo[sourceGUID]
-					to[spellId]=to[spellId] or {}
-					to[spellId].last={t=localtime,value=damage,guid=destGUID,periodic=periodic}
-					to[spellId][destGUID]={t=localtime,value=damage,periodic=periodic}
 					to.array = to.array or {isArray = true}
-					tinsert(to.array,{t=localtime,value=damage,guid=destGUID,spellId=spellId,periodic=periodic})
+					tinsert(to.array,{t=localtime,value=damage,guid=destGUID,spellId=spellId,spellName=spellName,periodic=periodic})
+					to[spellId]=to[spellId] or {}
 					to[spellId].array = to[spellId].array or {isArray = true}
-					tinsert(to[spellId].array,{t=localtime,value=damage,guid=destGUID,periodic=periodic})
+					tinsert(to[spellId].array, {t=localtime,value=damage,guid=destGUID,periodic=periodic})
+					-- to[spellId].last={t=localtime,value=damage,guid=destGUID,periodic=periodic}
+					-- to[spellId][destGUID]={t=localtime,value=damage,periodic=periodic}
+
 
 					self.cache.damageBy[destGUID]=self.cache.damageBy[destGUID] or {}
 					local by = self.cache.damageBy[destGUID]
-					by[spellId]=by[spellId] or {}
-					by[spellId].last={t=localtime,value=damage,guid=sourceGUID,periodic=periodic}
-					by[spellId][sourceGUID]={t=localtime,value=damage,periodic=periodic}
 					by.array = by.array or {isArray = true}
-					tinsert(by.array,{t=localtime,value=damage,guid=sourceGUID,spellId=spellId,periodic=periodic})
+					tinsert(by.array,{t=localtime,value=damage,guid=sourceGUID,spellId=spellId,spellName=spellName,periodic=periodic})
+					by[spellId]=by[spellId] or {}
+					by[spellId].array = by[spellId].array or {isArray = true}
+					tinsert(by[spellId].array, {t=localtime,value=damage,guid=sourceGUID,periodic=periodic})
+					-- by[spellId].last={t=localtime,value=damage,guid=sourceGUID,periodic=periodic}
+					-- by[spellId][sourceGUID]={t=localtime,value=damage,periodic=periodic}
 
 					if self.cache.health[destGUID] then
 						self.cache.health[destGUID].changed = true
@@ -426,19 +441,23 @@ do
 
 					self.cache.healTo[sourceGUID]=self.cache.healTo[sourceGUID] or {}
 					local to = self.cache.healTo[sourceGUID]
-					to[spellId]=to[spellId] or {}
-					to[spellId].last={t=localtime,value=heal,guid=destGUID,periodic=periodic}
-					to[spellId][destGUID]={t=localtime,value=heal,periodic=periodic}
 					to.array = to.array or {isArray = true}
 					tinsert(to.array,{t=localtime,value=heal,guid=destGUID,spellId=spellId,periodic=periodic})
+					to[spellId]=to[spellId] or {}
+					to[spellId].array = to[spellId].array or {isArray = true}
+					tinsert(to[spellId].array, {t=localtime,value=heal,guid=destGUID,periodic=periodic})
+					-- to[spellId].last={t=localtime,value=heal,guid=destGUID,periodic=periodic}
+					-- to[spellId][destGUID]={t=localtime,value=heal,periodic=periodic}
 
 					self.cache.healBy[destGUID]=self.cache.healBy[destGUID] or {}
 					local by = self.cache.healBy[destGUID]
-					by[spellId]=by[spellId] or {}
-					by[spellId].last={t=localtime,value=heal,guid=sourceGUID,periodic=periodic}
-					by[spellId][sourceGUID]={t=localtime,value=heal,periodic=periodic}
 					by.array = by.array or {isArray = true}
 					tinsert(by.array,{t=localtime,value=heal,guid=sourceGUID,spellId=spellId,periodic=periodic})
+					by[spellId]=by[spellId] or {}
+					by[spellId].array = by[spellId].array or {isArray = true}
+					tinsert(by[spellId].array, {t=localtime,value=heal,guid=sourceGUID,periodic=periodic})
+					-- by[spellId].last={t=localtime,value=heal,guid=sourceGUID,periodic=periodic}
+					-- by[spellId][sourceGUID]={t=localtime,value=heal,periodic=periodic}
 
 					if self.cache.health[destGUID] then
 						self.cache.health[destGUID].changed = true
@@ -457,6 +476,8 @@ do
 					spellId = spellId or "Unknown"
 					self.cache.castSuccessTo[sourceGUID]=self.cache.castSuccessTo[sourceGUID] or {}
 					local to = self.cache.castSuccessTo[sourceGUID]
+					to.array = to.array or {isArray = true}
+					tinsert(to.array,{t=localtime,guid=destGUID,spellId=spellId})
 					to[spellId]=to[spellId] or {}
 					to[spellId].last={t=localtime,guid=destGUID}
 					to[spellId][destGUID]={t=localtime}
@@ -474,7 +495,7 @@ do
 					SPELL_CAST_START=true,
 				},
 				fcn = function(localtime,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
-					if UnitGUID("player") == sourceGUID or UnitGUID("pet") == sourceGUID then
+					if self:PlayerGUID() == sourceGUID or UnitGUID("pet") == sourceGUID then
 						destGUID = destGUID or "Unknown"
 						spellId = spellId or "Unknown"
 						local data = self.cache.castSend[spellId] and self.cache.castSend[spellId].last
@@ -594,7 +615,7 @@ do
 		end
 		local index = #array
 		if index~=0 then
-			unpack(array[index])
+			return unpack(array[index])
 		end
 	end
 	function Cache:GetHealthArray(guid)
@@ -757,6 +778,7 @@ do
 	local changed
 	local externSpellIDs = {}
 	function Cache:OnCoolDownChanged(event)
+		-- self:Print("changed")
 		changed = true
 	end
 	function Cache:ScanAllSpell(t)
@@ -776,7 +798,9 @@ do
 			self.cache.cooldown[spellID] = {GetSpellCooldown(spellID)}
 			self.cache.usable[spellID] = {IsUsableSpell(spellID)}
 			self.cache.known[spellID] = true
-			self.cache.known[offId] = true
+			if offId then
+				self.cache.known[offId] = true
+			end
 		end
 
 		for i=1,200 do
@@ -801,6 +825,7 @@ do
 		end
 		changed = nil
 		scanT = t
+		-- self:Print(self.cache.usable[100780][1])
 	end
 	function Cache:ScanSpell(t,guids,units)
 		if not scanT or t-scanT>self.interval.spell then
@@ -889,16 +914,25 @@ do
 	function Cache:ScanExists(t,guids,units)
 		if units then
 			if not scanT or t-scanT>self.interval.exists or changed then
+				-- self:Print("ScanExists")
 				wipe(self.cache.exists)
-				local checked = {}
-				for i,unit in ipairs(units) do
-					local guid = UnitGUID(unit)
-					if guid and guids[guid] and not checked[guid] then
-						checked[guid] = true
-						self.cache.exists[guid] = {UnitExists(unit),UnitCanAttack("player",unit),UnitCanAssist("player",unit)}
+				local pguid = self:PlayerGUID()
+				if guids then
+					for guid in pairs(guids) do
+						self.cache.exists[guid] = {true,AirjHack:UnitCanAttack(pguid,guid),AirjHack:UnitCanAssist(pguid,guid)}
 					end
 				end
 				scanT = t
+
+				-- local checked = {}
+				-- for i,unit in ipairs(units) do
+				-- 	local guid = UnitGUID(unit)
+				-- 	if guid and guids[guid] and not checked[guid] then
+				-- 		checked[guid] = true
+				-- 		self.cache.exists[guid] = {UnitExists(unit),UnitCanAttack("player",unit),UnitCanAssist("player",unit)}
+				-- 	end
+				-- end
+				-- scanT = t
 			end
 		end
 	end

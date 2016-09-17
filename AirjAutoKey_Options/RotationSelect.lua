@@ -5,7 +5,7 @@ local AceGUI = LibStub("AceGUI-3.0")
 local f2n = {}
 FillLocalizedClassList(f2n)
 local specId = {}
-for i = 1,300 do
+for i = 1,1000 do
 	local _,specName,_,_,_,_,class = GetSpecializationInfoByID(i)
 	if class then
 		specId[class] = specId[class] or {}
