@@ -24,12 +24,16 @@ function mod:OnEnable()
           return
         end
         local health, max = Cache:GetHealth(Cache:PlayerGUID())
+<<<<<<< HEAD
         local highlight
         if not health then
           highlight = false
         else
           highlight = health/max <0.35
         end
+=======
+        local highlight = health/max <0.35
+>>>>>>> origin/master
         if m.highlight ==nil or m.highlight ~= highlight then
           m.highlight=highlight
           if highlight then
