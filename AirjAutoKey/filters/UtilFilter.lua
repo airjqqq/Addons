@@ -53,12 +53,8 @@ function F:AUTOON(filter)
 end
 function F:PARAMVALUE(filter)
   local name = filter.name and filter.name[1] or "auto"
-<<<<<<< HEAD
   local value = Core:GetParam(name)
   return value and value~=0 or false
-=======
-  return Core:GetParam(name)
->>>>>>> origin/master
 end
 function F:BURST(filter)
   return Core:GetParamNotExpired("burst")
@@ -193,7 +189,6 @@ function F:CD(filter)
   filter.value = filter.value or 0.2
   local name = filter.name and filter.name[1] or 61304
   local value = Cache:GetSpellCooldown(name)
-<<<<<<< HEAD
   return value
 end
 
@@ -201,8 +196,6 @@ function F:SPELLCOUNT(filter)
   filter.value = filter.value or 0
   local name = filter.name and filter.name[1] or 61304
   local value = GetSpellCount(name)
-=======
->>>>>>> origin/master
   return value
 end
 
