@@ -1,87 +1,70 @@
-local mod = LibStub("AceAddon-3.0"):NewAddon("AirjAVR", "AceConsole-3.0", "AceTimer-3.0","AceEvent-3.0")  --, "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0","AceSerializer-3.0","AceComm-3.0"
-AirjAVR = mod
-mod.debug = true
+local Core = LibStub("AceAddon-3.0"):NewAddon("AirjAVR", "AceConsole-3.0", "AceTimer-3.0","AceEvent-3.0")  --, "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0","AceSerializer-3.0","AceComm-3.0"
+AirjAVR = Core
+Core.debug = true
 local Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
 
-function mod:OnInitialize()
+function Core:OnInitialize()
   self.onCreatedRegisteredIds={}
   self.activeMeshs={}
+  self:RegisterChatCommand("aavr", function(str)
+    local key, value, nextposition = self:GetArgs(str, 2)
+    local subString
+    if nextposition~=1e9 then
+      subString = strsub(str,nextposition)
+    end
+    self:OnChatCommmand(key,value,subString)
+  end)
 end
 
-function mod:OnEnable()
+function Core:OnEnable()
   self:RegisterMessage("AIRJ_HACK_OBJECT_CREATED",self.OnObjectCreated,self)
   self:RegisterMessage("AIRJ_HACK_OBJECT_DESTROYED",self.OnObjectDestroyed,self)
   self:RegisterEvent("MODIFIER_STATE_CHANGED",self.OnModifierStateChanged,self)
-  local oxgift = {
-    color={0.0,0.7,0,0.2},
-    color2={0.0,0.9,0,0.3},
-    radius=1,
-    duration=30,
-    updateCallbacks = {
-      function(m,t)
-        if m.expiration == nil then
-          -- self:Print("updateCallbacks","expires")
-          return
-        end
-        local health, max = Cache:GetHealth(Cache:PlayerGUID())
-<<<<<<< HEAD
-        local highlight
-        if not health then
-          highlight = false
-        else
-          highlight = health/max <0.35
-        end
-=======
-        local highlight = health/max <0.35
->>>>>>> origin/master
-        if m.highlight ==nil or m.highlight ~= highlight then
-          m.highlight=highlight
-          if highlight then
-            m.spellId = 124503
-            m:SetColor(0.0,0.7,0,0.5)
-            m:SetColor2(0.0,0.9,0,0.7)
-          else
-            m.spellId = nil
-            m:SetColor(0.7,0.7,0,0.1)
-            m:SetColor2(0.9,0.9,0,0.2)
-          end
-        end
-        local px,py,pz = t.playerPosX,t.playerPosY,t.playerPosZ
-        local x,y,z = AirjHack:Position(m.followUnit)
-        if not x then
-          m.vertices = nil
-          m.expiration = nil
-          return
-        end
-        local dx,dy,dz =x-px,y-py,z-pz
-        local d = math.sqrt(dx*dx+dy*dy+dz*dz)
-        if d <1 then
-          m.vertices = nil
-          m.expiration = nil
-        end
-      end,
-    },
-  }
-  self:RegisterObjectOnCreated("AreaTrigger",132950,{color={0.4,0,0,0.2},color2={0.6,0,0,0.3},radius=10,duration=20})
-  self:RegisterObjectOnCreated("AreaTrigger",124503,oxgift)
-  self:RegisterObjectOnCreated("AreaTrigger",124506,oxgift)
+  self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
 
-function mod:OnDisable()
+function Core:OnDisable()
   self:UnregisterMessage("AIRJ_HACK_OBJECT_CREATED")
   self:UnregisterMessage("AIRJ_HACK_OBJECT_DESTROYED")
   self:UnregisterEvent("MODIFIER_STATE_CHANGED")
 end
 
-function mod:OnModifierStateChanged(event,key,state)
-  if IsAltKeyDown() and IsControlKeyDown() then
-    AVR3D:VirtualCamera(120,math.pi/2)
-  else
-    AVR3D:VirtualCamera()
+do
+  local self = Core
+  local chatCommands = {
+    vir = function(value)
+      if not value then
+        self.lockVirtual = not self.lockVirtual
+      else
+        self.lockVirtual = value ~= "0"
+      end
+      if self.lockVirtual then
+        AVR3D:VirtualCamera(120,math.pi/2)
+      else
+        AVR3D:VirtualCamera()
+      end
+    end,
+  }
+  function Core:OnChatCommmand(key,value,nextString)
+    if chatCommands[key] then
+      chatCommands[key](value,nextString)
+    else
+      self:SetParam(key,value)
+    end
   end
 end
 
-function mod:GetGUIDInfo(guid)
+function Core:OnModifierStateChanged(event,key,state)
+  if not self.lockVirtual then
+    if IsAltKeyDown() and IsControlKeyDown() then
+      AVR3D:VirtualCamera(120,math.pi/2)
+    else
+      AVR3D:VirtualCamera()
+    end
+  end
+end
+
+function Core:GetGUIDInfo(guid)
   if not guid then return end
   local guids = {string.split("-",guid)}
   local objectType,serverId,instanceId,zone,id,spawn
@@ -97,7 +80,7 @@ function mod:GetGUIDInfo(guid)
   return objectType,serverId,instanceId,zone,id,spawn
 end
 
-function mod:OnObjectCreated(event,guid,type)
+function Core:OnObjectCreated(event,guid,type)
   if bit.band(type,0x2)==0 then
     local scene = AVR:GetTempScene(100)
     local objectType,serverId,instanceId,zone,id,spawn = self:GetGUIDInfo(guid)
@@ -126,16 +109,105 @@ function mod:OnObjectCreated(event,guid,type)
         m.updateCallbacks = data.updateCallbacks
         scene:AddMesh(m,false,false)
         self.activeMeshs[key]=m
-        self.test=m
       end
     end
   end
 end
 
-function mod:OnObjectDestroyed(event,guid,type)
+function Core:OnObjectDestroyed(event,guid,type)
 end
 
-
-function mod:RegisterObjectOnCreated(objectType,id,data)
+function Core:RegisterObjectOnCreated(objectType,id,data)
   self.onCreatedRegisteredIds[objectType.."-"..id]=data or {}
+end
+
+function Core:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
+  local scene = AVR:GetTempScene(100)
+  if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" or event =="SPELL_AURA_APPLIED_DOSE" then
+    local data = self.onAuraIds[spellId]
+    --self:Print(objectType,id,data)
+    if data then
+      local key = spellId.."-"..destGUID
+      local m = self.activeMeshs[key]
+      if not m then
+        m=AVRUnitMesh:New(destGUID,data.spellId or spellId, data.radius or 8,function(...)
+          self.activeMeshs[key]=nil
+        end)
+      end
+      m:SetTimer(data.duration or 9)
+      m:SetColor(unpack(data.color or {}))
+      m:SetColor2(unpack(data.color2 or {}))
+      m.updateCallbacks = data.updateCallbacks
+      scene:AddMesh(m,false,false)
+      self.activeMeshs[key]=m
+    end
+    data = self.onAuraLinkIds[spellId]
+    --self:Print(objectType,id,data)
+    if data then
+      local key = spellId.."-"..destGUID.."-link"
+      local m = self.activeMeshs[key]
+      if not m then
+        m=AVRLinkMesh:New(destGUID,data.width,data.alpha)
+        m:SetClassColor(true)
+      end
+      m:SetColor(unpack(data.color or {}))
+      m:SetFollowPlayer(nil)
+      m:SetFollowUnit(sourceGUID)
+      scene:AddMesh(m,false,false)
+      self.activeMeshs[key]=m
+    end
+  end
+  if event == "SPELL_AURA_REMOVED" or event == "SPELL_AURA_BROKEN" or event =="SPELL_AURA_BROKEN_SPELL" then
+    local data = self.onAuraIds[spellId]
+    --self:Print(objectType,id,data)
+    if data then
+      local key = spellId.."-"..destGUID
+      local m = self.activeMeshs[key]
+      if m then
+        m.vertices = nil
+        m.expiration = nil
+        self.activeMeshs[key] = nil
+      end
+    end
+    data = self.onAuraLinkIds[spellId]
+    if data then
+      local key = spellId.."-"..destGUID.."-link"
+      local m = self.activeMeshs[key]
+      if m then
+        m.visible=false
+				m:Remove()
+        self.activeMeshs[key] = nil
+      end
+    end
+  end
+  if event == "SPELL_CAST_START" then
+    local data = self.onBreathIds[spellId]
+    if data then
+      local key = spellId.."-"..sourceGUID.."-caststart"
+      local m = self.activeMeshs[key]
+      if not m then
+        m=AVRPolygonMesh:New(data.line, data.color, data.color2)
+      end
+      m:SetFollowUnit(sourceGUID)
+      Core:ScheduleTimer(function()
+        m.visible=false
+				m:Remove()
+        self.activeMeshs[key] = nil
+      end,data.duration or 8)
+      scene:AddMesh(m,false,false)
+      self.activeMeshs[key]=m
+    end
+  end
+end
+
+function Core:RegisterAuraOnApplied(spellId,data)
+  self.onAuraIds[spellId]=data or {}
+end
+
+function Core:RegisterBreath(spellId,data)
+  self.onBreathIds[spellId]=data or {}
+end
+
+function Core:RegisterLink(spellId,data)
+  self.onAuraLinkIds[spellId]=data or {}
 end
