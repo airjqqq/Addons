@@ -29,6 +29,7 @@ function Core:OnDisable()
   self:UnregisterEvent("MODIFIER_STATE_CHANGED")
 end
 
+
 do
   local self = Core
   local chatCommands = {
