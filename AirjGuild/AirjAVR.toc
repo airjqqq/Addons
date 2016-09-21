@@ -1,9 +1,0 @@
-## Interface: 70300
-## Title: AirjAVR
-## Notes: AVR!!
-## Version: 1.0
-## Author: Airj
-## SavedVariables: AirjAVRDB
-## RequiredDeps: Ace3
-
-AirjAVR.lua

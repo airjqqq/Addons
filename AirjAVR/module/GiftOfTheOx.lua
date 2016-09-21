@@ -13,7 +13,8 @@ function mod:OnInitialize()
           -- self:Print("updateCallbacks","expires")
           return
         end
-        local health, max = Cache:GetHealth(Cache:PlayerGUID())
+        local health = UnitHealth("player")
+        local max = UnitHealthMax("player")
         local highlight
         if not health then
           highlight = false

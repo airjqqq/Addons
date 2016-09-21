@@ -317,9 +317,12 @@ function T:UpdatePlayerHeight()
 	-- end
 end
 
-function T:VirtualCamera(distance,theta)
+function T:VirtualCamera(distance,theta,scale)
 	self.virtualR = distance
 	self.virtualT = theta
+	if scale then
+		self.staticScale = scale
+	end
 end
 
 function T:MakeCameraMatrix()
@@ -831,8 +834,8 @@ do
 		if v[5] < self.projDist then return end
 		local x0,y0 = v[7],v[8]
 		local w = size/2
-		w=w/min(v[5])*self.projDist
-		ox,oy = ox/min(v[5])*self.projDist,oy/min(v[5])*self.projDist
+		w=w/min(v[5])*self.projDist*(self.staticScale or 1)
+		ox,oy = ox/min(v[5])*self.projDist*(self.staticScale or 1),oy/min(v[5])*self.projDist*(self.staticScale or 1)
 		SetPoint(tex,"TOPLEFT",self.frame,"CENTER",x0-w+ox,y0-w+oy)
 		SetPoint(tex,"BOTTOMRIGHT",self.frame,"CENTER",x0+w+ox,y0+w+oy)
 		SetTexture(tex,texture)
@@ -874,8 +877,8 @@ do
 		if v[5] < self.projDist then return end
 		local x0,y0 = v[7],v[8]
 		local h = size
-		h=h/min(v[5])*self.projDist
-		ox,oy = ox/min(v[5])*self.projDist,oy/min(v[5])*self.projDist
+		h=h/min(v[5])*self.projDist*(self.staticScale or 1)
+		ox,oy = ox/min(v[5])*self.projDist*(self.staticScale or 1),oy/min(v[5])*self.projDist*(self.staticScale or 1)
 		SetPoint(tex,"CENTER",self.frame,"CENTER",x0+ox,y0+oy)
 		-- SetTextHeight(tex,h)
 		-- h=math.floor(h)

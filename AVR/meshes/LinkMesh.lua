@@ -72,10 +72,10 @@ function AVRLinkMesh:SetTarget(target)
 	self.vertices=nil
 	return self
 end
-function AVRMarkerMesh:SetClassColor(value)
+function AVRLinkMesh:SetClassColor(value)
 	self.classColor=value
 end
-function AVRMarkerMesh:GetClassColor()
+function AVRLinkMesh:GetClassColor()
 	return self.classColor
 end
 
@@ -172,12 +172,14 @@ function AVRLinkMesh:OnUpdate(threed)
 		self:GenerateMesh()
 	end
 	local px,py,pz=threed.playerPosX,threed.playerPosY,threed.playerPosZ
-	local sx,sy,sz,ss = 0,0,0,threed.playerSize
+	local sx,sy,sz,ss
 	if self.followUnit then
 		sx,sy,sz,_,ss = threed:GetUnitPosition(self.followUnit)
+	else
+		sx,sy,sz,ss = threed.playerPosX,threed.playerPosY,threed.playerPosZ,threed.playerSize
 	end
 	if not (sx==0 and sy==0 and sz==0) then
-		sx,sy,sz=sx-px,sy-py,sz-pz
+		-- sx,sy,sz=sx-px,sy-py,sz-pz
 	end
 	local tx,ty,tz,ts=0,0,0,0
 	if self.target then
@@ -188,7 +190,7 @@ function AVRLinkMesh:OnUpdate(threed)
 		end
 	end
 	local tarzero = tx==0 and ty==0 and tz==0
-	tx,ty,tz = tx-px,ty-py,tz-pz
+	-- tx,ty,tz = tx-px,ty-py,tz-pz
 	local x,y,z = tx-sx,ty-sy,tz-sz
 	local l=sqrt(x*x+y*y+z*z)
 	if tarzero or l==0 then
@@ -277,7 +279,7 @@ function AVRLinkMesh:OnUpdate(threed)
 			v4[3]=tz+mh
 		end
 	end
-	AVRMesh.OnUpdate(self,threed)
+	--AVRMesh.OnUpdate(self,threed)
 end
 
 

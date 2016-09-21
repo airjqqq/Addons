@@ -140,6 +140,23 @@ function AVRPolygonMesh:OnUpdate(threed)
 			self.a=self.oa
 		end
 	end
+	local ux,uy,uz,uf
+	self.visible=true
+	if self.followPlayer then
+		self.translateX,self.translateY,self.translateZ=threed.playerPosX,threed.playerPosY,threed.playerPosZ
+		self.rotateZ=threed.playerDirection
+	elseif self.followUnit~=nil then
+		ux,uy,uz,uf=threed:GetUnitPosition(self.followUnit)
+		if not ux or ux==0.0 then
+			self.visible=false
+		else
+			self.translateX,self.translateY,self.translateZ=ux,uy,uz--threed.playerPosZ
+			self.rotateZ=uf
+		end
+	else
+		self.translateX,self.translateY,self.translateZ=0.0,0.0,0.0
+	end
+	self.scaleX,self.scaleY,self.scaleZ=1.0,1.0,1.0
 end
 
 AVR:RegisterMeshClass(AVRPolygonMesh)

@@ -7,3 +7,5 @@
 ## RequiredDeps: Ace3
 
 AirjAVR.lua
+module/EmeraldNightmare.lua
+module/GiftOfTheOx.lua

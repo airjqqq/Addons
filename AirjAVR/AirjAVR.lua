@@ -5,6 +5,9 @@ local Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
 
 function Core:OnInitialize()
   self.onCreatedRegisteredIds={}
+  self.onAuraLinkIds={}
+  self.onAuraIds={}
+  self.onBreathIds={}
   self.activeMeshs={}
   self:RegisterChatCommand("aavr", function(str)
     local key, value, nextposition = self:GetArgs(str, 2)
@@ -40,9 +43,9 @@ do
         self.lockVirtual = value ~= "0"
       end
       if self.lockVirtual then
-        AVR3D:VirtualCamera(120,math.pi/2)
+        AVR3D:VirtualCamera(120,math.pi/2,2)
       else
-        AVR3D:VirtualCamera()
+        AVR3D:VirtualCamera(nil,nil,1)
       end
     end,
   }
@@ -58,9 +61,9 @@ end
 function Core:OnModifierStateChanged(event,key,state)
   if not self.lockVirtual then
     if IsAltKeyDown() and IsControlKeyDown() then
-      AVR3D:VirtualCamera(120,math.pi/2)
+      AVR3D:VirtualCamera(120,math.pi/2,2)
     else
-      AVR3D:VirtualCamera()
+      AVR3D:VirtualCamera(nil,nil,nil)
     end
   end
 end
@@ -150,6 +153,8 @@ function Core:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,so
       if not m then
         m=AVRLinkMesh:New(destGUID,data.width,data.alpha)
         m:SetClassColor(true)
+        m.blank = 0
+        m.showNumber = false
       end
       m:SetColor(unpack(data.color or {}))
       m:SetFollowPlayer(nil)
@@ -187,8 +192,9 @@ function Core:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,so
       local key = spellId.."-"..sourceGUID.."-caststart"
       local m = self.activeMeshs[key]
       if not m then
-        m=AVRPolygonMesh:New(data.line, data.color, data.color2)
+        m=AVRPolygonMesh:New(data.line,data.inalpha,data.outalpha)
       end
+      m:SetColor(unpack(data.color or {}))
       m:SetFollowUnit(sourceGUID)
       Core:ScheduleTimer(function()
         m.visible=false
