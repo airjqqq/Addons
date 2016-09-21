@@ -1,7 +1,7 @@
 local M = LibStub("AceAddon-3.0"):NewAddon("AirjAutoKeyMove", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
 local start = {MoveForwardStart,MoveBackwardStart,StrafeLeftStart,StrafeRightStart,TurnLeftStart,TurnRightStart,JumpOrAscendStart ,SitStandOrDescendStart,PitchUpStart,PitchDownStart}
 local stop  = {MoveForwardStop ,MoveBackwardStop ,StrafeLeftStop ,StrafeRightStop ,TurnLeftStop ,TurnRightStop ,AscendStop ,DescendStop ,PitchUpStop ,PitchDownStop }
-
+AirjMove = M
 local stopAllMoves = {0,0,0,0,0,0,0,0,0,0}
 
 function M:OnInitialize()
@@ -24,6 +24,9 @@ end
 
 function M:OnEnable()
 	self.moveTimer = self:ScheduleRepeatingTimer(self.MoveTimer,0.01,self)
+	self:ScheduleRepeatingTimer(self.CheckGiftTrigged,0.01,self)
+  self:RegisterMessage("AIRJ_HACK_OBJECT_CREATED",self.OnObjectCreated,self)
+  self:RegisterMessage("AIRJ_HACK_OBJECT_DESTROYED",self.OnObjectDestroyed,self)
 end
 
 function M:MoveTimer()
@@ -36,9 +39,9 @@ function M:MoveTimer()
 			local x, y, z = self:GetPositionForType(type,data)
 			if x then
 				minDistance = minDistance or 0.2
-				local distance = self:GetDistance(x,y)
+				local distance = self:GetDistance(x,y,z)
 				targetDistance = distance
-				targetAngle = self:GetAngle(x,y)
+				targetAngle = self:GetAngle(x,y,z)
 				if (distance>minDistance) then
 					moves = self:GetGoToMoves(x,y,z)
 				else
@@ -56,11 +59,11 @@ function M:MoveTimer()
 	do
 		local type,data,minAngle = self.goto.facingType,self.goto.facingData,self.goto.facingMinAngle
 		if type then
-			local x,y = self:GetPositionForType(type,data)
+			local x,y,z = self:GetPositionForType(type,data)
 			if x then
 				minAngle = minAngle or 90
-				local distance = self:GetDistance(x,y)
-				local angle = self:GetAngle(x,y)
+				local distance = self:GetDistance(x,y,z)
+				local angle = self:GetAngle(x,y,z)
 				if (GetUnitSpeed("player")==0) then
 					if distance<1 then
 						moves[5] = moves[5] or 0
@@ -221,14 +224,14 @@ function M:GetAngle(x,y,z)
 	local facing = pf*180/math.pi
 	local angle = atan2(y-py, x-px)
   local theta = atan2(z-pz, sqrt((x-px)*(x-px) + (y-py)*(y-py)))
-	angle = angle - facing + 360
+	angle = angle - 90 - facing + 360
 	if (angle > 180) then angle = angle - 360 end
 	return angle,theta
 end
 
 function M:GetGoToMoves (x, y, z)
-	local distance = self:GetDistance(x,y)
-	local angle = self:GetAngle(x,y)
+	local distance = self:GetDistance(x,y,z)
+	local angle = self:GetAngle(x,y,z)
 	local dir
 	local absAngle = abs(angle)
 	if absAngle>157.5 then
@@ -278,4 +281,91 @@ function M:GetGoToMoves (x, y, z)
 	end
 
 	return dir
+end
+
+function M:GetGUIDInfo(guid)
+  if not guid then return end
+  local guids = {string.split("-",guid)}
+  local objectType,serverId,instanceId,zone,id,spawn
+  objectType = guids[1]
+  if objectType == "Player" then
+    _,serverId,id = unpack(guids)
+  elseif objectType == "Creature" or objectType == "GameObject" or objectType == "AreaTrigger" then
+    objectType,_,serverId,instanceId,zone,id,spawn = unpack(guids)
+    if objectType == "AreaTrigger" then
+      id = AirjHack:ObjectInt(guid,0x88)
+    end
+  end
+  return objectType,serverId,instanceId,zone,id,spawn
+end
+
+local gifts = {}
+
+function M:CheckGiftTrigged()
+	local px,py,pz,pf = AirjHack:Position("player")
+	for guid,position in pairs(gifts) do
+		local x,y,z = unpack(position)
+		local d = math.sqrt((px-x)*(px-x)+(py-y)*(py-y)+(pz-z)*(pz-z))
+		if d<1 then
+			gifts[guid] = nil
+		end
+	end
+end
+
+function M:OnObjectCreated(event,guid,type)
+  if bit.band(type,0x2)==0 then
+    local objectType,serverId,instanceId,zone,id,spawn = self:GetGUIDInfo(guid)
+
+    if objectType == "AreaTrigger" and (id == 124503 or id == 124506) then
+			local x,y,z = AirjHack:Position(guid)
+			gifts[guid] = {x,y,z}
+    end
+  end
+end
+function M:OnObjectDestroyed(event,guid)
+	gifts[guid] = nil
+end
+
+local gifting
+function M:GoToGift()
+	local distance = 5
+	local px,py,pz,pf = AirjHack:Position("player")
+	local tx,ty,tz
+	for guid,position in pairs(gifts) do
+		local x,y,z = unpack(position)
+		local d = math.sqrt((px-x)*(px-x)+(py-y)*(py-y)+(pz-z)*(pz-z))
+		if d<distance then
+			tx,ty,tz = x,y,z
+			distance = d
+		end
+	end
+	if tx and not gifting then
+		gifting = true
+		local dirs = M:GetGoToMoves (tx,ty,tz)
+		for i=1,4 do
+			if dirs[i]==1 then
+				start[i]()
+			else
+				stop[i]()
+			end
+		end
+		local time = (distance-0.5)/7
+		time = max(0.05,time)
+		self:ScheduleTimer(function()
+			local backdirs = M:GetGoToMoves(px,py,pz)
+			for i=1,4 do
+				if backdirs[i]==1 then
+					start[i]()
+				else
+					stop[i]()
+				end
+			end
+			self:ScheduleTimer(function()
+				for i=1,4 do
+					stop[i]()
+				end
+				gifting = nil
+			end,time)
+		end,time)
+	end
 end

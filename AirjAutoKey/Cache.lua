@@ -42,7 +42,7 @@ function Cache:OnEnable()
 	self.interval = {
 		buffs = 1,
 		debuffs = 1,
-		health = 1,
+		health = 0.05,
 		position = 0,
 		spell = 10,
 		spec = 5,
@@ -59,11 +59,12 @@ function Cache:OnEnable()
 		self:ScanAuras(t,guids,units)
 		self:ScanHealth(t,guids,units)
 		self:ScanPosition(t,guids,units)
+		self:ScanSpeed(t,guids,units)
 		self:ScanSpell(t,guids,units)
 		self:ScanGCD(t,guids,units)
 		self:ScanSpec(t,guids,units)
 		self:ScanExists(t,guids,units)
-	end,0.1)
+	end,0.05)
 
 	self.recoverDuration = {
 		buffs = 300,
