@@ -254,7 +254,8 @@ end
 
 function F:STARTMOVETIME(filter)
   local t = GetTime()
-  for i,v in ipairs(Cache.cache.speed) do
+  for i = #Cache.cache.speed,1,-1 do
+    local v = Cache.cache.speed[i]
     if v.value == 0 then
       return t-v.t
     end
@@ -264,7 +265,8 @@ end
 
 function F:SPEEDTIME(filter)
   local t = GetTime()
-  for i,v in ipairs(Cache.cache.speed) do
+  for i = #Cache.cache.speed,1,-1 do
+    local v = Cache.cache.speed[i]
     if v.value ~= 0 then
       return t-v.t
     end

@@ -115,12 +115,10 @@ function F:STAGGER(filter)
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
   if not health then return false end
   if isdead then return false end
-  health = health + prediction + absorb - healAbsorb
-  health = math.max(health,1)
   local toRet = UnitStagger("player")
   if filter.subtype == "ABS" then
   else
-    toRet = toRet/health
+    toRet = toRet/max
   end
   return toRet
 end

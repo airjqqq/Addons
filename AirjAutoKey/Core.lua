@@ -52,7 +52,7 @@ function Core:OnEnable()
     SetCVar("MaxSpellStartRecoveryOffset", 50)
   end
   -- starttest
-  self:OnChatCommmand("world",60,"4 上班族公会招收RAID团队活动成员，目标M模式，活动时间晚上8:30-11：30。9月22日晚[翡翠梦魇]开荒开始，急招治疗远程职业。只要已工作人士，回归玩家最佳")
+  self:OnChatCommmand("world",120,"4 上班族公会招收RAID团队活动成员，目标M模式，活动时间晚上8:30-11：30。只要已工作人士，回归玩家最佳")
 end
 
 function Core:OnDisable()
@@ -157,7 +157,7 @@ do
           SendChatMessage(message,"CHANNEL",nil,tonumber(channel) or channel)
         end
         Core.worldTimer = Core:ScheduleRepeatingTimer(fcn,tonumber(time) or 60)
-        fcn()
+        -- fcn()
       end
     end,
     once = function(value)

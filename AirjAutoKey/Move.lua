@@ -1,6 +1,8 @@
 local M = LibStub("AceAddon-3.0"):NewAddon("AirjAutoKeyMove", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
 local start = {MoveForwardStart,MoveBackwardStart,StrafeLeftStart,StrafeRightStart,TurnLeftStart,TurnRightStart,JumpOrAscendStart ,SitStandOrDescendStart,PitchUpStart,PitchDownStart}
 local stop  = {MoveForwardStop ,MoveBackwardStop ,StrafeLeftStop ,StrafeRightStop ,TurnLeftStop ,TurnRightStop ,AscendStop ,DescendStop ,PitchUpStop ,PitchDownStop }
+local startName={"MoveForwardStart","MoveBackwardStart","StrafeLeftStart","StrafeRightStart","TurnLeftStart","TurnRightStart","JumpOrAscendStart","SitStandOrDescendStart","PitchUpStart","PitchDownStart"}
+local stopName={"MoveForwardStop","MoveBackwardStop","StrafeLeftStop","StrafeRightStop","TurnLeftStop","TurnRightStop","AscendStop","DescendStop","PitchUpStop","PitchDownStop"}
 AirjMove = M
 local stopAllMoves = {0,0,0,0,0,0,0,0,0,0}
 
@@ -21,18 +23,35 @@ function M:OnInitialize()
 	end)
 end
 
+local hardMoving = {0,0,0,0,0,0,0,0,0,0}
 
 function M:OnEnable()
 	self.moveTimer = self:ScheduleRepeatingTimer(self.MoveTimer,0.01,self)
 	self:ScheduleRepeatingTimer(self.CheckGiftTrigged,0.01,self)
   self:RegisterMessage("AIRJ_HACK_OBJECT_CREATED",self.OnObjectCreated,self)
   self:RegisterMessage("AIRJ_HACK_OBJECT_DESTROYED",self.OnObjectDestroyed,self)
+	for i = 1,10 do
+		hooksecurefunc(startName[i],function(...)
+			hardMoving[i] = 1
+			-- self:Print(startName[i])
+		end)
+		hooksecurefunc(stopName[i],function(...)
+			hardMoving[i] = 0
+			-- self:Print(stopName[i])
+		end)
+	end
 end
 
 function M:MoveTimer()
 	local moves = {}
 	local targetAngle
 	local targetDistance
+	if self:IsHardMoving() then
+		self:MoveAsHard()
+		self:ClearGoToTarget()
+		self:ClearMoveFacing()
+		return
+	end
 	do
 		local type,data,minDistance = self.goto.targetType,self.goto.targetData,self.goto.targetMinDistance
 		if type then
@@ -236,10 +255,10 @@ function M:GetGoToMoves (x, y, z)
 	local absAngle = abs(angle)
 	if absAngle>157.5 then
 		dir = {0,1,0,0}
-	elseif absAngle>135 then
-		dir = {0,1,1,0}
 	elseif absAngle>112.5 then
-		dir = {0,0,1,0}
+		dir = {0,1,1,0}
+	-- elseif absAngle>112.5 then
+	-- 	dir = {0,0,1,0}
 	elseif absAngle>67.5 then
 		dir = {0,0,1,0}
 	elseif absAngle>22.5 then
@@ -326,6 +345,29 @@ function M:OnObjectDestroyed(event,guid)
 	gifts[guid] = nil
 end
 
+function M:IsHardMoving()
+	for i=1,4 do
+		if hardMoving[i] == 1 then
+			return true
+		end
+	end
+	return false
+end
+
+function M:MoveAsHard()
+	for i=1,4 do
+		M:Move(i,hardMoving[i])
+	end
+end
+
+function M:Move(index,sos)
+	if sos == 1 then
+		start[index]()
+	else
+		stop[index]()
+	end
+end
+
 local gifting
 function M:GoToGift()
 	local distance = 5
@@ -340,29 +382,46 @@ function M:GoToGift()
 		end
 	end
 	if tx and not gifting then
+		if self:IsHardMoving() then
+			self:MoveAsHard()
+			gifting = nil
+			return
+		end
 		gifting = true
 		local dirs = M:GetGoToMoves (tx,ty,tz)
 		for i=1,4 do
-			if dirs[i]==1 then
-				start[i]()
-			else
-				stop[i]()
-			end
+			self:Move(i,dirs[i])
 		end
-		local time = (distance-0.5)/7
+		local _,speed = GetUnitSpeed("player")
+		if dirs[2] == 1 then
+			speed = 4.5
+		end
+		local time = (distance-0.5)/speed
 		time = max(0.05,time)
 		self:ScheduleTimer(function()
+			if self:IsHardMoving() then
+				self:MoveAsHard()
+				gifting = nil
+				return
+			end
 			local backdirs = M:GetGoToMoves(px,py,pz)
 			for i=1,4 do
-				if backdirs[i]==1 then
-					start[i]()
-				else
-					stop[i]()
-				end
+				self:Move(i,backdirs[i])
 			end
+			local _,speed = GetUnitSpeed("player")
+			if backdirs[2] == 1 then
+				speed = 4.5
+			end
+			local time = (distance-0.5)/speed
+			time = max(0.05,time)
 			self:ScheduleTimer(function()
+				if self:IsHardMoving() then
+					self:MoveAsHard()
+					gifting = nil
+					return
+				end
 				for i=1,4 do
-					stop[i]()
+					self:Move(i,0)
 				end
 				gifting = nil
 			end,time)
