@@ -52,7 +52,7 @@ function Core:OnEnable()
     SetCVar("MaxSpellStartRecoveryOffset", 50)
   end
   -- starttest
-  self:OnChatCommmand("world",60,"4 上班族公会招收RAID团队活动成员，目标M模式，活动时间晚上8:30-11：30。只要已工作人士，回归玩家最佳。特招职业：武器战士、野德、踏风、术士、暗牧、火法")
+  self:OnChatCommmand("world",60,"4 上班族公会招收RAID团队活动成员，目标M模式，活动时间晚上8:30-11：30。只要已工作人士，回归玩家最佳。调节阵容特招职业：武器战、野德、踏风、术士、暗牧、火法。进团需845+装等及神器三槽")
 end
 
 function Core:OnDisable()
