@@ -4,10 +4,13 @@ Core.debug = true
 local Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
 
 function Core:OnInitialize()
-  self.onCreatedIds={}
-  self.onAuraLinkIds={}
-  self.onAuraUnitIds={}
-  self.onBreathIds={}
+
+	self.register = setmetatable({},{
+		__index=function(t,k)
+			t[k]={}
+			return t[k]
+		end
+	})
   self.activeMeshs={}
   self:RegisterChatCommand("aavr", function(str)
     local key, value, nextposition = self:GetArgs(str, 2)
@@ -152,12 +155,14 @@ function Core:OnObjectCreated(event,guid,type)
     if objectType == "AreaTrigger" then
       local spellId = AirjHack:ObjectInt(guid,0x88)
       local radius = AirjHack:ObjectFloat(guid,0x90)
-      local data = self.onAreaTriggerCircleIds[spellId]
-      data.radius = radius
+      local data = self.register.onAreaTriggerCircleIds[spellId]
+      if data and radius~=0 then
+        data.radius = radius
+      end
       self:ShowUnitMesh(data,spellId,nil,guid)
     end
     if objectType == "Creature" then
-      self:ShowLinkMesh(self.onCreatureLinkIds[cid],0,UnitGUID("player"),guid)
+      self:ShowLinkMesh(self.register.onCreatureLinkIds[cid],0,UnitGUID("player"),guid)
     end
     if self.debug or true then
       if objectType == "AreaTrigger" then
@@ -173,27 +178,27 @@ function Core:OnObjectDestroyed(event,guid,type)
     local objectType,serverId,instanceId,zone,cid,spawn = self:GetGUIDInfo(guid)
     if objectType == "AreaTrigger" then
       local spellId = AirjHack:ObjectInt(guid,0x88)
-      self:HideUnitMesh(self.onAreaTriggerCircleIds[spellId],spellId,nil,guid)
+      self:HideUnitMesh(self.register.onAreaTriggerCircleIds[spellId],spellId,nil,guid)
     end
     if objectType == "Creature" then
-      self:HideLinkMesh(self.onCreatureLinkIds[cid],0,UnitGUID("player"),guid)
+      self:HideLinkMesh(self.register.onCreatureLinkIds[cid],0,UnitGUID("player"),guid)
     end
   end
 end
 
 function Core:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
   if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" or event =="SPELL_AURA_APPLIED_DOSE" then
-    self:ShowUnitMesh(self.onAuraUnitIds[spellId],spellId,sourceGUID,destGUID)
-    self:ShowLinkMesh(self.onAuraLinkIds[spellId],spellId,sourceGUID,destGUID)
+    self:ShowUnitMesh(self.register.onAuraUnitIds[spellId],spellId,sourceGUID,destGUID)
+    self:ShowLinkMesh(self.register.onAuraLinkIds[spellId],spellId,sourceGUID,destGUID)
   end
   if event == "SPELL_AURA_REMOVED" or event == "SPELL_AURA_BROKEN" or event =="SPELL_AURA_BROKEN_SPELL" then
-    local data = self.onAuraUnitIds[spellId]
+    local data = self.register.onAuraUnitIds[spellId]
     --self:Print(objectType,id,data)
-    self:HideUnitMesh(self.onAuraUnitIds[spellId],spellId,sourceGUID,destGUID)
-    self:HideLinkMesh(self.onAuraLinkIds[spellId],spellId,sourceGUID,destGUID)
+    self:HideUnitMesh(self.register.onAuraUnitIds[spellId],spellId,sourceGUID,destGUID)
+    self:HideLinkMesh(self.register.onAuraLinkIds[spellId],spellId,sourceGUID,destGUID)
   end
   -- if event == "SPELL_CAST_START" then
-  --   local data = self.onBreathIds[spellId]
+  --   local data = self.register.onBreathIds[spellId]
   --   if data then
   --     local key = spellId.."-"..sourceGUID.."-caststart"
   --     local m = self.activeMeshs[key]
@@ -216,22 +221,22 @@ end
 
 do --Registers
   function Core:RegisterObjectOnCreated(cid,data)
-    self.onCreatureLinkIds[cid]=data or {}
+    self.register.onCreatureLinkIds[cid]=data or {}
   end
 
   function Core:RegisterAreaTriggerCircle(spellId,data)
-    self.onAreaTriggerCircleIds[spellId]=data or {}
+    self.register.onAreaTriggerCircleIds[spellId]=data or {}
   end
 
   function Core:RegisterAuraUnit(spellId,data)
-    self.onAuraUnitIds[spellId]=data or {}
+    self.register.onAuraUnitIds[spellId]=data or {}
   end
 
   function Core:RegisterBreath(spellId,data)
-    self.onBreathIds[spellId]=data or {}
+    self.register.onBreathIds[spellId]=data or {}
   end
 
   function Core:RegisterAuraLink(spellId,data)
-    self.onAuraLinkIds[spellId]=data or {}
+    self.register.onAuraLinkIds[spellId]=data or {}
   end
 end

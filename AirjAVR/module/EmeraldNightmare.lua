@@ -1,5 +1,5 @@
-local Core =  LibStub("AceAddon-3.0"):GetAddon("AirjAVR","AceEvent-3.0")
-local mod = Core:NewModule("EmeraldNightmare")
+local Core =  LibStub("AceAddon-3.0"):GetAddon("AirjAVR")
+local mod = Core:NewModule("EmeraldNightmare","AceEvent-3.0")
 
 function mod:OnInitialize()
   local data
@@ -27,7 +27,7 @@ function mod:OnInitialize()
       radius=15,
       duration=8,
     }
-    Core:RegisterAuraOnApplied(204463,data) --爆裂溃烂
+    Core:RegisterAuraUnit(204463,data) --爆裂溃烂
     -- data = {
     --   color={0.2,0.1,0.5,0.2},
     --   color2={0.4,0.0,0.8,0.3},

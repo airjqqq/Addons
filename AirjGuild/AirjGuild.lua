@@ -24,15 +24,26 @@ end
 function Core:OnDisable()
 
 end
+
+local nextAutoGuildInfor = {}
+local guildRosterInfo={}
 function Core:CHAT_MSG_WHISPER(event,message, sender, language, channelString, target, flags, unknown, channelNumber, channelName, unknown, counter, guid)
   if message:upper() == "TB" or message:upper() == "STANDBY" or message == "替补" then
     self.db.standbyList[sender] = GetTime()+15*60
     SendChatMessage("替补状态生效,15分钟后失效","WHISPER",nil,sender)
+  elseif message:upper() == "JRGH" or message == "加入公会" then
+    RunMacroText("/ginvite "..sender)
+  else
+    if not guildRosterInfo[sender] then
+      if not nextAutoGuildInfor[sender] or nextAutoGuildInfor[sender]<GetTime() then
+        SendChatMessage("[自动回复]回复“JRGH”或“加入公会”自动邀请。活动时间:星期四、一、二、三，晚上8:30-11:30。进度团队，CallLoot分配，杜绝dkp混分。一团装等要求845。","WHISPER",nil,sender)
+        nextAutoGuildInfor[sender] = GetTime()+300
+      end
+    end
   end
 end
 
 
-local guildRosterInfo={}
 function Core:GetGuildRosterInfo()
   wipe(guildRosterInfo)
   for i=1,GetNumGuildMembers() do
@@ -94,7 +105,7 @@ function Core:UpdateParticipation()
   if totalPresent and UnitIsGroupLeader("player") then
     local inRaid = IsInRaid("player")
     local externTime = tonumber(info.EXTERNTIME)
-    if ((weekday>=2 and weekday<=5 and hour>=8.5 and hour<=11.5) or (externTime and externTime>0)) and inRaid then
+    if ((weekday>=2 and weekday<=5 and hour>=20.5 and hour<=23.5) or (externTime and externTime>0)) and inRaid then
       for name, data in pairs(guildRosterInfo) do
         local point = 0
         if data.lastOnline and GetTime() - data.lastOnline <600 then
