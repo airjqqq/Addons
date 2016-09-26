@@ -58,7 +58,6 @@ function Cache:OnEnable()
 		local t = GetTime()
 		self:ScanAuras(t,guids,units)
 		self:ScanHealth(t,guids,units)
-		self:ScanPosition(t,guids,units)
 		self:ScanSpeed(t,guids,units)
 		self:ScanSpell(t,guids,units)
 		self:ScanGCD(t,guids,units)
@@ -66,6 +65,13 @@ function Cache:OnEnable()
 		self:ScanExists(t,guids,units)
 	end,0.05)
 
+  self.mainTimerProtectorTimer = self:ScheduleRepeatingTimer(function()
+    if GetTime() - (self.lastScanPositionTime or 0) > 0.5 then
+      self:Print("RestartTimer")
+      self.lastScanPositionTime = GetTime()
+      self:RestartScanPostionTimer()
+    end
+  end,0.1)
 	self.recoverDuration = {
 		buffs = 300,
 		debuffs = 60,
@@ -81,6 +87,21 @@ function Cache:OnEnable()
 		end
 	end,10)
 end
+
+function Cache:RestartScanPostionTimer()
+	if self.scanPositionTimer then
+		self:CancelTimer(self.scanPositionTimer,true)
+		self.scanPositionTimer = nil
+	end
+	self.scanPositionTimer = self:ScheduleRepeatingTimer(function()
+		local units = self:GetUnitList()
+		local guids = self:GetUnitGUIDs()
+    local t=GetTime()
+    self.lastScanPositionTime=t
+		self:ScanPosition(t,guids,units)
+	end,0.05)
+end
+
 function Cache:OnDisable()
 	self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	self:UnregisterEvent("UNIT_SPELLCAST_SENT")

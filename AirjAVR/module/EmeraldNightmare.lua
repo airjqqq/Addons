@@ -38,12 +38,12 @@ function mod:OnInitialize()
     -- Core:RegisterObjectOnCreated("Creature",102998,data) --腐化的害虫
   end
   do --Il'gynoth
-    -- data = {
-    --   color={0.7,0.1,0.7,0.2},
-    --   radius=8,
-    --   duration=30,
-    -- }
-    -- Core:RegisterObjectOnCreated("Creature",105383,data) --小触手
+    data = {
+      color={0.7,0.1,0.7,0.2},
+      radius=20,
+      duration=5,
+    }
+    Core:RegisterObjectOnCreated("Creature",105383,data) --小触手
     data = {
       color={0.2,0.5,0,0.2},
       color2={0.3,0.7,0,0.3},

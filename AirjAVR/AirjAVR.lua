@@ -81,6 +81,7 @@ function Core:GetGUIDInfo(guid)
       id = AirjHack:ObjectInt(guid,0x88)
     end
   end
+  id = tonumber(id)
   return objectType,serverId,instanceId,zone,id,spawn
 end
 
@@ -89,12 +90,25 @@ function Core:OnObjectCreated(event,guid,type)
     local scene = AVR:GetTempScene(100)
     local objectType,serverId,instanceId,zone,id,spawn = self:GetGUIDInfo(guid)
 
+    if true then
+      self:Print(AirjHack:GetDebugChatFrame(),guid)
+      local key = guid
+      if spawn then
+        key=key.."-"..spawn
+      end
+      local m=AVRUnitMesh:New(guid,nil,8,function(...)
+        self.activeMeshs[key]=nil
+      end)
+      m.name = guid
+      m:SetTimer(20)
+      scene:AddMesh(m,false,false)
+      self.activeMeshs[key]=m
+    end
     if id then
       if self.debug or true then
-        if objectType == "AreaTrigger" then
-          local link = GetSpellLink(id)
-          self:Print(AirjHack:GetDebugChatFrame(),guid,link,AirjHack:ObjectFloat(guid,0x90))
-        end
+        -- self:Print(AirjHack:GetDebugChatFrame(),guid,link,AirjHack:ObjectFloat(guid,0x90))
+        local link
+
       end
 
       local data = self.onCreatedRegisteredIds[objectType.."-"..id]
