@@ -155,9 +155,13 @@ end
 
 function AVRLinkMesh:OnUpdate(threed)
 	if self.classColor then
-		local	_,cls=UnitClass(self.target)
-		if cls then
-			local c=RAID_CLASS_COLORS[cls]
+		local guid = self.followUnit and UnitGUID(self.followUnit) or self.followUnit or self.followPlayer and UnitGUID("player")
+		local classFilename, name, realm
+		if guid then
+			_, classFilename, _, _, _, name, realm = GetPlayerInfoByGUID(guid)
+		end
+		if classFilename then
+			local c=RAID_CLASS_COLORS[classFilename]
 			if c then self:SetColor(c.r,c.g,c.b)
 			else self:SetColor(1.0,1.0,1.0) end
 		end
