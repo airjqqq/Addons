@@ -27,22 +27,21 @@ function mod:OnInitialize()
       radius=15,
       duration=8,
     }
-    Core:RegisterAuraUnit(204463,data) --爆裂溃烂
-    data = {
-      color={0.2,0.1,0.5,0.2},
-      color2={0.4,0.0,0.8,0.3},
-      radius=8,
-      duration=10,
-      spellId = 203646,
-    }
-    Core:RegisterObjectOnCreated("Creature",102998,data) --腐化的害虫
+    Core:RegisterAuraOnApplied(204463,data) --爆裂溃烂
+    -- data = {
+    --   color={0.2,0.1,0.5,0.2},
+    --   color2={0.4,0.0,0.8,0.3},
+    --   radius=8,
+    --   duration=10,
+    --   spellId = 203646,
+    -- }
+    -- Core:RegisterObjectOnCreated("Creature",102998,data) --腐化的害虫
   end
   do --Il'gynoth
     data = {
       color={0.7,0.1,0.7,0.2},
-      radius=8,
-      duration=30,
-      spellId = 203646,
+      radius=20,
+      duration=5,
     }
     Core:RegisterObjectOnCreated("Creature",105383,data) --小触手
     data = {

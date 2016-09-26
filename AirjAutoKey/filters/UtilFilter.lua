@@ -203,8 +203,9 @@ function F:ICD(filter)
   assert(type(filter.name)=="table")
   local name = filter.name[1]
   local start, duration,enable = Cache:Call("GetItemCooldown",name)
-  local value = not start and 300 or enable and 0 or (duration - (GetTime() - start))
-  return value
+  if not start then return 300 end
+  if start == 0 then return 0 end
+  return (duration - (GetTime() - start))
 end
 
 function F:CHARGE(filter)

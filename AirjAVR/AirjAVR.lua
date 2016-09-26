@@ -142,6 +142,7 @@ function Core:GetGUIDInfo(guid)
   elseif objectType == "Creature" or objectType == "GameObject" or objectType == "AreaTrigger" then
     objectType,_,serverId,instanceId,zone,id,spawn = unpack(guids)
   end
+  id = tonumber(id)
   return objectType,serverId,instanceId,zone,id,spawn
 end
 
