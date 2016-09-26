@@ -110,10 +110,10 @@ function Core:ShowLinkMesh(data,spellId,sourceGUID,destGUID)
     local m = self.activeMeshs[key]
     if not m then
       m=AVRLinkMesh:New(destGUID,data.width,data.alpha)
-      m:SetClassColor(true)
       m.blank = 0
       m.showNumber = false
     end
+    m:SetClassColor(data.classColor or false)
     m:SetColor(unpack(data.color or {}))
     m:SetFollowPlayer(nil)
     m:SetFollowUnit(sourceGUID)
