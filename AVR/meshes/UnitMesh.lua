@@ -236,7 +236,7 @@ function AVRUnitMesh:GenerateMesh()
 	if guid then
 		_, classFilename, _, _, _, name, realm = GetPlayerInfoByGUID(guid)
 	end
-	local name = self.name  or name or spellName
+	name = self.text or name or spellName
 	if name then
 		local textc = {r=1,g=1,b=1}
 		if classFilename then

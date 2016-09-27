@@ -52,7 +52,7 @@ function Core:OnEnable()
     SetCVar("MaxSpellStartRecoveryOffset", 50)
   end
   -- starttest
-  self:OnChatCommmand("world",60,"4 上班族公会招收RAID团队活动成员，目标M模式。只要已工作人士，回归玩家最佳。公会进度：H-5/7")
+  self:OnChatCommmand("world",60,"4 上班族公会招收RAID团队活动成员，目标M模式。只要已工作人士，回归玩家最佳。公会进度：普通全通，H5/7开荒6号中")
 end
 
 function Core:OnDisable()

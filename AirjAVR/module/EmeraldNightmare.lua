@@ -96,7 +96,13 @@ function mod:OnInitialize()
       duration=8,
     }
     Core:RegisterAuraUnit(211471,data) --Scroned Touch
-
+    --
+    -- data = {
+    --   width = 0.4,
+    --   alpha = 0.3,
+    --   color={1,0,0,0.2},
+    -- }
+    -- Core:RegisterCreatureLink(104636,data) --P1 mod
   end
   do --Xavius
     data = {
@@ -131,9 +137,9 @@ function mod:OnInitialize()
       color= {0.0,0.0,0.5,0.2},
       color2={0.0,0.0,0.8,0.3},
       radius=6,
-      duration=5,
+      duration=20,
     }
-    Core:RegisterAuraUnit(208431,data) --Scroned Touch
+    Core:RegisterAuraUnit(208431,data) --
     data = {
       width = 0.2,
       alpha = 0.3,
@@ -153,7 +159,15 @@ function mod:OnInitialize()
 end
 
 function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
-
+  if strfind(event,"SPELL_DAMAGE") and destGUID == UnitGUID("player") and spellId == 167385 then
+    local _, _, _, bcount = UnitBuff("target",1)
+    local amount = ... or 0
+    local _, _, _, dcount = UnitDebuff("target","晦暗灵魂")
+    dcount = dcount or 0
+    bcount = bcount or 0
+    local nobuffdamage = amount/(1+0.05*bcount)/(1-0.2/15*dcount)
+    AirjAutoKey:Print(amount,bcount,dcount,amount/(1+0.05*bcount),nobuffdamage)
+  end
 
 end
 
@@ -162,7 +176,6 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(unitId,spell,rank,spellGUID)
   if spellId == 210290 then
     if not UnitExists(unitId.."target") then return end--Blizzard decided to go even further out of way to break this detection, if this happens we don't want nil errors for users.
     local guid = UnitGUID(unitId.."target")
-
     local data = {
       color= {0.0,0.5,0.5,0.2},
       color2={0.0,0.8,0.8,0.3},

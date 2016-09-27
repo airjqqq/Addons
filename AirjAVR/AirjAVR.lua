@@ -220,7 +220,7 @@ end
 
 
 do --Registers
-  function Core:RegisterObjectOnCreated(cid,data)
+  function Core:RegisterCreatureLink(cid,data)
     self.register.onCreatureLinkIds[cid]=data or {}
   end
 

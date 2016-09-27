@@ -96,7 +96,7 @@ end
 
 function Core:UpdateParticipation()
   local hour, minute = GetGameTime()
-  hour = hour+minute/30
+  hour = hour+minute/60
   local weekday, month, day, year = CalendarGetDate()
   local info = self:GetGuildTable()
 
@@ -105,6 +105,7 @@ function Core:UpdateParticipation()
   if totalPresent and UnitIsGroupLeader("player") then
     local inRaid = IsInRaid("player")
     local externTime = tonumber(info.EXTERNTIME)
+    self:Print(weekday,hour)
     if ((weekday>=2 and weekday<=5 and hour>=20.5 and hour<=23.5) or (externTime and externTime>0)) and inRaid then
       for name, data in pairs(guildRosterInfo) do
         local point = 0
