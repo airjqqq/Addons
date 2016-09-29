@@ -33,6 +33,7 @@ function Core:CHAT_MSG_WHISPER(event,message, sender, language, channelString, t
     SendChatMessage("替补状态生效,15分钟后失效","WHISPER",nil,sender)
   elseif message:upper() == "JRGH" or message == "加入公会" then
     RunMacroText("/ginvite "..sender)
+    SendChatMessage("要参加活动入会后M我天赋装等.我看到后会提升会阶.详细阅读公会今日信息","WHISPER",nil,sender)
   else
     if not guildRosterInfo[sender] then
       if not nextAutoGuildInfor[sender] or nextAutoGuildInfor[sender]<GetTime() then
@@ -106,7 +107,8 @@ function Core:UpdateParticipation()
     local inRaid = IsInRaid("player")
     local externTime = tonumber(info.EXTERNTIME)
     self:Print(weekday,hour)
-    if ((weekday>=2 and weekday<=5 and hour>=20.5 and hour<=23.5) or (externTime and externTime>0)) and inRaid then
+    -- (weekday>=2 and weekday<=5 and hour>=20.5 and hour<=23.5)
+    if (false or (externTime and externTime>0)) and inRaid then
       for name, data in pairs(guildRosterInfo) do
         local point = 0
         if data.lastOnline and GetTime() - data.lastOnline <600 then

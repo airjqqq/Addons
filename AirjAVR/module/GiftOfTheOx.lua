@@ -49,6 +49,6 @@ function mod:OnInitialize()
       end,
     },
   }
-  Core:RegisterAreaTriggerCircle("AreaTrigger",124503,data)
-  Core:RegisterAreaTriggerCircle("AreaTrigger",124506,data)
+  Core:RegisterAreaTriggerCircle(124503,data)
+  Core:RegisterAreaTriggerCircle(124506,data)
 end

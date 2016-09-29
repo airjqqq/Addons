@@ -325,9 +325,9 @@ end
 
 function mod:NewRotation(rotation,index)
 	if not index then
-		index = self.currentRotationIndex
+		index = self.currentRotationIndex or 1
 	else
-		self.currentRotationIndex = index
+		self.currentRotationIndex = index or 1
 	end
 	rotation.isDefault = nil
 	if index == 0 then

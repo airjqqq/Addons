@@ -158,6 +158,7 @@ function Core:OnObjectCreated(event,guid,type)
       local data = self.register.onAreaTriggerCircleIds[spellId]
       if data and radius~=0 then
         data.radius = radius
+				self:Print(spellId)
       end
       self:ShowUnitMesh(data,spellId,nil,guid)
     end

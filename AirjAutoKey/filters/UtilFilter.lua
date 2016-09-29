@@ -89,7 +89,8 @@ local function checkEnemyInRange (radius,time,unit)
   local count = 0
   local center
   if unit then
-    center = {Cache:GetPosition(unit)}
+    local guid = UnitGUID(unit)
+    center = {Cache:GetPosition(guid)}
     if not center[1] then return 0 end
   end
   for guid, data in pairs(Cache.cache.exists) do

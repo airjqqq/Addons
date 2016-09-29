@@ -106,6 +106,14 @@ function mod:OnInitialize()
   end
   do --Xavius
     data = {
+      color={0.0,0.8,0,0.2},
+      color2={0.0,0.5,0,0.2},
+      radius=25,
+      duration=15,
+    }
+    -- Core:RegisterAuraUnit(206651,data)
+    -- Core:RegisterAuraUnit(209158,data)
+    data = {
       color={0.0,0.5,0,0.2},
       color2={0.0,0.8,0,0.3},
       radius=5,
