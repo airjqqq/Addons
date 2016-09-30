@@ -57,7 +57,6 @@ function Cache:OnEnable()
 		end
 		local t = GetTime()
 		self:ScanAuras(t,guids,units)
-		self:ScanHealth(t,guids,units)
 		self:ScanSpeed(t,guids,units)
 		self:ScanSpell(t,guids,units)
 		self:ScanGCD(t,guids,units)
@@ -67,9 +66,20 @@ function Cache:OnEnable()
 
   self.mainTimerProtectorTimer = self:ScheduleRepeatingTimer(function()
     if GetTime() - (self.lastScanPositionTime or 0) > 0.5 then
-      self:Print("RestartTimer")
+      self:Print("RestartScanPositionTimer")
       self.lastScanPositionTime = GetTime()
       self:RestartScanPostionTimer()
+    end
+
+    if GetTime() - (self.lastRecoverTime or 0) > 15 then
+      self:Print("RestarRecovertTimer")
+      self.lastRecoverTime = GetTime()
+      self:RestarRecovertTimer()
+    end
+    if GetTime() - (self.lastScanHealthTime or 0) > 0.5 then
+      self:Print("RestartScanHealthTimer")
+      self.lastScanHealthTime = GetTime()
+      self:RestartScanHealthTimer()
     end
   end,0.1)
 	self.recoverDuration = {
@@ -80,14 +90,34 @@ function Cache:OnEnable()
 		spell = 300,
 		line2guid = 5,
 	}
+end
+
+function Cache:RestarRecovertTimer()
+	if self.recoverTimer then
+		self:CancelTimer(self.recoverTimer,true)
+		self.recoverTimer = nil
+	end
 	self.recoverTimer = self:ScheduleRepeatingTimer(function()
 		local t = GetTime()
+    self.lastRecoverTime=t
 		for k,v in pairs(self.cache) do
 			self:Recover(v,t,self.recoverDuration[k] or 300)
 		end
 	end,10)
 end
-
+function Cache:RestartScanHealthTimer()
+	if self.scanHealthTimer then
+		self:CancelTimer(self.scanHealthTimer,true)
+		self.scanHealthTimer = nil
+	end
+	self.scanHealthTimer = self:ScheduleRepeatingTimer(function()
+		local units = self:GetUnitList()
+		local guids = self:GetUnitGUIDs()
+    local t=GetTime()
+    self.lastScanHealthTime=t
+		self:ScanHealth(t,guids,units)
+	end,0.05)
+end
 function Cache:RestartScanPostionTimer()
 	if self.scanPositionTimer then
 		self:CancelTimer(self.scanPositionTimer,true)
@@ -156,11 +186,16 @@ end
 
 --util functions
 do
-	function Cache:Recover(data,t,duration)
+	local recoverd = 0
+	local function recover(data,t,duration)
+		if recoverd > 10 then
+			return
+		end
 		for k,v in pairs(data) do
 			if type(v) == "table" then
 				if v.t then
 					if t-v.t > duration then
+						recoverd = recoverd + 1
 						if data.isArray then
 							tremove(data,k)
 						else
@@ -168,10 +203,14 @@ do
 						end
 					end
 				else
-					self:Recover(v,t,duration)
+					recover(v,t,duration)
 				end
 			end
 		end
+	end
+	function Cache:Recover(data,t,duration)
+		recoverd = 0
+		recover(data,t,duration)
 	end
 	function Cache:GetUnitList()
 		if self.unitListCache then return self.unitListCache end

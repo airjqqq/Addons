@@ -31,7 +31,7 @@ function Core:CHAT_MSG_WHISPER(event,message, sender, language, channelString, t
   if message:upper() == "TB" or message:upper() == "STANDBY" or message == "替补" then
     self.db.standbyList[sender] = GetTime()+15*60
     SendChatMessage("替补状态生效,15分钟后失效","WHISPER",nil,sender)
-  elseif message:upper() == "JRGH" or message == "加入公会" then
+  elseif message:upper() == "JRGH" or message == "加入公会" or message == "加入工会" then
     RunMacroText("/ginvite "..sender)
     SendChatMessage("要参加活动入会后M我天赋装等.我看到后会提升会阶.详细阅读公会今日信息","WHISPER",nil,sender)
   else
