@@ -37,7 +37,7 @@ function Core:CHAT_MSG_WHISPER(event,message, sender, language, channelString, t
   else
     if not guildRosterInfo[sender] then
       if not nextAutoGuildInfor[sender] or nextAutoGuildInfor[sender]<GetTime() then
-        SendChatMessage("[自动回复]回复“JRGH”或“加入公会”自动邀请。活动时间:星期四、一、二、三，晚上8:30-11:30。进度团队，CallLoot分配，杜绝dkp混分。一团装等要求845。","WHISPER",nil,sender)
+        SendChatMessage("[自动回复]回复“JRGH”或“加入公会”自动邀请。活动时间:星期四、一、二、三，晚上8:30-11:30。CallLoot分配。装等要求855。","WHISPER",nil,sender)
         nextAutoGuildInfor[sender] = GetTime()+300
       end
     end

@@ -28,6 +28,13 @@ function mod:OnInitialize()
       duration=8,
     }
     Core:RegisterAuraUnit(204463,data) --爆裂溃烂
+    data = {
+      color={0.0,0.4,0,0.2},
+      color2={0.0,0.7,0,0.3},
+      radius=5,
+      duration=20,
+    }
+    Core:RegisterAuraUnit(205043,data) --感染意志 205043
     -- data = {
     --   color={0.2,0.1,0.5,0.2},
     --   color2={0.4,0.0,0.8,0.3},
@@ -190,6 +197,26 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(unitId,spell,rank,spellGUID)
       radius=8,
       duration=12,
     }
-    self:HideUnitMesh(data,210290,nil,guid)
+    self:ShowUnitMesh(data,210290,nil,guid)
+  elseif spellId == 202968 then--Infested Breath (CAST_SUCCESS and CAST_START pruned from combat log)
+    for i = 1, 20 do
+      local unit = "raid"..i
+      local _, _, _, dcount = UnitDebuff(unit,"感染")
+      local name, rank, icon, count, dispelType, duration, expires = UnitDebuff(unit,"溃烂")
+      if name then
+        local remain = expires-GetTime()
+        dcount = dcount + math.ceil(remain/3)
+      end
+      if dcount>= 10 then
+        local guid = UnitGUID(unit)
+        local data = {
+          color= {0.0,0.5,0.5,0.2},
+          color2={0.0,0.8,0.8,0.3},
+          radius=8,
+          duration=6,
+        }
+        self:ShowUnitMesh(data,205043,nil,guid)
+      end
+    end
   end
 end

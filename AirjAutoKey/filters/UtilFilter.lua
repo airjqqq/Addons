@@ -57,6 +57,9 @@ function F:PARAMVALUE(filter)
   return value and value~=0 or false
 end
 function F:BURST(filter)
+  if Core:GetParam("cd") > 60 then
+    return true
+  end
   return Core:GetParamNotExpired("burst")
 end
 function F:PARAMEXPIRED(filter)

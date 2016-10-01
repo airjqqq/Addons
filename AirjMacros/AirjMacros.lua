@@ -240,7 +240,8 @@ function mod:CreateRealButtons()
 							--AirjAutoKey:SetConfigValue("target", keyIndex*2-1)
 						end
 						local datas = mod.macroDataBaseArray[mod.selectedIndex].macroArray
-						local data = datas[key] or {}
+						local data = datas[self.key] or {}
+						-- dump(data)
 						if not data.dontStopAuto then
 							AirjAutoKey:OnChatCommmand("onceGCD",-0.4)
 						end

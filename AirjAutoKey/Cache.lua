@@ -71,7 +71,7 @@ function Cache:OnEnable()
       self:RestartScanPostionTimer()
     end
 
-    if GetTime() - (self.lastRecoverTime or 0) > 15 then
+    if GetTime() - (self.lastRecoverTime or 0) > 2 then
       self:Print("RestarRecovertTimer")
       self.lastRecoverTime = GetTime()
       self:RestarRecovertTimer()
@@ -103,7 +103,7 @@ function Cache:RestarRecovertTimer()
 		for k,v in pairs(self.cache) do
 			self:Recover(v,t,self.recoverDuration[k] or 300)
 		end
-	end,10)
+	end,1)
 end
 function Cache:RestartScanHealthTimer()
 	if self.scanHealthTimer then
@@ -116,7 +116,7 @@ function Cache:RestartScanHealthTimer()
     local t=GetTime()
     self.lastScanHealthTime=t
 		self:ScanHealth(t,guids,units)
-	end,0.05)
+	end,0.02)
 end
 function Cache:RestartScanPostionTimer()
 	if self.scanPositionTimer then
@@ -188,7 +188,7 @@ end
 do
 	local recoverd = 0
 	local function recover(data,t,duration)
-		if recoverd > 10 then
+		if recoverd > 40 then
 			return
 		end
 		for k,v in pairs(data) do
@@ -659,14 +659,16 @@ do
 	end
 
 	function Cache:ScanHealth(t,guids,units)
-		if guids then
-			for guid in pairs(guids) do
-				local array = self.cache.health[guid]
-				if not array or t - array.lastT>self.interval.health then
-					self:ScanOnesHealth(t,guid)
-				end
-			end
-		end
+		local guid = self:PlayerGUID()
+		self:ScanOnesHealth(t,guid)
+		-- if guids then
+		-- 	for guid in pairs(guids) do
+		-- 		local array = self.cache.health[guid]
+		-- 		if not array or t - array.lastT>self.interval.health then
+		-- 			self:ScanOnesHealth(t,guid)
+		-- 		end
+		-- 	end
+		-- end
 	end
 
 	function Cache:GetHealth(guid)

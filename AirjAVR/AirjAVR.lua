@@ -72,7 +72,7 @@ function Core:OnModifierStateChanged(event,key,state)
 end
 
 
-function Core:ShowUnitMesh(data,spellId,sourceGUID,destGUID)
+function Core:ShowUnitMesh(data,spellId,sourceGUID,destGUID,text)
   local scene = AVR:GetTempScene(100)
   if data then
     local key = spellId.."-"..destGUID
@@ -81,11 +81,14 @@ function Core:ShowUnitMesh(data,spellId,sourceGUID,destGUID)
       m=AVRUnitMesh:New(destGUID,data.spellId or spellId, data.radius or 8,function(...)
         self.activeMeshs[key]=nil
       end)
+		else
+			m:Remove()
     end
     m:SetTimer(data.duration or 9)
     m:SetColor(unpack(data.color or {}))
     m:SetColor2(unpack(data.color2 or {}))
     m.updateCallbacks = data.updateCallbacks
+		m.suffix = text
     scene:AddMesh(m,false,false)
     self.activeMeshs[key]=m
   end
@@ -96,9 +99,11 @@ function Core:HideUnitMesh(data,spellId,sourceGUID,destGUID)
     local key = spellId.."-"..destGUID
     local m = self.activeMeshs[key]
     if m then
-      m.vertices = nil
-      m.expiration = nil
-      self.activeMeshs[key] = nil
+			m.visible=false
+			m.vertices = nil
+			m.expiration = nil
+			-- m:Remove()
+			self.activeMeshs[key] = nil
     end
   end
 end
@@ -161,15 +166,13 @@ function Core:OnObjectCreated(event,guid,type)
 				self:Print(spellId)
       end
       self:ShowUnitMesh(data,spellId,nil,guid)
+	    if self.debug or true then
+        local link = GetSpellLink(spellId)
+        self:Print(AirjHack:GetDebugChatFrame(),guid,link,AirjHack:ObjectFloat(guid,0x90))
+			end
     end
     if objectType == "Creature" then
       self:ShowLinkMesh(self.register.onCreatureLinkIds[cid],0,UnitGUID("player"),guid)
-    end
-    if self.debug or true then
-      if objectType == "AreaTrigger" then
-        local link = GetSpellLink(id)
-        self:Print(AirjHack:GetDebugChatFrame(),guid,link,AirjHack:ObjectFloat(guid,0x90))
-      end
     end
   end
 end
@@ -189,7 +192,10 @@ end
 
 function Core:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
   if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" or event =="SPELL_AURA_APPLIED_DOSE" then
-    self:ShowUnitMesh(self.register.onAuraUnitIds[spellId],spellId,sourceGUID,destGUID)
+		local _,count = ...
+		local text
+		if count then text = " - "..count end
+    self:ShowUnitMesh(self.register.onAuraUnitIds[spellId],spellId,sourceGUID,destGUID,text)
     self:ShowLinkMesh(self.register.onAuraLinkIds[spellId],spellId,sourceGUID,destGUID)
   end
   if event == "SPELL_AURA_REMOVED" or event == "SPELL_AURA_BROKEN" or event =="SPELL_AURA_BROKEN_SPELL" then

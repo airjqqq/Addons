@@ -1,0 +1,363 @@
+tag 0.4
+ef7c501577957d7fed486c5830ddbbe31a3229ba
+Rainrider <Rainrider@users.noreply.github.com>
+2016-09-04 00:06:23 +0200
+
+Tagging for release
+
+
+--------------------
+
+Rainrider:
+	- Fix deploying tags
+	I suck a copy-pasting ...
+	- Changed deplay condition to push tags
+	- data: increment all data revisions
+	Not sure if needed, but better safe than sorry
+	- docs: remove RAIDBUFF and expand CROWD_CTRL documentation
+	- core: :GetCrowdControlCategoryName returns a string
+	Every CC spelll belongs to one DR category only
+	- mage: list Ice Nova outside CROWD_CTRL
+	I still need to confirm whether it belongs to CC DR category or not.
+	- core: clear dispel and crowd control flags before applying the category flags
+	- data: add taunts to their CROWD_CTRL category
+	Pet and AoE taunts are usable on bosses and thus do not belong to the
+	TAUNT DR category.
+	- mask: re-work masks (WIP)
+	Remove RAIDBUFFS.
+	Add DISPEL and CROWD_CTRL as specials.
+	Merge both *_REGEN into POWER_REGEN.
+	Add KNOCKBACK (not as CROWD_CTRL though).
+	Add SNARE.
+	- druid: fix mistyped Stellar Flare id
+	Fixes https://github.com/AdiAddons/AdiButtonAuras/issues/222
+	- hunter: add missing Dust of Life to cooldowns
+	- data: bump monk and warrior revision numbers
+	- tests: database conflicts should be resolved properly now
+	- mage: add frost artifact
+	- mage: add frost talents
+	- mage: add frost core abilities
+	- mage: add fire artifact
+	- mage: add fire talents
+	- mage: add fire core abilities
+	- Revert "mage: add fire core and talents (#98)"
+	This reverts commit 22df157f4bbb295b28a24720deb27490c913ee7b.
+	Low quality!
+	- paladin: add Power of the Silver Hand (holy artifact trait)
+	Untested
+	- paladin: separate Judgement debuffs per spec
+	Used the first available spell for the corresponding spec at lvl 10
+	(when specs are unlocked). Currently Protection's Judgement does not
+	have an associated debuff.
+	- paladin: add holy artifact
+	- paladin: add holy talents
+	- paladin: add holy core abilities
+daf:
+	- mage: add fire core and talents (#98)
+	* mage: add fire core and talents
+	
+	* mage: fix ordered the spells by id
+Rainrider:
+	- paladin: add protection artifact
+	- paladin: add protection talents
+	- paladin: add protection core abilities
+	- shaman: Flame Shock is a CD for restoration
+daf:
+	- shaman: add restoration flame shock missing id (#97)
+Rainrider:
+	- priest: add holy artifact
+	- priest: add holy talents
+	Remove Echo of Light because it is a passive modifying way too much
+	spells
+	- priest: review holy core abilities
+	- priest: add discipline artifact
+	- priest: add discipline talents
+	- priest: review discipline core abilities
+	- priest: add shadow artifact
+	- priest: add shadow talents
+	- priest: add shadow core abilities
+	- rogue: add assassination artifact
+	- rogue: add assassination talents
+	- rogue: add assassination core abilities
+	- rogue: add outlaw artifact
+	- rogue: add outlaw talents
+	- rogue: add outlaw core abilities
+	- rogue: add subtlety artifact
+	- rogue: add subtlety talents
+	- rogue: add subtlety core abilities
+	- warlock: add demonology artifact
+	- warlock: add demonology talents
+	- warlock: add demonology core abilities
+	- warlock: add affliction artifact
+	- warlock: add affliction talents
+	- warlock: add affliction core abilities
+	- warlock: add destruction artifact
+	Lord of Flames not included
+	- warlock: add destruction core abilities and talents
+	- shaman: add restoration artifact
+	- shaman: add restoration talents
+	- core:: make sources contain all the source categories
+	GetVersionInfo could still get some love
+	- core: fix source category check
+	- shaman: add restoration core abilities
+	- priest: fix indentation
+	Use tabs to indent, spaces to align
+	- core: allow multiple sources per aura
+	TODO: clean up, fix sources[spellId]
+evnhali:
+	- priest: add discipline core abilities (#95)
+	* priest: add discipline core abilities
+	
+	* priest: add holy core abilities
+	
+	Also fixed and reorganized some Disc abilities.
+Rainrider:
+	- shaman: add enhancement artifact
+	- shaman: add enhancement talents
+	- mage: add arcane artifact
+	- mage: review arcane talents
+	- mage: review arcane core abilities
+	- mage: fix arcane ordering and formatting
+	- shaman: fix Earthquake being a stun and not a knockback
+	- shaman: add elemental artifact
+	- shaman: add elemental talents
+	Primal Elementals are broken because the spell are not added to the pet
+	spellbook and thus LibSpellbook can't get them.
+daf:
+	- mage: fix arcane core added some talents
+Rainrider:
+	- shaman: proper order (descending id)
+	- shaman: review enhancement core abilities
+	- shaman: review elemental core abilities
+Adirelle:
+	- Travis: avoid deployment from getting stuck because of SSH interaction.
+	- Fixed ssh_known_hosts indentation.
+Rainrider:
+	- paladin: add retribution artifact
+	- paladin: add retribution talents
+	- paladin: add retribution core abilities
+Adirelle:
+	- Travis: try to deploy only from AdiAddons/LibPlayerSpells-1.0.
+	- Use the ssh_known_hosts addon of Travis to populate ~/.ssh/known_hosts.
+Rainrider:
+	- warrior: add fury artifact
+	- warrior: add fury talents
+	- warrior: add fury core abilities
+	- warrior: add arms artifact
+	- warrior: add arms talents
+	- warrior: review arms core abilities
+	- warrior: add protection artifact
+	- warrior: review protection talents
+	- warrior: review protection core abilities
+	- warrior: change formatting
+	- death knight: add unholy artifact
+	- death knight: add Dark Succor
+	- death knight: add frost talents
+	- death knight: add unholy core abilities
+arcadepro:
+	- warrior: add protection core abilities and talents (#94)
+Adirelle:
+	- Fool-proofed deploy.sh.
+	- Moved deployment files to their own folder.
+	- Have Travis-CI push passing builds to git.wowace.com.
+	Only push master and tags.
+	- Fixed Travis-CI builds.
+Rainrider:
+	- death knight: add frost artifact
+	- death knight: review frost talents
+	- death knight: review frost core abilities
+daf:
+	- mage: add arcane core and talents up to level 60
+Rainrider:
+	- druid: add restoration artifact
+	- druid: add restoration talents
+	- monk: fix dispels
+	- druid: add restoration core abilities
+	- druid: add balance artifact
+	- druid: add balance talents
+	- druid: add balance core abilities
+daf:
+	- shaman: add enhancement core self buffs (#86)
+	- death knight: add frost rest of talents (#89)
+	- racials: orc fix blood fury attack power id (#85)
+	Also updated library version to 7000 but did not check any other racial yet.
+	- death knight: add frost core and some talent (#87)
+	Not all talents are covered
+	- warrior: add arms core abilities (#88)
+Rainrider:
+	- Switch the README to markdown
+	- druid: add feral artifact
+	- druid: add feral talents
+	- druid: add feral core abilities
+	- druid: add guardian artifact
+	- druid: add guardian talents
+	- druid: add guardian core abilities
+	- Bump the interface version and restore LoadOnDemand
+	- death knight: add blood artifact
+	- death knight: add blood talents
+	- death knight: add blood core abilities
+	- demon hunter: reorder crowd control auras
+	- hunter: reorder crowd control auras
+	- monk: reorder crowd control auras
+	- monk: mistweavers' detox slipped through somehow
+	- monk: remove Soothing Mist as it is a passive effect
+	- monk: mistweaver talents
+	- monk: mistweaver artifact
+	- monk: mistweaver core abilities
+	- monk: windwalker talents
+	- monk: windwalker artifact
+	- monk: windwalker core abilities
+	- monk: brewmaster talents
+	- monk: brewmaster artifact
+	- monk: brewmaster core abilities
+	- demonhunter: vengeance talents
+	- demonhunter: vengeance artifact
+	- demonhunter: revisit vengeance core abilities
+	- demonhunter: havoc talents
+	- demonhunter: havoc's metamorphosis is a burst
+	- demonhunter: havoc artifact
+	- demonhunter: update havoc base abilities
+	- hunter: add honor talents
+	- hunter: complete artifact data
+	- hunter: update hunter spells
+	Use the build number as the revision number
+	- shaman: add base elemental spells
+	- hunter: add Healing Shell and Windburst effect
+	- hunter: add Bombardment
+	- hunter: add Marksmanship's artifact spell
+	- hunter: fix the provider of Marking Targets
+	- hunter: add Play Dead and Wake Up
+	- hunter: add all pet abilities
+	TODO: manasabers and oxen
+	- hunter: add basic pet abilities
+	- hunter: add beast master talents
+	- hunter: add marksmanship talents
+	This will need to be toned down a lot
+	- hunter: add survival talents
+	- hunter: add survival spells
+	No talents and artifact yet
+	- demonhunter: load the file
+	- The second argument to __RegisterSpells is actually a number
+	- Damn tab settings
+	- hunter: add Bursting Shot
+	- core: add the demon hunter bit mask
+	- hunter: add marksmanship spells
+	No talents or artifact yet
+	- hunter: add beastmaster spells
+	TODO talents, artifact
+	- demonhunter: add havoc spells
+	No talents yet
+	- demonhunter: add vengeance spells
+	No talents for now
+	- Add a stub for the demon hunter
+	- Clean the data for Legion
+	- Rogue: add Instant Poison
+	- Travis: Use --force-yes on apt-get install
+	- Travis: Build on trusty
+	The git verstion of Ubuntu Precise Stable seems to have problems with
+	the fact that the folks from luarocks specify a wrong branch in the
+	rockspec of luabitop (and a wrong git repo too). Git on Ubuntu Trusty
+	handles that.
+	- Fix travis CI
+	- Rogue: Add Blade Fury
+	- monk: bump data revision number
+myth384:
+	- Removed whitespace...
+	- Added Serenity
+	Added Serenity as a personal aura with cooldown. I'm not sure if the spell qualifies for the "POWER_REGEN" flag. It doesn't generate chi over time, but replenishes lost chi after chi consuming abilities.
+Rainrider:
+	- Bump the toc
+	- [druid] Fix Tooth and Claw mssing provider
+	Fixes https://github.com/Adirelle/LibPlayerSpells-1.0/issues/80
+	- [data] Bump patch version und reset revision
+	Individual class data still needs confirmation but should be compatible
+	with patch 6.2
+	- [mage] Amplify Magic was removed
+	Fixes https://github.com/Adirelle/AdiButtonAuras/issues/186
+	- [hunter] Aspect of the Fox removed
+	- core: add localization of the buff categories
+	A new API call added: GetRaidBuffCategoryNames. See code documentation
+	This uses the default in-game translations from GlobalString.lua
+	- deathknight: remove a double occurence of Army of the Dead
+	This had no implications, so don't bump the data revision
+	- deathknight: fix Death Pact
+	- priest: bump revision
+kesava-wow:
+	- Priest.lua - add Clarity of Will
+	Final talent choice exclusive to disc. priests.
+Rainrider:
+	- monk: remove spells added through DRData
+	- monk: add Keg Smash's slow
+	- tests: make the tests expect GetSpellInfo instead of GetSpellLink
+	- druid: some fixes
+	fixed Typhoon
+	fixed Solar Beam
+	added Wild Charge (talent)
+	added Wild Mushroom's slow effect
+	
+	see https://github.com/Adirelle/AdiButtonAuras/issues/160
+	- priest: add Glyph of Mind Flay
+	- core: use GetSpellInfo instead of GetSpellLink for spell validation
+	Some glyphs do not have links like Glyph of Mind Flay (120585)
+	- priest: fix Insanity, add Mind Sear
+Hjalte Thor:
+	- Bump Druid version number
+	- Add Stellar Flare
+Rainrider:
+	- bump toc
+	- data: bump patch version
+	- shaman: fix Ascendance's provider
+	Fixes https://github.com/Adirelle/AdiButtonAuras/issues/176
+	- shaman: remove Echo of the Elements
+	Seems to have been changed in 6.1
+	- druid: remove all but one spells from important
+	Map Clearcasting to Regrowth
+	Map Predatory Swiftness
+	- druid: bump revision
+	- druid: fix Berserk
+	Berserk (Cat) and Berserk (Bear) do not share their respective buffs and
+	present buffs do not change upon switching forms.
+	- druid: tidy up a bit
+	- druid: fix Bloodtalons talent and proc
+	- druid: fix guardian Dream of Cenarius proc
+	Fixes https://github.com/Adirelle/AdiButtonAuras/pull/173
+	- paladin: tidy up
+	- paladin: support the Empowered Seals talent and fix Censure
+	- mage: add Arcane Charge
+	Fixes https://github.com/Adirelle/AdiButtonAuras/issues/141
+	- hunter: fix Steady Focus and Exotic Munitions
+	Show Steady Focus on Focusing Shot.
+	Move Steady Focus out of important of so I doesn't flash in ABA
+	Fix Poisoned Ammo misspelled ID.
+	Fix providers for the debuffs Poisoned Ammo and Frozen Ammo.
+Adirelle:
+	- Druid: fixed Typhoon and Infected Wounds, added Wild Mushroom.
+	Fixes https://github.com/Adirelle/AdiButtonAuras/issues/160.
+	- Warlock: added Kil'jaeden's Cunning, Eye of Kilrogg and Soulburn.
+	Fixes https://github.com/Adirelle/AdiButtonAuras/issues/162.
+	- Monk: fixed Transcendence and added Life Cocoon.
+	Fixes https://github.com/Adirelle/AdiButtonAuras/issues/159.
+	- Rogue: fixed Vanish.
+	Fixes https://github.com/Adirelle/AdiButtonAuras/issues/155.
+	- Deathknight: added Remorseless Winter and Conversion.
+	Fixes https://github.com/Adirelle/AdiButtonAuras/issues/157.
+Rainrider:
+	- hunter: fix Deterrence with Crouching Tiger, Hidden Chimaera talent
+	fixes Adirelle/AdiButtonAuras#152
+	- shaman: version bump
+	- shaman: fix the spell id for Purify Spirit
+Adirelle:
+	- Shaman: reorder some spells.
+	- Shaman: fixed providers for Tidal Wave, Maelstrom Weapon and Echo of the Elements.
+	Fixes GH-73.
+Rainrider:
+	- shaman: fix the ids of the modified spells for Echo of the Elements (Elemental)
+	- shaman: re-order spells according to the contribution guidelines
+	Please read https://github.com/Adirelle/LibPlayerSpells-1.0/wiki/Contribution-Guidelines
+	- shaman: fix modified spells mapping
+	- shaman: use double quotes for consistency
+	- shaman: add shaman dispels
+	fixes Adirelle/AdiButtonAuras#143
+Adirelle:
+	- Warrior: display Mortal Wounds on Mortal & Wild Strike.
+	Fixes https://github.com/Adirelle/AdiButtonAuras/issues/138.
