@@ -427,7 +427,9 @@ end
 function F:GetFutureDamagePVE(guid,time,futureTime)
   time = time or 5
   local damageBy = Cache.cache.damageBy[guid]
-  if not damageBy then return {} end
+    -- dump(damageBy)
+  if not damageBy then return 0 end
+  damageBy = damageBy.array
   local t = GetTime()
   local debuffsBySpellName = {}
   local debuffs = Cache:GetDebuffs(guid)
@@ -438,28 +440,30 @@ function F:GetFutureDamagePVE(guid,time,futureTime)
   local periodicDamage = {}
   for i = #damageBy,1,-1 do
     local data = damageBy[i]
+      -- dump(data)
     if t-data.t>time then break end
-    if data.periodic then -- periodic damage
+    if data.periodic or true then -- periodic damage
       local timeLeft
       local spellName = data.spellName
       if periodicDamage[spellName] then
         if periodicDamage[spellName].first then
-          periodicDamage[spellName].interval = periodicDamage[spellName].first-data.t
-          periodicDamage[spellName].first = nil
+          local interval = periodicDamage[spellName].first-data.t
+          if interval >0 then
+            periodicDamage[spellName].interval = interval
+            periodicDamage[spellName].first = nil
+          end
         end
       else
         local debuff = debuffsBySpellName[spellName]
-        if not debuff then
-          timeLeft = 15
-        else
+        if debuff then
           timeLeft = debuff[7] - t
           timeLeft = max(timeLeft,0)
+          periodicDamage[spellName] = {
+            timeLeft = timeLeft,
+            value = data.value,
+            first = data.t,
+          }
         end
-        periodicDamage[spellName] = {
-          timeLeft = timeLeft,
-          value = data.value,
-          first = data.t,
-        }
       end
     else -- directdamage
       -- do nothing
@@ -468,8 +472,10 @@ function F:GetFutureDamagePVE(guid,time,futureTime)
   futureTime = futureTime or 15
   local totalDamage = 0
   for i,data in pairs(periodicDamage) do
-    local dps = data.value/(data.interval or max(1,t-data.first))
-    totalDamage = dps* min(data.timeLeft,futureTime)
+    local dpt = data.value
+    local interval = (data.interval or max(1,t-data.first))
+    local tick = math.ceil(min(data.timeLeft,futureTime)/interval)
+    totalDamage = tick * dpt
   end
   return totalDamage
 end

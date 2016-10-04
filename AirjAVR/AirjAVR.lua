@@ -84,7 +84,20 @@ function Core:ShowUnitMesh(data,spellId,sourceGUID,destGUID,text)
 		else
 			m:Remove()
     end
-    m:SetTimer(data.duration or 9)
+		local meshduration
+		local unit = Cache:FindUnitByGUID(destGUID)
+		if unit then
+			local spellName = GetSpellInfo(spellId)
+			local fcn = data.isbuff and UnitBuff or UnitDebuff
+			local name, rank, icon, count, dispelType, duration, expires = fcn(unit,spellName)
+			if name then
+				meshduration = duration
+				if meshduration == 0 then
+					meshduration = 5
+				end
+			end
+		end
+    m:SetTimer(data.duration or meshduration or 9)
     m:SetColor(unpack(data.color or {}))
     m:SetColor2(unpack(data.color2 or {}))
     m.updateCallbacks = data.updateCallbacks

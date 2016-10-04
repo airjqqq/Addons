@@ -4,8 +4,9 @@
 ## Version: 1.0
 ## Author: Airj
 ## SavedVariables: AirjAVRDB
-## RequiredDeps: Ace3
+## RequiredDeps: Ace3 LibPlayerSpells-1.0
 
 AirjAVR.lua
 module/EmeraldNightmare.lua
 module/GiftOfTheOx.lua
+module/PVP.lua

@@ -72,6 +72,7 @@ lib:__RegisterSpells("MONK", 70000, 6, {
 					[116189] = "TAUNT", -- Provoke (taunt)
 					[119381] = "STUN", -- Leg Sweep (stun)
 					[198909] = "DISORIENT", -- Song of Chi-Ji (Disorient)
+					[120086] = "STUN", -- Fists of Fury
 				},
 			},
 			PERSONAL = {
@@ -109,7 +110,8 @@ lib:__RegisterSpells("MONK", 70000, 6, {
 			198533, -- Soothing Mist
 		},
 		HARMFUL = {
-			 116095, -- Disable (slow)
+			--  116095, -- Disable (slow)
+			 [116095] = "SNARE", -- Disable (slow)
 			 117952, -- Crackling Jade Lightning
 			 196608, -- Eye of the Tiger -- NOTE: the buff id for the HoT is the same
 			 196723, -- Dizzying Kicks

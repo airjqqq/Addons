@@ -67,18 +67,18 @@ function Cache:OnEnable()
   self.mainTimerProtectorTimer = self:ScheduleRepeatingTimer(function()
     if GetTime() - (self.lastScanPositionTime or 0) > 0.5 then
       self:Print("RestartScanPositionTimer")
-      self.lastScanPositionTime = GetTime()
+      -- self.lastScanPositionTime = GetTime()
       self:RestartScanPostionTimer()
     end
 
     if GetTime() - (self.lastRecoverTime or 0) > 2 then
       self:Print("RestarRecovertTimer")
-      self.lastRecoverTime = GetTime()
+      -- self.lastRecoverTime = GetTime()
       self:RestarRecovertTimer()
     end
     if GetTime() - (self.lastScanHealthTime or 0) > 0.5 then
       self:Print("RestartScanHealthTimer")
-      self.lastScanHealthTime = GetTime()
+      -- self.lastScanHealthTime = GetTime()
       self:RestartScanHealthTimer()
     end
   end,0.1)
@@ -97,6 +97,7 @@ function Cache:RestarRecovertTimer()
 		self:CancelTimer(self.recoverTimer,true)
 		self.recoverTimer = nil
 	end
+	self.lastRecoverTime=GetTime()
 	self.recoverTimer = self:ScheduleRepeatingTimer(function()
 		local t = GetTime()
     self.lastRecoverTime=t
@@ -110,6 +111,7 @@ function Cache:RestartScanHealthTimer()
 		self:CancelTimer(self.scanHealthTimer,true)
 		self.scanHealthTimer = nil
 	end
+	self.lastScanHealthTime=GetTime()
 	self.scanHealthTimer = self:ScheduleRepeatingTimer(function()
 		local units = self:GetUnitList()
 		local guids = self:GetUnitGUIDs()
@@ -123,6 +125,7 @@ function Cache:RestartScanPostionTimer()
 		self:CancelTimer(self.scanPositionTimer,true)
 		self.scanPositionTimer = nil
 	end
+	self.lastScanPositionTime = GetTime()
 	self.scanPositionTimer = self:ScheduleRepeatingTimer(function()
 		local units = self:GetUnitList()
 		local guids = self:GetUnitGUIDs()
@@ -299,6 +302,7 @@ do
 	local lastErrorCode
 	function Cache:UNIT_SPELLCAST_SENT(...)
 		local event,unitID, spell, rank, target, lineID = ...
+		target = strsplit("-",target)
 		if unitID == "player" then
 			-- self:Print(GetTime(),...)
 			local t = GetTime()
@@ -646,40 +650,36 @@ do
 	end
 
 	function Cache:ScanOnesHealth(t,guid)
-		self.cache.health[guid]=self.cache.health[guid] or {}
-		local cache = self.cache.health
-		cache[guid]=cache[guid] or {isArray = true}
-		local array = cache[guid]
-		local current = {AirjHack:UnitHealth(guid)}
-		current.t = t
-		tinsert(array,current)
-		array.changed = nill
-		array.lastT = t
-		return array
+		local data = {AirjHack:UnitHealth(guid)}
+		data.t = t
+		self.cache.health[guid] = data
+		return data
 	end
 
 	function Cache:ScanHealth(t,guids,units)
 		local guid = self:PlayerGUID()
 		self:ScanOnesHealth(t,guid)
+		for i,unit in ipairs(units) do
+			local guid = UnitGUID(unit)
+			if guid and guids[guid] then
+				local data = self.cache.health[guid]
+				if not data or t - data.t>self.interval.health then
+					self:ScanOnesHealth(t,guid)
+				end
+			end
+		end
 		-- if guids then
 		-- 	for guid in pairs(guids) do
-		-- 		local array = self.cache.health[guid]
-		-- 		if not array or t - array.lastT>self.interval.health then
-		-- 			self:ScanOnesHealth(t,guid)
-		-- 		end
 		-- 	end
 		-- end
 	end
 
 	function Cache:GetHealth(guid)
-		local array = self.cache.health[guid]
-		if not array or array.changed then
-			array = self:ScanOnesHealth(GetTime(),guid)
+		local data = self.cache.health[guid]
+		if not data or data.changed then
+			data = self:ScanOnesHealth(GetTime(),guid)
 		end
-		local index = #array
-		if index~=0 then
-			return unpack(array[index])
-		end
+		return unpack(data or {})
 	end
 	function Cache:GetHealthArray(guid)
 		local array = self.cache.health[guid]
@@ -772,6 +772,7 @@ do
 		local toRet = {}
 		if not guid then return toRet end
 		local debuffs = self.cache.debuffs[guid]
+		if not unit then unit = self:FindUnitByGUID(guid) end
 		if unit and (not debuffs or debuffs.changed) then
 			local needReload
 			if spellKeys then

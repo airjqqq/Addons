@@ -13,6 +13,7 @@ function F:OnInitialize()
   self:RegisterFilter("AIRLOWHEALTH",L["[P] Health (low)"])
   self:RegisterFilter("AIRBUFF",L["[P] Buff (short)"],{name={}})
   self:RegisterFilter("AIRDEBUFF",L["[P] Debuff (short)"],{name={}})
+  self:RegisterFilter("AIRDEBUFFORTARGET",L["[P] Debuff or target"],{name={}})
 end
 
 function F:RegisterFilter(key,name,keys,subtypes,c)
@@ -104,4 +105,21 @@ function F:AIRDEBUFF(filter)
     value = (expires - GetTime())/100
   end
   return exp(-value)
+end
+
+function F:AIRDEBUFFORTARGET(filter)
+  local unit = Core:GetAirUnit()
+  local guid = unit and Cache:UnitGUID(unit)
+  if not guid then return end
+  local spells = Core:ToKeyTable(filter.name)
+  local buffs = Cache:GetDebuffs(guid,unit,spells,true)
+  if #buffs == 0 then return end
+  local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(buffs[1])
+  if not name then
+    return
+  elseif UnitIsUnit(unit,"target") then
+    return 0.8
+  else
+    return 0.5
+  end
 end

@@ -17,6 +17,7 @@ function F:OnInitialize()
   self:RegisterFilter("AOENUM",L["AOE Count"],{name={name=L["Radius | Scan Interval | Spell ID"]},value={},greater={},unit={}},nil,blue)
   self:RegisterFilter("FASTSPELL",L["Fast Spell"],{unit={},name={name="spell ID | Cooldown | Range | Is help"}},nil,"FF7D0A")
   self:RegisterFilter("CD",L["Spell Cooldown"])
+  self:RegisterFilter("CDDEF",L["CD Different"],{name={name="spell ID 1 | spell ID 2 | times"},greater= {},value= {}})
   self:RegisterFilter("SPELLCOUNT",L["Spell Count"])
   self:RegisterFilter("ICD",L["Item Cooldown"])
   self:RegisterFilter("CHARGE",L["Spell Charge"])
@@ -195,6 +196,19 @@ function F:CD(filter)
   local value = Cache:GetSpellCooldown(name)
   return value
 end
+
+function F:CDDEF(filter)
+  filter.value = filter.value or 0
+  assert(filter.name)
+  local spellId1, spellId2, times = unpack(Core:ToValueTable(filter.name))
+  assert(spellId1)
+  assert(spellId2)
+  times = times or 1
+  local value1 = Cache:GetSpellCooldown(spellId1)
+  local value2 = Cache:GetSpellCooldown(spellId2)
+  return value1*times-value2
+end
+
 
 function F:SPELLCOUNT(filter)
   filter.value = filter.value or 0
