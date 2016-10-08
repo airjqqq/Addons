@@ -89,6 +89,7 @@ function Cache:OnEnable()
 		position = 10,
 		spell = 300,
 		line2guid = 5,
+		myhealth = 30,
 	}
 end
 
@@ -647,6 +648,11 @@ do
 		if guid and self.cache.health[guid] then
 			self.cache.health[guid].changed = true
 		end
+		if guid == self:PlayerGUID() then
+			local data = {AirjHack:UnitHealth(guid)}
+			data.t = GetTime()
+			tinsert(self.cache.myhealth,data)
+		end
 	end
 
 	function Cache:ScanOnesHealth(t,guid)
@@ -657,16 +663,15 @@ do
 	end
 
 	function Cache:ScanHealth(t,guids,units)
-		local guid = self:PlayerGUID()
-		self:ScanOnesHealth(t,guid)
-		for i,unit in ipairs(units) do
-			local guid = UnitGUID(unit)
-			if guid and guids[guid] then
+		for guid in pairs(guids) do
+		-- for i,unit in ipairs(units) do
+		-- 	local guid = UnitGUID(unit)
+			-- if guid and guids[guid] then
 				local data = self.cache.health[guid]
 				if not data or t - data.t>self.interval.health then
 					self:ScanOnesHealth(t,guid)
 				end
-			end
+			-- end
 		end
 		-- if guids then
 		-- 	for guid in pairs(guids) do
@@ -681,12 +686,8 @@ do
 		end
 		return unpack(data or {})
 	end
-	function Cache:GetHealthArray(guid)
-		local array = self.cache.health[guid]
-		if not array or array.changed then
-			array = self:ScanOnesHealth(GetTime(),guid)
-		end
-		return array
+	function Cache:GetHealthArray()
+		return self.cache.myhealth or {}
 	end
 end
 

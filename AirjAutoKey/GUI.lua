@@ -356,18 +356,18 @@ function GUI:CreateFrames()
   	castIconTexture:SetColorTexture(0,0,0)
   	self.castIconTexture = castIconTexture
 
-  	local	burstMask = CreateFrame("Frame", "AirjAutoKey_GUI_burstMask", container, "ActionBarButtonSpellActivationAlert")
-    local anchorTo =castIcon
-    local w,h =anchorTo:GetSize()
-  	burstMask:SetSize(32+w,32+h)
-    burstMask:ClearAllPoints()
-    burstMask:SetPoint("CENTER",anchorTo,"CENTER")
-    burstMask.animOut:SetScript("OnFinished",function(animGroup)
-    	local overlay = animGroup:GetParent()
-    	overlay:Hide()
-    end)
-  	burstMask.animOut:Play()
-  	self.burstMask = burstMask
+  	-- local	burstMask = CreateFrame("Frame", "AirjAutoKey_GUI_burstMask", container, "ActionBarButtonSpellActivationAlert")
+    -- local anchorTo =castIcon
+    -- local w,h =anchorTo:GetSize()
+  	-- burstMask:SetSize(32+w,32+h)
+    -- burstMask:ClearAllPoints()
+    -- burstMask:SetPoint("CENTER",anchorTo,"CENTER")
+    -- burstMask.animOut:SetScript("OnFinished",function(animGroup)
+    -- 	local overlay = animGroup:GetParent()
+    -- 	overlay:Hide()
+    -- end)
+  	-- burstMask.animOut:Play()
+  	-- self.burstMask = burstMask
   end
 
   -- self.widgets = {}

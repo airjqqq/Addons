@@ -176,6 +176,7 @@ function mod:OnInitialize()
     Core:RegisterCreatureLink(103695,data) --P1 mod
   end
 
+  self:RegisterEvent("UNIT_SPELLCAST_START")
   self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
   self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
@@ -193,8 +194,23 @@ function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sou
 
 end
 
-function mod:UNIT_SPELLCAST_SUCCEEDED(unitId,spell,rank,spellGUID)
+function mod:UNIT_SPELLCAST_START(event,unitId,spell,rank,spellGUID)
 	local spellId = tonumber(select(5, strsplit("-", spellGUID)), 10)
+  local link = GetSpellLink(spellId)
+  local guid = UnitGUID(unitId)
+  local objectType,serverId,instanceId,zone,cid,spawn = Core:GetGUIDInfo(guid)
+  if objectType~="Player" then
+    Core:Print(AirjHack:GetDebugChatFrame(),"UNIT_SPELLCAST_START",guid,link)
+  end
+end
+function mod:UNIT_SPELLCAST_SUCCEEDED(event,unitId,spell,rank,spellGUID)
+	local spellId = tonumber(select(5, strsplit("-", spellGUID)), 10)
+  local link = GetSpellLink(spellId)
+  local guid = UnitGUID(unitId)
+  local objectType,serverId,instanceId,zone,cid,spawn = Core:GetGUIDInfo(guid)
+  if objectType~="Player" then
+    Core:Print(AirjHack:GetDebugChatFrame(),"UNIT_SPELLCAST_SUCCEEDED",guid,link)
+  end
   if spellId == 210290 then
     if not UnitExists(unitId.."target") then return end--Blizzard decided to go even further out of way to break this detection, if this happens we don't want nil errors for users.
     local guid = UnitGUID(unitId.."target")

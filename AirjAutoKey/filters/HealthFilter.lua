@@ -66,7 +66,11 @@ function F:HTIME(filter)
   local guid = Cache:PlayerGUID()
   if not guid then return false end
   local t = GetTime()
-  local array = Cache:GetHealthArray(guid)
+  local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+  if health/max >toCmp then
+    return 0
+  end
+  local array = Cache:GetHealthArray()
   for i = #array,1,-1 do
   -- for i,v in ipairs(array) do
     local v = array[i]
