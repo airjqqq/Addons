@@ -96,6 +96,10 @@ do
       u="mouse",
       t="M-",
     },
+    {
+      u="nameplate",
+      t="NP-",
+    },
   }
   function GUI:CreateCastedIcon(spellId,unit,class,interval)
     local name,_,textureID = GetSpellInfo(spellId)

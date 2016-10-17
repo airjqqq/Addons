@@ -52,7 +52,7 @@ function Core:OnEnable()
     SetCVar("MaxSpellStartRecoveryOffset", 50)
   end
   -- starttest
-  self:OnChatCommmand("world",90,"4 公会M团招人。进度：H全通，M-2/7。详情M聊。打扰抱歉")
+  self:OnChatCommmand("world",90,"4 上班族公会招人,主打M团队副本。进度：H全通，M-2/7。只要上班族,详情M聊。打扰抱歉")
 end
 
 function Core:OnDisable()
@@ -421,7 +421,7 @@ do
     else
       if type(value) == "number" then
         if filter.note == "debug" then
-          self:Print(AirjHack:GetDebugChatFrame(),value)
+          self:Print(AirjHack:GetDebugChatFrame(),"note=debug",value)
         end
         passed = Core:MatchValue(value,filter)
       else
@@ -482,7 +482,7 @@ do
     local passed = false
     if guid and not checked[guid] then
       checked[guid] = true
-      if prepassed[guid]~=nil then return true end
+      if prepassed[guid]~=nil then return prepassed[guid] end
       local t = Cache.cache.serverRefused[guid]
       if not t or t.count<2 or (GetTime() - t.t > 1) then
         passed = true
@@ -512,6 +512,7 @@ do
             return unit
           end
         end
+      else
       end
     end
     local maxKey,maxValue
@@ -638,6 +639,9 @@ do
     if airType == "pveharm" or airType == "all" then
   		for i = 1,5 do
   			tinsert(unitList,"boss"..i)
+  		end
+  		for i = 1,20 do
+  			tinsert(unitList,"nameplate"..i)
   		end
     end
     if airType == "pvpharm" or airType == "all" then

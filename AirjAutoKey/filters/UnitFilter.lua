@@ -56,6 +56,7 @@ end
 
 function F:COMBAT(filter)
   filter.unit = filter.unit or "player"
+  if IsResting() then return true end
   return Cache:Call("UnitAffectingCombat",filter.unit) and true or false
 end
 

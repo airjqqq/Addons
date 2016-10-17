@@ -237,6 +237,9 @@ do
 				tinsert(list,"raid"..i..sub)
 			end
 		end
+		for i = 1,20 do
+			tinsert(list,"nameplate"..i)
+		end
 		self.unitListCache=list
 		return list
 	end
@@ -723,7 +726,7 @@ do
 		if units then
 			for i,unit in ipairs(units) do
 				local guid = UnitGUID(unit)
-				if guid and guids[guid] then
+				if guid then
 					local data = self.cache.buffs[guid]
 					if not data or t - data.t>self.interval.buffs then
 						Cache:ScanOnesBuffs(t,guid,unit)
@@ -812,12 +815,14 @@ do
 			local px,py,pz,pf = AirjHack:Position("player")
 			local pi = math.pi
 			if guids then
-				for guid in pairs(guids) do
-					local x,y,z,f,s = AirjHack:Position(guid)
-					if x then
-						local dx,dy,dz = x-px, y-py, z-pz
-						local distance = sqrt(dx*dx+dy*dy+dz*dz)
-						self.cache.position[guid]={x,y,z,f,distance,s}
+				for guid,type in pairs(guids) do
+					if bit.band(type,0x08)~=0 then
+						local x,y,z,f,s = AirjHack:Position(guid)
+						if x then
+							local dx,dy,dz = x-px, y-py, z-pz
+							local distance = sqrt(dx*dx+dy*dy+dz*dz)
+							self.cache.position[guid]={x,y,z,f,distance,s}
+						end
 					end
 				end
 			end

@@ -181,6 +181,11 @@ function F:FASTSPELL(filter)
     if d > math.max(5,range + s + 1.5) then
       return false
     end
+
+    local buffs = Cache:GetBuffs(guid,filter.unit,{[209915]=true})
+    if #buffs>0 then
+      return false
+    end
   end
   if castingTime > 0 then
     if not F:CANCAST() then
@@ -267,7 +272,7 @@ function F:CANCAST(filter)
   local notMoving=(Cache:Call("GetUnitSpeed","player") == 0 and not Cache:Call("IsFalling"))
   if notMoving then return true end
   local guid = Cache:UnitGUID("player")
-  local buffs = Cache:GetBuffs(guid,"player",{[108839]=true})
+  local buffs = Cache:GetBuffs(guid,"player",{[108839]=true,[193223]=true})
   return #buffs > 0
 end
 

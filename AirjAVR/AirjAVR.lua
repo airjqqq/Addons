@@ -169,37 +169,37 @@ end
 
 function Core:OnObjectCreated(event,guid,type)
   if bit.band(type,0x2)==0 then
-    local objectType,serverId,instanceId,zone,cid,spawn = self:GetGUIDInfo(guid)
-    if objectType == "AreaTrigger" then
-      local spellId = AirjHack:ObjectInt(guid,0x88)
-      local radius = AirjHack:ObjectFloat(guid,0x90)
-      local data = self.register.onAreaTriggerCircleIds[spellId]
-      if data and radius~=0 then
-        data.radius = radius
-				-- self:Print(spellId)
-      end
-      self:ShowUnitMesh(data,spellId,nil,guid)
-	    -- if self.debug or true then
-      --   local link = GetSpellLink(spellId)
-      --   self:Print(AirjHack:GetDebugChatFrame(),guid,link,AirjHack:ObjectFloat(guid,0x90))
-			-- end
-    end
-    if objectType == "Creature" then
-      self:ShowLinkMesh(self.register.onCreatureLinkIds[cid],0,UnitGUID("player"),guid)
-    end
+    -- local objectType,serverId,instanceId,zone,cid,spawn = self:GetGUIDInfo(guid)
+    -- if objectType == "AreaTrigger" then
+    --   local spellId = AirjHack:ObjectInt(guid,0x88)
+    --   local radius = AirjHack:ObjectFloat(guid,0x90)
+    --   local data = self.register.onAreaTriggerCircleIds[spellId]
+    --   if data and radius~=0 then
+    --     data.radius = radius
+		-- 		-- self:Print(spellId)
+    --   end
+    --   self:ShowUnitMesh(data,spellId,nil,guid)
+	  --   -- if self.debug or true then
+    --   --   local link = GetSpellLink(spellId)
+    --   --   self:Print(AirjHack:GetDebugChatFrame(),guid,link,AirjHack:ObjectFloat(guid,0x90))
+		-- 	-- end
+    -- end
+    -- if objectType == "Creature" then
+    --   self:ShowLinkMesh(self.register.onCreatureLinkIds[cid],0,UnitGUID("player"),guid)
+    -- end
   end
 end
 
 function Core:OnObjectDestroyed(event,guid,type)
   if bit.band(type,0x2)==0 then
-    local objectType,serverId,instanceId,zone,cid,spawn = self:GetGUIDInfo(guid)
-    if objectType == "AreaTrigger" then
-      local spellId = AirjHack:ObjectInt(guid,0x88)
-      self:HideUnitMesh(self.register.onAreaTriggerCircleIds[spellId],spellId,nil,guid)
-    end
-    if objectType == "Creature" then
-      self:HideLinkMesh(self.register.onCreatureLinkIds[cid],0,UnitGUID("player"),guid)
-    end
+    -- local objectType,serverId,instanceId,zone,cid,spawn = self:GetGUIDInfo(guid)
+    -- if objectType == "AreaTrigger" then
+    --   local spellId = AirjHack:ObjectInt(guid,0x88)
+    --   self:HideUnitMesh(self.register.onAreaTriggerCircleIds[spellId],spellId,nil,guid)
+    -- end
+    -- if objectType == "Creature" then
+    --   self:HideLinkMesh(self.register.onCreatureLinkIds[cid],0,UnitGUID("player"),guid)
+    -- end
   end
 end
 

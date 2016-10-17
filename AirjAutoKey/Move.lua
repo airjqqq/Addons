@@ -311,9 +311,6 @@ function M:GetGUIDInfo(guid)
     _,serverId,id = unpack(guids)
   elseif objectType == "Creature" or objectType == "GameObject" or objectType == "AreaTrigger" then
     objectType,_,serverId,instanceId,zone,id,spawn = unpack(guids)
-    if objectType == "AreaTrigger" then
-      id = AirjHack:ObjectInt(guid,0x88)
-    end
   end
   return objectType,serverId,instanceId,zone,id,spawn
 end
@@ -332,12 +329,15 @@ function M:CheckGiftTrigged()
 end
 
 function M:OnObjectCreated(event,guid,type)
-  if bit.band(type,0x2)==0 then
+  if bit.band(type,0x100)~=0 then
     local objectType,serverId,instanceId,zone,id,spawn = self:GetGUIDInfo(guid)
-
-    if objectType == "AreaTrigger" and (id == 124503 or id == 124506) then
-			local x,y,z = AirjHack:Position(guid)
-			gifts[guid] = {x,y,z}
+    if objectType == "AreaTrigger" then
+      local spellId = AirjHack:ObjectInt(guid,0x88)
+		 	if (spellId == 124503 or spellId == 124506) then
+				local x,y,z = AirjHack:Position(guid)
+				gifts[guid] = {x,y,z}
+				print(id)
+			end
     end
   end
 end
@@ -361,6 +361,9 @@ function M:MoveAsHard()
 end
 
 function M:Move(index,sos)
+	if not AirjHack:HasHacked() then
+		return
+	end
 	if sos == 1 then
 		start[index]()
 	else

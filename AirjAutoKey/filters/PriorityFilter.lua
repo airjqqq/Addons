@@ -96,15 +96,18 @@ function F:AIRDEBUFF(filter)
   local spells = Core:ToKeyTable(filter.name)
   local buffs = Cache:GetDebuffs(guid,unit,spells,true)
   if #buffs == 0 then return end
-  local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(buffs[1])
-  if not name then return end
-  local value
-  if duration == 0 and expires ==0 then
-    value = 1
-  else
-    value = (expires - GetTime())/100
+  local minValue = 1
+  for i,v in pairs(buffs) do
+    local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
+    local value
+    if duration == 0 and expires ==0 then
+      value = 1
+    else
+      value = (expires - GetTime())/100
+    end
+    minValue = min(minValue,value)
   end
-  return exp(-value)
+  return exp(-minValue)
 end
 
 function F:AIRDEBUFFORTARGET(filter)

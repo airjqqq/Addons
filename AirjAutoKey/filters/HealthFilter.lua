@@ -29,6 +29,7 @@ function F:OnInitialize()
     [SPELL_POWER_HOLY_POWER]=L["Holy Power"],
     [SPELL_POWER_CHI]=L["Chi"],
     [SPELL_POWER_PAIN]=L["Pain"],
+    [SPELL_POWER_INSANITY]=L["Insanity"],
   })
 end
 
