@@ -26,7 +26,10 @@ function mod:OnEnable()
 end
 
 function mod:OnDisable()
-  self:CancelTimer(self.eventTimer)
+	if self.eventTimer then
+  	self:CancelTimer(self.eventTimer)
+		self.eventTimer = nil
+	end
 end
 
 function mod:HasHacked()
@@ -95,9 +98,11 @@ function mod:UnitGUID (unit)
 end
 
 function mod:ObjectInt(guid,offset)
+  if not self:HasHacked() then return end
 	return fcn("AirjGetObjectDataInt",guid,offset or 0)
 end
 function mod:ObjectFloat(guid,offset)
+  if not self:HasHacked() then return end
 	return fcn("AirjGetObjectDataFloat",guid,offset or 0)
 end
 
@@ -140,10 +145,11 @@ function mod:TerrainClick(x,y,z)
 	fcn("AirjHandleTerrainClick",rx,ry,z)
 end
 function mod:UnitCanAttack(s,d)
+  if not self:HasHacked() then return end
 	return fcn("AirjUnitCanAttack",s,d)
-
 end
 function mod:UnitCanAssist(s,d)
+  if not self:HasHacked() then return end
 	return fcn("AirjUnitCanAssist",s,d)
 end
 function mod:Target(guid)
@@ -175,26 +181,28 @@ end
 
 function mod:RunMacroText(text)
   if not self:HasHacked() then return end
-	RunMacroText(text)
+	return RunMacroText(text)
 end
 
 local debugChatFrame
 
 function mod:GetDebugChatFrame()
-	-- if debugChatFrame then return debugChatFrame end
+	if debugChatFrame then return debugChatFrame end
+	for i=1, NUM_CHAT_WINDOWS do
+		local fname, _, _, _, _, _, shown = FCF_GetChatWindowInfo(i);
+		if "AirjDebug" == fname then
+			debugChatFrame = chatFrame
+			return chatFrame
+		end
+	end
+
 	-- local count = 1;
 	-- local chatFrame, chatTab;
 	-- local name = "AirjDebug"
 	--
-	-- for i=1, NUM_CHAT_WINDOWS do
-	-- 	local fname, _, _, _, _, _, shown = FCF_GetChatWindowInfo(i);
-	-- 	chatFrame = _G["ChatFrame"..i];
-	-- 	chatTab = _G["ChatFrame"..i.."Tab"];
-	--
-	-- 	if name == fname then
-	-- 		debugChatFrame = chatFrame
-	-- 		return chatFrame
-	-- 	end
+	-- chatFrame = _G["ChatFrame"..i];
+	-- chatTab = _G["ChatFrame"..i.."Tab"];
+
 	--
 	-- 	if ( (not shown and not chatFrame.isDocked) or (count == NUM_CHAT_WINDOWS) ) then
 	-- 		if ( not name or name == "" ) then
