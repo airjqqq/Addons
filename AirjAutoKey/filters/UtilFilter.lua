@@ -30,6 +30,7 @@ function F:OnInitialize()
   self:RegisterFilter("STANCE",L["Stance"],{value={}})
   self:RegisterFilter("RUNE",L["Rune"],{name={name=L["Offset"]},value={},greater={}})
   self:RegisterFilter("CDENERGY",L["CD Energy"],{name={name=L["Spell ID | CD Time "]},value={},greater={}})
+  self:RegisterFilter("NEXTINSANITY",L["Next Insanity"])
   self:RegisterFilter("TOTEMTIME",L["Totem Time"],{name={},value={},greater={}},{
     [1]=L["Fire"],
     [2]=L["Eath"],
@@ -201,6 +202,42 @@ function F:CD(filter)
   local value = Cache:GetSpellCooldown(name)
   return value
 end
+
+function F:NEXTINSANITY(filter)
+  filter.value = filter.value or 10
+  local power = Cache:Call("UnitPower","player",SPELL_POWER_INSANITY)
+  local offset, name = unpack(Core:ToValueTable(filter.name),2)
+  offset = offset or name and 0 or Cache.cache.gcd.duration or 1
+  name = name or 61304
+  local gcd = Cache:GetSpellCooldown(61304)
+  local guid = Cache:PlayerGUID()
+  local buffs = Cache:GetBuffs(guid,"player",{[194249]=true})
+  if buffs[1] then
+    local value = Cache:GetSpellCooldown(name)
+    local _,_,_,count = unpack(buffs[1])
+    local speed = 9+count/2
+    power = power - speed*(value+offset+0.2)
+  end
+  local castName, _, _, _, startTime, endTime = Cache:Call("UnitCastingInfo","player")
+  local spellName = GetSpellInfo(8092)
+
+  local data = Cache.cache.castStartTo[8092]
+  local mbtime = 10
+  if data and data.last and data.last.t then
+    mbtime = GetTime()-data.last.t
+  end
+  if castName == spellName or data and mbtime<gcd*1.5 then
+    local insbuffs = Cache:GetBuffs(guid,"player",{[193223]=true})
+    if #insbuffs>0 then
+      power = power + 12*3
+    else
+      power = power + 12
+    end
+  end
+
+  return power
+end
+
 
 function F:CDDEF(filter)
   filter.value = filter.value or 0

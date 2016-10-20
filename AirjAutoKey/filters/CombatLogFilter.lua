@@ -299,6 +299,9 @@ function F:TIMETODIE(filter)
   filter.unit = filter.unit or "player"
   filter.name = filter.name or {5}
 	local time = filter.name[1]
+  if not Cache:Call("UnitAffectingCombat",filter.unit) then
+    return 120
+  end
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)

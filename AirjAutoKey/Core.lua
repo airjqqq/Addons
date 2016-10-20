@@ -52,7 +52,7 @@ function Core:OnEnable()
     SetCVar("MaxSpellStartRecoveryOffset", 50)
   end
   -- starttest
-  self:OnChatCommmand("world",90,"4 上班族公会招人,主打M团队副本。进度：H全通，M-2/7。只要上班族,详情M聊。打扰抱歉")
+  -- self:OnChatCommmand("world",150,"4 上班族公会招人,主打M团队副本。进度：H全通，M-3/7。只要上班族,详情M聊。打扰抱歉")
 end
 
 function Core:OnDisable()
@@ -154,7 +154,8 @@ do
         local channel, message  = Core:GetArgs(value, 2)
         local fcn = function()
           -- Core:Print(value,message,"CHANNEL",nil,tonumber(channel) or channel)
-          SendChatMessage(message,"CHANNEL",nil,tonumber(channel) or channel)
+          -- SendChatMessage(message,"CHANNEL",nil,tonumber(channel) or channel)
+          AirjHack:RunMacroText("/"..channel.." "..message)
         end
         Core.worldTimer = Core:ScheduleRepeatingTimer(fcn,tonumber(time) or 60)
         -- fcn()
