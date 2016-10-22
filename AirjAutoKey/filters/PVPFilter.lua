@@ -8,6 +8,9 @@ local L = setmetatable({},{__index = function(t,k) return k end})
 
 function F:OnInitialize()
   -- self:RegisterFilter("PVPDOTATTACK",L["[PVP] Don't Attack"])
+  self:RegisterFilter("PVPBUFF",L["Buff"],{unit= {},name= {},greater= {},value= {}})
+  self:RegisterFilter("PVPIMMUNITY",L["Buff"],{unit= {},name= {},greater= {},value= {}})
+  self:RegisterFilter("PVPDEBUFF",L["Buff"],{unit= {},name= {},greater= {},value= {}})
 end
 
 function F:RegisterFilter(key,name,keys,subtypes,c)
@@ -47,7 +50,6 @@ local buffs = {
   mage = {
     [ 32612] = "STEALTH",
     [ 11426] = "SHEILD",
-    [ 11426] = "SHEILD",
   	[ 45438] = "IPDAMAGE IPDEBUFF IMDAMAGE IMDEBUFF", -- Ice Block
   },
   monk = {
@@ -63,10 +65,9 @@ local buffs = {
     },
     [204018] = "IMDAMAGE IMDEBUFF", -- Blessing of Spellwarding
 		[  1022] = "IPDAMAGE IPDEBUFF", -- Blessing of Protection
-		[  6940] = "DDAMAGE", -- Blessing of Sacrifice
+		[  6940] = "TARGET", -- Blessing of Sacrifice
 		[   642] = "IPDAMAGE IPDEBUFF IMDAMAGE IMDEBUFF", -- Divine Shield
   },
-
 }
 
 local debuffs = {
@@ -285,3 +286,134 @@ local cooldowns = {
     -- paly
 		[ 96231] = "INTERRUPT", -- Rebuke
 }
+
+local function getSpellIs(ids, keys)
+  local toRet = {}
+  for cls, data in pairs(ids) do
+    for k,v in pairs(data) do
+      if type(v) == "table" then
+        for i in ipairs(v) do
+          if keys[k] then
+            toRet[i] = true
+          end
+        end
+      else
+        local vs = {strsplit(" ",v)}
+        for i in ipairs(vs) do
+          if keys[i] then
+            toRet[k] = true
+            break
+          end
+        end
+      end
+    end
+  end
+  return toRet
+end
+
+function F:PVPBUFF(filter)
+  filter.name = filter.name or {"IMPORT","TARGET","BIGHOT","SHEILD","HOT"}
+  filter.unit = filter.unit or "player"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local types = Core:ToKeyTable(filter.name)
+  local spells = getSpellIs(buffs,types)
+  local buffs = Cache:GetBuffs(guid,filter.unit,spells)
+  local t = GetTime()
+  for i,v in pairs(buffs) do
+    local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
+    local value
+    if filter.subtype == "COUNT" then
+      value = count
+    elseif filter.subtype == "START" then
+      if duration == 0 and expires ==0 then
+        value = 10
+      else
+        value = (t-expires+duration)/timeMod
+      end
+    elseif filter.subtype == "OBSERV" then
+      value = value2
+    else
+      if duration == 0 and expires ==0 then
+        value = 10
+      else
+        value = (expires - t)/timeMod
+      end
+    end
+    if Core:MatchValue(value,filter) then
+      return true
+    end
+  end
+  return false
+end
+
+function F:PVPIMMUNITY(filter)
+  filter.name = filter.name or {"IPDAMAGE","IPDEBUFF","IMDAMAGE","IMDEBUFF","ISLOW","IROOT"}
+  filter.unit = filter.unit or "player"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local types = Core:ToKeyTable(filter.name)
+  local spells = getSpellIs(buffs,types)
+  local buffs = Cache:GetBuffs(guid,filter.unit,spells)
+  local t = GetTime()
+  for i,v in pairs(buffs) do
+    local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
+    local value
+    if filter.subtype == "COUNT" then
+      value = count
+    elseif filter.subtype == "START" then
+      if duration == 0 and expires ==0 then
+        value = 10
+      else
+        value = (t-expires+duration)/timeMod
+      end
+    elseif filter.subtype == "OBSERV" then
+      value = value2
+    else
+      if duration == 0 and expires ==0 then
+        value = 10
+      else
+        value = (expires - t)/timeMod
+      end
+    end
+    if Core:MatchValue(value,filter) then
+      return true
+    end
+  end
+  return false
+end
+function F:PVPDEBUFF(filter)
+  filter.name = filter.name or {"DISORIENT","INCAPACITATE","STUN","ROOT","SLOW","SILENCE"}
+  filter.unit = filter.unit or "player"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local types = Core:ToKeyTable(filter.name)
+  local spells = getSpellIs(debuffs,types)
+  local debuffs = Cache:GetDebuffs(guid,filter.unit,spells)
+  local t = GetTime()
+  for i,v in pairs(debuffs) do
+    local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
+    local value
+    if filter.subtype == "COUNT" then
+      value = count
+    elseif filter.subtype == "START" then
+      if duration == 0 and expires ==0 then
+        value = 10
+      else
+        value = (t-expires+duration)/timeMod
+      end
+    elseif filter.subtype == "NUMBER" then
+      value = value2
+    else
+      if duration == 0 and expires ==0 then
+        value = 10
+      else
+        value = (expires - t)/timeMod
+      end
+    end
+    if Core:MatchValue(value,filter) then
+      return true
+    end
+  end
+  return false
+end

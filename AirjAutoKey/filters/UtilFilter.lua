@@ -2,7 +2,7 @@ local filterName = "UtilFilter"
 local Core = LibStub("AceAddon-3.0"):GetAddon("AirjAutoKey")
 local Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
 local Filter = Core:GetModule("Filter")
-local F = Filter:NewModule(filterName)
+local F = Filter:NewModule(filterName, "AceEvent-3.0")
 local color = "DFDF3F"
 local L = setmetatable({},{__index = function(t,k) return k end})
 
@@ -38,6 +38,7 @@ function F:OnInitialize()
     [4]=L["Air"],
   })
   CombatLogFilter = Filter:GetModule("CombatLogFilter")
+  self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
 
 function F:RegisterFilter(key,name,keys,subtypes,c)
@@ -203,19 +204,53 @@ function F:CD(filter)
   return value
 end
 
+
+
+local fstart, sstart, stotal
+function F:COMBAT_LOG_EVENT_UNFILTERED (event, t, realEvent, ...)
+  local sourceGUID = select(2,...)
+  if sourceGUID == UnitGUID("player") then
+    local spellId = select(10,...)
+    if realEvent == "SPELL_AURA_APPLIED" then
+      if spellId == 194249 then
+        fstart = GetTime()
+        stotal = 0
+      elseif spellId == 205065 or spellId == 47585 then
+        sstart = GetTime()
+      end
+    end
+
+    if realEvent == "SPELL_AURA_REMOVED" then
+      if spellId == 194249 then
+        if fstart then
+          Core:Print("shadow form last "..(GetTime()-fstart))
+        end
+        fstart = nil
+        stotal = nil
+      elseif spellId == 205065 or spellId == 47585 then
+        if stotal and sstart then
+          stotal = stotal + GetTime() - sstart
+          Core:Print("shadow stoped "..(GetTime()-sstart))
+        end
+        sstart = nil
+      end
+    end
+  end
+    -- body...
+end
+
 function F:NEXTINSANITY(filter)
   filter.value = filter.value or 10
   local power = Cache:Call("UnitPower","player",SPELL_POWER_INSANITY)
-  local offset, name = unpack(Core:ToValueTable(filter.name),2)
-  offset = offset or name and 0 or Cache.cache.gcd.duration or 1
+  local name, offset = unpack(Core:ToValueTable(filter.name),1,2)
+  offset = offset or 0
   name = name or 61304
   local gcd = Cache:GetSpellCooldown(61304)
   local guid = Cache:PlayerGUID()
   local buffs = Cache:GetBuffs(guid,"player",{[194249]=true})
-  if buffs[1] then
+  if buffs[1] and fstart then
     local value = Cache:GetSpellCooldown(name)
-    local _,_,_,count = unpack(buffs[1])
-    local speed = 9+count/2
+    local speed = 10+(GetTime()-fstart-stotal)/2
     power = power - speed*(value+offset+0.2)
   end
   local castName, _, _, _, startTime, endTime = Cache:Call("UnitCastingInfo","player")
@@ -226,10 +261,10 @@ function F:NEXTINSANITY(filter)
   if data and data.last and data.last.t then
     mbtime = GetTime()-data.last.t
   end
-  if castName == spellName or data and mbtime<gcd*1.5 then
+  if castName == spellName or data and mbtime<gcd+0.4 then
     local insbuffs = Cache:GetBuffs(guid,"player",{[193223]=true})
     if #insbuffs>0 then
-      power = power + 12*3
+      power = power + 12*2.5
     else
       power = power + 12
     end
