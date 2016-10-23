@@ -59,6 +59,12 @@ function F:OnInitialize()
     name = {name="Spell ID"},
     unit = {name="Unit, blank as anybody"},
   })
+  self:RegisterFilter("CASTSTARTGCD",L["Cast Start GCD"],{
+    value = {},
+    greater = {},
+    name = {name="Spell ID | GCD times"},
+    unit = {name="Unit, blank as anybody"},
+  })
   self:RegisterFilter("CASTSUCCESSED",L["Cast Success"],{
     value = {},
     greater = {},
@@ -374,6 +380,24 @@ function F:CASTSTART(filter)
   return GetTime() - data.t
 end
 
+function F:CASTSTARTGCD(filter)
+  assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
+	local spellID = filter.name[1]
+	local gcdtime = filter.name[2] or 1
+  local guid
+  if filter.unit then
+    guid = Cache:UnitGUID(filter.unit)
+  else
+    guid = "last"
+  end
+  local gcd = Cache.cache.gcd.duration or 1
+  if not guid then return false end
+  local data = Cache.cache.castStartTo[spellID]
+  if not data then return 120 end
+  data = data[guid]
+  if not data then return 120 end
+  return math.abs(GetTime() - data.t - gcd*gcdtime)
+end
 function F:CASTSUCCESSED(filter)
   assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
 	local spellID = filter.name[1]

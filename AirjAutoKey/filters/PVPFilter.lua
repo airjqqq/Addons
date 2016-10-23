@@ -8,9 +8,11 @@ local L = setmetatable({},{__index = function(t,k) return k end})
 
 function F:OnInitialize()
   -- self:RegisterFilter("PVPDOTATTACK",L["[PVP] Don't Attack"])
-  self:RegisterFilter("PVPBUFF",L["Buff"],{unit= {},name= {},greater= {},value= {}})
-  self:RegisterFilter("PVPIMMUNITY",L["Buff"],{unit= {},name= {},greater= {},value= {}})
-  self:RegisterFilter("PVPDEBUFF",L["Buff"],{unit= {},name= {},greater= {},value= {}})
+  self:RegisterFilter("PVPBUFF",L["PVP Buff"],{unit= {},name= {},greater= {},value= {}})
+  self:RegisterFilter("PVPIMMUNITY",L["PVP Immunity"],{unit= {},name= {},greater= {},value= {}})
+  self:RegisterFilter("PVPDEBUFF",L["PVP Debuff"],{unit= {},name= {},greater= {},value= {}},{
+    MAGIC = L["Magic"],
+  })
 end
 
 function F:RegisterFilter(key,name,keys,subtypes,c)
@@ -57,7 +59,7 @@ local buffs = {
 	  [124682] = "BIGHOT", -- Enveloping Mist
 		[119611] = "HOT", -- Renewing Mist
   },
-  paly = {
+  pally = {
     [  1044] = "ISLOW IROOT", -- Blessing of Freedom
     HOT = {
       200652, -- Tyr's Deliverance (HoT) (Holy artifact)
@@ -67,6 +69,34 @@ local buffs = {
 		[  1022] = "IPDAMAGE IPDEBUFF", -- Blessing of Protection
 		[  6940] = "TARGET", -- Blessing of Sacrifice
 		[   642] = "IPDAMAGE IPDEBUFF IMDAMAGE IMDEBUFF", -- Divine Shield
+  },
+  priest = {
+    SHEILD = {
+      17, -- Power Word: Shield
+			 152118, -- Clarity of Will
+    },
+    [ 47585] = "ISLOW IROOT", -- Dispersion
+    IMPORTANT = {
+			10060, -- Power Infusion
+    },
+    HOT = {
+  	    139, -- Renew
+  	  41635, -- Prayer of Mending
+
+    },
+  },
+  rouge = {
+    [ 31224] = "IMDEBUFF IMDAMAGE", -- Cload of Shadows
+  },
+  shaman = {
+    HOT = {
+
+				 61295, -- Riptide
+    },
+  },
+  warrior = {
+    [ 46924] = "ISLOW IROOT ICONTROL", -- Bladestorm (Fury)
+    [227847] = "ISLOW IROOT ICONTROL", -- Bladestorm (Arms)
   },
 }
 
@@ -129,6 +159,7 @@ local debuffs = {
 			58180, -- Infected Wounds (slow)
     },
 		DISORIENT = {
+      33786, -- Cyclone
 		},
 		[339] = "ROOT", -- Entagling Roots (root)
 		ROOT = {
@@ -236,17 +267,7 @@ local debuffs = {
 		STUN = {
 		},
   },
-  paly = {
-    SLOW = {
-    },
-		DISORIENT = {
-		},
-		ROOT = {
-		},
-		STUN = {
-		},
-  },
-  dh = {
+  pally = {
     SLOW = {
 				183218, -- Hand of Hindrance (slow)
 				204242, -- Consecration
@@ -264,6 +285,114 @@ local debuffs = {
 		ROOT = {
 		},
   },
+  priest = {
+    SLOW = {
+				204263, -- Shininig Force (slow)
+    },
+		[  8122] = "DISORIENT", -- Psychic Scream (disorient)
+		[200196] = "INCAPACITATE", -- Holy Word: Chastise (incapacitate)
+		STUN = {
+			200200, -- Holy Word: Chastise (with Censure) (stun)
+			226943, -- Mind Bomb (stun)
+		},
+    SILENCE = {
+				 15487, -- Silence -- NOTE: non-players only INTERRUPT, special case
+    },
+    NEEDDISP = {
+  				205369, -- Mind Bomb
+    },
+  },
+  racial = {
+    SILENCE = {
+			 28730, -- Arcane Torrent (Blood elf mana)
+			 50613, -- Arcane Torrent (Blood elf runic power)
+			 80483, -- Arcane Torrent (Blood elf focus)
+			 25046, -- Arcane Torrent (Blood elf energy)
+			 69179, -- Arcane Torrent (Blood elf rage)
+			129597, -- Arcane Torrent (Blood elf chi)
+			155145, -- Arcane Torrent (Blood elf holy power)
+		},
+    INCAPACITATE = {
+      107079, -- Quaking Palm (Monk)
+    },
+		STUN = {
+     20549, -- War Stomp (Tauren)
+		},
+  },
+  rouge = {
+    SLOW = {
+			185763, -- Pistol Shot (slow)
+			185778, -- Shellshocked (slow)
+			206760, -- Night Terrors (slow)
+			222775, -- Strike from the Shadows (slow)
+			209786, -- Goremaw's Bite (Subtlety artifact) (slow)
+    },
+    [2094] = "DISORIENT", -- Blind (disorient)
+		INCAPACITATE = {
+			  1776, -- Gouge (incapacitate)
+			199743, -- Parley (incapacitate)
+		},
+		[6770] = "INCAPACITATE", -- Sap (incapacitate)
+		STUN = {
+			   408, -- Kidney Shot (stun)
+			199804, -- Between the Eyes (stun)
+			  1833, -- Cheap Shot (stun)
+			196958, -- Strike from the Shadows (stun)
+		},
+  },
+  shaman = {
+    SLOW = {
+  		 51490, -- Thunderstorm (slow) (knockback)
+  		116947, -- Earthbind (slow)
+			224126, -- Frozen Bite (Enhancement artifact) (slow)
+			 197385, -- Fury of Air (slow)
+			 196840, -- Frost Shock (slow)
+      INCAPACITATE = {
+				 51514, -- Hex (incapacitate)
+				196942, -- Hex (Voodoo Totem) (incapacitate)
+			},
+			ROOT = {
+				64695, -- Earthgrab (root)
+				197214, -- Sundering (root)
+			},
+			STUN = {
+				118345, -- Pulverize (Primal Earth Elemental) (stun)
+				118905, -- Static Charge (stun)
+			},
+    }
+  },
+  warlock = {
+    SLOW = {
+			170995, -- Criple (Doomguard with Grimoire of Supremacy) (slow)
+    },
+		[6789] = "INCAPACITATE", -- Mortal Coil (incapacitate)
+		DISORIENT = {
+			5484, -- Howl of Terror (disorient)
+			6358, -- Seduction (Succubus) (disorient)
+		},
+		STUN = {
+			 22703, -- Infernal Awakening (Infernal) (stun)
+			 30283, -- Shadowfury (stun)
+			 89766, -- Axe Toss (Felguard) (stun)
+			171017, -- Meteor Strike (Infernal with Grimoire of Supremacy) (stun)
+		},
+		[   710] = "INCAPACITATE", -- Banish (incapacitate)
+		[118699] = "DISORIENT", -- Fear (disorient)
+  },
+  warrior = {
+    SLOW = {
+			6343, -- Thunder Clap (slow)
+		  1715, -- Hamstring (slow)
+		 12323, -- Piercing Howl (slow)
+    },
+		[5246] = "DISORIENT", -- Intimidating Shout (disorient)
+		STUN = {
+			  7922, -- Warbringer Stun (stun)
+			132168, -- Shockwave (stun)
+			132169, -- Storm Bolt (stun)
+		},
+  },
+
 }
 
 local cooldowns = {
@@ -285,6 +414,20 @@ local cooldowns = {
 		[116705] = "INTERRUPT", -- Spear Hand Strike
     -- paly
 		[ 96231] = "INTERRUPT", -- Rebuke
+    -- rouge
+		[  1766] = "INTERRUPT", -- Kick
+    -- shaman
+		[ 57994] = "INTERRUPT", -- Wind Shear
+    -- warlock
+		INTERRUPT = {
+			 19647, -- Spell Lock (Felhunter)
+			111897, -- Grimoire: Felhunter
+			119910, -- Spell Lock (Comand Demon with Felhunter)
+			171138, -- Shadow Lock (Doomguard with Grimoire of Supremacy)
+			171140, -- Shadow Lock (Command Demon with Doomguard)
+		},
+    --warrior
+		[  6552] = "INTERRUPT", -- Pummel
 }
 
 local function getSpellIs(ids, keys)
@@ -292,16 +435,17 @@ local function getSpellIs(ids, keys)
   for cls, data in pairs(ids) do
     for k,v in pairs(data) do
       if type(v) == "table" then
-        for i in ipairs(v) do
+        for i,id in ipairs(v) do
           if keys[k] then
-            toRet[i] = true
+            toRet[id] = true
           end
         end
       else
         local vs = {strsplit(" ",v)}
-        for i in ipairs(vs) do
-          if keys[i] then
-            toRet[k] = true
+        local id = k
+        for i,t in ipairs(vs) do
+          if keys[t] then
+            toRet[id] = true
             break
           end
         end
@@ -380,17 +524,7 @@ function F:PVPIMMUNITY(filter)
       return true
     end
   end
-  return false
-end
-function F:PVPDEBUFF(filter)
-  filter.name = filter.name or {"DISORIENT","INCAPACITATE","STUN","ROOT","SLOW","SILENCE"}
-  filter.unit = filter.unit or "player"
-  local guid = Cache:UnitGUID(filter.unit)
-  if not guid then return false end
-  local types = Core:ToKeyTable(filter.name)
-  local spells = getSpellIs(debuffs,types)
-  local debuffs = Cache:GetDebuffs(guid,filter.unit,spells)
-  local t = GetTime()
+  local debuffs = Cache:GetDebuffs(guid,filter.unit,{[33786]=true})
   for i,v in pairs(debuffs) do
     local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
     local value
@@ -413,6 +547,31 @@ function F:PVPDEBUFF(filter)
     end
     if Core:MatchValue(value,filter) then
       return true
+    end
+  end
+  return false
+end
+function F:PVPDEBUFF(filter)
+  filter.name = filter.name or {"DISORIENT","INCAPACITATE","STUN","ROOT","SLOW","SILENCE"}
+  filter.unit = filter.unit or "player"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local types = Core:ToKeyTable(filter.name)
+  local spells = getSpellIs(debuffs,types)
+  local debuffs = Cache:GetDebuffs(guid,filter.unit,spells)
+  local t = GetTime()
+  for i,v in pairs(debuffs) do
+    local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
+    local value
+    if filter.subtype == "MAGIC" and dispelType == "Magic" or filter.subtype ~= "MAGIC" then
+      if duration == 0 and expires ==0 then
+        value = 10
+      else
+        value = (expires - t)/timeMod
+      end
+      if Core:MatchValue(value,filter) then
+        return true
+      end
     end
   end
   return false

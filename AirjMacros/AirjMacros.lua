@@ -20,10 +20,10 @@ keyArray[8] = {"NUMPAD0","NUMPADMINUS","NUMPADPLUS","BUTTON4"}
 
 local hacked
 local InCombatLockdown = function()
-	if AirjHack and AirjHack:HasHacked() then
-		hacked = true
-		return false
-	end
+	-- if AirjHack and AirjHack:HasHacked() then
+	-- 	hacked = true
+	-- 	return false
+	-- end
 	return _G.InCombatLockdown()
 end
 
@@ -176,12 +176,12 @@ end
 
 function mod:CreateHandle()
 	local driver = CreateFrame("Frame", "AirjMacrosDriver", UIParent, "SecureHandlerStateTemplate")
-	RegisterStateDriver(driver, "possess", "[nopossessbar] 0; [possessbar] 1")
-	driver:SetAttribute("_onstate-possess", [[
-			--print("_onstate-possess",stateid,newstate)
-	    self:SetAttribute("state", newstate)
-	    control:ChildUpdate("state", newstate)
-	]])
+	-- RegisterStateDriver(driver, "possess", "[nopossessbar] 0; [possessbar] 1")
+	-- driver:SetAttribute("_onstate-possess", [[
+	-- 		--print("_onstate-possess",stateid,newstate)
+	--     self:SetAttribute("state", newstate)
+	--     control:ChildUpdate("state", newstate)
+	-- ]])
 end
 
 

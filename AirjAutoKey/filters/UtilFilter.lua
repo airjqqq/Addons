@@ -245,7 +245,7 @@ function F:NEXTINSANITY(filter)
   local name, offset = unpack(Core:ToValueTable(filter.name),1,2)
   offset = offset or 0
   name = name or 61304
-  local gcd = Cache:GetSpellCooldown(61304)
+  local gcd = Cache.cache.gcd.duration
   local guid = Cache:PlayerGUID()
   local buffs = Cache:GetBuffs(guid,"player",{[194249]=true})
   if buffs[1] and fstart then
@@ -255,11 +255,17 @@ function F:NEXTINSANITY(filter)
   end
   local castName, _, _, _, startTime, endTime = Cache:Call("UnitCastingInfo","player")
   local spellName = GetSpellInfo(8092)
+  local spellName2 = GetSpellInfo(34914)
 
   local data = Cache.cache.castStartTo[8092]
+  local data2 = Cache.cache.castStartTo[34914]
   local mbtime = 10
   if data and data.last and data.last.t then
     mbtime = GetTime()-data.last.t
+  end
+  local vptime = 10
+  if data2 and data2.last and data2.last.t then
+    vptime = GetTime()-data.last.t
   end
   if castName == spellName or data and mbtime<gcd+0.4 then
     local insbuffs = Cache:GetBuffs(guid,"player",{[193223]=true})
@@ -267,6 +273,13 @@ function F:NEXTINSANITY(filter)
       power = power + 12*2.5
     else
       power = power + 12
+    end
+  elseif castName == spellName2 or data2 and vptime<gcd+0.4 then
+    local insbuffs = Cache:GetBuffs(guid,"player",{[193223]=true})
+    if #insbuffs>0 then
+      power = power + 4*2.5
+    else
+      power = power + 4
     end
   end
 

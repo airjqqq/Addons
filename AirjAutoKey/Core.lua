@@ -52,7 +52,7 @@ function Core:OnEnable()
     SetCVar("MaxSpellStartRecoveryOffset", 50)
   end
   -- starttest
-  self:OnChatCommmand("world",600,"4 上班族公会招人,主打M团队副本。进度：H全通，M-3/7。只要上班族,详情M聊。打扰抱歉")
+  -- self:OnChatCommmand("world",600,"4 上班族公会招人,主打M团队副本。进度：H全通，M-3/7。只要上班族,详情M聊。打扰抱歉")
 end
 
 function Core:OnDisable()
@@ -179,6 +179,9 @@ do
       local to
       if value > 0 then to = 1 else to = 0 value = -value end
       value = value + remain
+      if remain>duration*0.5 then
+        value = 0.4
+      end
       Core:SetParamTemporary("auto",to,value)
     end,
     target = function(value)
