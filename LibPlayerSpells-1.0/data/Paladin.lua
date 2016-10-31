@@ -20,7 +20,7 @@ along with LibPlayerSpells-1.0.  If not, see <http://www.gnu.org/licenses/>.
 
 local lib = LibStub("LibPlayerSpells-1.0")
 if not lib then return end
-lib:__RegisterSpells("PALADIN", 70000, 5, {
+lib:__RegisterSpells("PALADIN", 70100, 5, {
 	COOLDOWN = {
 		  20271, -- Judgement
 		  20473, -- Holy Shock
@@ -61,7 +61,7 @@ lib:__RegisterSpells("PALADIN", 70000, 5, {
 				183218, -- Hand of Hindrance (slow)
 				196941, -- Judgement of Light
 				197277, -- Judgement (Retribution)
-				202270, -- Blade of Wrath
+				-- 202270, -- Blade of Wrath
 				204077, -- Final Stand (taunt) -- TODO: check DR
 				204242, -- Consecration
 				204301, -- Blessed Hammer
@@ -159,7 +159,7 @@ lib:__RegisterSpells("PALADIN", 70000, 5, {
 	[216413] = 197646, -- Divine Purpose (Holy - Light of Dawn)
 	[221883] = { -- Divine Steed
 		190784, -- Divine Steed (Protection)
-		205656, -- Divine Steed (Retribution)
+		-- 205656, -- Divine Steed (Retribution)
 	},
 	[223316] = 196923, -- Fervent Martyr
 	[223819] = 223817, -- Divine Purpose (Retribution)

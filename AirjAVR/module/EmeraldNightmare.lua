@@ -79,6 +79,22 @@ function mod:OnInitialize()
     }
     Core:RegisterAuraUnit(215128,data) --Spew Corruption
   end
+  do --4 dragen
+    data = {
+      color={0.2,0.5,0,0.1},
+      color2={0.3,0.7,0,0.2},
+      radius=8,
+      duration=90,
+    }
+    Core:RegisterAuraUnit(203787,data) --Spew Corruption
+    data = {
+      color={0.2,0,0.5,0.1},
+      color2={0.3,0,0.7,0.2},
+      radius=4,
+      duration=8,
+    }
+    Core:RegisterAuraUnit(203770,data) --Spew Corruption
+  end
   do -- ER
     data = {
       color={0.0,0.5,0,0.2},

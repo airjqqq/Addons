@@ -647,7 +647,7 @@ end
 --health
 do
 	function Cache:OnHealthChanged(event,unit)
-		local guid = UnitGUID(unit)
+		local guid = unit and UnitGUID(unit)
 		if guid and self.cache.health[guid] then
 			self.cache.health[guid].changed = true
 		end

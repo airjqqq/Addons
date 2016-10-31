@@ -305,7 +305,7 @@ function F:TIMETODIE(filter)
   filter.unit = filter.unit or "player"
   filter.name = filter.name or {5}
 	local time = filter.name[1]
-  if not Cache:Call("UnitAffectingCombat",filter.unit) then
+  if not Cache:Call("UnitAffectingCombat",filter.unit) and not IsResting() then
     return 120
   end
   local guid = Cache:UnitGUID(filter.unit)

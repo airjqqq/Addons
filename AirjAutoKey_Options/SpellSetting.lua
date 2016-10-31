@@ -182,7 +182,12 @@ local spellConfigWidgets = {
 		widget = "EditBox",
 		text = L["Icon"],
 		desc = "",
-		width = "x2",
+	},
+	{
+		key = "barcast",
+		widget = "CheckBox",
+		text = L["Barcast"],
+		desc = "",
 	},
 	{
 		key = "cd",
@@ -433,6 +438,10 @@ function mod:CreateMainConfigGroup()
 	group.spell.editbox:SetScript("OnMouseDown", spellDraged)
 	group.disable:SetCallback("OnValueChanged",function(widget,event,value)
 		mod:GetCurrentSpell().disable = value or nil
+		self:UpdateSpellTreeGroup()
+	end)
+	group.barcast:SetCallback("OnValueChanged",function(widget,event,value)
+		mod:GetCurrentSpell().barcast = value or nil
 		self:UpdateSpellTreeGroup()
 	end)
 
@@ -1235,6 +1244,7 @@ function mod:UpdateMainConfigGroup()
 	group.spell:SetText(spell.spell or "")
 
 	group.disable:SetValue(spell.disable or false)
+	group.barcast:SetValue(spell.barcast or false)
 	group.anyinraid:SetText(type(spell.anyinraid)=="boolean" and "all" or spell.anyinraid or "")
 	group.continue:SetValue(spell.continue or false)
 	group.group:SetValue(spell.group or false)

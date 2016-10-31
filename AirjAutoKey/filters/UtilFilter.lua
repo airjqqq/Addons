@@ -189,11 +189,11 @@ function F:FASTSPELL(filter)
       return false
     end
   end
-  if castingTime > 0 then
-    if not F:CANCAST() then
-      return false
-    end
-  end
+  -- if castingTime > 0 then
+  --   if not F:CANCAST() then
+  --     return false
+  --   end
+  -- end
     -- self:Print("FASTSPELL",unit)
   return true
 end

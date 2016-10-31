@@ -294,6 +294,12 @@ function GUI:Update()
   end
   GUI:UpdateMainIcon()
   GUI:UpdateCooldown()
+	local background = GUI.background
+	if Core.needbarcast and GetTime() - Core.needbarcast < 1 then
+		background:SetColorTexture(0,1,0,0.4)
+	else
+		background:SetColorTexture(0,0,0,0.4)
+	end
 end
 
 
@@ -341,6 +347,7 @@ function GUI:CreateFrames()
   	local background = container:CreateTexture(nil,"BACKGROUND")
   	background:SetAllPoints()
   	background:SetColorTexture(0,0,0,0.4)
+		self.background = background
   end
 
 	local castIcon = CreateFrame("Frame",nil, container)

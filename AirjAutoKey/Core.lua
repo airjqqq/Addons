@@ -488,7 +488,7 @@ do
       checked[guid] = true
       if prepassed[guid]~=nil then return prepassed[guid] end
       local t = Cache.cache.serverRefused[guid]
-      if not t or t.count<2 or (GetTime() - t.t > 1) then
+      if not t or t.count<2 or (GetTime() - t.t > 1) or (GetTime() - t.t > 0.2) and guid == UnitGUID("target") then
         passed = true
         prepassed[guid] = true
       else
@@ -529,6 +529,15 @@ do
     return maxKey
   end
 
+
+  function Core:Barcast()
+    local notMoving=(Cache:Call("GetUnitSpeed","player") == 0 and not Cache:Call("IsFalling"))
+    if notMoving then return true end
+    local guid = Cache:UnitGUID("player")
+    local buffs = Cache:GetBuffs(guid,"player",{[108839]=true,[193223]=true})
+    return #buffs > 0
+  end
+
   function Core:CheckAndExecuteSequence(sequence)
     if not self:CheckBasicFilters(sequence) then return end
     local unitList = self:GetUnitListByAirType(sequence.anyinraid)
@@ -540,7 +549,19 @@ do
       filterReturn = self:CheckFilterArray(sequence.filter or {},unitList)
     end
     if filterReturn then
-      self:ExecuteSequence(sequence,unit)
+      local execute
+      if sequence.barcast then
+        if self:Barcast() then
+          execute = true
+        else
+          self.needbarcast = GetTime()
+        end
+      else
+        execute = true
+      end
+      if execute then
+        self:ExecuteSequence(sequence,unit)
+      end
     end
   end
 
@@ -558,6 +579,9 @@ do
     -- wipe(self.passedSpell)
     wipe(prepassed)
     found = false
+    if self:Barcast() then
+      self.needbarcast = nil
+    end
     self:ClearCachePassedArray()
     if not self.rotationDB then return end
     local sequenceArray = self.rotationDB.spellArray

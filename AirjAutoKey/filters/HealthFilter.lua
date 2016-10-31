@@ -21,7 +21,9 @@ function F:OnInitialize()
   self:RegisterFilter("STAGGER",L["Stagger"],{greater={},value={}},{ABS=L["Absolute"]})
   self:RegisterFilter("POWER",L["Power"],{unit= {},greater={},value={}},{
     [SPELL_POWER_MANA]=L["Mana"],
+    [SPELL_POWER_MAELSTROM]=L["Maelstrom"],
     [SPELL_POWER_RAGE]=L["Rage"],
+    [SPELL_POWER_COMBO_POINTS]=L["Combo Points"],
     [SPELL_POWER_FOCUS]=L["Focus"],
     [SPELL_POWER_ENERGY]=L["Energy"],
     [SPELL_POWER_RUNIC_POWER]=L["Runic Power"],

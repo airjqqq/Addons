@@ -2,7 +2,7 @@ local filterName = "PVPFilter"
 local Core = LibStub("AceAddon-3.0"):GetAddon("AirjAutoKey")
 local Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
 local Filter = Core:GetModule("Filter")
-local F = Filter:NewModule(filterName)
+local F = Filter:NewModule(filterName, "AceEvent-3.0")
 local color = "00FF33"
 local L = setmetatable({},{__index = function(t,k) return k end})
 
@@ -13,6 +13,19 @@ function F:OnInitialize()
   self:RegisterFilter("PVPDEBUFF",L["PVP Debuff"],{unit= {},name= {},greater= {},value= {}},{
     MAGIC = L["Magic"],
   })
+  self:RegisterFilter("PVPDR",L["PVP DR"],{unit= {},greater= {},value= {}},{
+    INCAPACITATE = L["Poly"],
+    DISORIENT = L["Fear"],
+    STUN = L["Stun"],
+    SILENCE = L["Silence"],
+  })
+  self:RegisterFilter("PVPDRCOUNT",L["PVP DR Count"],{unit= {},greater= {},value= {}},{
+    INCAPACITATE = L["Poly"],
+    DISORIENT = L["Fear"],
+    STUN = L["Stun"],
+    SILENCE = L["Silence"],
+  })
+  self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
 
 function F:RegisterFilter(key,name,keys,subtypes,c)
@@ -454,6 +467,85 @@ local function getSpellIs(ids, keys)
   end
   return toRet
 end
+
+
+local drdebuffs = {}
+
+do
+  drdebuffs.INCAPACITATE = getSpellIs(debuffs,"INCAPACITATE")
+  drdebuffs.DISORIENT = getSpellIs(debuffs,"DISORIENT")
+  drdebuffs.STUN = getSpellIs(debuffs,"STUN")
+  drdebuffs.SILENCE = getSpellIs(debuffs,"SILENCE")
+end
+
+local drtimes = {}
+do
+  drtimes.INCAPACITATE = {}
+  drtimes.DISORIENT = {}
+  drtimes.STUN = {}
+  drtimes.SILENCE = {}
+end
+
+function F:COMBAT_LOG_EVENT_UNFILTERED (event, t, realEvent, ...)
+  local spellId = select(10,...)
+  local guid = select(6,...)
+  local t = GetTime()
+  if realEvent == "SPELL_AURA_APPLIED" then
+    for t,d in pairs(drdebuffs) do
+      if d[spellId] then
+        local data = drtimes[t][guid]
+        if not data or t>data.t then
+          data = {c=1}
+        else
+          data.c = data.c + 1
+        end
+        data.t = t + 24
+        drtimes[t][guid] = data
+      end
+    end
+  elseif realEvent == "SPELL_AURA_REMOVED" then
+    for t,d in pairs(drdebuffs) do
+      if d[spellId] then
+        local data = drtimes[t][guid]
+        if not data or t>data.t+18 then
+          data = {c=1}
+        end
+        data.t = t + 18
+        drtimes[t][guid] = data
+      end
+    end
+  end
+end
+
+
+function F:PVPDR(filter)
+  assert(filter.subtype)
+  filter.unit = filter.unit or "player"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local datas = drtimes[filter.subtype]
+  local data = datas[guid]
+  if not data then return 0 end
+  local value = data.t-GetTime()
+  return math.max(value,0)
+end
+
+function F:PVPDRCOUNT(filter)
+  assert(filter.subtype)
+  filter.unit = filter.unit or "player"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local datas = drtimes[filter.subtype]
+  local data = datas[guid]
+  if not data then return 0 end
+  local value = data.t-GetTime()
+  if value > 0 then
+    return data.c
+  else
+    return 0
+  end
+end
+
 
 function F:PVPBUFF(filter)
   filter.name = filter.name or {"IMPORT","TARGET","BIGHOT","SHEILD","HOT"}
