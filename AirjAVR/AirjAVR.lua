@@ -203,6 +203,35 @@ function Core:OnObjectDestroyed(event,guid,type)
   end
 end
 
+
+function Core:GetUnitList()
+	if self.unitListCache then return self.unitListCache end
+	local subUnit = {"","target","pet","pettarget"}
+	local list = {"player","target","targettarget","pet","pettarget","focus","focustarget","mouseover","mouseovertarget"}
+	for i = 1,5 do
+		tinsert(list,"arena"..i)
+	end
+	for i = 1,4 do
+		tinsert(list,"boss"..i)
+		tinsert(list,"boss"..i.."target")
+	end
+	for _,sub in pairs(subUnit) do
+		for i = 1,4 do
+			tinsert(list,"party"..i..sub)
+		end
+	end
+	for i = 1,40 do
+		for _,sub in pairs(subUnit) do
+			tinsert(list,"raid"..i..sub)
+		end
+	end
+	for i = 1,40 do
+		tinsert(list,"nameplate"..i)
+	end
+	self.unitListCache=list
+	return list
+end
+
 function Core:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
   if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" or event =="SPELL_AURA_APPLIED_DOSE" then
 		local _,count = ...

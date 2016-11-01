@@ -1,5 +1,5 @@
 local Core =  LibStub("AceAddon-3.0"):GetAddon("AirjAVR")
-local mod = Core:NewModule("EmeraldNightmare","AceEvent-3.0")
+local mod = Core:NewModule("EmeraldNightmare","AceEvent-3.0","AceTimer-3.0")
 
 function mod:OnInitialize()
   local data
@@ -77,7 +77,7 @@ function mod:OnInitialize()
       radius=11,
       duration=8,
     }
-    Core:RegisterAuraUnit(215128,data) --Spew Corruption
+    Core:RegisterAuraUnit(215128,data) --Blood
   end
   do --4 dragen
     data = {
@@ -197,57 +197,179 @@ function mod:OnInitialize()
   self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
 
+function mod:OnEnable()
+  self.timer=mod:ScheduleRepeatingTimer(self.Timer,0.2,self)
+  self:RegisterMessage("AIRJ_HACK_OBJECT_CREATED",self.OnObjectCreated,self)
+  self:RegisterMessage("AIRJ_HACK_OBJECT_DESTROYED",self.OnObjectDestroyed,self)
+  self:RegisterEvent("RAID_TARGET_UPDATE")
+end
+
 function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
+  if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" or event =="SPELL_AURA_APPLIED_DOSE" then
+    if spellId == 210099 then
+      self:NewIchor(sourceGUID,destName)
+    end
+  end
+
 
 end
 
 function mod:UNIT_SPELLCAST_START(event,unitId,spell,rank,spellGUID)
-	-- local spellId = tonumber(select(5, strsplit("-", spellGUID)), 10)
-  -- local link = GetSpellLink(spellId)
-  -- local guid = UnitGUID(unitId)
-  -- local objectType,serverId,instanceId,zone,cid,spawn = Core:GetGUIDInfo(guid)
-  -- if objectType~="Player" then
-  --   Core:Print(AirjHack:GetDebugChatFrame(),"UNIT_SPELLCAST_START",guid,link)
-  -- end
 end
+
 function mod:UNIT_SPELLCAST_SUCCEEDED(event,unitId,spell,rank,spellGUID)
-	-- local spellId = tonumber(select(5, strsplit("-", spellGUID)), 10)
-  -- local link = GetSpellLink(spellId)
-  -- local guid = UnitGUID(unitId)
-  -- local objectType,serverId,instanceId,zone,cid,spawn = Core:GetGUIDInfo(guid)
-  -- if objectType~="Player" then
-  --   Core:Print(AirjHack:GetDebugChatFrame(),"UNIT_SPELLCAST_SUCCEEDED",guid,link)
-  -- end
-  -- if spellId == 210290 then
-  --   if not UnitExists(unitId.."target") then return end--Blizzard decided to go even further out of way to break this detection, if this happens we don't want nil errors for users.
-  --   local guid = UnitGUID(unitId.."target")
-  --   local data = {
-  --     color= {0.0,0.5,0.5,0.2},
-  --     color2={0.0,0.8,0.8,0.3},
-  --     radius=8,
-  --     duration=12,
-  --   }
-  --   self:ShowUnitMesh(data,210290,nil,guid)
-  -- elseif spellId == 202968 then--Infested Breath (CAST_SUCCESS and CAST_START pruned from combat log)
-  --   Core:Print("Breath")
-  --   for i = 1, 20 do
-  --     local unit = "raid"..i
-  --     local _, _, _, dcount = UnitDebuff(unit,"感染")
-  --     local name, rank, icon, count, dispelType, duration, expires = UnitDebuff(unit,"溃烂")
-  --     if name then
-  --       local remain = expires-GetTime()
-  --       dcount = dcount + math.ceil(remain/3)
-  --     end
-  --     if dcount>= 10 then
-  --       local guid = UnitGUID(unit)
-  --       local data = {
-  --         color= {0.0,0.5,0.5,0.2},
-  --         color2={0.0,0.8,0.8,0.3},
-  --         radius=8,
-  --         duration=6,
-  --       }
-  --       self:ShowUnitMesh(data,205043,nil,guid)
-  --     end
-  --   end
-  -- end
+end
+
+function mod:Timer()
+  self:IchorMaker()
+end
+
+do
+  local ichors = {}
+  local markers = {}
+  local fixate = {}
+
+  function mod:NewIchor(sourceGUID,destName)
+    fixate[sourceGUID] = destName
+  end
+
+  function mod:RAID_TARGET_UPDATE()
+    local units = Core:GetUnitList()
+    for _,unit in pairs(units) do
+      local guid = UnitGUID(unit)
+      if guid then
+        local index = GetRaidTargetIndex(unit)
+        if index then
+          markers[index] = guid
+        else
+          for i=1,8 do
+            if markers[i] == guid then
+              markers[i] = nil
+            end
+          end
+        end
+      end
+    end
+  end
+
+  function mod:OnObjectCreated(event,guid,type)
+    if bit.band(type,0x08)~=0 then
+      local objectType,serverId,instanceId,zone,id,spawn = AirjHack:GetGUIDInfo(guid)
+      if id == "105721" then
+        ichors[guid] = true
+      end
+    end
+  end
+  function mod:OnObjectDestroyed(event,guid)
+    for i=1,8 do
+      if markers[i] == guid then
+        markers[i] = nil
+      end
+    end
+  end
+
+  function mod:IchorMaker()
+    local boss1guid = UnitGUID("boss1")
+    local objectType,serverId,instanceId,zone,id,spawn = AirjHack:GetGUIDInfo(boss1guid)
+    if id ~= "105906" then return end
+    local bx,by,bz,_,bs = AirjHack:Position(boss1guid)
+    local inranged = {}
+    for guid in pairs(ichors) do
+      local x,y,z = AirjHack:Position(guid)
+      if x then
+        local dx,dy,dz = bx-x,by-y,bz-z
+        local distance = math.sqrt(dx*dx+dy*dy+dz*dz)-bs
+        if distance<30 then
+          local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+          inranged[guid] = {distance,health/max}
+        end
+      end
+    end
+    for guid,data in pairs(inranged) do
+      health = data[2]
+      for i=1,8 do
+        if markers[i] == guid then
+          if health < 0.02 then
+            markers[i] = nil
+          end
+        end
+      end
+    end
+    local noskull,skullnotlow
+    if not markers[8] then
+      noskull = true
+    else
+      local skull = markers[8]
+      if not inranged[skull] then
+        noskull = true
+      else
+        local health = inranged[skull][2]
+        if health> 0.2 then
+          skullnotlow=true
+        end
+      end
+    end
+
+    if not noskull then
+      local pro = {}
+      local sorted = {}
+      for guid,data in pairs(inranged) do
+        distance,health = data[1],data[2]
+        local value
+        if health<0.2 then
+          if distance<10 then
+            value = health
+          else
+            value = health + 0.2
+          end
+        elseif health<0.5 then
+          if distance<20 then
+            value = health + 0.2
+          else
+            value = health + 0.5
+          end
+        else
+          value = health + 1
+        end
+        if guid == markers[7] then
+          value = value*0.5
+        end
+        if guid == markers[6] then
+          value = value*0.7
+        end
+        if guid == markers[5] then
+          value = value*0.9
+        end
+        pro[guid] = value
+        tinsert(sorted,guid)
+      end
+      table.sort(sorted,function(a,b) return pro[a]<pro[b] end)
+      local index = 8
+      for i,guid in ipairs(sorted) do
+        markers[index] = guid
+        AirjHack:SetRaidTarget(guid,index)
+        local name
+        if AirjCache then
+          local unit = AirjCache:FindUnitByGUID(guid)
+          if unit then
+            name = UnitName(unit.."target")
+          end
+        end
+        if not name then
+          name = fixate[guid]
+        end
+        if name then
+          if index == 8 then
+            SendChatMessage("你的软泥为>>骷髅<<快来眼球下", "WHISPER", nil, name);
+          elseif index == 7 then
+            SendChatMessage("下一个是你的软泥", "WHISPER", nil, name);
+          end
+        end
+        index = index - 1
+        if index==4 then
+          break
+        end
+      end
+    end
+  end
 end

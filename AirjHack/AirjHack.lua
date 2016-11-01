@@ -168,15 +168,15 @@ function mod:Interact(guid)
 end
 
 function mod:GetCamera()
-    if not self:HasHacked() then return end
-    local r,f,t,x,y,z,h = fcn("AirjGetCamera")
-    if not x then return nil end
-  	return r,f,t,-y,x,z,h
+  if not self:HasHacked() then return end
+  local r,f,t,x,y,z,h = fcn("AirjGetCamera")
+  if not x then return nil end
+	return r,f,t,-y,x,z,h
 end
 
 function mod:SetCameraDistance(range)
-    if not self:HasHacked() then return end
-    return fcn("AirjSetCameraDistance",range or 50)
+  if not self:HasHacked() then return end
+  return fcn("AirjSetCameraDistance",range or 50)
 end
 
 function mod:RunMacroText(text)
@@ -249,4 +249,29 @@ function mod:GetDebugChatFrame()
 	-- 	count = count + 1;
 	-- end
 	return DEFAULT_CHAT_FRAME
+end
+
+function mod:SetRaidTarget(guid,index)
+  if not self:HasHacked() then return end
+	if not guid then return end
+	index = index or 8
+	local focusguid=UnitGUID("focus")
+	self:Focus(guid)
+	SetRaidTarget("focus",index)
+	if focusguid then
+		self:Focus(focusguid)
+	end
+end
+
+function mod:GetGUIDInfo(guid)
+  if not guid then return end
+  local guids = {string.split("-",guid)}
+  local objectType,serverId,instanceId,zone,id,spawn
+  objectType = guids[1]
+  if objectType == "Player" then
+    _,serverId,id = unpack(guids)
+  elseif objectType == "Creature" or objectType == "GameObject" or objectType == "AreaTrigger" then
+    objectType,_,serverId,instanceId,zone,id,spawn = unpack(guids)
+  end
+  return objectType,serverId,instanceId,zone,id,spawn
 end

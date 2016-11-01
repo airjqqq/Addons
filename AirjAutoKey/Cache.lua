@@ -1,6 +1,8 @@
 -- local Core = LibStub("AceAddon-3.0"):GetAddon("AirjAutoKey")
 local Cache = LibStub("AceAddon-3.0"):NewAddon("AirjCache", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
 local AirjHack = LibStub("AceAddon-3.0"):GetAddon("AirjHack")
+AirjCache = Cache
+
 
 local band = bit.band
 
