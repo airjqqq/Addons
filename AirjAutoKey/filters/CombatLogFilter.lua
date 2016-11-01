@@ -71,6 +71,10 @@ function F:OnInitialize()
     name = {name="Spell ID"},
     unit = {name="Unit, blank as anybody"},
   })
+  self:RegisterFilter("CASTSUCCESSEDUNIT",L["Cast Unit"],{
+    name = {name="Spell ID"},
+    unit = {name="Unit, blank as anybody"},
+  })
   self:RegisterFilter("AURANUM",L["Aura Number"],{
     value = {},
     greater = {},
@@ -416,6 +420,21 @@ function F:CASTSUCCESSED(filter)
   data = data[guid]
   if not data then return 120 end
   return GetTime() - data.t
+end
+function F:CASTSUCCESSEDUNIT(filter)
+  assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
+	local spellID = filter.name[1]
+  local guid
+  guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local pguid = Cache:PlayerGUID()
+  local data = Cache.cache.castSuccessTo[pguid]
+  if not data then return end
+  data = data[spellID]
+  if not data then return end
+  data = data.last
+  if not data then return end
+  return data.guid == guid
 end
 
 function F:AURANUM(filter)

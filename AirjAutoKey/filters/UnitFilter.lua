@@ -91,14 +91,28 @@ function F:UNITISTANK(filter)
   return role == "TANK"
 end
 
+local melee = {
+  [70] = true,
+  [71] = true,
+  [72] = true,
+  [103] = true,
+  [251] = true,
+  [252] = true,
+  [256] = true,
+  [259] = true,
+  [260] = true,
+  [261] = true,
+  [263] = true,
+  [269] = true,
+  [577] = true,
+}
+
 function F:UNITISMELEE(filter)
   filter.unit = filter.unit or "target"
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local id, name, description, icon, background, role, class = Cache:GetSpecInfo(guid)
-  -- F:Print(role)
-  -- TODO list all specid for melee
-  return role == "DAMAGER"
+  return melee[id] or false
 end
 
 function F:UNITISHEALER(filter)

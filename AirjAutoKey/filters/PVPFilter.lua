@@ -472,10 +472,10 @@ end
 local drdebuffs = {}
 
 do
-  drdebuffs.INCAPACITATE = getSpellIs(debuffs,"INCAPACITATE")
-  drdebuffs.DISORIENT = getSpellIs(debuffs,"DISORIENT")
-  drdebuffs.STUN = getSpellIs(debuffs,"STUN")
-  drdebuffs.SILENCE = getSpellIs(debuffs,"SILENCE")
+  drdebuffs.INCAPACITATE = getSpellIs(debuffs,{INCAPACITATE=true})
+  drdebuffs.DISORIENT = getSpellIs(debuffs,{DISORIENT=true})
+  drdebuffs.STUN = getSpellIs(debuffs,{STUN=true})
+  drdebuffs.SILENCE = getSpellIs(debuffs,{SILENCE=true})
 end
 
 local drtimes = {}
@@ -489,17 +489,17 @@ end
 function F:COMBAT_LOG_EVENT_UNFILTERED (event, t, realEvent, ...)
   local spellId = select(10,...)
   local guid = select(6,...)
-  local t = GetTime()
+  local time = GetTime()
   if realEvent == "SPELL_AURA_APPLIED" then
     for t,d in pairs(drdebuffs) do
       if d[spellId] then
         local data = drtimes[t][guid]
-        if not data or t>data.t then
+        if not data or time>data.t then
           data = {c=1}
         else
           data.c = data.c + 1
         end
-        data.t = t + 24
+        data.t = time + 24
         drtimes[t][guid] = data
       end
     end
@@ -507,10 +507,10 @@ function F:COMBAT_LOG_EVENT_UNFILTERED (event, t, realEvent, ...)
     for t,d in pairs(drdebuffs) do
       if d[spellId] then
         local data = drtimes[t][guid]
-        if not data or t>data.t+18 then
+        if not data or time>data.t then
           data = {c=1}
         end
-        data.t = t + 18
+        data.t = time + 18
         drtimes[t][guid] = data
       end
     end
