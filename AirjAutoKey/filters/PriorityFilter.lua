@@ -11,6 +11,7 @@ function F:OnInitialize()
   self:RegisterFilter("AIRSPECIFICUNIT",L["[P] Specific Unit"],{name={},value={}})
   self:RegisterFilter("AIRRANGE",L["[P] Range (near)"])
   self:RegisterFilter("AIRLOWHEALTH",L["[P] Health (low)"])
+  self:RegisterFilter("AIRHIGHHEALTH",L["[P] Health (high)"])
   self:RegisterFilter("AIRBUFF",L["[P] Buff (short)"],{name={}})
   self:RegisterFilter("AIRDEBUFF",L["[P] Debuff (short)"],{name={}})
   self:RegisterFilter("AIRDEBUFFORTARGET",L["[P] Debuff or target"],{name={}})
@@ -69,6 +70,16 @@ function F:AIRLOWHEALTH(filter)
   if not health then return end
   local value = (health+absorb+healAbsorb)/max
   return exp(-value)
+end
+
+function F:AIRHIGHHEALTH(filter)
+  local unit = Core:GetAirUnit()
+  local guid = unit and Cache:UnitGUID(unit)
+  if not guid then return end
+  local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+  if not health then return end
+  local value = health
+  return value
 end
 
 function F:AIRBUFF(filter)

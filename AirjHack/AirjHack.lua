@@ -260,6 +260,8 @@ function mod:SetRaidTarget(guid,index)
 	SetRaidTarget("focus",index)
 	if focusguid then
 		self:Focus(focusguid)
+	else
+		self:RunMacroText("/clearfocus")
 	end
 end
 

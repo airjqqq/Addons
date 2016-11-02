@@ -25,6 +25,10 @@ end
 
 local gcd
 -- castedIcons
+local ignores = {
+	[196771] = true,
+	[211793] = true,
+}
 do
   local caststart = {}
   local spellTime = {}
@@ -46,7 +50,7 @@ do
         end
         guid = destGUID
       end
-      if not dontCreate then
+      if not dontCreate and not ignores[spellId] then
         local t = GetTime()
         local unit = Cache:FindUnitByGUID(guid)
         local _,_,class = pcall(GetPlayerInfoByGUID,guid)

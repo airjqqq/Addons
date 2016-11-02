@@ -185,7 +185,7 @@ function F:FASTSPELL(filter)
     end
 
     local buffs = Cache:GetBuffs(guid,filter.unit,{[209915]=true})
-    if #buffs>0 then
+    if #buffs>0 and guid~=UnitGUID("target") then
       return false
     end
   end

@@ -255,6 +255,7 @@ do
   function mod:OnObjectCreated(event,guid,type)
     if bit.band(type,0x08)~=0 then
       local objectType,serverId,instanceId,zone,id,spawn = AirjHack:GetGUIDInfo(guid)
+      -- if id == "108538" then
       if id == "105721" then
         ichors[guid] = true
       end
@@ -269,19 +270,22 @@ do
   end
 
   function mod:IchorMaker()
+    -- local boss1guid = UnitGUID("player")
     local boss1guid = UnitGUID("boss1")
     local objectType,serverId,instanceId,zone,id,spawn = AirjHack:GetGUIDInfo(boss1guid)
     if id ~= "105906" then return end
     local bx,by,bz,_,bs = AirjHack:Position(boss1guid)
     local inranged = {}
+    local mindistance = 100
     for guid in pairs(ichors) do
       local x,y,z = AirjHack:Position(guid)
       if x then
         local dx,dy,dz = bx-x,by-y,bz-z
         local distance = math.sqrt(dx*dx+dy*dy+dz*dz)-bs
-        if distance<30 then
-          local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+        if distance<100 then
+          local health, max, prediction, absorb, healAbsorb, isdead = AirjHack:UnitHealth(guid)
           inranged[guid] = {distance,health/max}
+          mindistance = math.min(distance,mindistance)
         end
       end
     end
@@ -303,45 +307,57 @@ do
       if not inranged[skull] then
         noskull = true
       else
-        local health = inranged[skull][2]
+        local distance,health = inranged[skull][1],inranged[skull][2]
+        if distance > math.max(mindistance+10,30) then
+          noskull = true
+        end
         if health> 0.2 then
           skullnotlow=true
         end
       end
     end
+    -- dump(noskull)
 
-    if not noskull then
+    if noskull then
       local pro = {}
       local sorted = {}
       for guid,data in pairs(inranged) do
         distance,health = data[1],data[2]
-        local value
-        if health<0.2 then
-          if distance<10 then
-            value = health
+        if health>=0.02 then
+          local value
+          if health<0.2 then
+            if distance<10 then
+              value = health
+            else
+              value = health + 0.2
+            end
+          elseif health<0.5 then
+            if distance<20 then
+              value = health + 0.2
+            else
+              value = health + 0.5
+            end
           else
-            value = health + 0.2
+            value = health + 1
           end
-        elseif health<0.5 then
-          if distance<20 then
-            value = health + 0.2
-          else
-            value = health + 0.5
+          if guid == markers[8] then
+            value = value*0
           end
-        else
-          value = health + 1
+          if guid == markers[7] then
+            value = value*0.5
+          end
+          if guid == markers[6] then
+            value = value*0.7
+          end
+          if guid == markers[5] then
+            value = value*0.9
+          end
+          if distance > 10 then
+            value = distance/60 + value
+          end
+          pro[guid] = value
+          tinsert(sorted,guid)
         end
-        if guid == markers[7] then
-          value = value*0.5
-        end
-        if guid == markers[6] then
-          value = value*0.7
-        end
-        if guid == markers[5] then
-          value = value*0.9
-        end
-        pro[guid] = value
-        tinsert(sorted,guid)
       end
       table.sort(sorted,function(a,b) return pro[a]<pro[b] end)
       local index = 8
@@ -360,9 +376,9 @@ do
         end
         if name then
           if index == 8 then
-            SendChatMessage("你的软泥为>>骷髅<<快来眼球下", "WHISPER", nil, name);
+            -- SendChatMessage("你的软泥为>>骷髅<<快来眼球下", "WHISPER", nil, name);
           elseif index == 7 then
-            SendChatMessage("下一个是你的软泥", "WHISPER", nil, name);
+            -- SendChatMessage("下一个是你的软泥", "WHISPER", nil, name);
           end
         end
         index = index - 1

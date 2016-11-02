@@ -27,7 +27,8 @@ function F:OnInitialize()
   self:RegisterFilter("UNITNAME",L["Unit Name"],{unit= {},name= {name=L["Names (Multi)"]}})
   self:RegisterFilter("CASTING",L["Unit Cast or Channel"],{unit= {},name= {name=L["Spell ID (None or Multi)"]},greater={},value={}})
   self:RegisterFilter("CASTINGCHANNEL",L["Unit Channel"],{unit= {},name= {name=L["Spell ID (None or Multi)"]},greater={},value={}})
-  self:RegisterFilter("CASTINGINTERRUPT",L["Unit Cast Interruptable"],{unit= {},name= {name=L["Spell ID (None or Multi)"]},greater={},value={}})
+  self:RegisterFilter("CASTINGINTERRUPT",L["Unit Cast[I]"],{unit= {},name= {name=L["Spell ID (None or Multi)"]},greater={},value={}})
+  self:RegisterFilter("CHANNELINTERRUPT",L["Unit Channel[I]"],{unit= {},name= {name=L["Spell ID (None or Multi)"]},greater={},value={}})
 
   --{"mana","race","focus","energy","combo point","rune","rune power","soul shards",nil,"holy power",nil,nil,nil,"chi"}
 end
@@ -215,7 +216,7 @@ function F:CASTINGINTERRUPT(filter)
   filter.unit = filter.unit or "player"
   local castName, _, _, _, startTime, endTime,_,_,notInterruptible = Cache:Call("UnitCastingInfo",filter.unit)
   if not castName then
-    castName, _, _, _, startTime, endTime_,notInterruptible = Cache:Call("UnitChannelInfo",filter.unit)
+    castName, _, _, _, startTime, endTime,_,notInterruptible = Cache:Call("UnitChannelInfo",filter.unit)
   end
   if not castName or notInterruptible then
     return false
@@ -239,6 +240,31 @@ function F:CASTINGINTERRUPT(filter)
     else
       return endTime/1000-GetTime()
     end
+  else
+    return false
+  end
+end
+function F:CHANNELINTERRUPT(filter)
+  filter.unit = filter.unit or "player"
+  local castName, _, _, _, startTime, endTime,_,notInterruptible = Cache:Call("UnitChannelInfo",filter.unit)
+  if not castName or notInterruptible then
+    return false
+  end
+  local match
+  if filter.name then
+    local names = Core:ToKeyTable(filter.name)
+    for k,v in pairs(names) do
+      local name = Cache:Call("GetSpellInfo",k)
+      if name == castName then
+        match = true
+        break
+      end
+    end
+  else
+    match = true
+  end
+  if match then
+    return GetTime()-startTime/1000
   else
     return false
   end
