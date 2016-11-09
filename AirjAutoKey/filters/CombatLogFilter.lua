@@ -75,6 +75,11 @@ function F:OnInitialize()
     name = {name="Spell ID"},
     unit = {name="Unit, blank as anybody"},
   })
+  self:RegisterFilter("SINCELASTCAST",L["Since Last Cast"],{
+    unit = {},
+    value = {},
+    greater = {},
+  })
   self:RegisterFilter("AURANUM",L["Aura Number"],{
     value = {},
     greater = {},
@@ -435,6 +440,20 @@ function F:CASTSUCCESSEDUNIT(filter)
   data = data.last
   if not data then return end
   return data.guid == guid
+end
+
+function F:SINCELASTCAST(filter)
+  local guid
+  guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local pguid = Cache:PlayerGUID()
+  local data = Cache.cache.castSuccessTo[guid]
+  if not data then return 120 end
+  data = data.array
+  if not data then return 120 end
+  data = data[#data]
+  if not data then return 120 end
+  return GetTime() - data.t
 end
 
 function F:AURANUM(filter)

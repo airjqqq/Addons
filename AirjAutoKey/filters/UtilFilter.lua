@@ -31,6 +31,7 @@ function F:OnInitialize()
   self:RegisterFilter("RUNE",L["Rune"],{name={name=L["Offset"]},value={},greater={}})
   self:RegisterFilter("CDENERGY",L["CD Energy"],{name={name=L["Spell ID | CD Time "]},value={},greater={}})
   self:RegisterFilter("NEXTINSANITY",L["Next Insanity"])
+  self:RegisterFilter("INSANITYDRAINSTACK",L["Insanity Drain"])
   self:RegisterFilter("TOTEMTIME",L["Totem Time"],{name={},value={},greater={}},{
     [1]=L["Fire"],
     [2]=L["Eath"],
@@ -142,12 +143,14 @@ function F:AOENUM(filter)
   if value > filter.value then
      return value
   end
-  value = max(value,Core:GetParam("target"))
-  if value > filter.value then
-     return value
-   end
   return value
 end
+
+function F:TARGETNUMBER(filter)
+  filter.value = filter.value or 2
+  value = max(value,Core:GetParam("target"))
+  return value or 1
+ end
 
 function F:FASTSPELL(filter)
   local spellId, cdthd, range, ishelp = unpack(filter.name,1,4)
@@ -235,15 +238,37 @@ function F:COMBAT_LOG_EVENT_UNFILTERED (event, t, realEvent, ...)
         sstart = nil
       end
     end
+    if realEvent == "SPELL_CAST_SUCCESS" then
+      if spellId == 15407 then
+        -- print("Start"..GetTime())
+      end
+    end
+    if realEvent == "SPELL_PERIODIC_DAMAGE" then
+      if spellId == 15407 then
+        -- print(GetTime())
+      end
+    end
   end
     -- body...
+end
+function F:INSANITYDRAINSTACK()
+  local guid = Cache:PlayerGUID()
+  local buffs = Cache:GetBuffs(guid,"player",{[194249]=true})
+  if buffs[1] and fstart and stotal then
+    return GetTime()-fstart-stotal
+  end
+  return 0
 end
 
 function F:NEXTINSANITY(filter)
   filter.value = filter.value or 10
   local power = Cache:Call("UnitPower","player",SPELL_POWER_INSANITY)
-  local name, offset = unpack(Core:ToValueTable(filter.name),1,2)
+  local name, offset,c = unpack(Core:ToValueTable(filter.name),1,3)
   offset = offset or 0
+  if c then
+    local haste = GetHaste()
+    offset = offset+c*1.5/(1+haste/100)
+  end
   name = name or 61304
   local gcd = Cache.cache.gcd.duration
   local guid = Cache:PlayerGUID()
@@ -251,6 +276,9 @@ function F:NEXTINSANITY(filter)
   if buffs[1] and fstart then
     local value = Cache:GetSpellCooldown(name)
     local speed = 10+(GetTime()-fstart-stotal)/2
+    if speed > 55 then
+      speed = speed + 4
+    end
     power = power - speed*(value+offset+0.2)
   end
   local castName, _, _, _, startTime, endTime = Cache:Call("UnitCastingInfo","player")

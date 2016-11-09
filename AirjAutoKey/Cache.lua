@@ -194,14 +194,14 @@ end
 do
 	local recoverd = 0
 	local function recover(data,t,duration)
-		if recoverd > 40 then
+		if recoverd > 1000 then
 			return
 		end
 		for k,v in pairs(data) do
 			if type(v) == "table" then
+				recoverd = recoverd + 1
 				if v.t then
 					if t-v.t > duration then
-						recoverd = recoverd + 1
 						if data.isArray then
 							tremove(data,k)
 						else
@@ -504,7 +504,16 @@ do
 					local heal = 0
 					local rawHeal = 0
 					local amount,overhealing,absorbed = ...
+					if type(amount) ~= "number" then
+						amount = 0
+					end
 					heal = heal + (amount or 0)  -- +(overhealing or 0)+(absorbed or 0)
+					if type(overhealing) ~= "number" then
+						overhealing = 0
+					end
+					if type(absorbed) ~= "number" then
+						absorbed = 0
+					end
 					rawHeal = (amount or 0) - ((overhealing or 0)+(absorbed or 0))
 					sourceGUID = sourceGUID or "Unknown"
 					destGUID = destGUID or "Unknown"

@@ -207,7 +207,7 @@ end
 function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
   if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" or event =="SPELL_AURA_APPLIED_DOSE" then
     if spellId == 210099 then
-      self:NewIchor(sourceGUID,destName)
+      self:NewIchor(sourceGUID,destName,destGUID)
     end
   end
 
@@ -229,8 +229,8 @@ do
   local markers = {}
   local fixate = {}
 
-  function mod:NewIchor(sourceGUID,destName)
-    fixate[sourceGUID] = destName
+  function mod:NewIchor(sourceGUID,destName,destGUID)
+    fixate[sourceGUID] = {destName,destGUID}
   end
 
   function mod:RAID_TARGET_UPDATE()
@@ -269,12 +269,35 @@ do
     end
   end
 
+  local melee = {
+    [70] = true,
+    [71] = true,
+    [72] = true,
+    [103] = true,
+    [251] = true,
+    [252] = true,
+    [256] = true,
+    [259] = true,
+    [260] = true,
+    [261] = true,
+    [263] = true,
+    [269] = true,
+    [577] = true,
+  }
+
   function mod:IchorMaker()
     -- local boss1guid = UnitGUID("player")
-    local boss1guid = UnitGUID("boss1")
-    local objectType,serverId,instanceId,zone,id,spawn = AirjHack:GetGUIDInfo(boss1guid)
-    if id ~= "105906" then return end
-    local bx,by,bz,_,bs = AirjHack:Position(boss1guid)
+    local bossguid
+    for i=1,4 do
+      local guid = UnitGUID("boss"..i)
+      local objectType,serverId,instanceId,zone,id,spawn = AirjHack:GetGUIDInfo(guid)
+      if id == "105906" then
+        bossguid = guid
+        break
+      end
+    end
+    if not bossguid then return end
+    local bx,by,bz,_,bs = AirjHack:Position(bossguid)
     local inranged = {}
     local mindistance = 100
     for guid in pairs(ichors) do
@@ -285,7 +308,9 @@ do
         if distance<100 then
           local health, max, prediction, absorb, healAbsorb, isdead = AirjHack:UnitHealth(guid)
           inranged[guid] = {distance,health/max}
-          mindistance = math.min(distance,mindistance)
+          if health/max>=0.02 then
+            mindistance = math.min(distance,mindistance)
+          end
         end
       end
     end
@@ -308,7 +333,7 @@ do
         noskull = true
       else
         local distance,health = inranged[skull][1],inranged[skull][2]
-        if distance > math.max(mindistance+10,30) then
+        if distance > math.max(mindistance+10,60) then
           noskull = true
         end
         if health> 0.2 then
@@ -355,6 +380,13 @@ do
           if distance > 10 then
             value = distance/60 + value
           end
+          local tguid = fixate[guid] and fixate[guid][2]
+          if tguid then
+            local id, name, description, icon, background, role, class = Cache:GetSpecInfo(tguid)
+            if id and melee[id] then
+              value = value*0.5
+            end
+          end
           pro[guid] = value
           tinsert(sorted,guid)
         end
@@ -372,7 +404,7 @@ do
           end
         end
         if not name then
-          name = fixate[guid]
+          name = fixate[guid] and fixate[guid][1]
         end
         if name then
           if index == 8 then

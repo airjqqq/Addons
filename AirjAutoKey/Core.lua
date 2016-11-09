@@ -52,7 +52,7 @@ function Core:OnEnable()
     SetCVar("MaxSpellStartRecoveryOffset", 50)
   end
   -- starttest
-  -- self:OnChatCommmand("world",600,"4 上班族公会招人,主打M团队副本。进度：H全通，M-3/7。只要上班族,详情M聊。打扰抱歉")
+  self:OnChatCommmand("world",600,"4 上班族公会招人,主打M团队副本。M4/7。只要上班族,详情M聊。打扰抱歉")
 end
 
 function Core:OnDisable()
@@ -273,11 +273,14 @@ do
     self.groupUnit = unit
   end
 
-  function Core:ExecuteGroupSequence(sequence,unit)
-    self:SetAirUnit(unit)
-    self:ScanSequenceArray(sequence)
+  function Core:ExecuteGroupSequence(sequenceArray,unit)
+    for i,sequence in ipairs(sequenceArray) do
+      self:SetAirUnit(unit)
+      self:CheckAndExecuteSequence(sequence)
+      if found then return end
+    end
     -- self:SetAirUnit()
-    if sequence.continue then
+    if sequenceArray.continue then
       found = false
     end
   end
@@ -323,10 +326,10 @@ do
       local macroText, spellName, spellId = self:ToBasicMacroText(sequence.spell)
       self:ExecuteMacro(macroText,unit)
       self:CachePassedInfo(spellId,unit)
-    end
-    if not sequence.continue then
-      found = true
-      self:SetAirUnit()
+      if not sequence.continue then
+        found = true
+        self:SetAirUnit()
+      end
     end
   end
 
@@ -488,7 +491,7 @@ do
       checked[guid] = true
       if prepassed[guid]~=nil then return prepassed[guid] end
       local t = Cache.cache.serverRefused[guid]
-      if not t or t.count<2 or (GetTime() - t.t > 1) or (GetTime() - t.t > 0.2) and guid == UnitGUID("target") then
+      if not t or t.count<2 or (GetTime() - t.t > 0.4) or (GetTime() - t.t > 0.2) and guid == UnitGUID("target") then
         passed = true
         prepassed[guid] = true
       else
@@ -547,6 +550,7 @@ do
       unit = filterReturn
     else
       filterReturn = self:CheckFilterArray(sequence.filter or {},unitList)
+      unit = self:GetAirUnit()
     end
     if filterReturn then
       local execute
@@ -692,7 +696,7 @@ do
   function Core:ParseUnit(unit)
     if unit == "air" then
       return self:GetAirUnit()
-    elseif unit == "airjtarget" then
+    elseif unit == "airtarget" then
       local au = self:GetAirUnit()
       if au then
         return au.."target"

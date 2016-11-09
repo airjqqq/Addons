@@ -5,29 +5,29 @@ local LibPlayerSpells = LibStub('LibPlayerSpells-1.0')
 function mod:OnInitialize()
   --constants
   local stun = {
-    color={1,0.0,0,0.1},
-    color2={1,0.0,0,0.3},
+    color={0.4,0.0,0,0.05},
+    color2={1,0.0,0,0.2},
     radius=3,
   }
   local cc = {
     color={0.5,0.5,0,0.05},
-    color2={0.8,0.8,0,0.2},
+    color2={0.8,0.8,0,0.1},
     radius=5,
   }
   local root = {
     color={0.0,0.2,0.5,0.05},
-    color2={0.0,0.4,0.8,0.2},
+    color2={0.0,0.4,0.8,0.1},
     radius=3,
   }
   local survival = {
     color={0.5,0.2,0.0,0.05},
-    color2={0.8,0.4,0.0,0.2},
+    color2={0.8,0.4,0.0,0.1},
     isbuff=true,
     radius=3,
   }
   local burst = {
     color={0.0,0.5,0.0,0.05},
-    color2={0.0,0.8,0.0,0.2},
+    color2={0.0,0.8,0.0,0.1},
     isbuff=true,
     radius=3,
   }

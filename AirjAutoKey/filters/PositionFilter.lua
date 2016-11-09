@@ -12,6 +12,11 @@ function F:OnInitialize()
     greater = {},
     unit = {},
   })
+  self:RegisterFilter("TANGLE",L["Target Angle(Deg)"],{
+    value = {},
+    greater = {},
+    unit = {},
+  })
   self:RegisterFilter("HFRONTLINE",L["Front Width"],{
     value = {},
     greater = {},
@@ -76,6 +81,27 @@ function F:HANGLE(filter)
   end
   return math.abs(angle*180/pi)
 end
+
+function F:TANGLE(filter)
+  filter.unit = filter.unit or "target"
+  local guid = Cache:UnitGUID(filter.unit)
+  local pguid = Cache:PlayerGUID()
+  local px,py,pz = Cache:GetPosition(pguid)
+  local x,y,z,f = Cache:GetPosition(guid)
+  if not x then return 180 end
+  local dx,dy,dz = x-px, y-py, z-pz
+
+  local angle = math.atan2(dy,dx)
+
+  angle = angle - (f + pi/2)
+  if angle < -pi then
+    angle = angle + 2*pi
+  elseif angle > pi then
+    angle = angle - 2*pi
+  end
+  return 180-math.abs(angle*180/pi)
+end
+
 function F:HFRONTLINE(filter)
   filter.unit = filter.unit or "target"
   local guid = Cache:UnitGUID(filter.unit)
@@ -137,8 +163,7 @@ function F:EDGERANGE(filter)
 end
 function F:SRANGE(filter)
   filter.unit = filter.unit or "target"
-  assert(type(filter.name)=="number")
-  local name, rank, icon, castingTime, minRange, maxRange, spellID = Cache:Call("GetSpellInfo",filter.name)
+  local name, rank, icon, castingTime, minRange, maxRange, spellID = Cache:Call("GetSpellInfo",filter.name[1])
   if not maxRange then return false end
   local guid = Cache:UnitGUID(filter.unit)
   local x,y,z,_,distance,size = Cache:GetPosition(guid)

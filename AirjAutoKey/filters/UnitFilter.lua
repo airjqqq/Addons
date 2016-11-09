@@ -14,11 +14,13 @@ function F:OnInitialize()
     HARM = L["Harm Only"],
     OBSERV = L["Obsorb (value2)"],
   })
+  self:RegisterFilter("PVEATTACK",L["PVE Should Attack"])
   self:RegisterFilter("COMBAT",L["Is Combat"])
   self:RegisterFilter("ISPLAYER",L["Is Player"])
   self:RegisterFilter("ISPLAYERCTRL",L["Is Player Controlled"])
   self:RegisterFilter("ISINRAID",L["Unit In Group"])
-  self:RegisterFilter("CLASS",L["Class"])
+  self:RegisterFilter("CLASS",L["Class"],{name= {name=L["Big Letter"]}})
+  self:RegisterFilter("RAIDTARGET",L["Raid Target"],{unit= {},name= {name=L["number"]}})
   self:RegisterFilter("UNITISTANK",L["Is Tank"])
   self:RegisterFilter("UNITISMELEE",L["Is Melee"])
   self:RegisterFilter("UNITISHEALER",L["Is Healer"])
@@ -55,14 +57,44 @@ function F:UNITEXISTS(filter)
   end
 end
 
+function F:PVEATTACK(filter)
+  filter.unit = filter.unit or "target"
+  if UnitIsUnit(filter.unit,"target") then
+    return true
+  end
+  local guid = Cache:UnitGUID(filter.unit)
+  local objectType,serverId,instanceId,zone,id,spawn = AirjHack:GetGUIDInfo(guid)
+  local _, instanceType, difficulty, difficultyName, _, _, _, _, instanceGroupSize = Cache:Call("GetInstanceInfo")
+  if id == "105721" and difficulty == 16 then
+    local health, max, prediction, absorb, healAbsorb, isdead = AirjHack:UnitHealth(guid)
+    if health and health/max > 0.5 then
+      return true
+    end
+    local index = GetRaidTargetIndex(filter.unit)
+    if index == 8 then
+      return true
+    end
+    if index == 7 and health and health/max > 0.3 then
+      return true
+    end
+    return false
+  end
+  if id == "103694" then
+    return false
+  end
+  return true
+end
+
 function F:COMBAT(filter)
   filter.unit = filter.unit or "player"
-  if IsResting() then return true end
+  if IsResting() and not UnitIsPlayer(filter.unit) then return true end
+  if UnitExists("boss1") then return true end
   return Cache:Call("UnitAffectingCombat",filter.unit) and true or false
 end
 
 function F:ISPLAYER(filter)
   filter.unit = filter.unit or "target"
+  if IsResting() then return true end
   return Cache:Call("UnitIsPlayer",filter.unit) and true or false
 end
 
@@ -82,6 +114,13 @@ function F:CLASS(filter)
   local classes = Core:ToKeyTable(filter.name)
   local _,class = Cache:Call("UnitClass",filter.unit)
   return classes[class] or false
+end
+function F:RAIDTARGET(filter)
+  filter.unit = filter.unit or "target"
+  assert(filter.name)
+  local indexes = Core:ToKeyTable(filter.name)
+  local index = GetRaidTargetIndex(filter.unit) or 0
+  return indexes[index] or false
 end
 
 function F:UNITISTANK(filter)
