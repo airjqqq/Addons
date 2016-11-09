@@ -527,39 +527,50 @@ do
   drtimes.SILENCE = {}
 end
 
+function Core:GetDrData(type,guid)
+  if drtimes[type] then
+    return drtimes[type][guid]
+  end
+end
+
 function F:COMBAT_LOG_EVENT_UNFILTERED (event, t, realEvent, ...)
   local spellId = select(10,...)
   local guid = select(6,...)
   local sourceGUID = select(2,...)
   local time = GetTime()
-  if realEvent == "SPELL_AURA_APPLIED" or realEvent == "SPELL_AURA_REFRESH" then
-    for t,d in pairs(drdebuffs) do
-      if d[spellId] then
-        local data = drtimes[t][guid]
-        if not data or time>data.t then
-          data = {c=1}
-        else
-          data.c = data.c + 1
+  local spelltype = select(13,...)
+  if spelltype == "DEBUFF" then -- DR
+    if realEvent == "SPELL_AURA_APPLIED" or realEvent == "SPELL_AURA_REFRESH" then
+      for t,d in pairs(drdebuffs) do
+        if d[spellId] then
+          local data = drtimes[t][guid]
+          if not data or time>data.t then
+            data = {c=1}
+          else
+            data.c = data.c + 1
+          end
+          data.spellId = spellId
+          data.t = time + 18.5 + 8
+          drtimes[t][guid] = data
+          -- Core:Print("DR_SPELL_AURA_APPLIED",GetSpellLink(spellId))
         end
-        data.t = time + 18.5 + 8
-        drtimes[t][guid] = data
-        -- Core:Print("DR_SPELL_AURA_APPLIED",GetSpellLink(spellId))
+      end
+    elseif realEvent == "SPELL_AURA_REMOVED" or realEvent == "SPELL_DISPEL" then
+      for t,d in pairs(drdebuffs) do
+        if d[spellId] then
+          local data = drtimes[t][guid]
+          if not data or time>data.t then
+            data = {c=1}
+          end
+          data.spellId = spellId
+          data.t = time + 18.5
+          drtimes[t][guid] = data
+          -- Core:Print("DR_SPELL_AURA_REMOVED",GetSpellLink(spellId))
+        end
       end
     end
-  elseif realEvent == "SPELL_AURA_REMOVED" then
-    for t,d in pairs(drdebuffs) do
-      if d[spellId] then
-        local data = drtimes[t][guid]
-        if not data or time>data.t then
-          data = {c=1}
-        end
-        data.t = time + 18.5
-        drtimes[t][guid] = data
-        -- Core:Print("DR_SPELL_AURA_REMOVED",GetSpellLink(spellId))
-      end
-    end
-
-  elseif realEvent == "SPELL_CAST_SUCCESS" or realEvent == "SPELL_CAST_FAILED" then
+  end
+  if realEvent == "SPELL_CAST_SUCCESS" or realEvent == "SPELL_CAST_FAILED" then
     local data = kicks[spellId]
     if data then
       local range,cooldowns = data[1],data[2]

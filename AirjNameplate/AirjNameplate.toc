@@ -1,0 +1,8 @@
+## Interface: 71000
+## Title: AirjNameplate
+## Version: 1.0
+## Author: Airj
+## SavedVariables: AirjNameplateDB
+## RequiredDeps: Ace3, AirjAutoKey
+
+AirjNameplate.lua
