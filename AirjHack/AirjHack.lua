@@ -1,4 +1,4 @@
-local mod = LibStub("AceAddon-3.0"):NewAddon("AirjHack", "AceConsole-3.0", "AceTimer-3.0","AceEvent-3.0")  --, "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0","AceSerializer-3.0","AceComm-3.0"
+local mod = LibStub("AceAddon-3.0"):NewAddon("AirjHack", "AceConsole-3.0", "AceTimer-3.0","AceEvent-3.0","AceHook-3.0")  --, "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0","AceSerializer-3.0","AceComm-3.0"
 AirjHack = mod
 
 local fcn = GetPlayerFacing
@@ -23,6 +23,17 @@ function mod:OnEnable()
   self.eventTimer = self:ScheduleRepeatingTimer(function()
     self:CheckAndSendMessage()
   end,0.1)
+	self:HookScript(WorldFrame,"OnMouseDown",function(widget,button) self:WorldFrameButton(button,1) end)
+	self:HookScript(WorldFrame,"OnMouseUp",function(widget,button) self:WorldFrameButton(button,0) end)
+end
+
+local buttons = {}
+function mod:WorldFrameButton(button,state)
+	if state == 1 then
+		buttons[button] = true
+	else
+		buttons[button] = nil
+	end
 end
 
 function mod:OnDisable()
@@ -116,6 +127,7 @@ function mod:Position(key)
   if key == nil then return end
 	local starts = {
 		Player = true,
+		Pet = true,
 		Vehicle = true,
 		Creature = true,
 		GameObject = true,
@@ -143,6 +155,18 @@ function mod:TerrainClick(x,y,z)
   if not self:HasHacked() then return end
 	local rx,ry = y,-x
 	fcn("AirjHandleTerrainClick",rx,ry,z)
+	-- if buttons.LeftButton then
+	-- 	CameraOrSelectOrMoveStart()
+	-- 	self:ScheduleTimer(function()
+	-- 		CameraOrSelectOrMoveStart()
+	--   end,0.1)
+	-- end
+	-- if buttons.RightButton then
+	-- 	TurnOrActionStart()
+	-- 	self:ScheduleTimer(function()
+	-- 		TurnOrActionStart()
+	--   end,0.1)
+	-- end
 end
 function mod:UnitCanAttack(s,d)
   if not self:HasHacked() then return end
@@ -276,4 +300,17 @@ function mod:GetGUIDInfo(guid)
     objectType,_,serverId,instanceId,zone,id,spawn = unpack(guids)
   end
   return objectType,serverId,instanceId,zone,id,spawn
+end
+
+function mod:Attack(unit)
+  if not self:HasHacked() then return end
+	local targetguid=UnitGUID("target")
+	local guid = UnitGUID(unit)
+	self:RunMacroText("/target "..unit)
+	self:RunMacroText("/startattack")
+	if targetguid ~= guid then
+		self:RunMacroText("/targetlasttarget")
+	elseif not targetguid then
+		self:RunMacroText("/cleartarget")
+	end
 end

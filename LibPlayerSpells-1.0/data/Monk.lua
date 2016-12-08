@@ -72,7 +72,7 @@ lib:__RegisterSpells("MONK", 70100, 6, {
 					[116189] = "TAUNT", -- Provoke (taunt)
 					[119381] = "STUN", -- Leg Sweep (stun)
 					[198909] = "DISORIENT", -- Song of Chi-Ji (Disorient)
-					[120086] = "STUN", -- Fists of Fury
+					[232055] = "STUN", -- Fists of Fury
 				},
 			},
 			PERSONAL = {

@@ -19,6 +19,7 @@ function Core:OnEnable()
   AirjGuildDB = AirjGuildDB or {}
   self.db = AirjGuildDB
   self.db.standbyList = {}
+  AirjAutoKey:OnChatCommmand("world",120,"2 上班族公会,只要上班族,开荒M团队本")
 end
 
 function Core:OnDisable()
@@ -37,13 +38,23 @@ function Core:CHAT_MSG_WHISPER(event,message, sender, language, channelString, t
   else
     if not guildRosterInfo[sender] then
       if not nextAutoGuildInfor[sender] or nextAutoGuildInfor[sender]<GetTime() then
-        SendChatMessage("你好！回复“JRGH”或“加入公会”自动邀请。活动时间:星期四、一、二、三，晚上8:30-11:30。CallLoot分配。装等要求862+。","WHISPER",nil,sender)
+        SendChatMessage("你好！回复“JRGH”或“加入公会”自动邀请。活动时间:星期四、一、二、三，晚上8:30-11:30。CallLoot分配。装等要求875+。主要开荒M,人不在可以留言,稍后回复","WHISPER",nil,sender)
         nextAutoGuildInfor[sender] = GetTime()+300
       end
     end
   end
 end
 
+
+--[[
+活动时间:星期四、一、二、三，晚上8:30-11:30。CallLoot分配。装等要求875+。
+
+进度:M4/7
+
+时间可以游戏m我或加战网:
+
+airjqqq@qq.com
+]]
 
 function Core:GetGuildRosterInfo()
   wipe(guildRosterInfo)

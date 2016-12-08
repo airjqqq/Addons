@@ -64,6 +64,7 @@ function Cache:OnEnable()
 		self:ScanGCD(t,guids,units)
 		self:ScanSpec(t,guids,units)
 		self:ScanExists(t,guids,units)
+		self:ScanCasting(t,guids,units)
 	end,0.05)
 
   self.mainTimerProtectorTimer = self:ScheduleRepeatingTimer(function()
@@ -85,11 +86,6 @@ function Cache:OnEnable()
     end
   end,0.1)
 	self.recoverDuration = {
-		buffs = 300,
-		debuffs = 60,
-		health = 30,
-		position = 10,
-		spell = 300,
 		line2guid = 5,
 		myhealth = 30,
 	}
@@ -105,7 +101,9 @@ function Cache:RestarRecovertTimer()
 		local t = GetTime()
     self.lastRecoverTime=t
 		for k,v in pairs(self.cache) do
-			self:Recover(v,t,self.recoverDuration[k] or 300)
+			if self.recoverDuration[k] then
+				self:Recover(v,t,self.recoverDuration[k])
+			end
 		end
 	end,1)
 end
@@ -194,9 +192,9 @@ end
 do
 	local recoverd = 0
 	local function recover(data,t,duration)
-		if recoverd > 1000 then
-			return
-		end
+		-- if recoverd > 1000 then
+		-- 	return
+		-- end
 		for k,v in pairs(data) do
 			if type(v) == "table" then
 				recoverd = recoverd + 1
@@ -307,6 +305,7 @@ end
 do
 	local lastErrorCode
 	function Cache:UNIT_SPELLCAST_SENT(...)
+		-- print(...)
 		local event,unitID, spell, rank, target, lineID = ...
 		target = strsplit("-",target)
 		if unitID == "player" then
@@ -446,6 +445,9 @@ do
 					local damage = 0
 					local rawDamage = 0
 					local args
+					if spellId == 196917 then
+						return
+					end
 					if strfind(event,"SWING_") then
 						args= {spellId,spellName,spellSchool,...}
 						spellId="Swing"
@@ -488,7 +490,6 @@ do
 					tinsert(by[spellId].array, {t=localtime,value=damage,guid=sourceGUID,periodic=periodic})
 					-- by[spellId].last={t=localtime,value=damage,guid=sourceGUID,periodic=periodic}
 					-- by[spellId][sourceGUID]={t=localtime,value=damage,periodic=periodic}
-
 					if self.cache.health[destGUID] then
 						self.cache.health[destGUID].changed = true
 					end
@@ -586,6 +587,9 @@ do
 						guid = guid or destGUID
 						self.cache.castStartTo[spellId]=self.cache.castStartTo[spellId] or {}
 						self.cache.castStartTo.last = {t=localtime,guid=guid,spellId=spellId}
+						if self:PlayerGUID() == sourceGUID  then
+							self.cache.castStartTo.lastplayer = {t=localtime,guid=guid,spellId=spellId}
+						end
 						local to = self.cache.castStartTo[spellId]
 						to.last={t=localtime,guid=guid}
 						if guid then
@@ -774,7 +778,7 @@ do
 		if not buffs then return toRet end
 		for i,v in ipairs(buffs) do
 			local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
-			if not mine or caster == "player" then
+			if not mine or caster == "player" or caster == "pet" then
 				if not spellKeys or spellKeys[spellID] or spellKeys[name] then
 					tinsert(toRet,v)
 				end
@@ -807,7 +811,7 @@ do
 		if not debuffs then return toRet end
 		for i,v in ipairs(debuffs) do
 			local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
-			if not mine or caster == "player" then
+			if not mine or caster == "player" or caster == "pet" then
 				if not spellKeys or spellKeys[spellID] or spellKeys[name] then
 					tinsert(toRet,v)
 				end
@@ -846,6 +850,7 @@ do
 		self.cache.speed.isArray = true
 		tinsert(self.cache.speed,cache)
 		cache.value = GetUnitSpeed("player")
+
 	end
 
 	function Cache:GetPosition(guid)
@@ -870,29 +875,33 @@ do
 		wipe(self.cache.known)
 		for i=1,200 do
 			-- local name, rank, icon, castingTime, minRange, maxRange, spellID = GetSpellInfo(i, "spell")
-			local _,spellID = GetSpellBookItemInfo(i,"spell")
-			if not spellID then
+			local t,spellID = GetSpellBookItemInfo(i,"spell")
+			if not t then
 				break
 			end
-			local offId = select(7,GetSpellInfo(i, "spell"))
-			self.cache.charge[spellID] = {GetSpellCharges(spellID)}
-			self.cache.cooldown[spellID] = {GetSpellCooldown(spellID)}
-			self.cache.usable[spellID] = {IsUsableSpell(spellID)}
-			self.cache.known[spellID] = true
-			if offId then
-				self.cache.known[offId] = true
+			if spellID then
+				local offId = select(7,GetSpellInfo(i, "spell"))
+				self.cache.charge[spellID] = {GetSpellCharges(spellID)}
+				self.cache.cooldown[spellID] = {GetSpellCooldown(spellID)}
+				self.cache.usable[spellID] = {IsUsableSpell(spellID)}
+				self.cache.known[spellID] = true
+				if offId then
+					self.cache.known[offId] = true
+				end
 			end
 		end
 
 		for i=1,200 do
-			local _,spellID = GetSpellBookItemInfo(i,"pet")
-			if not spellID then
+			local t,spellID = GetSpellBookItemInfo(i,"pet")
+			if not t then
 				break
 			end
-			self.cache.charge[spellID] = {GetSpellCharges(spellID)}
-			self.cache.cooldown[spellID] = {GetSpellCooldown(spellID)}
-			self.cache.usable[spellID] = {IsUsableSpell(spellID)}
-			self.cache.known[spellID] = true
+			if spellID then
+				self.cache.charge[spellID] = {GetSpellCharges(spellID)}
+				self.cache.cooldown[spellID] = {GetSpellCooldown(spellID)}
+				self.cache.usable[spellID] = {IsUsableSpell(spellID)}
+				self.cache.known[spellID] = true
+			end
 		end
 		for spellID in pairs(externSpellIDs) do
 			if tonumber(spellID) then
@@ -927,7 +936,7 @@ do
 		usable = self.cache.usable[spellID] and self.cache.usable[spellID][1] or false
 		local charges, maxCharges, cstart, cduration = unpack(self.cache.charge[spellID] or {})
 		local start, duration, enable = unpack(self.cache.cooldown[spellID] or {})
-		local cd = not start and 300 or start==0 and 0 or (duration - (t - start))
+		local cd = enable~=1 and 300 or start==0 and 0 or (duration - (t - start))
 		if cd < 0 then cd = 0 end
 		local charge
 		if not charges then
@@ -946,6 +955,23 @@ do
 		  self.cache.gcd.start = start
 		  -- self:Print(duration)
 	  end
+	end
+
+	function Cache:ScanCasting(t,guids,unit)
+		self.cache.casting.isArray = true
+		local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo("player")
+		local data = self.cache.castStartTo.lastplayer
+		if endTime and endTime/1000-t<0.2 then
+			if data and data.spellId then
+				local startName = GetSpellInfo(data.spellId)
+				if startName == name then
+					local cache = {t=t}
+					cache.guid = data.guid
+					cache.spellId = data.spellId
+					tinsert(self.cache.casting,cache)
+				end
+			end
+		end
 	end
 end
 
@@ -1020,7 +1046,7 @@ do
 
 	function Cache:GetExists(guid,unit)
 		local e,ha,he unpack(self.cache.exists[guid] or {})
-		if not e then
+		if not e and unit then
 			self.cache.exists[guid] = {UnitExists(unit),UnitCanAttack("player",unit),UnitCanAssist("player",unit)}
 		end
 		return unpack(self.cache.exists[guid] or {})

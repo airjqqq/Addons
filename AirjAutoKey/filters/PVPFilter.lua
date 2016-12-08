@@ -9,22 +9,27 @@ local L = setmetatable({},{__index = function(t,k) return k end})
 function F:OnInitialize()
   -- self:RegisterFilter("PVPDOTATTACK",L["[PVP] Don't Attack"])
   self:RegisterFilter("CANKICKME",L["PVP Kick Me"],{unit= {}})
+  self:RegisterFilter("DEATHED",L["PVP Deathed"],{unit= {},greater= {},value= {}})
   self:RegisterFilter("PVPBUFF",L["PVP Buff"],{unit= {},name= {},greater= {},value= {}})
   self:RegisterFilter("PVPIMMUNITY",L["PVP Immunity"],{unit= {},name= {},greater= {},value= {}})
+  self:RegisterFilter("PVPEVASION",L["PVP Evasioning"],{unit= {}})
   self:RegisterFilter("PVPDEBUFF",L["PVP Debuff"],{unit= {},name= {},greater= {},value= {}},{
     MAGIC = L["Magic"],
   })
+  self:RegisterFilter("PVPBREAKDEBUFF",L["PVP Breaks"],{unit= {},greater= {},value= {}})
   self:RegisterFilter("PVPDR",L["PVP DR"],{unit= {},greater= {},value= {}},{
     INCAPACITATE = L["Poly"],
     DISORIENT = L["Fear"],
     STUN = L["Stun"],
     SILENCE = L["Silence"],
+    ROOT = L["Root"],
   })
   self:RegisterFilter("PVPDRCOUNT",L["PVP DR Count"],{unit= {},greater= {},value= {}},{
     INCAPACITATE = L["Poly"],
     DISORIENT = L["Fear"],
     STUN = L["Stun"],
     SILENCE = L["Silence"],
+    ROOT = L["Root"],
   })
   self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
@@ -57,6 +62,13 @@ local buffs = {
 		[  8936] = "HOT", -- Regrowth
 		[ 33763] = "HOT", -- Lifebloom
 		[155777] = "HOT", -- Rejuvenation (Germination)
+		[ 33891] = "IPOLY", --
+		[   768] = "IPOLY", --
+		[   783] = "IPOLY", --
+		[197625] = "IPOLY", --
+		[ 24858] = "IPOLY", --
+		[  5487] = "IPOLY", --
+		[  5487] = "IPOLY", --
 
   },
 
@@ -67,22 +79,24 @@ local buffs = {
     [ 32612] = "STEALTH",
     [198144] = "ISTUN",
     [ 11426] = "SHEILD",
+    [198111] = "SHEILD",
   	[ 45438] = "IPDAMAGE IPDEBUFF IMDAMAGE IMDEBUFF", -- Ice Block
   },
   monk = {
 	  [125174] = "IPDAMAGE IMDAMAGE", -- Touch of Karma
+	  [122470] = "IPDAMAGE IMDAMAGE", -- Touch of Karma
 	  [124682] = "BIGHOT", -- Enveloping Mist
 		[119611] = "HOT", -- Renewing Mist
   },
   pally = {
     [  1044] = "ISLOW IROOT", -- Blessing of Freedom
+    [184662] = "SHEILD",
     HOT = {
       200652, -- Tyr's Deliverance (HoT) (Holy artifact)
       200654, -- Tyr's Deliverance (Holy artifact)
     },
     [204018] = "IMDAMAGE IMDEBUFF", -- Blessing of Spellwarding
 		[  1022] = "IPDAMAGE IPDEBUFF", -- Blessing of Protection
-		[  6940] = "TARGET", -- Blessing of Sacrifice
 		[   642] = "IPDAMAGE IPDEBUFF IMDAMAGE IMDEBUFF", -- Divine Shield
   },
   priest = {
@@ -112,6 +126,11 @@ local buffs = {
   warrior = {
     [ 46924] = "ISLOW IROOT ICONTROL", -- Bladestorm (Fury)
     [227847] = "ISLOW IROOT ICONTROL", -- Bladestorm (Arms)
+    [23920] = "IMDEBUFF", -- S R
+
+  },
+  warlock = {
+    [212295] = "IMDEBUFF",
   },
 }
 
@@ -126,6 +145,7 @@ local debuffs = {
       206930, -- Hearth Strike (slow)
 			211831, -- Abomination's Might (slow)
 			 45524, -- Chains of Ice (slow)
+			204206, -- pvp talent 6/3
     },
 		DISORIENT = {
 			206961, -- Tremble Before Me (disorient)
@@ -200,6 +220,9 @@ local debuffs = {
       160065, -- Tendon Rip (Silithid) (exotic) (slow)
       160067, -- Web Spray (Spider)
 			206755, -- Ranger's Net (slow)
+      195645,
+      194279,
+      135299,
     },
 		STUN = {
 				 24394, -- Intimidation (stun)
@@ -274,7 +297,7 @@ local debuffs = {
 		[115078] = "INCAPACITATE", -- Paralysis (Incapacitate)
 		[119381] = "STUN", -- Leg Sweep (stun)
 		[198909] = "DISORIENT", -- Song of Chi-Ji (Disorient)
-		[120086] = "STUN", -- Fists of Fury
+		[232055] = "STUN", -- Fists of Fury
 		DISORIENT = {
 		},
 		ROOT = {
@@ -452,12 +475,12 @@ local kicks = {
     --dk
   [ 47528] = {15,15,250,251,252},
   --warrior
-  [  6552] = {5,15,71,72,73}, -- Pummel
+  [  6552] = {2,15,71,72,73}, -- Pummel
   -- paly
-  [ 96231] = {5,15,66,70}, -- Rebuke
+  [ 96231] = {2,15,66,70}, -- Rebuke
   -- hunter
 	[147362] = {40,24,253,254}, -- Counter Shot
-	[187707] = {5,15,255}, -- Muzzle
+	[187707] = {2,15,255}, -- Muzzle
   -- shaman
   [ 57994] = {25,12,262,263,264}, -- Wind Shear
   --dh
@@ -465,9 +488,9 @@ local kicks = {
   --druid
 	[106839] = {13,15,103,104}, -- Skull Bash
   -- monk
-	[116705] = {5,15,268,269}, -- Spear Hand Strike
+	[116705] = {2,15,268,269}, -- Spear Hand Strike
   -- rouge
-	[  1766] = {5,15,259,260,261}, -- Kick
+	[  1766] = {2,15,259,260,261}, -- Kick
   -- mage
 	[  2139] = {40,24,62,63,64}, -- Counterspell
   -- warlock
@@ -517,6 +540,7 @@ do
   drdebuffs.DISORIENT = getSpellIs(debuffs,{DISORIENT=true})
   drdebuffs.STUN = getSpellIs(debuffs,{STUN=true})
   drdebuffs.SILENCE = getSpellIs(debuffs,{SILENCE=true})
+  drdebuffs.ROOT = getSpellIs(debuffs,{ROOT=true})
 end
 
 local drtimes = {}
@@ -525,6 +549,7 @@ do
   drtimes.DISORIENT = {}
   drtimes.STUN = {}
   drtimes.SILENCE = {}
+  drtimes.ROOT = {}
 end
 
 function Core:GetDrData(type,guid)
@@ -578,6 +603,20 @@ function F:COMBAT_LOG_EVENT_UNFILTERED (event, t, realEvent, ...)
     end
   end
 end
+
+function F:DEATHED(filter)
+  filter.unit = filter.unit or "target"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local to = Cache.cache.castSuccessTo[guid]
+  if not to then return false end
+  to = to[209780]
+  if not to then return false end
+  to = to.last
+  if not to then return false end
+  return GetTime() - to.t
+end
+
 function F:PVPKICK(filter)
   filter.unit = filter.unit or "target"
   local guid = Cache:UnitGUID(filter.unit)
@@ -622,6 +661,12 @@ function F:CANKICKME(filter)
   end
   if not specId then return false end
   local _,_,_,_,distance = Cache:GetPosition(guid)
+  local speed = Cache:Call("GetUnitSpeed",filter.unit)
+  if speed > 6 then
+    distance = distance - 2
+  elseif speed > 3 then
+    distance = distance - 1
+  end
   for _,data in pairs(kicks) do
     local range,cooldowns = data[1],data[2]
     local specs = {unpack(data,3)}
@@ -702,6 +747,43 @@ function F:PVPBUFF(filter)
   return false
 end
 
+
+function F:PVPEVASION(filter)
+  local pi = math.pi
+  local buffids = {
+    [118038] = true, -- [1]
+    [226364] = true, -- [2]
+    [  5277] = true, -- [3]
+    [192422] = true, -- [4]
+    [199754] = true, -- [5]
+    [212800] = true, -- [6]
+  }
+  filter.unit = filter.unit or "target"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local buffs = Cache:GetBuffs(guid,filter.unit,buffids)
+  if #buffs == 0 then return false end
+  local pguid = Cache:PlayerGUID()
+  local px,py,pz = Cache:GetPosition(pguid)
+  local x,y,z,f = Cache:GetPosition(guid)
+  if not x then return false end
+  local dx,dy,dz = x-px, y-py, z-pz
+  local angle = math.atan2(dy,dx)
+  angle = angle - (f + pi/2)
+  if angle < -pi then
+    angle = angle + 2*pi
+  elseif angle > pi then
+    angle = angle - 2*pi
+  end
+  if 180-math.abs(angle*180/pi)>90 then return false end
+  local types = Core:ToKeyTable({"DISORIENT","INCAPACITATE","STUN"})
+  local spells = getSpellIs(debuffs,types)
+  local debuffs = Cache:GetDebuffs(guid,filter.unit,spells)
+  if #debuffs>0 then return false end
+  return true
+end
+
+
 function F:PVPIMMUNITY(filter)
   filter.name = filter.name or {"IPDAMAGE","IPDEBUFF","IMDAMAGE","IMDEBUFF","ISLOW","IROOT"}
   filter.unit = filter.unit or "player"
@@ -735,7 +817,7 @@ function F:PVPIMMUNITY(filter)
       return true
     end
   end
-  local debuffs = Cache:GetDebuffs(guid,filter.unit,{[33786]=true})
+  local debuffs = Cache:GetDebuffs(guid,filter.unit,{[33786]=true,[209753]=true})
   for i,v in pairs(debuffs) do
     local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
     local value
@@ -785,5 +867,50 @@ function F:PVPDEBUFF(filter)
       end
     end
   end
+  return false
+end
+
+function F:PVPBREAKDEBUFF(filter)
+  filter.unit = filter.unit or "player"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+  if health and health/max < 0.4 then
+    return false
+  end
+  local types = Core:ToKeyTable({"DISORIENT","INCAPACITATE"})
+  local spells = getSpellIs(debuffs,types)
+  spells[6789] = nil
+  spells[33786] = nil
+  spells[207167] = nil
+  spells[8122] = nil
+  spells[5246] = nil
+  spells[212638] = true
+  local debuffs = Cache:GetDebuffs(guid,filter.unit,spells)
+  local t = GetTime()
+  for i,v in pairs(debuffs) do
+    local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
+    local value
+    if duration == 0 and expires ==0 then
+      value = 10
+    else
+      value = (expires - t)/timeMod
+    end
+    if Core:MatchValue(value,filter) then
+      return true
+    end
+  end
+
+  local spellID = 118
+  -- dump(Cache.cache.casting[#Cache.cache.casting],#Cache.cache.casting)
+  for i = #Cache.cache.casting,1,-1 do
+    local data = Cache.cache.casting[i]
+    if (not guid or data.guid == guid) and (not spellID or data.spellId == spellID) then
+      if GetTime() - data.t < 0.5 then
+        return 8
+      end
+    end
+  end
+
   return false
 end

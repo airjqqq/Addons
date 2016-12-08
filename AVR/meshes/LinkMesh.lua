@@ -113,6 +113,13 @@ function AVRLinkMesh:GetOptions()
 				width = "full",
 				min = 0, max=10, bigStep=0.1
 			},
+			length = {
+				type = "range",
+				name = L["Length"],
+				order = 45,
+				width = "full",
+				min = 0, max=100, bigStep=1
+			},
 			showNumber = {
 				type = "toggle",
 				name = L["Number"],
@@ -215,6 +222,7 @@ function AVRLinkMesh:OnUpdate(threed)
 	else
 		local w=self.width/2
 		local r = self.blank
+		local ml = self.length
 		local v1=self.vertices[self.v1]
 		local v2=self.vertices[self.v2]
 		local v3=self.vertices[self.v3]
@@ -266,8 +274,10 @@ function AVRLinkMesh:OnUpdate(threed)
 					r,g,b = 1,(60-distance)/20,0
 				elseif distance>20 then
 					r,g,b = (distance-20)/20,1,0
+				elseif distance>10 then
+					r,g,b = 0,1,(20-l)/10
 				else
-					r,g,b = 0,1,(20-l)/20
+					r,g,b = 0,1,1
 				end
 				text1.r,text1.g,text1.b = r,g,b
 			end
@@ -286,12 +296,21 @@ function AVRLinkMesh:OnUpdate(threed)
 			v2[1]=sx+w*s+r*c*ct
 			v2[2]=sy-w*c+r*s*ct
 			v2[3]=sz+r*z/l+mh
-			v3[1]=tx-w*s
-			v3[2]=ty+w*c
-			v3[3]=tz+mh
-			v4[1]=tx+w*s
-			v4[2]=ty-w*c
-			v4[3]=tz+mh
+			if not ml or ml == 0 then
+				v3[1]=tx-w*s
+				v3[2]=ty+w*c
+				v3[3]=tz+mh
+				v4[1]=tx+w*s
+				v4[2]=ty-w*c
+				v4[3]=tz+mh
+			else
+				v3[1]=sx-w*s+ml*c*ct
+				v3[2]=sy+w*c+ml*s*ct
+				v3[3]=sz+ml*z/l+mh
+				v4[1]=sx+w*s+ml*c*ct
+				v4[2]=sy-w*c+ml*s*ct
+				v4[3]=sz+ml*z/l+mh
+			end
 		end
 	end
 	--AVRMesh.OnUpdate(self,threed)

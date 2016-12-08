@@ -336,7 +336,7 @@ function M:OnObjectCreated(event,guid,type)
 		 	if (spellId == 124503 or spellId == 124506) then
 				local x,y,z = AirjHack:Position(guid)
 				gifts[guid] = {x,y,z}
-				print(id)
+				-- print(id)
 			end
     end
   end

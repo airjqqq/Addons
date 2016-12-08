@@ -32,6 +32,7 @@ function F:OnInitialize()
     [SPELL_POWER_CHI]=L["Chi"],
     [SPELL_POWER_PAIN]=L["Pain"],
     [SPELL_POWER_INSANITY]=L["Insanity"],
+    [SPELL_POWER_LUNAR_POWER]=L["Lunar Power"],
   })
 end
 

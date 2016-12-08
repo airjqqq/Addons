@@ -28,6 +28,7 @@ local gcd
 local ignores = {
 	[196771] = true,
 	[211793] = true,
+	[194279] = true,
 }
 do
   local caststart = {}

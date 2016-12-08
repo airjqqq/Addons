@@ -52,7 +52,6 @@ function Core:OnEnable()
     SetCVar("MaxSpellStartRecoveryOffset", 50)
   end
   -- starttest
-  self:OnChatCommmand("world",600,"4 上班族公会招人,主打M团队副本。M4/7。只要上班族,详情M聊。打扰抱歉")
 end
 
 function Core:OnDisable()
@@ -427,8 +426,11 @@ do
   	  if filter.oppo then passed = not passed end
     else
       if type(value) == "number" then
-        if filter.note == "debug" then
-          self:Print(AirjHack:GetDebugChatFrame(),"note=debug",value)
+        if filter.note and filter.note ~= "" then
+          if strfind(filter.note,"debug") then
+            local str = string.format("%.3f",value)
+            self:Print(AirjHack:GetDebugChatFrame(),filter.note,str)
+          end
         end
         passed = Core:MatchValue(value,filter)
       else
@@ -537,21 +539,24 @@ do
     local notMoving=(Cache:Call("GetUnitSpeed","player") == 0 and not Cache:Call("IsFalling"))
     if notMoving then return true end
     local guid = Cache:UnitGUID("player")
-    local buffs = Cache:GetBuffs(guid,"player",{[108839]=true,[193223]=true})
+    local buffs = Cache:GetBuffs(guid,"player",{[108839]=true,[193223]=true,[202461]=true})
     return #buffs > 0
   end
 
   function Core:CheckAndExecuteSequence(sequence)
     if not self:CheckBasicFilters(sequence) then return end
     local unitList = self:GetUnitListByAirType(sequence.anyinraid)
+    -- dump(unitList)
     local filterReturn, unit
-    if unitList and not self:GetAirUnit() then
+    local lastunit = self:GetAirUnit()
+    if unitList then
       filterReturn = self:SplitAndCheckSequence(sequence,unitList)
       unit = filterReturn
     else
       filterReturn = self:CheckFilterArray(sequence.filter or {},unitList)
-      unit = self:GetAirUnit()
+      unit = lastunit
     end
+    self:SetAirUnit(lastunit)
     if filterReturn then
       local execute
       if sequence.barcast then
@@ -672,7 +677,7 @@ do
   		for i = 1,5 do
   			tinsert(unitList,"boss"..i)
   		end
-  		for i = 1,20 do
+  		for i = 1,50 do
   			tinsert(unitList,"nameplate"..i)
   		end
     end
@@ -704,7 +709,7 @@ do
         return
       end
     elseif unit == "lcu" then
-      local data = Cache.cache.castStartTo.last
+      local data = Cache.cache.castStartTo.lastplayer
       if not data then return end
       local guid = data.guid
       return Cache:FindUnitByGUID(guid)
@@ -791,5 +796,13 @@ do
       --rst = {}
     end
     return toRet
+  end
+end
+
+function Core:StopIfNot(name)
+  local cname = UnitCastingInfo("player") or UnitChannelInfo("player")
+  print(name,cname)
+  if name ~= cname then
+    AirjHack:RunMacroText("/stopcasting")
   end
 end
