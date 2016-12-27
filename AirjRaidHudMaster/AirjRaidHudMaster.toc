@@ -1,0 +1,8 @@
+## Interface: 71000
+## Title: AirjRaidHudMaster
+## Version: 1.0
+## Author: Airj
+## RequiredDeps: Ace3,AirjHack,AirjCache
+
+#embeds.xml
+AirjRaidHudMaster.lua
