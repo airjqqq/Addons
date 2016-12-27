@@ -17,9 +17,11 @@ function F:OnInitialize()
   self:RegisterFilter("PVEATTACK",L["PVE Should Attack"])
   self:RegisterFilter("COMBAT",L["Is Combat"])
   self:RegisterFilter("ISPLAYER",L["Is Player"])
+  self:RegisterFilter("ISPLAYERREAL",L["Is Player Real"])
   self:RegisterFilter("ISPLAYERCTRL",L["Is Player Controlled"])
   self:RegisterFilter("ISINRAID",L["Unit In Group"])
-  self:RegisterFilter("CLASS",L["Class"],{name= {name=L["Big Letter"]}})
+  self:RegisterFilter("CLASS",L["Class"],{unit= {},name= {name=L["Big Letter"]}})
+  self:RegisterFilter("UNITSPEC",L["Spec"],{unit= {},name= {name=L["Number"]}})
   self:RegisterFilter("RAIDTARGET",L["Raid Target"],{unit= {},name= {name=L["number"]}})
   self:RegisterFilter("UNITISTANK",L["Is Tank"])
   self:RegisterFilter("UNITISMELEE",L["Is Melee"])
@@ -27,7 +29,7 @@ function F:OnInitialize()
   self:RegisterFilter("SPEED",L["Unit Move Speed"],{unit={},greater={},value={}})
   self:RegisterFilter("UNITISUNIT",L["Unit Is Unit"],{unit= {},name= {name=L["Other Unit (Multi)"]}})
   self:RegisterFilter("UNITNAME",L["Unit Name"],{unit= {},name= {name=L["Names (Multi)"]}})
-  self:RegisterFilter("CASTING",L["Unit Cast or Channel"],{unit= {},name= {name=L["Spell ID (None or Multi)"]},greater={},value={}})
+  self:RegisterFilter("CASTING",L["Unit Cast or Channel"],{unit= {},name= {name=L["Spell ID (None or Multi)"]},greater={},value={}},{START = L["Start"]})
   self:RegisterFilter("CASTINGCHANNEL",L["Unit Channel"],{unit= {},name= {name=L["Spell ID (None or Multi)"]},greater={},value={}})
   self:RegisterFilter("CASTINGINTERRUPT",L["Unit Cast[I]"],{unit= {},name= {name=L["Spell ID (None or Multi)"]},greater={},value={}})
   self:RegisterFilter("CHANNELINTERRUPT",L["Unit Channel[I]"],{unit= {},name= {name=L["Spell ID (None or Multi)"]},greater={},value={}})
@@ -62,6 +64,9 @@ function F:PVEATTACK(filter)
   if UnitIsUnit(filter.unit,"target") then
     return true
   end
+  if UnitIsUnit(filter.unit,"focus") then
+    return true
+  end
   local guid = Cache:UnitGUID(filter.unit)
   local objectType,serverId,instanceId,zone,id,spawn = AirjHack:GetGUIDInfo(guid)
   local _, instanceType, difficulty, difficultyName, _, _, _, _, instanceGroupSize = Cache:Call("GetInstanceInfo")
@@ -74,7 +79,7 @@ function F:PVEATTACK(filter)
     if index == 8 then
       return true
     end
-    if index == 7 and health and health/max > 0.3 then
+    if index == 7 and health and health/max > 0.4 then
       return true
     end
     return false
@@ -82,6 +87,13 @@ function F:PVEATTACK(filter)
   if id == "103694" then
     return false
   end
+  if id == "114568" then
+    local health, max, prediction, absorb, healAbsorb, isdead = AirjHack:UnitHealth(Cache:UnitGUID("boss1") or "")
+    if health and health/max>0.4 then
+      return false
+    end
+  end
+
   return true
 end
 
@@ -94,7 +106,17 @@ end
 
 function F:ISPLAYER(filter)
   filter.unit = filter.unit or "target"
-  if IsResting() then return true end
+  local _,currentZoneType = IsInInstance()
+	if currentZoneType ~= "pvp" and currentZoneType ~= "arena" then
+    if UnitLevel(filter.unit) <=  UnitLevel("player") then
+	    return true
+    end
+	end
+  -- if IsResting() then return true end
+  return Cache:Call("UnitIsPlayer",filter.unit) and true or false
+end
+function F:ISPLAYERREAL(filter)
+  filter.unit = filter.unit or "target"
   return Cache:Call("UnitIsPlayer",filter.unit) and true or false
 end
 
@@ -121,6 +143,15 @@ function F:RAIDTARGET(filter)
   local indexes = Core:ToKeyTable(filter.name)
   local index = GetRaidTargetIndex(filter.unit) or 0
   return indexes[index] or false
+end
+
+function F:UNITSPEC(filter)
+  filter.unit = filter.unit or "target"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local id, name, description, icon, background, role, class = Cache:GetSpecInfo(guid)
+  local specs = Core:ToKeyTable(filter.name)
+  return specs[id] or false
 end
 
 function F:UNITISTANK(filter)
@@ -160,6 +191,7 @@ function F:UNITISHEALER(filter)
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local id, name, description, icon, background, role, class = Cache:GetSpecInfo(guid)
+  if IsResting and UnitIsUnit("focus",filter.unit) then return true end
   return role == "HEALER"
 end
 

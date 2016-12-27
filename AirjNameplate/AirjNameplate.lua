@@ -73,7 +73,7 @@ function NP:Update ()
         icon:SetDR(data.spellId,data.t,data.c)
         icon:Show()
       else
-        -- icon:Hide()
+        icon:Hide()
       end
     end
   end

@@ -322,8 +322,10 @@ function AVRUnitMesh:OnUpdate(threed)
 			v[1],v[2]=self.MA*x+self.MB*y+self.meshTranslateX,
 					self.MC*x+self.MD*y+self.meshTranslateY
 			tri=sectors[s]
-			self.timeT1.v2=tri.v2
-			self.timeT2.v3=tri.v3
+			if tri then
+				self.timeT1.v2=tri.v2
+				self.timeT2.v3=tri.v3
+			end
 			self.timeT1.visible=true
 			self.timeT2.visible=true
 

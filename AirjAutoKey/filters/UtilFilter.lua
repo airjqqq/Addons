@@ -2,7 +2,7 @@ local filterName = "UtilFilter"
 local Core = LibStub("AceAddon-3.0"):GetAddon("AirjAutoKey")
 local Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
 local Filter = Core:GetModule("Filter")
-local F = Filter:NewModule(filterName, "AceEvent-3.0")
+local F = Filter:NewModule(filterName, "AceEvent-3.0", "AceTimer-3.0")
 local color = "DFDF3F"
 local L = setmetatable({},{__index = function(t,k) return k end})
 
@@ -15,11 +15,15 @@ function F:OnInitialize()
   self:RegisterFilter("BURST",L["Is Bursting"],{},nil,blue)
   self:RegisterFilter("PARAMEXPIRED",L["Param Not Expired"],{name={}},nil,blue)
   self:RegisterFilter("AOENUM",L["AOE Count"],{name={name=L["Radius | Scan Interval | Spell ID"]},value={},greater={},unit={}},nil,blue)
-  self:RegisterFilter("FASTSPELL",L["Fast Spell"],{unit={},name={name="spell ID | Cooldown | Range | Is help"}},nil,"FF7D0A")
+  self:RegisterFilter("AIRCIRCLE",L["Circle max"],{name={name=L["Max Range | Radius | Is help"]},value={},greater={}})
+  self:RegisterFilter("FASTSPELL",L["Fast Spell"],{unit={},name={name="spell ID | Cooldown | Range | Is help"}},{
+    IGNOREUSABLE = L["Ignore usable"]
+  },"FF7D0A")
   self:RegisterFilter("CD",L["Spell Cooldown"])
   self:RegisterFilter("CDDEF",L["CD Different"],{name={name="spell ID 1 | spell ID 2 | times"},greater= {},value= {}})
   self:RegisterFilter("SPELLCOUNT",L["Spell Count"])
   self:RegisterFilter("ICD",L["Item Cooldown"])
+  self:RegisterFilter("ECD",L["Equipt Cooldown"])
   self:RegisterFilter("CHARGE",L["Spell Charge"])
   self:RegisterFilter("KNOWS",L["Spell Known"],{name={}})
   self:RegisterFilter("ISUSABLE",L["Spell Usable"],{name={}})
@@ -40,6 +44,10 @@ function F:OnInitialize()
   })
   CombatLogFilter = Filter:GetModule("CombatLogFilter")
   self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+  self:RegisterEvent("UNIT_POWER")
+  self:ScheduleRepeatingTimer(function()
+    self:InsanityTimer()
+  end,0.01)
 end
 
 function F:RegisterFilter(key,name,keys,subtypes,c)
@@ -124,6 +132,123 @@ local function checkEnemyInRange (radius,time,unit)
   return count
 end
 
+local function rangeD(x,y,z,a,b,c)
+  x,y,z = x-a,y-b,z-c
+  return math.sqrt(x*x+y*y+z*z)
+end
+
+
+
+
+local function getUnitInCircle(cx,cy,cz,r,ishelp)
+  local value = 0
+  local maxr = 0
+  local outofpvp
+  local _,currentZoneType = IsInInstance()
+  if currentZoneType ~= "pvp" and currentZoneType ~= "arena" then
+    outofpvp = true
+  end
+  local pguid = Cache:PlayerGUID()
+  for g,t in pairs(AirjHack.objectCache) do
+    if bit.band(t,0x08)~=0 then
+      if outofpvp or strfind(g,"Player-") then
+        local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(g)
+        if health and health> 100 and not dead then
+          local x,y,z,f,d = Cache:GetPosition(g)
+          local cr = rangeD(x,y,z,cx,cy,cz)
+          if d and d<60 and cr < r then
+            local _,harm,help = Cache:GetExists(g)
+            if harm and not ishelp or help and ishelp then
+              value = value + 1
+              if cr > maxr then
+                maxr = cr
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+  return value,maxr
+end
+
+function F:AIRCIRCLE(filter)
+  local range,radius,ishelp = unpack(Core:ToValueTable(filter.name),1,3)
+  local points = {}
+  local outofpvp
+  local _,currentZoneType = IsInInstance()
+  if currentZoneType ~= "pvp" and currentZoneType ~= "arena" then
+    outofpvp = true
+  end
+  for g,t in pairs(AirjHack.objectCache) do
+    if bit.band(t,0x08)~=0 then
+      if outofpvp or strfind(g,"Player-") then
+        local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(g)
+        if health and health> 100 and not dead then
+          local x,y,z,f,d = Cache:GetPosition(g)
+          if d<60 then
+            local _,harm,help = Cache:GetExists(g)
+            if harm and not ishelp or help and ishelp then
+              tinsert(points,{x,y,z,f,d})
+            end
+          end
+        end
+      end
+    end
+  end
+  local maxvalue,minr = 0,0
+  local guid = Cache:PlayerGUID()
+  local px,py,pz = Cache:GetPosition(guid)
+  for i,p1 in ipairs(points) do
+    for i,p2 in ipairs(points) do
+      local d = rangeD(p1[1],p1[2],p1[3],p2[1],p2[2],p2[3])
+      if d < radius * 2 then
+        local x,y,z = (p1[1]+p2[1])/2,(p1[2]+p2[2])/2,(p1[3]+p2[3])/2
+        if rangeD(x,y,z,px,py,pz) < range then
+          local value = 0
+          local mr = 0
+          for i,p in ipairs(points) do
+            local r = rangeD(x,y,z,p[1],p[2],p[3])
+            if r < radius then
+              value = value + 1
+              if r > mr then mr = r end
+            end
+          end
+          if not maxvalue or value > maxvalue or value==maxvalue and mr<minr then
+            maxvalue = value
+            minr = mr
+            AirjAutoKey.center = {x,y,z}
+          end
+        end
+      end
+    end
+  end
+  return maxvalue
+end
+
+function F:AIRCIRCLE1(filter)
+  local range,radius,ishelp = unpack(Core:ToValueTable(filter.name),1,3)
+  local guid = Cache:PlayerGUID()
+  local x,y,z,f,d,s = Cache:GetPosition(guid)
+  local maxvalue,minr
+  minr = 0
+  for i = -50,50,5 do
+    for j = -50,50,5 do
+      local r = math.sqrt(i*i+j*j)
+      if r < range then
+        local value,mr = getUnitInCircle(x+i,y+j,z,radius,ishelp)
+        -- local value = 1
+        if not maxvalue or value > maxvalue or value==maxvalue and mr<minr then
+          maxvalue = value
+          minr = mr
+          AirjAutoKey.center = {x+i,y+j,z}
+        end
+      end
+    end
+  end
+  return maxvalue
+end
+
 function F:AOENUM(filter)
   filter.value = filter.value or 2
   -- local value = Core:GetParam("target")
@@ -159,6 +284,7 @@ function F:FASTSPELL(filter)
   assert(spellId)
   local cd, charge, know, usable = Cache:GetSpellCooldown(spellId)
   -- self:Print(cd, charge, know, usable)
+  if filter.subtype == "IGNOREUSABLE" then usable = true end
   if cd > cdthd or not know or not usable then
     return false
   end
@@ -182,8 +308,39 @@ function F:FASTSPELL(filter)
       range = maxRange
     end
     assert(range)
-    if range == 0 then range = 1.33 end
-    if d > math.max(5,range + s + 1.5) then
+    local mr,md = 5,1.33
+    do
+      -- feral druid
+      local _,_,value = Cache:GetSpellCooldown(197488)
+      if value then
+        mr,md = 10, 6.33
+      end
+      _,_,value = Cache:GetSpellCooldown(202790)
+      if value and (spellId == 1079 or spellId == 22570) then
+        mr = mr + 5
+        md = md + 5
+      end
+
+        --windwalker monk
+      _,_,value = Cache:GetSpellCooldown(205003)
+      if value and (spellId == 113656) then
+        mr = mr + 5
+        md = md + 5
+      end
+      _,_,value = Cache:GetSpellCooldown(201769)
+      if value and (spellId == 116095) then
+        mr = mr + 7
+        md = md + 7
+      end
+      _,_,value = Cache:GetSpellCooldown(198500)
+      if value and (spellId == 163201) then
+        mr = mr + 10
+        md = md + 10
+      end
+
+    end
+    if range == 0 then range = md end
+    if d > math.max(mr,range + s + 1.5) then
       return false
     end
 
@@ -207,7 +364,12 @@ function F:CD(filter)
   return value
 end
 
+function F:UNIT_POWER(event,unit,type)
+  if unit=="player" and type == "INSANITY" then
+    local power = Cache:Call("UnitPower","player",SPELL_POWER_INSANITY)
 
+  end
+end
 
 local fstart, sstart, stotal
 function F:COMBAT_LOG_EVENT_UNFILTERED (event, t, realEvent, ...)
@@ -259,15 +421,38 @@ function F:INSANITYDRAINSTACK()
   end
   return 0
 end
+local lastInsanity = 0
+local lastInsanityTime = 0
+function F:InsanityTimer()
+  local power = UnitPower("player",SPELL_POWER_INSANITY)
+  if power then
+    if power ~= lastInsanity then
+      lastInsanityTime = GetTime()
+      lastInsanity = power
+    end
+  end
+end
 
 function F:NEXTINSANITY(filter)
   filter.value = filter.value or 10
   local power = Cache:Call("UnitPower","player",SPELL_POWER_INSANITY)
+  if power then
+    if power ~= lastInsanity then
+      lastInsanityTime = GetTime()
+      lastInsanity = power
+    end
+  end
   local name, offset,c = unpack(Core:ToValueTable(filter.name),1,3)
+  -- if name == 205448 and not offset then
+  --   filter.name[2] = 0.2
+  --   offset = 0.2
+  -- end
   offset = offset or 0
   if c then
     local haste = GetHaste()
-    offset = offset+c*1.5/(1+haste/100)
+    local gcd = 1.5/(1+haste/100)
+    gcd = max(gcd,0.75)
+    offset = offset+c*gcd
   end
   name = name or 61304
   local gcd = Cache.cache.gcd.duration
@@ -275,42 +460,56 @@ function F:NEXTINSANITY(filter)
   local buffs = Cache:GetBuffs(guid,"player",{[194249]=true})
   if buffs[1] and fstart then
     local value = Cache:GetSpellCooldown(name)
-    local speed = 10+(GetTime()-fstart-stotal)/2
-    if speed > 55 then
-      speed = speed + 4
+    local speed = 8+ math.floor(GetTime()-fstart-stotal+1)*0.55
+    -- if speed > 55 then
+    --   speed = speed + 4
+    -- end
+    local blzbugdelay = GetTime()-lastInsanityTime
+    power = power - speed*blzbugdelay
+    power = power - speed*(value+offset+0.1)
+  end
+  -- local castName, _, _, _, startTime, endTime = Cache:Call("UnitCastingInfo","player")
+  -- local spellName = GetSpellInfo(8092)
+  -- local spellName2 = GetSpellInfo(34914)
+  local casting = 0
+  for i = #Cache.cache.casting,1,-1 do
+    local data = Cache.cache.casting[i]
+    if data.spellId == 8092 then
+      if (GetTime() - data.t) < 0.1 then
+        casting = 12
+      end
     end
-    power = power - speed*(value+offset+0.2)
-  end
-  local castName, _, _, _, startTime, endTime = Cache:Call("UnitCastingInfo","player")
-  local spellName = GetSpellInfo(8092)
-  local spellName2 = GetSpellInfo(34914)
-
-  local data = Cache.cache.castStartTo[8092]
-  local data2 = Cache.cache.castStartTo[34914]
-  local mbtime = 10
-  if data and data.last and data.last.t then
-    mbtime = GetTime()-data.last.t
-  end
-  local vptime = 10
-  if data2 and data2.last and data2.last.t then
-    vptime = GetTime()-data.last.t
-  end
-  if castName == spellName or data and mbtime<gcd+0.4 then
-    local insbuffs = Cache:GetBuffs(guid,"player",{[193223]=true})
-    if #insbuffs>0 then
-      power = power + 12*2.5
-    else
-      power = power + 12
+    if data.spellId == 34914 then
+      if (GetTime() - data.t) < 0.1 then
+        casting = 4
+      end
     end
-  elseif castName == spellName2 or data2 and vptime<gcd+0.4 then
-    local insbuffs = Cache:GetBuffs(guid,"player",{[193223]=true})
-    if #insbuffs>0 then
-      power = power + 4*2.5
-    else
-      power = power + 4
+    if casting>0 then
+      break
     end
   end
 
+
+  --
+  -- local data = Cache.cache.castStartTo[8092]
+  -- local data2 = Cache.cache.castStartTo[34914]
+  -- local mbtime = 10
+  -- if data and data.last and data.last.t then
+  --   mbtime = GetTime()-data.last.t
+  -- end
+  -- local vptime = 10
+  -- if data2 and data2.last and data2.last.t then
+  --   vptime = GetTime()-data.last.t
+  -- end
+  if casting>0 then
+    local insbuffs = Cache:GetBuffs(guid,"player",{[193223]=true})
+    if #insbuffs>0 then
+      power = power + casting*2.5
+    else
+      power = power + casting
+    end
+  end
+  power = math.floor(power)
   return power
 end
 
@@ -340,6 +539,17 @@ function F:ICD(filter)
   local name = filter.name[1]
   local start, duration,enable = Cache:Call("GetItemCooldown",name)
   if not start then return 300 end
+  if enable~=1 then return 300 end
+  if start == 0 then return 0 end
+  return (duration - (GetTime() - start))
+end
+function F:ECD(filter)
+  assert(type(filter.name)=="table")
+  local name = filter.name[1]
+  name = tonumber(name)
+  local start, duration,enable = Cache:Call("GetInventoryItemCooldown","player",name)
+  if not start then return 300 end
+  if enable~=1 then return 300 end
   if start == 0 then return 0 end
   return (duration - (GetTime() - start))
 end
@@ -382,11 +592,12 @@ function F:CSPELL(filter)
 end
 
 function F:CANCAST(filter)
-  local notMoving=(Cache:Call("GetUnitSpeed","player") == 0 and not Cache:Call("IsFalling"))
-  if notMoving then return true end
-  local guid = Cache:UnitGUID("player")
-  local buffs = Cache:GetBuffs(guid,"player",{[108839]=true,[193223]=true})
-  return #buffs > 0
+  return Core:Barcast()
+  -- local notMoving=(Cache:Call("GetUnitSpeed","player") == 0 and not Cache:Call("IsFalling"))
+  -- if notMoving then return true end
+  -- local guid = Cache:UnitGUID("player")
+  -- local buffs = Cache:GetBuffs(guid,"player",{[108839]=true,[193223]=true})
+  -- return #buffs > 0
 end
 
 function F:STARTMOVETIME(filter)

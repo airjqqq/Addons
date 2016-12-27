@@ -8,6 +8,11 @@ local L = setmetatable({},{__index = function(t,k) return k end})
 
 function F:OnInitialize()
   self:RegisterFilter("CHANNELDAMAGE",L["Since Last Damage"])
+  self:RegisterFilter("NEXTSWING",L["Next Swing"],{
+    value = {},
+    greater = {},
+    unit = {},
+  })
   self:RegisterFilter("BEHITEDCNT",L["Swing By"],{
     value = {},
     greater = {},
@@ -26,7 +31,9 @@ function F:OnInitialize()
     name = {name="Scan Interval"},
     unit = {},
   },{
-    SWING = L["Swing"]
+    SWING = L["Swing"],
+    DIRECT = L["Direct"],
+    PERIODIC = L["Periodic"],
   })
   self:RegisterFilter("HEALTAKEN",L["Heal Taken"],{
     value = {},
@@ -57,6 +64,12 @@ function F:OnInitialize()
     value = {},
     greater = {},
     name = {name="Spell ID"},
+    unit = {name="Unit, blank as anybody"},
+  })
+  self:RegisterFilter("SINCECASTING",L["Since Casting"],{
+    value = {},
+    greater = {},
+    name = {name="Spell ID, blank as anyspell"},
     unit = {name="Unit, blank as anybody"},
   })
   self:RegisterFilter("CASTSTARTGCD",L["Cast Start GCD"],{
@@ -120,6 +133,21 @@ function F:CHANNELDAMAGE(filter)
   if #list == 0 then return 120 end
   local lastT = list[#list].t
   return GetTime()-lastT
+end
+
+function F:NEXTSWING(filter)
+  filter.unit = filter.unit or "player"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local list = Cache.cache.damageTo[guid]
+  if not list then return 0 end
+  list = list.Swing
+  if not list then return 0 end
+  list = list.array
+  if #list == 0 then return 0 end
+  local lastT = list[#list].t
+  local speed = UnitAttackSpeed(filter.unit)
+  return speed - (GetTime()-lastT)
 end
 
 function F:BEHITEDCNT(filter)
@@ -245,6 +273,46 @@ function F:GetDamageTakenSwing(guid,time)
   end
   return total
 end
+function F:GetDamageTakenPeriodic(guid,time)
+  local by = Cache.cache.damageBy[guid]
+  if not by then return 0 end
+  local array = by.array or {}
+  local t = GetTime()
+  local total = 0
+  for i = #array,1,-1 do
+  -- for i,v in ipairs(array) do
+    local v = array[i]
+    local eventTime,sourceGUID,spellId,damage = v.t,v.guid,v.spellId,v.value
+    local periodic = v.periodic
+    if t-eventTime>time then
+      break
+    end
+    if periodic then
+      total = total + damage
+    end
+  end
+  return total
+end
+function F:GetDamageTakenDirect(guid,time)
+  local by = Cache.cache.damageBy[guid]
+  if not by then return 0 end
+  local array = by.array or {}
+  local t = GetTime()
+  local total = 0
+  for i = #array,1,-1 do
+  -- for i,v in ipairs(array) do
+    local v = array[i]
+    local eventTime,sourceGUID,spellId,damage = v.t,v.guid,v.spellId,v.value
+    local periodic = v.periodic
+    if t-eventTime>time then
+      break
+    end
+    if not periodic then
+      total = total + damage
+    end
+  end
+  return total
+end
 
 function F:DAMAGETAKEN(filter)
   filter.unit = filter.unit or "player"
@@ -254,6 +322,10 @@ function F:DAMAGETAKEN(filter)
   if not guid then return false end
   if filter.subtype == "SWING" then
     return F:GetDamageTakenSwing(guid,time)
+  elseif filter.subtype == "DIRECT" then
+    return F:GetDamageTakenDirect(guid,time)
+  elseif filter.subtype == "PERIODIC" then
+    return F:GetDamageTakenPeriodic(guid,time)
   else
     return F:GetDamageTaken(guid,time)
   end
@@ -387,6 +459,25 @@ function F:CASTSTART(filter)
   data = data[guid]
   if not data then return 120 end
   return GetTime() - data.t
+end
+
+function F:SINCECASTING(filter)
+  -- assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
+	local spellID = filter.name and filter.name[1]
+  local spells = Core:ToKeyTable(filter.name)
+  local guid
+  if filter.unit then
+    guid = Cache:UnitGUID(filter.unit)
+    if not guid then return false end
+  end
+  -- dump(Cache.cache.casting[#Cache.cache.casting],#Cache.cache.casting)
+  for i = #Cache.cache.casting,1,-1 do
+    local data = Cache.cache.casting[i]
+    if (not guid or data.guid == guid) and (not spellID or spells[data.spellId]) then
+      return GetTime() - data.t
+    end
+  end
+  return 120
 end
 
 function F:CASTSTARTGCD(filter)

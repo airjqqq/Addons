@@ -19,6 +19,7 @@ function Core:OnEnable()
   AirjGuildDB = AirjGuildDB or {}
   self.db = AirjGuildDB
   self.db.standbyList = {}
+  AirjAutoKey:OnChatCommmand("world",120,"2 上班族公会,只要上班族,开荒M团队本,进度7/7M,同招休闲")
 end
 
 function Core:OnDisable()
@@ -37,13 +38,23 @@ function Core:CHAT_MSG_WHISPER(event,message, sender, language, channelString, t
   else
     if not guildRosterInfo[sender] then
       if not nextAutoGuildInfor[sender] or nextAutoGuildInfor[sender]<GetTime() then
-        SendChatMessage("你好！回复“JRGH”或“加入公会”自动邀请。活动时间:星期四、一、二、三，晚上8:30-11:30。CallLoot分配。装等要求862+。","WHISPER",nil,sender)
+        SendChatMessage("你好！回复“JRGH”或“加入公会”自动邀请。大秘境，竞技场都有组织，团队副本只要稳定即可成为主力。M团队本开荒活动时间:星期四、一、二、三，晚上8:30-11:30，CallLoot分配。","WHISPER",nil,sender)
         nextAutoGuildInfor[sender] = GetTime()+300
       end
     end
   end
 end
 
+
+--[[
+活动时间:星期四、一、二、三，晚上8:30-11:30。CallLoot分配。装等要求875+。
+
+进度:M4/7
+
+时间可以游戏m我或加战网:
+
+airjqqq@qq.com
+]]
 
 function Core:GetGuildRosterInfo()
   wipe(guildRosterInfo)
@@ -106,9 +117,9 @@ function Core:UpdateParticipation()
   if totalPresent and UnitIsGroupLeader("player") then
     local inRaid = IsInRaid("player")
     local externTime = tonumber(info.EXTERNTIME)
-    self:Print(weekday,hour)
+    --self:Print(weekday,hour)
     -- (weekday>=2 and weekday<=5 and hour>=20.5 and hour<=23.5)
-    if (false or (externTime and externTime>0)) and inRaid then
+    if (weekday>=2 and weekday<=5 and hour>=20.5 and hour<=23.5 or (externTime and externTime>0)) and inRaid then
       for name, data in pairs(guildRosterInfo) do
         local point = 0
         if data.lastOnline and GetTime() - data.lastOnline <600 then

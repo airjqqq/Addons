@@ -214,19 +214,20 @@ function F:CANSTEAL(filter)
   filter.unit = filter.unit or "player"
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
-  local debuffs = Cache:GetDebuffs(guid,filter.unit)
+  local debuffs = Cache:GetBuffs(guid,filter.unit)
   local t = GetTime()
   if filter.subtype == "COUNT" then
-    local count = 0
+    local buffcount = 0
     for i,v in pairs(debuffs) do
       local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
+
       if dispelType == "Magic" or isStealable then
-        if expires - t then
-          count = count + 1
+        if expires - t > 0 then
+          buffcount = buffcount + 1
         end
       end
     end
-    return count
+    return buffcount
   else
     for i,v in pairs(debuffs) do
       local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)

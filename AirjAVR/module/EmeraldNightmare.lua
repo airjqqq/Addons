@@ -1,8 +1,20 @@
 local Core =  LibStub("AceAddon-3.0"):GetAddon("AirjAVR")
 local mod = Core:NewModule("EmeraldNightmare","AceEvent-3.0","AceTimer-3.0")
 
+local Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
+
 function mod:OnInitialize()
   local data
+  do
+    Core:RegisterAuraUnit(203096,data) --溃烂
+    data = {
+      color={0.2,0.5,0,0.2},
+      color2={0.3,0.7,0,0.3},
+      radius=8,
+      duration=9,
+    }
+    Core:RegisterAuraUnit(228796,data) --溃烂
+  end
   do --test
   end
   do -- Nythendra
@@ -27,6 +39,7 @@ function mod:OnInitialize()
       radius=8,
       duration=9,
     }
+
     Core:RegisterAuraUnit(221028,data) --不稳定的
     data = {
       color={0.4,0.0,0,0.2},
@@ -78,6 +91,23 @@ function mod:OnInitialize()
       duration=8,
     }
     Core:RegisterAuraUnit(215128,data) --Blood
+    data = {
+      color={0.0,0.0,0.5,0.2},
+      color2={0.0,0.5,0.8,0.3},
+      radius=2,
+      duration=40,
+    }
+    Core:RegisterAuraUnit(209469,data) --touch
+  end
+  do
+
+      data = {
+        color={0.2,0.5,0,0.2},
+        color2={0.3,0.7,0,0.3},
+        radius=10,
+        duration=6,
+      }
+      Core:RegisterAuraUnit(198006,data) --Spew Corruption
   end
   do --4 dragen
     data = {
@@ -94,6 +124,13 @@ function mod:OnInitialize()
       duration=8,
     }
     Core:RegisterAuraUnit(203770,data) --Spew Corruption
+    data = {
+      color={0.2,0,0.5,0.1},
+      color2={0.3,0,0.7,0.2},
+      radius=4,
+      duration=30,
+    }
+    Core:RegisterAuraUnit(204044,data) --Spew Corruption
   end
   do -- ER
     data = {
@@ -350,41 +387,42 @@ do
         distance,health = data[1],data[2]
         if health>=0.02 then
           local value
-          if health<0.2 then
-            if distance<10 then
-              value = health
-            else
-              value = health + 0.2
-            end
-          elseif health<0.5 then
-            if distance<20 then
-              value = health + 0.2
-            else
-              value = health + 0.5
-            end
-          else
-            value = health + 1
-          end
+          -- if health<0.2 then
+          --   if distance<10 then
+          --     value = health
+          --   else
+          --     value = health + 0.2
+          --   end
+          -- elseif health<0.5 then
+          --   if distance<20 then
+          --     value = health + 0.2
+          --   else
+          --     value = health + 0.5
+          --   end
+          -- else
+          --   value = health + 1
+          -- end
+          value = health + max(distance-10,0)/20
           if guid == markers[8] then
             value = value*0
           end
           if guid == markers[7] then
-            value = value*0.5
+            value = value*0.6
           end
           if guid == markers[6] then
-            value = value*0.7
-          end
-          if guid == markers[5] then
             value = value*0.9
           end
-          if distance > 10 then
-            value = distance/60 + value
+          if guid == markers[5] then
+            value = value*0.95
           end
+          -- if distance > 10 then
+          --   value = distance/60 + value
+          -- end
           local tguid = fixate[guid] and fixate[guid][2]
           if tguid then
             local id, name, description, icon, background, role, class = Cache:GetSpecInfo(tguid)
             if id and melee[id] then
-              value = value*0.5
+              value = value*0.7
             end
           end
           pro[guid] = value

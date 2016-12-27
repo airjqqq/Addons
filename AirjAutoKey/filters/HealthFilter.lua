@@ -12,6 +12,7 @@ function F:OnInitialize()
   self:RegisterFilter("ISDEAD",L["Is Dead or Ghost"])
   self:RegisterFilter("HTIME",L["Low Health Time"],{name= {name=L["Percent Threshold"]},greater={},value={}})
   self:RegisterFilter("HEALTH",L["Health"],{unit= {},name= {name=L["Include Types"]},greater={},value={}},{ABS=L["Absolute"]})
+  self:RegisterFilter("HEALTHABSORB",L["Health Absorb"],{unit= {},greater={},value={}},{ABS=L["Absolute"]})
   self:RegisterFilter("FUTUREHEALTH",L["Health Future"],{
     unit= {},name= {name=L["Time"]},greater={},value={}
   })
@@ -32,6 +33,7 @@ function F:OnInitialize()
     [SPELL_POWER_CHI]=L["Chi"],
     [SPELL_POWER_PAIN]=L["Pain"],
     [SPELL_POWER_INSANITY]=L["Insanity"],
+    [SPELL_POWER_LUNAR_POWER]=L["Lunar Power"],
   })
 end
 
@@ -112,6 +114,21 @@ function F:HEALTH(filter)
   if filter.subtype == "ABS" then
   else
     toRet = health/max
+  end
+  return toRet
+end
+
+function F:HEALTHABSORB(filter)
+  filter.unit = filter.unit or "player"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+  if not health then return false end
+  if isdead then return false end
+  local toRet = absorb
+  if filter.subtype == "ABS" then
+  else
+    toRet = absorb/max
   end
   return toRet
 end
