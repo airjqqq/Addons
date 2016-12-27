@@ -803,7 +803,11 @@ end
 
 function Core:StopIfNot(name)
   local cname = UnitCastingInfo("player") or UnitChannelInfo("player")
+<<<<<<< HEAD
   -- print(name,cname)
+=======
+  print(name,cname)
+>>>>>>> dd5ada692e4f0e4ec44e2d841fe59f063ff84a16
   if name ~= cname then
     AirjHack:RunMacroText("/stopcasting")
   end

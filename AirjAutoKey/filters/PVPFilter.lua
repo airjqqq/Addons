@@ -128,8 +128,8 @@ local buffs = {
   warrior = {
     [ 46924] = "ISLOW IROOT ICONTROL", -- Bladestorm (Fury)
     [227847] = "ISLOW IROOT ICONTROL", -- Bladestorm (Arms)
-    [23920] = "IMDEBUFF ICAST", -- S R
-    [213915] = "IMDEBUFF ICAST", -- S R
+    [23920] = "ICAST", -- S R
+    [213915] = "ICAST", -- S R
 
   },
   warlock = {
