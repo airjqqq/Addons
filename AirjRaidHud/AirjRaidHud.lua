@@ -1,5 +1,6 @@
 local H = LibStub("AceAddon-3.0"):NewAddon("AirjRaidHud", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0","AceSerializer-3.0","AceComm-3.0")
 local Cache = AirjCache
+AirjRaidHud = H
 
 
 function H:OnInitialize()
@@ -29,7 +30,7 @@ function H:OnEnable()
         self:Print("Background show.")
         frame.back:Show()
       end
-    if key == "autohide" then
+    elseif key == "autohide" then
       self.db.autohide = not self.db.autohide
       self:Print("Autohide "..(self.db.autohide and "enabled" or "disabled")..".")
       self:UpdateMainFrame()
@@ -51,15 +52,15 @@ function H:OnEnable()
     elseif key == "range" then
       local s = tonumber(value)
       if s then
-        self:SetRange(range)
+        self:SetRange(s)
         self:Print("Ranger = "..s)
       end
-    elseif key == "enable"
+    elseif key == "enable" then
       self.db.disable = not self.db.disable
       self:Print("Addons "..(self.db.disable and "enabled" or "disabled")..".")
       self:UpdateMainFrame()
     else
-      self:Print("enable - nable/disable the addon.")
+      self:Print("enable - enable/disable the addon.")
       self:Print("lock - lock the frame (mouse disable).")
       self:Print("unlock - unlock the frame (mouse enable).")
       self:Print("scale <number> - set frame scale.")
@@ -132,7 +133,7 @@ end
 function H:SetRange(range)
   self.range = range
   local size = 1000/self.range
-  frame.player:SetSize(size,size)
+  self:GetMainFrame().player:SetSize(size,size)
 end
 
 function H:CreateFrame()
@@ -488,16 +489,20 @@ do --Guarm
     {0.8,0,1,1},
   }
   local messages = {
-    "{circle}",
-    "{square}",
-    "{diamond}",
+    "{rt2}",
+    "{rt6}",
+    "{rt3}",
   }
   function H:GuarmFoam(index)
     if UnitDebuff("player",constNames[index]) then return end
     self.buffer.foam = self.buffer.foam or {}
+    SendChatMessage(messages[index],"SAY")
     self.buffer.foamtimer = self:ScheduleRepeatingTimer(function()
       SendChatMessage(messages[index],"SAY")
-    end,0.5)
+    end,0.75)
+    self.buffer.foamtimer2 = self:ScheduleTimer(function()
+      self:CancelTimer(self.buffer.foamtimer)
+    end,9)
     for i=1,20 do
       local u = "raid"..i
       if not UnitIsUnit("player",u) then
@@ -505,15 +510,18 @@ do --Guarm
         if UnitDebuff(u,constNames[index]) then
           color = colors[index]
         else
-          color = {0.3,0.3,0.3,0.5}
+          color = {0.3,0.3,0.3,0.6}
         end
-        self.buffer.foam[i] = self:New("Point",{color=color,radius=1.5,expire=GetTime()+9,position={unit=u}})
+        self.buffer.foam[i] = self:New("Point",{color=color,radius=2,expire=GetTime()+9,position={unit=u}})
       end
     end
   end
 
   function H:GuarmFoamClear()
     self.buffer.foam = self.buffer.foam or {}
+    self:CancelTimer(self.buffer.foamtimer)
+    self:CancelTimer(self.buffer.foamtimer2)
+    self.buffer.foamtimer = nil
     for k,v in pairs(self.buffer.foam) do
       v.remove = true
       self.buffer.foam[k] = nil
@@ -655,7 +663,7 @@ function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
             local _,class = UnitClass(u)
             if class then
               local c = RAID_CLASS_COLORS[class]
-              self:New("Point",{color={c.r,c.g,c.b,1},radius=1.5,expire=GetTime()+4,position={unit=u}})
+              self:New("Point",{color={c.r,c.g,c.b,1},radius=2,expire=GetTime()+4,position={unit=u}})
             end
           end
         end
@@ -670,7 +678,7 @@ function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
           local _,class = UnitClass(u)
           if class then
             local c = RAID_CLASS_COLORS[class]
-            self:New("Point",{color={c.r,c.g,c.b,1},radius=1.5,expire=GetTime()+4.5,position={unit=u}})
+            self:New("Point",{color={c.r,c.g,c.b,1},radius=2,expire=GetTime()+4.5,position={unit=u}})
           end
         end
       end
