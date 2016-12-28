@@ -109,11 +109,11 @@ do -- odyn
     right[j] = {x,y}
   end
   local center = {}
-    local a = math.pi/2.5
-    for i=1,5 do
-      local b = math.pi/2 - a*(i-1)
-      center[i] = {cx+22*math.cos(b),cy+22*math.sin(b)}
-    end
+  local a = math.pi/2.5
+  for i=1,5 do
+    local b = math.pi/2 - a*(i-1)
+    center[i] = {cx+22*math.cos(b),cy+22*math.sin(b)}
+  end
   function mod:SetRaidMarkerForOdynWithIndex(index)
     local marks
     if index == 2 then
@@ -190,6 +190,9 @@ function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sou
   local data
   if spellId == 228162 and event == "SPELL_CAST_START" then
 
+  end
+  if spellId == 227807 and event == "SPELL_CAST_SUCCESS" then
+    self:SetRaidMarkerForOdyn()
   end
   if spellId == 228162 and event == "SPELL_CAST_SUCCESS" then
     data = {

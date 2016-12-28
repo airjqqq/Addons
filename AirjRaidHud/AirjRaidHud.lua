@@ -5,14 +5,66 @@ local Cache = AirjCache
 function H:OnInitialize()
   AirjRaidHudDB = AirjRaidHudDB or {}
   self.db = AirjRaidHudDB
-  self.postion = {}
+  self.position = {}
   self.activities = {}
   self.pointcache = {}
   self.linecache = {}
 end
 
 function H:OnEnable()
+  self.range = 45
   H:RegisterComm("AIRJRH_COMM")
+  self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+
+	self:RegisterChatCommand("arh", function(str,...)
+    local key, value, nextposition = self:GetArgs(str, 2)
+    local frame = H:GetMainFrame()
+    if key == "nobg" then
+      self.db.nobg = not self.db.nobg
+      if self.db.nobg then
+        frame.back:Hide()
+      else
+        frame.back:Show()
+      end
+    elseif key == "lock" then
+      self.db.lock = true
+      frame:EnableMouse(not self.db.lock)
+    elseif key == "unlock" then
+      self.db.lock = nil
+      frame:EnableMouse(not self.db.lock)
+    elseif key == "scale" then
+      local s = tonumber(value)
+      if s then
+        self.db.scale = s
+        frame:SetScale(s)
+      else
+
+      end
+    elseif key == "range" then
+      local s = tonumber(value)
+      if s then
+        self:SetRange(range)
+      else
+
+      end
+    else
+      self.db.disable = not self.db.disable
+      if self.db.disable then
+        frame:Hide()
+      else
+        frame:Show()
+      end
+    end
+
+    -- self:New("Line",{from={x=-518.5,y=2428.7},to={x=-528.5,y=2428.7}})
+    -- self:New("Point",{expire=GetTime()+10,position={x=-528.5,y=2428.7}})
+  end)
+  -- self:ScheduleRepeatingTimer(self.UpdateMainFrame,0.1,self)
+
+  if self.db.disable then
+    H:GetMainFrame():Hide()
+    return
+  end
 end
 
 local function deser(str)
@@ -45,27 +97,44 @@ function H:OnCommReceived(prefix,data,channel,sender)
           x = x+px
           y = y+py
           s=s+4
-          local guid = UnitGUID("raid"..i) --may sync
+          local guid
+          if i>40 then
+            guid = UnitGUID("boss"..(i-40))
+          else
+            guid = UnitGUID("raid"..i) --may sync
+          end
           self.position[guid] = {x,y,f}
         end
       end
     end
+    self:UpdateMainFrame()
   end
 end
 
 function H:GetMainFrame()
-  local self.mainFrame = self.mainFrame or self:CreateFrame()
-  self.mainFrame:Show()
+  self.mainFrame = self.mainFrame or self:CreateFrame()
+  -- self.mainFrame:Show()
   return self.mainFrame
+end
+
+function H:SetRange(range)
+  self.range = range
+  local size = 1000/self.range
+  frame.player:SetSize(size,size)
 end
 
 function H:CreateFrame()
   local frame = CreateFrame("Frame")
-  local x,y = self.db.x or 80,self.db.y or 80
-  local size = self.db.size or 100
-  frame:SetPoint("TOPLEFT",UIParent,"BOTTOMLEFT",x,y)
+  local x,y = self.db.x,self.db.y
+  local size = self.db.size or 160
+  if x and y then
+    frame:SetPoint("TOPLEFT",UIParent,"BOTTOMLEFT",x,y)
+  else
+    frame:SetPoint("CENTER",UIParent,"CENTER",120,80)
+  end
   frame:SetSize(size,size)
-	frame:EnableMouse(true)
+  frame:SetScale(self.db.scale or 1)
+  frame:EnableMouse(not self.db.lock)
 	frame:SetMovable(true)
 	frame:RegisterForDrag("LeftButton")
 	frame:SetScript("OnDragStart", function(self)
@@ -75,20 +144,25 @@ function H:CreateFrame()
 	end)
 	frame:SetScript("OnDragStop", function(self)
 		self:StopMovingOrSizing()
-		self.db.x = self:GetLeft()
-		self.db.y = self:GetTop()
+		H.db.x = self:GetLeft()
+		H.db.y = self:GetTop()
 	end)
 	frame.back = frame:CreateTexture(nil, "BACKGROUND")
 	frame.back:SetColorTexture(.7,.7,.7,.4)
 	frame.back:SetAllPoints()
+  if self.db.nobg then
+    frame.back:Hide()
+  else
+    frame.back:Show()
+  end
 	frame.player = frame:CreateTexture(nil, "OVERLAY")
-	frame.player:SetSize(32,32)
+	frame.player:SetSize(size/8,size/8)
 	frame.player:SetPoint("CENTER",0,0)
 	frame.player:SetTexture("Interface\\MINIMAP\\MinimapArrow")
   return frame
 end
 
-function Core:DeepCopy(table)
+function H:DeepCopy(table)
   if type(table) == "table" then
     local toRet = {}
     for k,v in pairs(table) do
@@ -120,10 +194,10 @@ end
 function H:Real2Hud(x,y,f,r)
   local px,py,pf = unpack(self.playerPosition)
   local dx,dy = x-px,y-py
-  local s,c = math.sin(pf),math.cos(pf)
+  local s,c = math.sin(pf+math.pi/2),math.cos(pf+math.pi/2)
   local r2h = 1/self.range/2
-  local hx = (dx*s+dy*c)*r2h
-  local hy = (-dx*c+dy*s)*r2h
+  local hx = (dx*s-dy*c)*r2h
+  local hy = (dx*c+dy*s)*r2h
   local hf
   if f then
     hf = f+pf
@@ -149,11 +223,11 @@ do -- point
     local frame = self:GetMainFrame()
     local texture = tremove(self.pointcache)
     if not texture then
-    	texture = frame:CreateTexture(nil, "OVERLAY")
+    	texture = frame:CreateTexture(nil, "ARTWORK")
     	texture:SetAllPoints()
     	texture:SetTexture("Interface\\Addons\\AirjRaidHud\\textures\\circle.tga")
-      texture:Show()
     end
+    texture:Hide()
     texture:SetVertexColor(unpack(data.color or {1,0,0,1}))
     local point = {}
     point.position = self:DeepCopy(data.position)
@@ -164,7 +238,8 @@ do -- point
   end
 
   function H:RemovePoint(point)
-    tinsert(self.pointcache,point.texture)
+    point.texture[1]:Hide()
+    tinsert(self.pointcache,point.texture[1])
     wipe(point)
     return point
   end
@@ -177,7 +252,7 @@ do -- point
       end
       return
     end
-    local r = point.radius
+    local r = point.radius or 5
     local hx,hy,hf,hr = self:Real2Hud(x,y,f,r)
     local circleTexture = point.texture[1]
     local left,right,top,bottom = -(hx-hr+0.5)/2/hr,(0.5-(hx-hr))/2/hr,(0.5-(hy-hr))/2/hr,-(hy-hr+0.5)/2/hr
@@ -193,23 +268,24 @@ do --line
     local frame = self:GetMainFrame()
     local texture = tremove(self.linecache)
     if not texture then
-    	texture = frame:CreateTexture(nil, "OVERLAY")
+    	texture = frame:CreateTexture(nil, "ARTWORK")
     	texture:SetAllPoints()
     	texture:SetTexture("Interface\\Addons\\AirjRaidHud\\textures\\line.tga")
-      texture:Show()
     end
+    texture:Hide()
     texture:SetVertexColor(unpack(data.color or {1,0,0,1}))
     local line = {}
     line.from = self:DeepCopy(data.from)
     line.to = self:DeepCopy(data.to)
     line.texture = {texture}
     line.width = data.width
-    line.lenght = data.lenght
+    line.length = data.length
     line.type = "Line"
     return line
   end
   function H:RemoveLine(line)
-    tinsert(self.linecache,line.texture)
+    line.texture[1]:Hide()
+    tinsert(self.linecache,line.texture[1])
     wipe(line)
     return line
   end
@@ -218,37 +294,41 @@ do --line
     return sqrt(dx*dx+dy*dy)
   end
   function H:UpdateLine(line)
-    local fx,fy,ff = self:GetPosition(point.from)
-    local tx,ty,tf = self:GetPosition(point.to)
+    local fx,fy,ff = self:GetPosition(line.from)
+    local tx,ty,tf = self:GetPosition(line.to)
     if not fx or not tx then
-      for k,v in pairs(point.texture) do
+      for k,v in pairs(line.texture) do
         v:Hide()
       end
       return
     end
-    local w = line.width or 2
-    local l = line.lenght or self:Distance(fx,fy,tx,ty)
-    if l ~= 0 then
+    local w = line.width or 3
+    local rl = self:Distance(fx,fy,tx,ty)
+    local l = max(line.length or 0,rl)
+    if rl > 1 then
       local hfx,hfy,hff,hw = self:Real2Hud(fx,fy,ff,w)
       local htx,hty,htf,hl = self:Real2Hud(tx,ty,tf,l)
       local hx,hy = (hfx+htx)/2,(hfy+hty)/2
-      local s,c = (hty-hfy)/l,(htx-hfx)/l
+      local r2h = 1/self.range/2
+      local hrl = rl*r2h
+      local s,c = -(hty-hfy)/hrl,(htx-hfx)/hrl
       hw = hw*8 -- for img
-      local a1,a2,a3,a4,a5,a6 = l*c,-l*s,-l*c*hx+l*s*hy+0.5,w*s,w*c,-w*s*hx-w*c*hy+0.5
+      local a1,a2,a3,a4,a5,a6 = 1/hl*c,-1/hl*s,-1/hl*c*hx+1/hl*s*hy+0.5,1/hw*s,1/hw*c,-1/hw*s*hx-1/hw*c*hy+0.5
       local ULx, ULy = a1*-0.5+a2*0.5+a3*1,a4*-0.5+a5*0.5+a6*1
       local LLx, LLy = a1*-0.5+a2*-0.5+a3*1,a4*-0.5+a5*-0.5+a6*1
       local URx, URy = a1*0.5+a2*0.5+a3*1,a4*0.5+a5*0.5+a6*1
       local LRx, LRy = a1*0.5+a2*-0.5+a3*1,a4*0.5+a5*-0.5+a6*1
 
-      local lineTexture = point.texture[1]
+      -- print(ULx, ULy, LLx, LLy, URx, URy, LRx, LRy)
+      local lineTexture = line.texture[1]
       lineTexture:SetTexCoord(ULx, ULy, LLx, LLy, URx, URy, LRx, LRy)
       -- local left,right,top,bottom = -(hx-hr+0.5)/2/hr,(0.5-(hx-hr))/2/hr,(0.5-(hy-hr))/2/hr,-(hy-hr+0.5)/2/hr
       -- circleTexture:SetTexCoord(left,right,top,bottom)
-      for k,v in pairs(point.texture) do
+      for k,v in pairs(line.texture) do
         v:Show()
       end
     else
-      for k,v in pairs(point.texture) do
+      for k,v in pairs(line.texture) do
         v:Hide()
       end
     end
@@ -256,15 +336,23 @@ do --line
 end
 
 function H:UpdateMainFrame()
-  local t = GetTime()
+  local frame = H:GetMainFrame()
+  if self.db.disable then
+    frame:Hide()
+    return
+  else
+    local size = 1000/self.range
+    frame.player:SetSize(size,size)
+    frame:Show()
+  end
+  local time = GetTime()
   local guid = UnitGUID("player")
-  local position = self.position(guid)
+  local position = self.position[guid]
   if position then
     self.playerPosition = position
-    self.range = 40
     for i,activity in pairs(self.activities) do
       local t = activity.type
-      if activity.remove or activity.expire and activity.expire>t then
+      if activity.remove or activity.expire and time>activity.expire then
         tremove(self.activities,i)
         if t then
           self["Remove"..t](self,activity)
@@ -274,6 +362,167 @@ function H:UpdateMainFrame()
       else
         if t then
           self["Update"..t](self,activity)
+        end
+      end
+    end
+  end
+end
+
+do
+  local markerindex = {2,3,6,5,1}
+  local cx,cy,cz = -528.5,2428.7,749
+  local r = 32
+  local left = {
+    {-552.2,2497.5},
+    {-533.5,2480.0},
+    {-549.2,2458.5},
+    {-574.3,2447.7},
+    {-573.0,2473.1},
+  }
+  local right = {}
+  for i,v in pairs(left) do
+    local x,y = v[1],v[2]
+    local j = i
+    if j >1 then j = 7-i end
+    x = cx*2-x
+    right[j] = {x,y}
+  end
+  local center = {}
+  local center2 = {}
+  local a = math.pi/2.5
+  for i=1,5 do
+    local b = math.pi/2 - a*(i-1)
+    center[i] = {cx+22*math.cos(b),cy+22*math.sin(b)}
+    center2[i] = {cx+33*math.cos(b),cy+33*math.sin(b)}
+  end
+  local markercolor = {
+    {0,1,0,0.8},
+    {1,0,0.8,0.8},
+    {1,0.5,0,0.8},
+    {1,1,0,0.8},
+    {0,0.7,1,0.8},
+  }
+  function H:OdynP3(index)
+    local guid = UnitGUID("player")
+    local position = self.position[guid]
+    if position then
+      local x,y = unpack(position)
+      if x then
+        -- print(x,y)
+        local tx,ty
+        if self:Distance(x,y,cx,cy)<r then
+          tx,ty = unpack(center[index])
+        elseif x<cx then
+          tx,ty = unpack(left[index])
+        else
+          tx,ty = unpack(right[index])
+        end
+        local color = markercolor[index]
+        self:New("Line",{color=color,expire=GetTime()+10,from={unit="player"},to={x=tx,y=ty}})
+        self:New("Point",{color=color,expire=GetTime()+10,position={x=tx,y=ty}})
+      end
+    end
+  end
+  local lp1,lp2
+  function H:OdynP1(index)
+    local tx,ty = unpack(center2[index])
+    local color = markercolor[index]
+    lp1 = self:New("Line",{color=color,expire=GetTime()+20,from={unit="player"},to={x=tx,y=ty}})
+    lp2 = self:New("Point",{color=color,expire=GetTime()+20,position={x=tx,y=ty}})
+  end
+
+  function H:OdynP1Clear()
+    if lp1 and type(lp1) == "table" and lp1.type then
+      lp1.remove = true
+    end
+      if lp2 and type(lp2) == "table" and lp2.type then
+        lp2.remove = true
+      end
+  end
+end
+
+local odynp3 = {
+  [231346] = 1,
+  [231311] = 2,
+  [231342] = 3,
+  [231344] = 4,
+  [231345] = 5,
+}
+local odynp1 = {
+  [229583] = 1,
+  [229579] = 2,
+  [229580] = 3,
+  [229581] = 4,
+  [229582] = 5,
+}
+--229584
+function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
+  --Odyn
+  if destGUID == UnitGUID("player") and odynp3[spellId] and event == "SPELL_AURA_APPLIED" then
+    self.range = 20
+    self:OdynP3(odynp3[spellId])
+  end
+
+  if destGUID == UnitGUID("player") and odynp1[spellId] and event == "SPELL_AURA_APPLIED" then
+    self.range = 20
+    self:OdynP1Clear()
+    self:OdynP1(odynp3[spellId])
+  end
+
+  if destGUID == UnitGUID("player") and spellId == 229584 and event == "SPELL_AURA_APPLIED" then
+    self:OdynP1Clear()
+  end
+
+  --test
+
+  -- if spellId==116694 and event == "SPELL_CAST_START" then
+  --   self:OdynP1Clear()
+  --   self:OdynP1(2)
+  -- end
+  -- if spellId==116694 and event == "SPELL_CAST_SUCCESS" then
+  --   self:OdynP1Clear()
+  -- end
+
+  --tes end
+
+  if spellId == 228162 and event == "SPELL_CAST_START" then
+    self.range = 20
+    local unit
+    for i = 1,4 do
+      if sourceGUID== UnitGUID("boss"..i) then
+        unit = "boss"..i
+        break
+      end
+    end
+    if not unit then
+      if sourceGUID== UnitGUID("player") then
+        unit = "player" --test
+      end
+    end
+    if unit then
+      self:New("Line",{length = 200,width = 5, color={1,1,0,0.5},expire=GetTime()+4,from={unit=unit},to={unit=unit.."target"}})
+      for i=1,20 do
+        local u = "raid"..i
+        if not UnitIsUnit("player",u) then
+          local _,class = UnitClass(u)
+          if class then
+            local c = RAID_CLASS_COLORS[class]
+            self:New("Point",{color={c.r,c.g,c.b,1},radius=1.5,expire=GetTime()+4,position={unit=u}})
+          end
+        end
+      end
+    end
+  end
+  if spellId == 228012 and event == "SPELL_CAST_START" then
+    self.range = 20
+    self:New("Point",{color={0,1,0,0.2},radius=6,expire=GetTime()+4.5,position={unit="player"}})
+    for i=1,20 do
+      local u = "raid"..i
+      if not UnitIsUnit("player",u) then
+        local _,class = UnitClass(u)
+        if class then
+          local c = RAID_CLASS_COLORS[class]
+          self:New("Point",{color={c.r,c.g,c.b,1},radius=1.5,expire=GetTime()+4.5,position={unit=u}})
         end
       end
     end

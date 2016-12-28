@@ -30,10 +30,20 @@ function M:OnEnable()
           end
         end
       end
+      for i=1,4 do
+        local guid = UnitGUID("boss"..i)
+        if guid then
+          -- dump(data[guid])
+          local x,y,_,f = unpack(data[guid] or {})
+          if x then
+            toSend = toSend..ser(i+40,x-px,y-py,f)
+          end
+        end
+      end
       self:SendCommMessage("AIRJRH_COMM",toSend,"raid",nil,"ALERT",function(arg1,current,totle)
         -- print(current,totle)
         if (current>=totle) then
-          self:ScheduleTimer(send,0.1)
+          self:ScheduleTimer(send,0.01)
         end
       end)
     else
