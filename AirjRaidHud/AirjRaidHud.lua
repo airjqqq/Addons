@@ -74,6 +74,11 @@ function H:OnEnable()
   end)
   self:ScheduleRepeatingTimer(function()
     if AirjHack and AirjHack:HasHacked() then
+      do
+        local guid = UnitGUID("player")
+        local x,y,_,f = AirjHack:Position(guid)
+        self.position[guid] = {x,y,f}
+      end
       for i=1,20 do
         local guid = UnitGUID("raid"..i)
         if guid then
@@ -224,13 +229,13 @@ function H:UpdateMainFrame()
         end
       end
     end
-    if show then
-      -- local size = 1000/self.range
-      -- frame.player:SetSize(size,size)
-      frame:Show()
-    else
-      frame:Hide()
-    end
+  end
+  if show then
+    -- local size = 1000/self.range
+    -- frame.player:SetSize(size,size)
+    frame:Show()
+  else
+    frame:Hide()
   end
 end
 
@@ -291,7 +296,12 @@ do --util
     end
     return hx,hy,hf,hr
   end
-end --util end
+  function H:PlayYike(name)
+    PlaySoundFile("Interface\\AddOns\\DBM-VPYike\\"..name..".ogg", "Master")
+  end
+end
+
+ --util end
 
 function H:New(t,data)
   if self["New"..t] then
@@ -458,6 +468,18 @@ do -- odyn
     {1,1,0,0.8},
     {0,0.7,1,0.8},
   }
+  local sounds = {
+    "frontcenter",
+    "frontright",
+    "backright",
+    "backleft",
+    "frontleft",
+    -- "Interface\\AddOns\\DBM-VPYike\\frontcenter.ogg",
+    -- "Interface\\AddOns\\DBM-VPYike\\frontright.ogg",
+    -- "Interface\\AddOns\\DBM-VPYike\\backright.ogg",
+    -- "Interface\\AddOns\\DBM-VPYike\\backleft.ogg",
+    -- "Interface\\AddOns\\DBM-VPYike\\frontleft.ogg",
+  }
   function H:OdynP3(index)
     local guid = UnitGUID("player")
     local position = self.position[guid]
@@ -474,12 +496,14 @@ do -- odyn
           tx,ty = unpack(right[index])
         end
         local color = markercolor[index]
-        local a = self:New("Line",{color=color,expire=GetTime()+10,from={unit="player"},to={x=tx,y=ty}})
-        self:New("Point",{color=color,expire=GetTime()+10,position={x=tx,y=ty}})
+        local expire=GetTime()+10
+        local a = self:New("Line",{color=color,expire=expire,from={unit="player"},to={x=tx,y=ty}})
+        self:New("Point",{color=color,expire=expire,position={x=tx,y=ty}})
         local function play()
-          local px,py = unpack(playerPosition)
-          if a and a.type and self:Distance(px,py,tx,ty)>10 then
-            PlaySoundFile("Interface\\AddOns\\AirjRaidHud\\sounds\\".."odyn"..index..".mp3", "Master")
+          local px,py = unpack(self.playerPosition)
+          if a and a.type and self:Distance(px,py,tx,ty)>10 and GetTime()<expire then
+            -- PlaySoundFile("Interface\\AddOns\\AirjRaidHud\\sounds\\".."odyn"..index..".mp3", "Master")
+            self:PlayYike(sounds[index])
             self:ScheduleTimer(play,3)
           end
         end
@@ -491,11 +515,13 @@ do -- odyn
   function H:OdynP1(index)
     local tx,ty = unpack(center2[index])
     local color = markercolor[index]
-    lp1 = self:New("Line",{color=color,expire=GetTime()+20,from={unit="player"},to={x=tx,y=ty}})
-    lp2 = self:New("Point",{color=color,expire=GetTime()+20,position={x=tx,y=ty}})
+    local expire=GetTime()+20
+    lp1 = self:New("Line",{color=color,expire=expire,from={unit="player"},to={x=tx,y=ty}})
+    lp2 = self:New("Point",{color=color,expire=expire,position={x=tx,y=ty}})
     local function play()
-      if lp1 and lp1.type then
-        PlaySoundFile("Interface\\AddOns\\AirjRaidHud\\sounds\\".."odyn"..index..".mp3", "Master")
+      if lp1 and lp1.type and GetTime()<expire  then
+        -- PlaySoundFile("Interface\\AddOns\\AirjRaidHud\\sounds\\".."odyn"..index..".mp3", "Master")
+        self:PlayYike(sounds[index])
         self:ScheduleTimer(play,3)
       end
     end
@@ -506,7 +532,8 @@ do -- odyn
     if lp1 and type(lp1) == "table" and lp1.type then
       lp1.remove = true
       lp1 = nil
-      PlaySoundFile("Interface\\AddOns\\AirjRaidHud\\sounds\\".."safe.mp3", "Master")
+      -- PlaySoundFile("Interface\\AddOns\\AirjRaidHud\\sounds\\".."safe.mp3", "Master")
+      self:PlayYike("safenow")
     end
     if lp2 and type(lp2) == "table" and lp2.type then
       lp2.remove = true
@@ -574,6 +601,9 @@ end
 --http://talkify.net/api/Speak?format=mp3&text=集合分担&refLang=-1&id=d3b36cc4-84c0-473b-a543-8b9e0bd30249&voice=Microsoft%20Huihui%20Desktop&rate=4
 --http://www.bing.com/translator/api/language/Speak?locale=zh-cn&gender=female&media=audio/mp3&text=%E9%9B%86%E5%90%88%E5%88%86%E6%8B%85&rate=4
 function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
+  if self.db.disable then
+    return
+  end
   local playerGuid = UnitGUID("player")
   --test
   -- if spellId==116694 and event == "SPELL_CAST_START" then
@@ -682,6 +712,9 @@ function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
 
     if destGUID == playerGuid and spellId == 229584 and event == "SPELL_AURA_APPLIED" then -- p1
       self:OdynP1Clear()
+    end
+    if destGUID == playerGuid and spellId == 227807 and event == "SPELL_AURA_REMOVED" then
+      self:PlayYike("runin")
     end
 
     if spellId == 228162 and event == "SPELL_CAST_START" then  -- sheild of holy
