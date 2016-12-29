@@ -532,8 +532,6 @@ do -- odyn
     if lp1 and type(lp1) == "table" and lp1.type then
       lp1.remove = true
       lp1 = nil
-      -- PlaySoundFile("Interface\\AddOns\\AirjRaidHud\\sounds\\".."safe.mp3", "Master")
-      self:PlayYike("safenow")
     end
     if lp2 and type(lp2) == "table" and lp2.type then
       lp2.remove = true
@@ -699,19 +697,48 @@ function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
       [229581] = 4,
       [229582] = 5,
     }
+    local time = GetTime()
     if destGUID == playerGuid and odynp3[spellId] and event == "SPELL_AURA_APPLIED" then  -- p3
       self:SetRange(30)
       self:OdynP3(odynp3[spellId])
     end
 
-    if destGUID == playerGuid and odynp1[spellId] and event == "SPELL_AURA_APPLIED" then -- p1
-      self:SetRange(30)
-      self:OdynP1Clear()
-      self:OdynP1(odynp1[spellId])
+    if odynp1[spellId] and event == "SPELL_AURA_APPLIED" then -- p1
+      if destGUID == playerGuid then
+        if not self.buffer.odynp1get or time > self.buffer.odynp1get +30 then
+          self:SetRange(30)
+          self:OdynP1Clear()
+          self:OdynP1(odynp1[spellId])
+          self.buffer.odynp1get = time
+        end
+      end
+      self.buffer.odynp1buffs = self.buffer.odynp1buffs or {}
+      self.buffer.odynp1buffs[spellId] = time
+      local count = 0
+      local index
+      for i,v in pairs(odynp1) do
+        local t = self.buffer.odynp1buffs[i]
+        if t > time-30 then
+          count = count + 1
+        else
+          index = v
+        end
+      end
+      if count == 4 and index then
+        if not self.buffer.odynp1get or time > self.buffer.odynp1get +30 then
+          self:SetRange(30)
+          self:OdynP1Clear()
+          self:OdynP1(index)
+          self.buffer.odynp1get = time
+        end
+      end
     end
 
-    if destGUID == playerGuid and spellId == 229584 and event == "SPELL_AURA_APPLIED" then -- p1
-      self:OdynP1Clear()
+    if spellId == 229584 and event == "SPELL_AURA_APPLIED" then -- p1
+      if destGUID == playerGuid then
+        self:PlayYike("safenow")
+        self:OdynP1Clear()
+      end
     end
     if destGUID == playerGuid and spellId == 227807 and event == "SPELL_AURA_REMOVED" then
       self:PlayYike("runin")
