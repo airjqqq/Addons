@@ -57,7 +57,7 @@ function H:OnEnable()
       end
     elseif key == "enable" then
       self.db.disable = not self.db.disable
-      self:Print("Addons "..(self.db.disable and "enabled" or "disabled")..".")
+      self:Print("Addons "..(self.db.disable and "disabled" or "enabled")..".")
       self:UpdateMainFrame()
     else
       self:Print("enable - enable/disable the addon.")
@@ -634,7 +634,7 @@ function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
     if destGUID == playerGuid and odynp1[spellId] and event == "SPELL_AURA_APPLIED" then -- p1
       self:SetRange(30)
       self:OdynP1Clear()
-      self:OdynP1(odynp3[spellId])
+      self:OdynP1(odynp1[spellId])
     end
 
     if destGUID == playerGuid and spellId == 229584 and event == "SPELL_AURA_APPLIED" then -- p1
