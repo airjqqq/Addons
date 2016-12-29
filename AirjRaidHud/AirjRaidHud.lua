@@ -24,30 +24,30 @@ function H:OnEnable()
     if key == "background" then
       self.db.nobg = not self.db.nobg
       if self.db.nobg then
-        self:Print("Background hide.")
+        self:Print("背景隐藏")
         frame.back:Hide()
       else
-        self:Print("Background show.")
+        self:Print("背景显示")
         frame.back:Show()
       end
     elseif key == "autohide" then
       self.db.autohide = not self.db.autohide
-      self:Print("Autohide "..(self.db.autohide and "enabled" or "disabled")..".")
+      self:Print("自动隐藏 "..(self.db.autohide and "开启" or "关闭")..".")
       self:UpdateMainFrame()
     elseif key == "lock" then
       self.db.lock = true
-      self:Print("Frame Locked!")
+      self:Print("已锁定!")
       frame:EnableMouse(not self.db.lock)
     elseif key == "unlock" then
       self.db.lock = nil
-      self:Print("Frame Unlocked!")
+      self:Print("已解锁!")
       frame:EnableMouse(not self.db.lock)
     elseif key == "scale" then
       local s = tonumber(value)
       if s then
         self.db.scale = s
         frame:SetScale(s)
-        self:Print("Frame Scale = "..s)
+        self:Print("放缩比例为"..s)
       end
     elseif key == "range" then
       local s = tonumber(value)
@@ -57,26 +57,43 @@ function H:OnEnable()
       end
     elseif key == "enable" then
       self.db.disable = not self.db.disable
-      self:Print("Addons "..(self.db.disable and "enabled" or "disabled")..".")
+      self:Print("插件已"..(self.db.disable and "启用" or "禁用")..".")
       self:UpdateMainFrame()
     else
-      self:Print("enable - enable/disable the addon.")
-      self:Print("lock - lock the frame (mouse disable).")
-      self:Print("unlock - unlock the frame (mouse enable).")
-      self:Print("scale <number> - set frame scale.")
-      self:Print("range <number> - set display range.")
-      self:Print("background - hide/show background.")
-      self:Print("autohide - enable/disable auto hide on nothing to show.")
+      self:Print("/arh - 显示帮助.")
+      self:Print("/arh enable - 启动/禁用.")
+      self:Print("/arh lock - 锁定 (鼠标禁用).")
+      self:Print("/arh unlock - 解锁 (鼠标启用).")
+      self:Print("/arh scale <数字> - 设置放缩比例.")
+      self:Print("/arh background - 显示/隐藏背景.")
+      self:Print("/arh autohide - 无内容时自动隐藏.")
     end
 
     -- self:New("Line",{from={x=-518.5,y=2428.7},to={x=-528.5,y=2428.7}})
     -- self:New("Point",{expire=GetTime()+10,position={x=-528.5,y=2428.7}})
   end)
-  -- self:ScheduleRepeatingTimer(self.UpdateMainFrame,0.1,self)
+  self:ScheduleRepeatingTimer(function()
+    if AirjHack and AirjHack:HasHacked() then
+      for i=1,20 do
+        local guid = UnitGUID("raid"..i)
+        if guid then
+          local x,y,_,f = AirjHack:Position(guid)
+          self.position[guid] = {x,y,f}
+        end
+      end
+      for i=1,4 do
+        local guid = UnitGUID("boss"..i)
+        if guid then
+          local x,y,_,f = AirjHack:Position(guid)
+          self.position[guid] = {x,y,f}
+        end
+      end
+      self:UpdateMainFrame()
+    end
+  end,0.02)
 
   if self.db.disable then
     H:GetMainFrame():Hide()
-    return
   end
 end
 
@@ -95,32 +112,36 @@ end
 
 function H:OnCommReceived(prefix,data,channel,sender)
   if prefix == "AIRJRH_COMM" then
-    local pxs = strsub(data,1,6)
-    local pys = strsub(data,7,12)
-    local px,py = tonumber(pxs),tonumber(pys)
-    if px then
-      px = px/10
-      py = py/10
 
-      local s = 13
-      -- print(px,py)
-      while s<strlen(data) do
-        local i,x,y,f = deser(strsub(data,s,s+3))
-        if i then
-          x = x+px
-          y = y+py
-          s=s+4
-          local guid
-          if i>40 then
-            guid = UnitGUID("boss"..(i-40))
-          else
-            guid = UnitGUID("raid"..i) --may sync
+    if AirjHack and AirjHack:HasHacked() then
+    else
+      local pxs = strsub(data,1,6)
+      local pys = strsub(data,7,12)
+      local px,py = tonumber(pxs),tonumber(pys)
+      if px then
+        px = px/10
+        py = py/10
+
+        local s = 13
+        -- print(px,py)
+        while s<strlen(data) do
+          local i,x,y,f = deser(strsub(data,s,s+3))
+          if i then
+            x = x+px
+            y = y+py
+            s=s+4
+            local guid
+            if i>40 then
+              guid = UnitGUID("boss"..(i-40))
+            else
+              guid = UnitGUID("raid"..i) --may sync
+            end
+            self.position[guid] = {x,y,f}
           end
-          self.position[guid] = {x,y,f}
         end
       end
+      self:UpdateMainFrame()
     end
-    self:UpdateMainFrame()
   end
 end
 
@@ -343,6 +364,7 @@ do --line
     line.texture = {texture}
     line.width = data.width
     line.length = data.length
+    line.ray = data.ray
     line.type = "Line"
     return line
   end
@@ -375,6 +397,10 @@ do --line
       local r2h = 1/self.range/2
       local hrl = rl*r2h
       local s,c = -(hty-hfy)/hrl,(htx-hfx)/hrl
+      if line.ray then
+        hx = hfx + hl/hrl/2*(htx-hfx)
+        hy = hfy + hl/hrl/2*(hty-hfy)
+      end
       hw = hw*8 -- for img
       local a1,a2,a3,a4,a5,a6 = 1/hl*c,-1/hl*s,-1/hl*c*hx+1/hl*s*hy+0.5,1/hw*s,1/hw*c,-1/hw*s*hx-1/hw*c*hy+0.5
       local ULx, ULy = a1*-0.5+a2*0.5+a3*1,a4*-0.5+a5*0.5+a6*1
@@ -448,8 +474,16 @@ do -- odyn
           tx,ty = unpack(right[index])
         end
         local color = markercolor[index]
-        self:New("Line",{color=color,expire=GetTime()+10,from={unit="player"},to={x=tx,y=ty}})
+        local a = self:New("Line",{color=color,expire=GetTime()+10,from={unit="player"},to={x=tx,y=ty}})
         self:New("Point",{color=color,expire=GetTime()+10,position={x=tx,y=ty}})
+        local function play()
+          local px,py = unpack(playerPosition)
+          if a and a.type and self:Distance(px,py,tx,ty)>10 then
+            PlaySoundFile("Interface\\AddOns\\AirjRaidHud\\sounds\\".."odyn"..index..".mp3", "Master")
+            self:ScheduleTimer(play,3)
+          end
+        end
+        play()
       end
     end
   end
@@ -459,12 +493,20 @@ do -- odyn
     local color = markercolor[index]
     lp1 = self:New("Line",{color=color,expire=GetTime()+20,from={unit="player"},to={x=tx,y=ty}})
     lp2 = self:New("Point",{color=color,expire=GetTime()+20,position={x=tx,y=ty}})
+    local function play()
+      if lp1 and lp1.type then
+        PlaySoundFile("Interface\\AddOns\\AirjRaidHud\\sounds\\".."odyn"..index..".mp3", "Master")
+        self:ScheduleTimer(play,3)
+      end
+    end
+    play()
   end
 
   function H:OdynP1Clear()
     if lp1 and type(lp1) == "table" and lp1.type then
       lp1.remove = true
       lp1 = nil
+      PlaySoundFile("Interface\\AddOns\\AirjRaidHud\\sounds\\".."safe.mp3", "Master")
     end
     if lp2 and type(lp2) == "table" and lp2.type then
       lp2.remove = true
@@ -529,7 +571,8 @@ do --Guarm
   end
 end
 
-
+--http://talkify.net/api/Speak?format=mp3&text=集合分担&refLang=-1&id=d3b36cc4-84c0-473b-a543-8b9e0bd30249&voice=Microsoft%20Huihui%20Desktop&rate=4
+--http://www.bing.com/translator/api/language/Speak?locale=zh-cn&gender=female&media=audio/mp3&text=%E9%9B%86%E5%90%88%E5%88%86%E6%8B%85&rate=4
 function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
   local playerGuid = UnitGUID("player")
   --test
@@ -656,7 +699,7 @@ function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
       --   end
       -- end
       if unit then
-        self:New("Line",{length = 200,width = 5, color={1,1,0,0.5},expire=GetTime()+4,from={unit=unit},to={unit=unit.."target"}})
+        self:New("Line",{ray=true,length = 200,width = 5, color={1,1,0,0.5},expire=GetTime()+4,from={unit=unit},to={unit=unit.."target"}})
         for i=1,20 do
           local u = "raid"..i
           if not UnitIsUnit("player",u) then
@@ -671,7 +714,7 @@ function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
     end
     if spellId == 228012 and event == "SPELL_CAST_START" then  --
       self:SetRange(20)
-      self:New("Point",{color={0,0.5,0,0.2},radius=6,expire=GetTime()+4.5,position={unit="player"}})
+      self:New("Point",{color={0,0.5,0,0.5},radius=6,expire=GetTime()+4.5,position={unit="player"}})
       for i=1,20 do
         local u = "raid"..i
         if not UnitIsUnit("player",u) then
