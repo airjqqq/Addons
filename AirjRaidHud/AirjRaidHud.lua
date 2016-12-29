@@ -57,7 +57,7 @@ function H:OnEnable()
       end
     elseif key == "enable" then
       self.db.disable = not self.db.disable
-      self:Print("插件已"..(self.db.disable and "启用" or "禁用")..".")
+      self:Print("插件已"..(self.db.disable and "禁用" or "启用")..".")
       self:UpdateMainFrame()
     else
       self:Print("/arh - 显示帮助.")
@@ -677,7 +677,7 @@ function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
     if destGUID == playerGuid and odynp1[spellId] and event == "SPELL_AURA_APPLIED" then -- p1
       self:SetRange(30)
       self:OdynP1Clear()
-      self:OdynP1(odynp3[spellId])
+      self:OdynP1(odynp1[spellId])
     end
 
     if destGUID == playerGuid and spellId == 229584 and event == "SPELL_AURA_APPLIED" then -- p1
