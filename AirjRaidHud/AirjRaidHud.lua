@@ -198,6 +198,11 @@ function H:CreateFrame()
 	frame.player:SetSize(size/8,size/8)
 	frame.player:SetPoint("CENTER",0,0)
 	frame.player:SetTexture("Interface\\MINIMAP\\MinimapArrow")
+	frame.barbg = frame:CreateTexture(nil, "OVERLAY")
+	frame.barbg:SetColorTexture(.7,.7,.7,.4)
+	frame.barbg:SetPoint("BOTTOMLEFT")
+	frame.barbg:SetPoint("BOTTOMRIGHT")
+  frame.barbg:SetHeight(size/16)
   return frame
 end
 
