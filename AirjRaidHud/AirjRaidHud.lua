@@ -11,6 +11,7 @@ function H:OnInitialize()
   self.buffer = {}
   self.pointcache = {}
   self.linecache = {}
+  self.dbmtimers = {}
 end
 
 function H:OnEnable()
@@ -93,12 +94,26 @@ function H:OnEnable()
           self.position[guid] = {x,y,f}
         end
       end
-      self:UpdateMainFrame()
     end
+    self:UpdateMainFrame()
   end,0.02)
 
   if self.db.disable then
     H:GetMainFrame():Hide()
+  end
+  if DBM then
+    DBM:RegisterCallback("DBM_TimerStart", function(event, id, msg, time, icon, type, spellId, colorId, modId)
+      self.dbmtimers[id] = {
+        spellId = spellId,
+        msg = msg,
+        expire = GetTime() + time,
+        type = type,
+      }
+      -- print(event, id, msg, time, icon, type, spellId, colorId, modId)
+    end)
+    DBM:RegisterCallback("DBM_TimerStop", function(event, id)
+      self.dbmtimers[id] = nil
+    end)
   end
 end
 
@@ -162,6 +177,13 @@ function H:SetRange(range)
   self:GetMainFrame().player:SetSize(size,size)
 end
 
+function H:SetBar(expire,start,color)
+  self.barstart = start or GetTime()
+  self.barexpire = expire
+  color = color or {.1,.7,.1,.8}
+  self:GetMainFrame().bar:SetColorTexture(unpack(color))
+end
+
 function H:CreateFrame()
   local frame = CreateFrame("Frame")
   local x,y = self.db.x,self.db.y
@@ -198,11 +220,16 @@ function H:CreateFrame()
 	frame.player:SetSize(size/8,size/8)
 	frame.player:SetPoint("CENTER",0,0)
 	frame.player:SetTexture("Interface\\MINIMAP\\MinimapArrow")
-	frame.barbg = frame:CreateTexture(nil, "OVERLAY")
-	frame.barbg:SetColorTexture(.7,.7,.7,.4)
+	frame.barbg = frame:CreateTexture(nil, "BACKGROUND")
+	frame.barbg:SetColorTexture(.2,.2,.2,.6)
 	frame.barbg:SetPoint("BOTTOMLEFT")
 	frame.barbg:SetPoint("BOTTOMRIGHT")
   frame.barbg:SetHeight(size/16)
+	frame.bar = frame:CreateTexture(nil, "OVERLAY")
+	frame.bar:SetColorTexture(.1,.7,.7,.8)
+	frame.bar:SetPoint("BOTTOMLEFT")
+  frame.bar:SetHeight(size/16)
+  frame.bar:SetWidth(size)
   return frame
 end
 
@@ -234,6 +261,17 @@ function H:UpdateMainFrame()
         end
       end
     end
+  end
+  if self.barstart and self.barexpire and time < self.barexpire then
+    local started = time-self.barstart
+    started = math.max(started,0)
+    local width = frame.barbg:GetWidth()
+    frame.bar:SetWidth(width*started/(self.barexpire-self.barstart))
+    frame.barbg:Show()
+    frame.bar:Show()
+  else
+    frame.barbg:Hide()
+    frame.bar:Hide()
   end
   if show then
     -- local size = 1000/self.range
@@ -504,6 +542,7 @@ do -- odyn
         local expire=GetTime()+10
         local a = self:New("Line",{color=color,expire=expire,from={unit="player"},to={x=tx,y=ty}})
         self:New("Point",{color=color,expire=expire,position={x=tx,y=ty}})
+        self:SetBar(expire)
         local function play()
           local px,py = unpack(self.playerPosition)
           if a and a.type and self:Distance(px,py,tx,ty)>10 and GetTime()<expire then
@@ -531,6 +570,14 @@ do -- odyn
       end
     end
     play()
+    for k,v in pairs(self.dbmtimers) do
+      if v.spellId == 227629 then
+        if v.expire + 5 > GetTime() then
+          self:SetBar(v.expire + 5,v.expire + 5 - 20)
+          break
+        end
+      end
+    end
   end
 
   function H:OdynP1Clear()
@@ -624,7 +671,8 @@ function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
       if self.buffer.lastblade then
         self:SetRange(30)
         local a = self:New("Line",{length = 200,width = 3, color={1,0.3,0,0.5},expire=GetTime()+6,from={guid=self.buffer.lastblade},to={guid=destGUID}})
-        self:ScheduleTimer(function() self:Freeze(a.from) self:Freeze(a.to) end,4)
+        self:ScheduleTimer(function() self:Freeze(a.from) self:Freeze(a.to) end,5)
+        self:SetBar(GetTime()+6)
         self.buffer.lastblade = nil
       else
         self.buffer.lastblade = destGUID
@@ -711,11 +759,12 @@ function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
     if odynp1[spellId] and event == "SPELL_AURA_APPLIED" then -- p1
       if destGUID == playerGuid then
         if not self.buffer.odynp1get or time > self.buffer.odynp1get +30 then
-          self:SetRange(30)
-          self:OdynP1Clear()
-          self:OdynP1(odynp1[spellId])
-          self.buffer.odynp1get = time
+        else
         end
+        self:SetRange(30)
+        self:OdynP1Clear()
+        self:OdynP1(odynp1[spellId])
+        self.buffer.odynp1get = time
       end
       self.buffer.odynp1buffs = self.buffer.odynp1buffs or {}
       self.buffer.odynp1buffs[spellId] = time
@@ -723,7 +772,7 @@ function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
       local index
       for i,v in pairs(odynp1) do
         local t = self.buffer.odynp1buffs[i]
-        if t > time-30 then
+        if t and t > time-30 then
           count = count + 1
         else
           index = v
@@ -765,6 +814,7 @@ function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
       -- end
       if unit then
         self:New("Line",{ray=true,length = 200,width = 5, color={1,1,0,0.5},expire=GetTime()+4,from={unit=unit},to={unit=unit.."target"}})
+        self:SetBar(GetTime()+4)
         for i=1,20 do
           local u = "raid"..i
           if not UnitIsUnit("player",u) then
@@ -780,6 +830,7 @@ function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
     if spellId == 228012 and event == "SPELL_CAST_START" then  --
       self:SetRange(20)
       self:New("Point",{color={0,0.5,0,0.5},radius=6,expire=GetTime()+4.5,position={unit="player"}})
+      self:SetBar(GetTime()+4.5)
       for i=1,20 do
         local u = "raid"..i
         if not UnitIsUnit("player",u) then
