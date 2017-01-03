@@ -159,7 +159,7 @@ local function GetDefaultSpells()
 			-- [23920] = true, -- Warrior/Spell Reflection
 		},
 		{ -- group 2
-			-- [42292] = true, -- ITEMS/PvP Trinket
+			[208683] = true, -- ITEMS/PvP Trinket
 		}
 	}
 end

@@ -126,6 +126,66 @@ local function GetDefaultImportantAuras()
 	  [GladiusEx:SafeGetSpellName(10060)]	= 6,	-- Power Infusion
 	  [GladiusEx:SafeGetSpellName(3045)]	= 6,	-- Rapid Fire
 	  --[GladiusEx:SafeGetSpellName(48505)]	= 6,	-- Starfall
+		[GladiusEx:SafeGetSpellName(13750)] = 6, -- Adrenaline Rush
+		[GladiusEx:SafeGetSpellName(152151)] = 6, -- Shadow Reflection
+		[GladiusEx:SafeGetSpellName(107574)] = 6, -- Avatar
+		--[GladiusEx:SafeGetSpellName(106952)] = 6, -- Berserk
+		[GladiusEx:SafeGetSpellName(12292)] = 6, -- Bloodbath
+		[GladiusEx:SafeGetSpellName(51271)] = 6, -- Pillar of Frost
+		[GladiusEx:SafeGetSpellName(1719)] = 6, -- Recklessness
+		[GladiusEx:SafeGetSpellName(162264)] = 6, -- Metamorphosis
+		[GladiusEx:SafeGetSpellName(211048)] = 6, -- Chaos Blades
+		[GladiusEx:SafeGetSpellName(152173)] = 6, -- Serenity
+		--[GladiusEx:SafeGetSpellName(51713)] = 6, -- Shadow Dance
+
+		[GladiusEx:SafeGetSpellName(12042)] = 6, -- Arcane Power
+		[GladiusEx:SafeGetSpellName(114049)] = 6, -- Ascendance
+		[GladiusEx:SafeGetSpellName(31884)] = 6, -- Avenging Wrath
+		--[GladiusEx:SafeGetSpellName(113858)] = 6, -- Dark Soul: Instability
+		--[GladiusEx:SafeGetSpellName(113861)] = 6, -- Dark Soul: Knowledge
+		--[GladiusEx:SafeGetSpellName(113860)] = 6, -- Dark Soul: Misery
+		[GladiusEx:SafeGetSpellName(16166)] = 6, -- Elemental Mastery
+		[GladiusEx:SafeGetSpellName(12472)] = 6, -- Icy Veins
+		[GladiusEx:SafeGetSpellName(33891)] = 6, -- Incarnation: Tree of Life
+		[GladiusEx:SafeGetSpellName(102560)] = 6, -- Incarnation: Chosen of Elune
+		[GladiusEx:SafeGetSpellName(102543)] = 6, -- Incarnation: King of the Jungle
+		[GladiusEx:SafeGetSpellName(102558)] = 6, -- Incarnation: Son of Ursoc
+		[GladiusEx:SafeGetSpellName(10060)] = 6, -- Power Infusion
+		[GladiusEx:SafeGetSpellName(3045)] = 6, -- Rapid Fire
+		--[GladiusEx:SafeGetSpellName(48505)] = 6, -- Starfall
+
+		[GladiusEx:SafeGetSpellName(202060)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(106951)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(102543)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(102560)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(117679)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(194223)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(210649)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(186289)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(19574)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(193526)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(12042)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(12472)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(190319)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(195446)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(31842)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(31884)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(105809)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(224668)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(10060)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(47536)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(47536)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(51690)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(121471)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(16166)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(114050)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(114051)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(201898)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(205495)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(210714)] = 6, -- Elune's Guidance
+		[GladiusEx:SafeGetSpellName(196098)] = 6, -- Elune's Guidance
+
+
 	  -- Silence and Spell Immunities Auras (7)
 	  [GladiusEx:SafeGetSpellName(31821)]	= 7,	-- Devotion Aura
 	  --[GladiusEx:SafeGetSpellName(115723)]	= 7,	-- Glyph of Ice Block
@@ -311,7 +371,7 @@ function ClassIcon:UNIT_MODEL_CHANGED(event, unit)
 end
 
 function ClassIcon:ScanAuras(unit)
-	local best_priority = 0
+	local best_priority = -1
 	local best_name, best_icon, best_duration, best_expires
 
 	local function handle_aura(name, spellid, icon, duration, expires)
@@ -430,7 +490,7 @@ function ClassIcon:SetClassIcon(unit)
 			if self.frame[unit].portrait3d then
 				self.frame[unit].portrait3d:Hide()
 			end
-			self.frame[unit].texture:SetTexture(0, 0, 0, 1)
+			self.frame[unit].texture:SetColorTexture(0, 0, 0, 1)
 			return
 		end
 	elseif self.db[unit].classIconMode == "PORTRAIT3D" then
@@ -453,7 +513,7 @@ function ClassIcon:SetClassIcon(unit)
 				self.frame[unit].portrait3d:SetPosition(0, 0, 0)
 			end
 			self.frame[unit].portrait3d:Show()
-			self.frame[unit].texture:SetTexture(0, 0, 0, 1)
+			self.frame[unit].texture:SetColorTexture(0, 0, 0, 1)
 			if self.frame[unit].portrait2d then
 				self.frame[unit].portrait2d:Hide()
 			end

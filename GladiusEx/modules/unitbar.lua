@@ -8,7 +8,7 @@ local strfind = string.find
 local select, pairs, unpack = select, pairs, unpack
 local UnitExists, UnitIsUnit, UnitClass = UnitExists, UnitIsUnit, UnitClass
 local UnitHealth, UnitHealthMax = UnitHealth, UnitHealthMax
-
+local CLASS_BUTTONS = CLASS_ICON_TCOORDS
 function GladiusEx:NewUnitBarModule(name, defaults_arena, defaults_party)
 	local UnitBar = GladiusEx:NewGladiusExModule(name, defaults_arena, defaults_party)
 
