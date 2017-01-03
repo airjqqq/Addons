@@ -337,7 +337,7 @@ local function binary_search(list, value, fn)
 	local i = sorted_index(list, value, fn)
 	local li = list[i]
 	local lv
-	
+
 	if fn then
 		lv = fn(li)
 	else

@@ -1,0 +1,47 @@
+Rainrider:
+	- tests: better fix for changed __RegisterSpells behavior
+	- tests: fix for AdiDebug inclusion
+Benjamin Staneck:
+	- spelling and misc fact fixes
+Rainrider:
+	- Bump ToC
+	- core: move error messages to debug
+	Fixes https://github.com/AdiAddons/LibPlayerSpells-1.0/issues/110
+	- paladin: fix for 7.1
+	Blade of Wrath redesigned
+	Divine Steed consolidated
+Adirelle:
+	- hunter: Animal Instincts redesigned in 7.1: it does not provide any buff anymore.
+Rainrider:
+	- priest: add Sins of the Many (Discipline artifact)
+Adirelle:
+	- hunter: display the stack and duration of Mongoose Fury on Fury of the Eagle (BM artifact).
+Rainrider:
+	- monk: add Fists of Fury stun effect
+	Closes https://github.com/AdiAddons/LibPlayerSpells-1.0/issues/107
+Adirelle:
+	- core: do not complain if there is no old version.
+	- core: GetSpellInfo and IterateSpells now return the dispel categories.
+	See #102.
+	- core: wipe internal data coming from versions anterior to 8.
+	See #100.
+Rainrider:
+	- hunter: fix some of the stuns
+	- Fix .pkgmeta
+	Closes https://github.com/AdiAddons/LibPlayerSpells-1.0/issues/103
+	Thank you @nebularg
+Adirelle:
+	- hunter: Spirit Mend is not reserved for the pet only.
+Rainrider:
+	- druid: fix Stellar Flare typo
+	Fixes https://github.com/AdiAddons/AdiButtonAuras/issues/235
+Adirelle:
+	- hunter: bump revision.
+	- hunter: tag several pet survival skills.
+	- hunter: add Stone Armor (Quilen passive).
+	- hunter: Play Dead is a pet survival skill.
+	- hunter: tag Feign Death as survival.
+Rainrider:
+	- hunter: add Aspect of the Chameleon
+	- priest: add discipline artifact hidden ability
+	Closes https://github.com/AdiAddons/AdiButtonAuras/issues/233

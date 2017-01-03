@@ -84,7 +84,7 @@ end
 
 function DRTracker:CreateIcon(unit, drCat)
 	local f = CreateFrame("Frame", "GladiusEx" .. self:GetName() .. "FrameCat" .. drCat .. unit, self.frame[unit], nil)
-	
+
 	f.texture = f:CreateTexture(nil, "ARTWORK")
 	f.texture:SetAllPoints()
 
@@ -172,7 +172,7 @@ function DRTracker:DRFaded(unit, spellID)
 	tracked.texture:SetTexture(GetSpellTexture(spellID))
 
 	if self.db[unit].drTrackerCooldown then
-		CooldownFrame_SetTimer(tracked.cooldown, GetTime(), time_left, 1)
+		CooldownFrame_Set(tracked.cooldown, GetTime(), time_left, 1)
 	end
 
 	tracked:SetScript("OnUpdate", function(f, elapsed)

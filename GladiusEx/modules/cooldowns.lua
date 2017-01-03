@@ -15,151 +15,151 @@ local UnitBuff = UnitBuff
 local function GetDefaultSpells()
 	return {
 		{ -- group 1
-			[28730] = true, -- BloodElf/Arcane Torrent
-			[107079] = true, -- Pandaren/Quaking Palm
-			[69070] = true, -- Goblin/Rocket Jump
-			[7744] = true, -- Scourge/Will of the Forsaken
-
-			[48707] = true, -- Death Knight/Anti-Magic Shell
-			[42650] = true, -- Death Knight/Army of the Dead
-			[108194] = true, -- Death Knight/Asphyxiate
-			[49576] = true, -- Death Knight/Death Grip
-			[48743] = true, -- Death Knight/Death Pact
-			[108201] = true, -- Death Knight/Desecrated Ground
-			[47568] = true, -- Death Knight/Empower Rune Weapon
-			[48792] = true, -- Death Knight/Icebound Fortitude
-			[49039] = true, -- Death Knight/Lichborne
-			[47528] = true, -- Death Knight/Mind Freeze
-			[51271] = true, -- Death Knight/Pillar of Frost
-			[61999] = true, -- Death Knight/Raise Ally
-			[108200] = true, -- Death Knight/Remorseless Winter
-			[47476] = true, -- Death Knight/Strangulate
-			[49206] = true, -- Death Knight/Summon Gargoyle
-
-			[22812] = true, -- Druid/Barkskin
-			[33786] = true, -- Druid/Cyclone (feral)
-			[99] = true, -- Druid/Disorienting Roar
-			[102280] = true, -- Druid/Displacer Beast
-			[108288] = true, -- Druid/Heart of the Wild
-			[102342] = true, -- Druid/Ironbark
-			[102359] = true, -- Druid/Mass Entanglement
-			[5211] = true, -- Druid/Mighty Bash
-			[88423] = true, -- Druid/Nature's Cure
-			[132158] = true, -- Druid/Nature's Swiftness
-			[132158] = true, -- Druid/Nature's Swiftness
-			[2782] = true, -- Druid/Remove Corruption
-			[78675] = true, -- Druid/Solar Beam
-			[132469] = true, -- Druid/Typhoon
-			[102793] = true, -- Druid/Ursol's Vortex
-
-			[19574] = true, -- Hunter/Bestial Wrath
-			[19263] = true, -- Hunter/Deterrence
-			[781] = true, -- Hunter/Disengage
-			[1499] = true, -- Hunter/Freezing Trap
-			[19577] = true, -- Hunter/Intimidation
-			[23989] = true, -- Hunter/Readiness
-			[50519] = true, -- Hunter/Sonic Blast
-			[121818] = true, -- Hunter/Stampede
-			[19386] = true, -- Hunter/Wyvern Sting
-
-			[108843] = true, -- Mage/Blazing Speed
-			[1953] = true, -- Mage/Blink
-			[11958] = true, -- Mage/Cold Snap
-			[2139] = true, -- Mage/Counterspell
-			[44572] = true, -- Mage/Deep Freeze
-			[122] = true, -- Mage/Frost Nova
-			[102051] = true, -- Mage/Frostjaw
-			[113074] = true, -- Mage/Healing Touch
-			[45438] = true, -- Mage/Ice Block
-
-			[115450] = true, -- Monk/Detox
-			[122783] = true, -- Monk/Diffuse Magic
-			[113656] = true, -- Monk/Fists of Fury
-			[115203] = true, -- Monk/Fortifying Brew
-			[119381] = true, -- Monk/Leg Sweep
-			[116849] = true, -- Monk/Life Cocoon
-			[137562] = true, -- Monk/Nimble Brew
-			[115078] = true, -- Monk/Paralysis
-			[115310] = true, -- Monk/Revival
-			[116844] = true, -- Monk/Ring of Peace
-			[116705] = true, -- Monk/Spear Hand Strike
-			[116680] = true, -- Monk/Thunder Focus Tea
-			[116841] = true, -- Monk/Tiger's Lust
-			[122470] = true, -- Monk/Touch of Karma
-
-			[115750] = true, -- Paladin/Blinding Light
-			[4987] = true, -- Paladin/Cleanse
-			[31821] = true, -- Paladin/Devotion Aura
-			[642] = true, -- Paladin/Divine Shield
-			[105593] = true, -- Paladin/Fist of Justice
-			[853] = true, -- Paladin/Hammer of Justice
-			[96231] = true, -- Paladin/Rebuke
-			[20066] = true, -- Paladin/Repentance
-
-			[19236] = true, -- Priest/Desperate Prayer
-			[47585] = true, -- Priest/Dispersion
-			[47788] = true, -- Priest/Guardian Spirit
-			[73325] = true, -- Priest/Leap of Faith
-			[33206] = true, -- Priest/Pain Suppression
-			[8122] = true, -- Priest/Psychic Scream
-			[527] = true, -- Priest/Purify
-			[15487] = true, -- Priest/Silence
-			[112833] = true, -- Priest/Spectral Guise
-			[108920] = true, -- Priest/Void Tendrils
-
-			[13750] = true, -- Rogue/Adrenaline Rush
-			[2094] = true, -- Rogue/Blind
-			[31230] = true, -- Rogue/Cheat Death
-			[31224] = true, -- Rogue/Cloak of Shadows
-			[1766] = true, -- Rogue/Kick
-			[137619] = true, -- Rogue/Marked for Death
-			[14185] = true, -- Rogue/Preparation
-			[51713] = true, -- Rogue/Shadow Dance
-			[76577] = true, -- Rogue/Smoke Bomb
-			[1856] = true, -- Rogue/Vanish
-			[79140] = true, -- Rogue/Vendetta
-
-			[114049] = true, -- Shaman/Ascendance
-			[51886] = true, -- Shaman/Cleanse Spirit
-			[8177] = true, -- Shaman/Grounding Totem
-			[108280] = true, -- Shaman/Healing Tide Totem
-			[51514] = true, -- Shaman/Hex
-			[77130] = true, -- Shaman/Purify Spirit
-			[30823] = true, -- Shaman/Shamanistic Rage
-			[113286] = true, -- Shaman/Solar Beam
-			[98008] = true, -- Shaman/Spirit Link Totem
-			[79206] = true, -- Shaman/Spiritwalker's Grace
-			[51490] = true, -- Shaman/Thunderstorm
-			[8143] = true, -- Shaman/Tremor Totem
-			[57994] = true, -- Shaman/Wind Shear
-
-			[89766] = true, -- Warlock/Axe Toss
-			[111397] = true, -- Warlock/Blood Horror
-			[110913] = true, -- Warlock/Dark Bargain
-			[108359] = true, -- Warlock/Dark Regeneration
-			[113858] = true, -- Warlock/Dark Soul: Instability
-			[113861] = true, -- Warlock/Dark Soul: Knowledge
-			[113860] = true, -- Warlock/Dark Soul: Misery
-			[48020] = true, -- Warlock/Demonic Circle: Teleport
-			[5484] = true, -- Warlock/Howl of Terror
-			[6789] = true, -- Warlock/Mortal Coil
-			[115781] = true, -- Warlock/Optical Blast
-			[30283] = true, -- Warlock/Shadowfury
-			[89808] = true, -- Warlock/Singe Magic
-			[19647] = true, -- Warlock/Spell Lock
-			[104773] = true, -- Warlock/Unending Resolve
-
-			[107574] = true, -- Warrior/Avatar
-			[118038] = true, -- Warrior/Die by the Sword
-			[5246] = true, -- Warrior/Intimidating Shout
-			[6552] = true, -- Warrior/Pummel
-			[1719] = true, -- Warrior/Recklessness
-			[871] = true, -- Warrior/Shield Wall
-			[46968] = true, -- Warrior/Shockwave
-			[23920] = true, -- Warrior/Spell Reflection
+			-- [28730] = true, -- BloodElf/Arcane Torrent
+			-- [107079] = true, -- Pandaren/Quaking Palm
+			-- [69070] = true, -- Goblin/Rocket Jump
+			-- [7744] = true, -- Scourge/Will of the Forsaken
+			--
+			-- [48707] = true, -- Death Knight/Anti-Magic Shell
+			-- [42650] = true, -- Death Knight/Army of the Dead
+			-- [108194] = true, -- Death Knight/Asphyxiate
+			-- [49576] = true, -- Death Knight/Death Grip
+			-- [48743] = true, -- Death Knight/Death Pact
+			-- [108201] = true, -- Death Knight/Desecrated Ground
+			-- [47568] = true, -- Death Knight/Empower Rune Weapon
+			-- [48792] = true, -- Death Knight/Icebound Fortitude
+			-- [49039] = true, -- Death Knight/Lichborne
+			-- [47528] = true, -- Death Knight/Mind Freeze
+			-- [51271] = true, -- Death Knight/Pillar of Frost
+			-- [61999] = true, -- Death Knight/Raise Ally
+			-- [108200] = true, -- Death Knight/Remorseless Winter
+			-- [47476] = true, -- Death Knight/Strangulate
+			-- [49206] = true, -- Death Knight/Summon Gargoyle
+			--
+			-- [22812] = true, -- Druid/Barkskin
+			-- [33786] = true, -- Druid/Cyclone (feral)
+			-- [99] = true, -- Druid/Disorienting Roar
+			-- [102280] = true, -- Druid/Displacer Beast
+			-- [108288] = true, -- Druid/Heart of the Wild
+			-- [102342] = true, -- Druid/Ironbark
+			-- [102359] = true, -- Druid/Mass Entanglement
+			-- [5211] = true, -- Druid/Mighty Bash
+			-- [88423] = true, -- Druid/Nature's Cure
+			-- [132158] = true, -- Druid/Nature's Swiftness
+			-- [132158] = true, -- Druid/Nature's Swiftness
+			-- [2782] = true, -- Druid/Remove Corruption
+			-- [78675] = true, -- Druid/Solar Beam
+			-- [132469] = true, -- Druid/Typhoon
+			-- [102793] = true, -- Druid/Ursol's Vortex
+			--
+			-- [19574] = true, -- Hunter/Bestial Wrath
+			-- [19263] = true, -- Hunter/Deterrence
+			-- [781] = true, -- Hunter/Disengage
+			-- [1499] = true, -- Hunter/Freezing Trap
+			-- [19577] = true, -- Hunter/Intimidation
+			-- [23989] = true, -- Hunter/Readiness
+			-- [50519] = true, -- Hunter/Sonic Blast
+			-- [121818] = true, -- Hunter/Stampede
+			-- [19386] = true, -- Hunter/Wyvern Sting
+			--
+			-- [108843] = true, -- Mage/Blazing Speed
+			-- [1953] = true, -- Mage/Blink
+			-- [11958] = true, -- Mage/Cold Snap
+			-- [2139] = true, -- Mage/Counterspell
+			-- [44572] = true, -- Mage/Deep Freeze
+			-- [122] = true, -- Mage/Frost Nova
+			-- [102051] = true, -- Mage/Frostjaw
+			-- [113074] = true, -- Mage/Healing Touch
+			-- [45438] = true, -- Mage/Ice Block
+			--
+			-- [115450] = true, -- Monk/Detox
+			-- [122783] = true, -- Monk/Diffuse Magic
+			-- [113656] = true, -- Monk/Fists of Fury
+			-- [115203] = true, -- Monk/Fortifying Brew
+			-- [119381] = true, -- Monk/Leg Sweep
+			-- [116849] = true, -- Monk/Life Cocoon
+			-- [137562] = true, -- Monk/Nimble Brew
+			-- [115078] = true, -- Monk/Paralysis
+			-- [115310] = true, -- Monk/Revival
+			-- [116844] = true, -- Monk/Ring of Peace
+			-- [116705] = true, -- Monk/Spear Hand Strike
+			-- [116680] = true, -- Monk/Thunder Focus Tea
+			-- [116841] = true, -- Monk/Tiger's Lust
+			-- [122470] = true, -- Monk/Touch of Karma
+			--
+			-- [115750] = true, -- Paladin/Blinding Light
+			-- [4987] = true, -- Paladin/Cleanse
+			-- [31821] = true, -- Paladin/Devotion Aura
+			-- [642] = true, -- Paladin/Divine Shield
+			-- [105593] = true, -- Paladin/Fist of Justice
+			-- [853] = true, -- Paladin/Hammer of Justice
+			-- [96231] = true, -- Paladin/Rebuke
+			-- [20066] = true, -- Paladin/Repentance
+			--
+			-- [19236] = true, -- Priest/Desperate Prayer
+			-- [47585] = true, -- Priest/Dispersion
+			-- [47788] = true, -- Priest/Guardian Spirit
+			-- [73325] = true, -- Priest/Leap of Faith
+			-- [33206] = true, -- Priest/Pain Suppression
+			-- [8122] = true, -- Priest/Psychic Scream
+			-- [527] = true, -- Priest/Purify
+			-- [15487] = true, -- Priest/Silence
+			-- [112833] = true, -- Priest/Spectral Guise
+			-- [108920] = true, -- Priest/Void Tendrils
+			--
+			-- [13750] = true, -- Rogue/Adrenaline Rush
+			-- [2094] = true, -- Rogue/Blind
+			-- [31230] = true, -- Rogue/Cheat Death
+			-- [31224] = true, -- Rogue/Cloak of Shadows
+			-- [1766] = true, -- Rogue/Kick
+			-- [137619] = true, -- Rogue/Marked for Death
+			-- [14185] = true, -- Rogue/Preparation
+			-- [51713] = true, -- Rogue/Shadow Dance
+			-- [76577] = true, -- Rogue/Smoke Bomb
+			-- [1856] = true, -- Rogue/Vanish
+			-- [79140] = true, -- Rogue/Vendetta
+			--
+			-- [114049] = true, -- Shaman/Ascendance
+			-- [51886] = true, -- Shaman/Cleanse Spirit
+			-- [8177] = true, -- Shaman/Grounding Totem
+			-- [108280] = true, -- Shaman/Healing Tide Totem
+			-- [51514] = true, -- Shaman/Hex
+			-- [77130] = true, -- Shaman/Purify Spirit
+			-- [30823] = true, -- Shaman/Shamanistic Rage
+			-- [113286] = true, -- Shaman/Solar Beam
+			-- [98008] = true, -- Shaman/Spirit Link Totem
+			-- [79206] = true, -- Shaman/Spiritwalker's Grace
+			-- [51490] = true, -- Shaman/Thunderstorm
+			-- [8143] = true, -- Shaman/Tremor Totem
+			-- [57994] = true, -- Shaman/Wind Shear
+			--
+			-- [89766] = true, -- Warlock/Axe Toss
+			-- [111397] = true, -- Warlock/Blood Horror
+			-- [110913] = true, -- Warlock/Dark Bargain
+			-- [108359] = true, -- Warlock/Dark Regeneration
+			-- [113858] = true, -- Warlock/Dark Soul: Instability
+			-- [113861] = true, -- Warlock/Dark Soul: Knowledge
+			-- [113860] = true, -- Warlock/Dark Soul: Misery
+			-- [48020] = true, -- Warlock/Demonic Circle: Teleport
+			-- [5484] = true, -- Warlock/Howl of Terror
+			-- [6789] = true, -- Warlock/Mortal Coil
+			-- [115781] = true, -- Warlock/Optical Blast
+			-- [30283] = true, -- Warlock/Shadowfury
+			-- [89808] = true, -- Warlock/Singe Magic
+			-- [19647] = true, -- Warlock/Spell Lock
+			-- [104773] = true, -- Warlock/Unending Resolve
+			--
+			-- [107574] = true, -- Warrior/Avatar
+			-- [118038] = true, -- Warrior/Die by the Sword
+			-- [5246] = true, -- Warrior/Intimidating Shout
+			-- [6552] = true, -- Warrior/Pummel
+			-- [1719] = true, -- Warrior/Recklessness
+			-- [871] = true, -- Warrior/Shield Wall
+			-- [46968] = true, -- Warrior/Shockwave
+			-- [23920] = true, -- Warrior/Spell Reflection
 		},
 		{ -- group 2
-			[42292] = true, -- ITEMS/PvP Trinket
+			-- [42292] = true, -- ITEMS/PvP Trinket
 		}
 	}
 end
@@ -431,7 +431,7 @@ local function CooldownFrame_OnUpdate(frame)
 			if frame.state == 0 then
 				if tracked.used_end then
 					frame.cooldown:SetReverse(true)
-					CooldownFrame_SetTimer(frame.cooldown, tracked.used_start, tracked.used_end - tracked.used_start, 1)
+					CooldownFrame_Set(frame.cooldown, tracked.used_start, tracked.used_end - tracked.used_start, 1)
 					frame.cooldown:Show()
 				else
 					frame.cooldown:Hide()
@@ -460,7 +460,7 @@ local function CooldownFrame_OnUpdate(frame)
 			-- in cooldown
 			if frame.state ~= 3 then
 				frame.cooldown:SetReverse(false)
-				CooldownFrame_SetTimer(frame.cooldown, tracked.cooldown_start, tracked.cooldown_end - tracked.cooldown_start, 1)
+				CooldownFrame_Set(frame.cooldown, tracked.cooldown_start, tracked.cooldown_end - tracked.cooldown_start, 1)
 				local a = Cooldowns:GetGroupDB(frame.unit, frame.group).cooldownsIconCooldownAlpha
 				local ab = Cooldowns:GetGroupDB(frame.unit, frame.group).cooldownsBorderCooldownAlpha
 				frame:SetBackdropBorderColor(frame.color.r, frame.color.g, frame.color.b, ab)
@@ -476,10 +476,10 @@ local function CooldownFrame_OnUpdate(frame)
 	if frame.tracked and frame.tracked.charges_detected and frame.tracked.charges < frame.tracked.max_charges then
 		-- show the charge cooldown
 		frame.cooldown:SetReverse(false)
-		CooldownFrame_SetTimer(frame.cooldown, tracked.cooldown_start, tracked.cooldown_end - tracked.cooldown_start, 1, frame.tracked.charges, frame.tracked.max_charges)
+		CooldownFrame_Set(frame.cooldown, tracked.cooldown_start, tracked.cooldown_end - tracked.cooldown_start, 1, frame.tracked.charges, frame.tracked.max_charges)
 		frame.cooldown:Show()
 	else
-		CooldownFrame_SetTimer(frame.cooldown, 0, 0, 0)
+		CooldownFrame_Set(frame.cooldown, 0, 0, 0)
 	end
 	local a = Cooldowns:GetGroupDB(frame.unit, frame.group).cooldownsIconAvailAlpha
 	local ab = Cooldowns:GetGroupDB(frame.unit, frame.group).cooldownsBorderAvailAlpha
@@ -595,7 +595,9 @@ local function GetCooldownList(unit, group)
 		if db.cooldownsSpells[spellid] or (spelldata.replaces and db.cooldownsSpells[spelldata.replaces]) then
 			local tracked = CT:GetUnitCooldownInfo(unit, spellid)
 			-- check if the spell has a cooldown valid for an arena, and check if it is a talent that has not yet been detected
-			if (not spelldata.cooldown or spelldata.cooldown < 600) and ((not spelldata.glyph and not spelldata.talent and not spelldata.pet) or (tracked and tracked.detected) or not db.cooldownsHideTalentsUntilDetected) then
+			local cooldown = type(spelldata.cooldown) == "number" and spelldata.cooldown or type(spelldata.cooldown) == "table" and spelldata.cooldown.default
+
+			if (not spelldata.cooldown or cooldown < 600) and ((not spelldata.glyph and not spelldata.talent and not spelldata.pet) or (tracked and tracked.detected) or not db.cooldownsHideTalentsUntilDetected) then
 				-- check if the spell requires an aura
 				if not spelldata.requires_aura or UnitBuff(unit, spelldata.requires_aura_name) then
 					if spelldata.replaces then
@@ -1792,7 +1794,8 @@ function Cooldowns:MakeGroupOptions(unit, group)
 
 	local args = group_options.args.cooldowns.args
 	for spellid, spelldata in pairs(CT:GetCooldownsData()) do
-		if type(spelldata) == "table" and (not spelldata.cooldown or spelldata.cooldown < 600) then
+		local cooldown = type(spelldata.cooldown) == "number" and spelldata.cooldown or type(spelldata.cooldown) == "table" and spelldata.cooldown.default
+		if type(spelldata) == "table" and (not spelldata.cooldown or cooldown < 600) then
 			local cats = {}
 			if spelldata.pvp_trinket then tinsert(cats, L["cat:pvp_trinket"]) end
 			if spelldata.cc then tinsert(cats, L["cat:cc"]) end
@@ -1813,16 +1816,18 @@ function Cooldowns:MakeGroupOptions(unit, group)
 
 			if GladiusEx:IsDebugging() then
 				local basecd = GetSpellBaseCooldown(spellid)
-				if basecd and basecd / 1000 ~= spelldata.cooldown then
-					local str = string.format("%s: |T%s:20|t %s [%ss/Base: %ss] %s", spelldata.class or "??", spelldata.icon, spelldata.name, spelldata.cooldown or "??", basecd and basecd/1000 or "??", catstr or "")
+				local cooldown = type(spelldata.cooldown) == "number" and spelldata.cooldown or type(spelldata.cooldown) == "table" and spelldata.cooldown.default
+				if basecd and basecd / 1000 ~= cooldown then
+					local str = string.format("%s: |T%s:20|t %s [%ss/Base: %ss] %s", spelldata.class or "??", spelldata.icon, spelldata.name, cooldown or "??", basecd and basecd/1000 or "??", catstr or "")
 					if not self.debuglog then self.debuglog = {} end
 					if not self.debuglog[str] then
 						self.debuglog[str] = true
 					end
 				end
 			end
+			local cooldown = type(spelldata.cooldown) == "number" and spelldata.cooldown or type(spelldata.cooldown) == "table" and spelldata.cooldown.default
 
-			local namestr = string.format(L[" |T%s:20|t %s [%ss] %s"], spelldata.icon, spelldata.name, spelldata.cooldown or "??", catstr or "")
+			local namestr = string.format(L[" |T%s:20|t %s [%ss] %s"], spelldata.icon, spelldata.name, cooldown or "??", catstr or "")
 
 			local function MakeSpellDesc()
 				local spelldesc = FormatSpellDescription(spellid)

@@ -10,22 +10,75 @@ local GetTime = GetTime
 
 local function GetDefaultCastsSpells()
 	local h = { priority = 10, color = { r = 0, g = 1, b = 0, a = 1 } }
-	local cc = { priority = 20, color = { r = 1, g = 0, b = 0, a = 1 } }
+	local damage = { priority = 20, color = { r = 1, g = 1, b = 0, a = 1 } }
+	local cc = { priority = 30, color = { r = 1, g = 0, b = 0, a = 1 } }
 	return {
-		[GladiusEx:SafeGetSpellName(2060)]    = h,     -- Greater Heal
-		[GladiusEx:SafeGetSpellName(82326)]   = h,     -- Divine Light
-		[GladiusEx:SafeGetSpellName(8936)]    = h,     -- Regrowth
-		[GladiusEx:SafeGetSpellName(77472)]   = h,     -- Greater Healing Wave
-		[GladiusEx:SafeGetSpellName(115175)]  = h,     -- Soothing Mist
+		[GladiusEx:SafeGetSpellName(2060)] = h, -- Heal (Holy Priest)
+		[GladiusEx:SafeGetSpellName(82326)] = h, -- Holy Light (Paladin)
+		[GladiusEx:SafeGetSpellName(77472)] = h, -- Healing Wave (Shaman)
+		[GladiusEx:SafeGetSpellName(5185)] = h, -- Healing Touch (Druid)
+		[GladiusEx:SafeGetSpellName(116670)] = h, -- Vivify (Mistweaver)
+		[GladiusEx:SafeGetSpellName(194509)] = h, -- Power Word: Radiance (Discipline)
+		[GladiusEx:SafeGetSpellName(204065)] = h, -- Shadow Covenant (Discipline)
 
-		[GladiusEx:SafeGetSpellName(118)]      = cc,    -- Polymorph
-		[GladiusEx:SafeGetSpellName(5782)]     = cc,    -- Fear
-		[GladiusEx:SafeGetSpellName(51514)]    = cc,    -- Hex
-		[GladiusEx:SafeGetSpellName(105421)]   = cc,    -- Blinding Light
-		[GladiusEx:SafeGetSpellName(20066)]    = cc,    -- Repentance
-		[GladiusEx:SafeGetSpellName(33786)]    = cc,    -- Cyclone
-		[GladiusEx:SafeGetSpellName(102051)]   = cc,    -- Frostjaw
-		[GladiusEx:SafeGetSpellName(339)]      = cc,    -- Entangling Roots
+		[GladiusEx:SafeGetSpellName(33786)] = cc,
+		[GladiusEx:SafeGetSpellName(209753)] = cc, -- SCREAMS LOUDLY Balance Druid Cyclone
+		[GladiusEx:SafeGetSpellName(339)] = cc,
+		[GladiusEx:SafeGetSpellName(202771)] = damage, -- Full Moon
+
+		-- Hunter (Spell Casting)
+		[GladiusEx:SafeGetSpellName(19386)] = cc,
+		[GladiusEx:SafeGetSpellName(209789)] = cc,
+
+		-- Mage (Spell Casting)
+		[GladiusEx:SafeGetSpellName(118)] = cc, -- Sheep
+		[GladiusEx:SafeGetSpellName(28271)] = cc, -- Turtle
+		[GladiusEx:SafeGetSpellName(28272)] = cc, -- Pig
+		[GladiusEx:SafeGetSpellName(61305)] = cc, -- Black Cat
+		[GladiusEx:SafeGetSpellName(61721)] = cc, -- Rabbit
+		[GladiusEx:SafeGetSpellName(61025)] = cc, -- Serpent
+		[GladiusEx:SafeGetSpellName(61780)] = cc, -- Turkey
+		[GladiusEx:SafeGetSpellName(161372)] = cc, -- Peacock
+		[GladiusEx:SafeGetSpellName(161355)] = cc, -- Penguin
+		[GladiusEx:SafeGetSpellName(161353)] = cc, -- Polar Bear Cub
+		[GladiusEx:SafeGetSpellName(161354)] = cc, -- Monkey
+		[GladiusEx:SafeGetSpellName(126819)] = cc, -- Porcupine
+		[GladiusEx:SafeGetSpellName(203286)] = damage,
+		[GladiusEx:SafeGetSpellName(199786)] = damage,
+		[GladiusEx:SafeGetSpellName(113724)] = cc,
+
+		-- Monk (Spell Casting)
+		[GladiusEx:SafeGetSpellName(205406)] = h,
+
+		-- Paladin (Spell Casting)
+		[GladiusEx:SafeGetSpellName(20066)] = cc,
+		[GladiusEx:SafeGetSpellName(200652)] = h,
+
+		-- Priest (Spell Casting)
+		[GladiusEx:SafeGetSpellName(605)] = cc,
+		[GladiusEx:SafeGetSpellName(32375)] = cc,
+		[GladiusEx:SafeGetSpellName(207946)] = damage,
+		[GladiusEx:SafeGetSpellName(205065)] = damage,
+
+		-- Rogue (Spell Casting)
+		--None! :D
+
+		-- Shaman (Spell Casting)
+		[GladiusEx:SafeGetSpellName(51514)] = cc, -- Frog
+		[GladiusEx:SafeGetSpellName(210873)] = cc, -- Compy
+		[GladiusEx:SafeGetSpellName(211004)] = cc, -- Spider
+		[GladiusEx:SafeGetSpellName(211015)] = cc, -- Cockroach
+		[GladiusEx:SafeGetSpellName(211010)] = cc, -- Snake
+		[GladiusEx:SafeGetSpellName(207778)] = h,
+		[GladiusEx:SafeGetSpellName(205495)] = damage,
+
+		-- Warlock (Spell Casting)
+		[GladiusEx:SafeGetSpellName(5782)] = cc,
+		[GladiusEx:SafeGetSpellName(6358)] = cc,
+		[GladiusEx:SafeGetSpellName(115268)] = cc,
+		[GladiusEx:SafeGetSpellName(30283)] = cc,
+		[GladiusEx:SafeGetSpellName(30108)] = damage,
+		[GladiusEx:SafeGetSpellName(116858)] = damage,
 	}
 end
 
