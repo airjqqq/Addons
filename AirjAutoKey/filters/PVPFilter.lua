@@ -15,6 +15,7 @@ function F:OnInitialize()
   self:RegisterFilter("PVPEVASION",L["PVP Evasioning"],{unit= {}})
   self:RegisterFilter("PVPDEBUFF",L["PVP Debuff"],{unit= {},name= {},greater= {},value= {}},{
     MAGIC = L["Magic"],
+    CURSE = L["Curse"],
   })
   self:RegisterFilter("PVPBREAKDEBUFF",L["PVP Breaks"],{unit= {},greater= {},value= {}})
   self:RegisterFilter("PVPDR",L["PVP DR"],{unit= {},greater= {},value= {}},{
@@ -129,6 +130,7 @@ local buffs = {
     [ 46924] = "ISLOW IROOT ICONTROL", -- Bladestorm (Fury)
     [227847] = "ISLOW IROOT ICONTROL", -- Bladestorm (Arms)
     [23920] = "ICAST", -- S R
+    [216890] = "ICAST", -- S R
     [213915] = "ICAST", -- S R
 
   },
@@ -394,7 +396,10 @@ local debuffs = {
      },
     INCAPACITATE = {
 			 51514, -- Hex (incapacitate)
-			210873, -- Hex (incapacitate)
+			 211015, -- Hex (incapacitate)
+			 211004, -- Hex (incapacitate)
+			 211010, -- Hex (incapacitate)
+			 210873, -- Hex (incapacitate)
 			196942, -- Hex (Voodoo Totem) (incapacitate)
 		},
 		ROOT = {
@@ -861,7 +866,7 @@ function F:PVPDEBUFF(filter)
   for i,v in pairs(debuffs) do
     local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
     local value
-    if filter.subtype == "MAGIC" and dispelType == "Magic" or filter.subtype ~= "MAGIC" then
+    if filter.subtype == "CURSE" and dispelType == "Curse" or filter.subtype == "MAGIC" and dispelType == "Magic" or filter.subtype ~= "MAGIC" and filter.subtype ~= "CURSE"  then
       if duration == 0 and expires ==0 then
         value = 10
       else

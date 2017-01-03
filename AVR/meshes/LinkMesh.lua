@@ -43,6 +43,7 @@ function AVRLinkMesh:Pack()
 	s.wid=self.width
 	s.clc=self.classColor
 	s.bla=self.blank
+	s.shn=self.showNumber
 	s.num=self.num
 	return s
 end
@@ -54,6 +55,7 @@ function AVRLinkMesh:Unpack(s)
 	self.classColor=s.clc
 	self.blank=s.bla or 8
 	self.num=s.num or 7
+	self.showNumber = s.shn
 
 
 	self.vertices=nil

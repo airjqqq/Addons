@@ -1,0 +1,22 @@
+tag v0.35-beta
+c0e198e13f10979dcd0cf248f6537a52bc95865e
+slaren <ddevesa@gmail.com>
+2015-03-08 12:27:48 +0100
+
+More fixes.
+
+
+--------------------
+
+slaren:
+	- healthbar, powerbar: the bars are now shown as 1/1 when the unit doesn't exists (for example, during arena preparation)
+	- tags: fixed some tags giving incorrect information during arena preparation
+	- highlight: desaturated the mouseover highlight texture so that it can actually can be configured to be of any color
+	- classicon: changed Chains of Ice root (Chilblains) to be tracked by spellid
+	- classicon: added support for tracking important auras by spellid and added a few auras with conflicting names by spellid
+	- replaced outdated LibSpecRoster with LibGroupInSpecT
+	- classicon: added a few missing auras (again thanks to Leilameda)
+	- fixed an issue with the cooldown spirals being show as if they had charges
+	- auras: fixed issue that could make auras not show after copying the settings from the other group
+	- castbar: fix text wrapping issues
+	- tags: fixed texts wrapping to the next line instead of being truncated

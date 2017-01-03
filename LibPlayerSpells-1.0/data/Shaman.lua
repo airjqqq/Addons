@@ -64,6 +64,7 @@ lib:__RegisterSpells("SHAMAN", 70100, 11, {
 					STUN = {
 						118345, -- Pulverize (Primal Earth Elemental) (stun)
 						118905, -- Static Charge (stun)
+						204399, -- Static Charge (stun)
 					},
 				},
 			},

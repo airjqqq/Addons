@@ -572,7 +572,7 @@ do -- odyn
     play()
     for k,v in pairs(self.dbmtimers) do
       if v.spellId == 227629 then
-        if v.expire + 5 > GetTime() then
+        if v.expire + 5 > GetTime() and v.expire + 5 < GetTime()+30 then
           self:SetBar(v.expire + 5,v.expire + 5 - 20)
           break
         end
