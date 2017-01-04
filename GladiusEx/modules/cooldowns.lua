@@ -105,8 +105,8 @@ local g1_defaults = MakeGroupDb {
 
 local g2_defaults = MakeGroupDb {
 	cooldownsGroupId = 2,
-	cooldownsPerColumn = 1,
-	cooldownsMax = 1,
+	cooldownsPerColumn = 4,
+	cooldownsMax = 4,
 	cooldownsSize = 42,
 	cooldownsCrop = true,
 	cooldownsTooltips = false,
@@ -175,7 +175,7 @@ local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 			["group_3"] = fn.merge(g3_defaults, {
 				cooldownsAttachTo = "Frame",
 				cooldownsAnchor = "TOPRIGHT",
-				cooldownsRelativePoint = "TOPLEFT",
+				cooldownsRelativePoint = "BOTTOMLEFT",
 				cooldownsGrow = "DOWNLEFT",
 			}),
 		}
@@ -412,10 +412,10 @@ local function GetSpellSortScore(unit, group, spellid)
 
 	local spelldata = CT:GetCooldownData(spellid)
 
-	if spelldata.replaces then
-		spellid = spelldata.replaces
-		spelldata = CT:GetCooldownData(spelldata.replaces)
-	end
+	-- if spelldata.replaces then
+	-- 	spellid = spelldata.replaces
+	-- 	spelldata = CT:GetCooldownData(spelldata.replaces)
+	-- end
 
 	if sortscore[spellid] then
 		return sortscore[spellid]
@@ -447,7 +447,7 @@ local function GetSpellSortScore(unit, group, spellid)
 		sum = bor(lshift(sum, 8), spelldata.name:byte(i))
 	end
 	score = score + (max - sum) / max
-
+	if spelldata.item then score = score + 2 end
 	sortscore[spellid] = score
 
 	return score
@@ -492,7 +492,16 @@ local function GetCooldownList(unit, group)
 	wipe(spell_list)
 	for spellid, spelldata in CT:IterateCooldowns(class, specID, race) do
 		-- check if the spell is enabled by the user
-		if db.cooldownsSpells[spellid] or (spelldata.replaces and db.cooldownsSpells[spelldata.replaces]) then
+		local replacePassed
+		if spelldata.replaces or spelldata.talent then
+			for i,v in ipairs(fn:merge(spelldata.talent or {},spelldata.replaces or {})) do
+				if db.cooldownsSpells[v] then
+					replacePassed = true
+					break
+				end
+			end
+		end
+		if db.cooldownsSpells[spellid] or replacePassed then
 			local tracked = CT:GetUnitCooldownInfo(unit, spellid)
 			-- check if the spell has a cooldown valid for an arena, and check if it is a talent that has not yet been detected
 			local cooldown = type(spelldata.cooldown) == "number" and spelldata.cooldown or type(spelldata.cooldown) == "table" and spelldata.cooldown.default
@@ -500,12 +509,14 @@ local function GetCooldownList(unit, group)
 			if (not spelldata.cooldown or cooldown < 600) and ((not spelldata.glyph and not spelldata.talent and not spelldata.pet) or (tracked and tracked.detected) or not db.cooldownsHideTalentsUntilDetected) then
 				-- check if the spell requires an aura
 				if not spelldata.requires_aura or UnitBuff(unit, spelldata.requires_aura_name) then
-					if spelldata.replaces then
+					if (spelldata.replaces or spelldata.talent) and (tracked and tracked.detected) then
 						-- remove replaced spell if detected
-						spell_list[spelldata.replaces] = false
+						for i,v in ipairs(fn:merge(spelldata.talent or {},spelldata.replaces or {})) do
+							spell_list[v] = false
+						end
 					end
 					-- do not overwrite if this spell has been replaced
-					if spell_list[spellid] == nil then
+					if spell_list[spellid] == nil or (tracked and tracked.detected) then
 						spell_list[spellid] = true
 					end
 				end
@@ -1735,7 +1746,13 @@ function Cooldowns:MakeGroupOptions(unit, group)
 				local spelldesc = FormatSpellDescription(spellid)
 				local extradesc = {}
 				if spelldata.duration then table.insert(extradesc, string.format(L["Duration: %is"], spelldata.duration)) end
-				if spelldata.replaces then table.insert(extradesc, string.format(L["Replaces: %s"], GetSpellInfo(spelldata.replaces))) end
+				if spelldata.replaces or spelldata.talen then
+					local names = {}
+					for i,v in ipairs(fn:merge(spelldata.talent or {},spelldata.replaces or {})) do
+						tinsert(names,GetSpellInfo(v))
+					end
+					table.insert(extradesc, string.format(L["Replaces: %s"], table.concat(names,",")))
+				end
 				if spelldata.requires_aura then table.insert(extradesc, string.format(L["Required aura: %s"], GetSpellInfo(spelldata.requires_aura))) end
 				if spelldata.sets_cooldown then table.insert(extradesc, string.format(L["Shared cooldown: %s (%is)"], GetSpellInfo(spelldata.sets_cooldown.spellid), spelldata.sets_cooldown.cooldown)) end
 				if spelldata.cooldown_starts_on_aura_fade then table.insert(extradesc, L["Cooldown starts when aura fades"]) end

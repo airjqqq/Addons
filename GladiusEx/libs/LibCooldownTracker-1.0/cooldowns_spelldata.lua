@@ -123,6 +123,7 @@ LCT_SpellData = {
   [207946] = { default = true, cooldown = 90, class = "PRIEST", specID = { 256 }, offensive = true, cast = 2.5 }, -- Light's Wrath
   -- [208065] = { default = false, cooldown = 45, class = "PRIEST", specID = { 256 }, charges = 2 }, -- Light of T'uure
   [209780] = { default = true, cooldown = 12, class = "PRIEST", specID = { 256}, dispel = true}, -- Premonition
+  [  527] = { default = true, cooldown = 8, class = "PRIEST", specID = {256,257}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
 
   -- Holy TBD
 
@@ -148,6 +149,7 @@ LCT_SpellData = {
   [205065] = { default = false, cooldown = 60, class = "PRIEST", specID = { 258 }, offensive = true }, -- Void Torrent
   [205369] = { default = true, cooldown = 30, class = "PRIEST", specID = { 258 }, talent = {8122}, cc = true }, -- Mind Bomb
   [211522] = { default = false, cooldown = 45, class = "PRIEST", specID = { 258 }, talent = {108968}, offensive = true}, -- Psyfiend
+  [  213634] = { default = true, cooldown = 8, class = "PRIEST", specID = {258}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
 
   -- Paladin
 
@@ -174,6 +176,7 @@ LCT_SpellData = {
   [200652] = { default = false, cooldown = 90, class = "PALADIN", specID = { 65 }, cast = 2 }, -- Tyr's Deliverance
   [210294] = { default = true, cooldown = 45, class = "PALADIN", specID = { 65 }, dispelable = true, offensive = true }, -- Divine Favor
   [214202] = { default = false, cooldown = 30, class = "PALADIN", specID = { 65 }, charges = 2 }, -- Rule of Law
+  [  4987] = { default = true, cooldown = 8, class = "PALADIN", specID = {65}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
 
   -- Protection TBD
 
@@ -189,6 +192,7 @@ LCT_SpellData = {
   [204150] = { default = false, cooldown = 300, class = "PALADIN", specID = { 66 } }, -- Aegis of Light
   [209202] = { default = false, cooldown = 60, class = "PALADIN", specID = { 66 } }, -- Eye of Tyr
   [215652] = { default = false, cooldown = 25, class = "PALADIN", specID = { 66 } }, -- Shield of Virtue
+  [213644] = { default = true, cooldown = 8, class = "PALADIN", specID = {66,70}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
 
   -- Retribution
 
@@ -218,10 +222,11 @@ LCT_SpellData = {
   [102560] = { parent = 194223, default = true, duration = 30 }, -- Incarnation: Chosen of Elune
   [108238] = { default = false, cooldown = 120, class = "DRUID", specID = { 102, 103, 105 }, defensive = true, talent = {102280,102401} }, -- Renewal
   [194223] = { default = true, cooldown = 180, class = "DRUID", specID = { 102 }, offensive = true, duration = 15 }, -- Celestial Alignment
-  [202425] = { default = true, cooldown = 45, class = "DRUID", specID = { 102 }, offensive = true }, -- Warrior of Elune
+  [202425] = { default = true, cooldown = 45, class = "DRUID", specID = { 102 }, offensive = true, cooldown_starts_on_aura_fade = true, }, -- Warrior of Elune
   [202770] = { default = false, cooldown = 90, class = "DRUID", specID = { 102 }, offensive = true }, -- Fury of Elune
   [205636] = { default = false, cooldown = 60, class = "DRUID", specID = { 102 }, offensive = true, talent = {202425} }, -- Force of Nature
   [209749] = { default = false, cooldown = 30, class = "DRUID", specID = { 102 }, talent = {} }, -- Faerie Swarm
+  [  2782] = { default = true, cooldown = 8, class = "DRUID", specID = {102, 103,104}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
 
   -- Feral
 
@@ -258,6 +263,7 @@ LCT_SpellData = {
   [203651] = { default = true, cooldown = 45, class = "DRUID", specID = { 105}, defensive = true }, -- Overgrowth
   [203727] = { default = false, cooldown = 45, class = "DRUID", specID = { 105}, defensive = true, duration = 12 }, -- Thorns
   [208253] = { default = false, cooldown = 90, class = "DRUID", specID = { 105}, offensive = true, duration = 8 }, -- Essence of G'Hanir
+  [ 88423] = { default = true, cooldown = 8, class = "DRUID", specID = { 105}, dispel = true, cooldown_starts_on_dispel = true }, -- Nature's Cure
 
   -- Warrior
 
@@ -401,6 +407,7 @@ LCT_SpellData = {
   [204437] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 262 }, talent = {} }, -- Lightning Lasso
   [205495] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 262 }, offensive = true, cast = 1.5 }, -- Stormkeeper
   [210714] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 262 }, offensive = true, cast = 2 }, -- Icefury
+  [ 51886] = { default = true, cooldown = 8, class = "SHAMAN", specID = {262,263}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
 
   -- Enhancement
 
@@ -425,6 +432,7 @@ LCT_SpellData = {
   [198838] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 264 }, defensive = true, talent = {207399} }, -- Earthen Shield Totem
   [204336] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 264 }, defensive = true }, -- Grounding Totem
   [207399] = { default = false, cooldown = 300, class = "SHAMAN", specID = { 264 }, defensive = true, talent = {198838} }, -- Ancestral Protection Totem
+  [  77130] = { default = true, cooldown = 8, class = "SHAMAN", specID = {264}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
   -- [207778] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 264 } }, -- Gift of the Queen
 
   -- Hunter
@@ -606,7 +614,7 @@ LCT_SpellData = {
   [101545] = { default = true, cooldown = 25, class = "MONK", specID = { 269 }, blink = true}, -- Flying Serpent Kick
   [113656] = { default = true, cooldown = 22, class = "MONK", specID = { 269 }, offensive = true }, -- Fists of Fury
   [115080] = { default = true, cooldown = 120, class = "MONK", specID = { 269 }, offensive = true }, -- Touch of Death
-  [152173] = { parent = 137639, charges = 1 }, -- Serenity
+  [152173] = { parent = 137639, replaces = {137639}, charges = 1 }, -- Serenity
   -- [115176] = { default = false, cooldown = 150, class = "MONK", specID = { 269 } }, -- Zen Meditation
   -- [201325] = { parent = 115176, 180 }, -- Zen Meditation (Windwalker)
   [115288] = { default = true, cooldown = 60, class = "MONK", specID = { 269 }, offensive = true }, -- Energizing Elixir
@@ -615,6 +623,7 @@ LCT_SpellData = {
   [137639] = { default = true, cooldown = 90, class = "MONK", specID = { 269 }, charges = 2 , offensive = true }, -- Storm, Earth, and Fire
   -- [152175] = { default = false, cooldown = 24, class = "MONK", specID = { 269 } }, -- Whirling Dragon Punch
   [201318] = { default = true, cooldown = 90, class = "MONK", specID = { 269 }, defensive = true }, -- Fortifying Elixir
+  [218164] = { default = true, cooldown = 8, class = "MONK", specID = {268,269}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
 
   -- Mistweaver
 
@@ -626,11 +635,24 @@ LCT_SpellData = {
   [198664] = { default = false, cooldown = 180, class = "MONK", specID = { 270 }, defensive = true }, -- Invoke Chi-Ji, the Red Crane
   -- [198898] = { default = false, cooldown = 30, class = "MONK", specID = { 270 } }, -- Song of Chi-Ji
   -- [216113] = { default = false, cooldown = 45, class = "MONK", specID = { 270 } }, -- Way of the Crane
+  [  115450] = { default = true, cooldown = 8, class = "MONK", specID = {270}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
 
 
   --Racials
-  [208683] = { default = true, cooldown = 120, pvp_trinket = true, item = true }, -- Gladiator's Medallion
-  [59752 ] = { default = true, cooldown = 120, pvp_trinket = true, race = "Human", }, -- Every Man
+  [208683] = { default = true, cooldown = 120, pvp_trinket = true, item = true, talent = {214027,196029}, sets_cooldown = {
+    { spellid = 20594, cooldown = 30},
+    { spellid = 59752, cooldown = 30},
+    { spellid =  7744, cooldown = 30},
+  }}, -- Gladiator's Medallion
+  [214027] = { default = true, cooldown = 60, pvp_trinket = true, item = true, talent = {196029,208683}, sets_cooldown = {
+    { spellid = 20594, cooldown = 30},
+    { spellid = 59752, cooldown = 30},
+    { spellid =  7744, cooldown = 30},
+  }},
+  [196029] = { default = true, cooldown = 0, pvp_trinket = true, item = true, talent = {214027,208683}},
+  [59752 ] = { default = true, cooldown = 120, pvp_trinket = true, race = "Human", sets_cooldown = {
+    { spellid =208683, cooldown = 30},
+  } }, -- Every Man
   [20594 ] = { default = truetrue, cooldown = 120, defensive = true, race = "Dwarf" }, -- Stoneform
   [26297 ] = { default = true, cooldown = 180, offensive = true, race = "Troll" }, --Berserking (Troll)
   [20572 ] = { default = true, cooldown = 120, offensive = true, race = "Orc" },

@@ -163,24 +163,7 @@ local function ClearTimers()
 	timers = {}
 end
 
-local function AddCharge(unit, spellid)
-	local tps = lib.tracked_players[unit][spellid]
-	tps.charges = tps.charges + 1
-	lib.callbacks:Fire("LCT_CooldownUsed", unit, spellid)
-
-	-- schedule another timer if there are more charges in cooldown
-	if tps.charges < tps.max_charges then
-		local now = GetTime()
-		local spelldata = SpellData[spellid]
-		tps.cooldown_start = now
-		tps.cooldown_end = now + spelldata.cooldown
-		tps.charge_timer = SetTimer(tps.cooldown_end, AddCharge, unit, spellid)
-	else
-		tps.charge_timer = false
-	end
-end
-
-local function getSpellData(spellid)
+local function GetSpellData(spellid)
 	local data = SpellData[spellid]
 	if not data then return end
 	if data.parent then
@@ -192,8 +175,26 @@ local function getSpellData(spellid)
 	return data
 end
 
+local function AddCharge(unit, spellid)
+	local tps = lib.tracked_players[unit][spellid]
+	tps.charges = tps.charges + 1
+	lib.callbacks:Fire("LCT_CooldownUsed", unit, spellid)
+
+	-- schedule another timer if there are more charges in cooldown
+	if tps.charges < tps.max_charges then
+		local now = GetTime()
+		local spelldata = GetSpellData(spellid)
+		tps.cooldown_start = now
+		tps.cooldown_end = now + spelldata.cooldown
+		tps.charge_timer = SetTimer(tps.cooldown_end, AddCharge, unit, spellid)
+	else
+		tps.charge_timer = false
+	end
+end
+
+
 local function CooldownEvent(event, unit, spellid)
-	local spelldata = getSpellData(spellid)
+	local spelldata = GetSpellData(spellid)
 	if not spelldata then return end
 
 	-- if spelldata.parent then
@@ -233,7 +234,6 @@ local function CooldownEvent(event, unit, spellid)
 			tpu[spellid][event] = now
 		else
 			tpu[spellid] = {
-				detected = true,
 				charges = spelldata.charges or spelldata.opt_charges,
 				max_charges = spelldata.charges or spelldata.opt_charges,
 				charges_detected = spelldata.charges and true or false,
@@ -241,6 +241,7 @@ local function CooldownEvent(event, unit, spellid)
 			}
 		end
 		local tps = tpu[spellid]
+		tps.detected = true
 
 		-- find what actions are needed
 		local used_start, used_end, cooldown_start
@@ -303,6 +304,16 @@ local function CooldownEvent(event, unit, spellid)
 					end
 				end
 			end
+
+			-- replaces or talent to diable others detected
+			if (spelldata.replaces or spelldata.talent) then
+				-- remove replaced spell if detected
+				for i,v in ipairs(fn:merge(spelldata.talent or {},spelldata.replaces or {})) do
+					if tpu[v] then
+						tpu[v].detected = false
+					end
+				end
+			end
 		end
 
 		if used_end then
@@ -322,17 +333,19 @@ local function CooldownEvent(event, unit, spellid)
 
 				-- set other cooldowns
 				if spelldata.sets_cooldown then
-					local cspellid = spelldata.sets_cooldown.spellid
-					local cspelldata = SpellData[cspellid]
-					if (tpu[cspellid] and tpu[cspellid].detected) or (not cspelldata.talent and not cspelldata.glyph) then
-						if not tpu[cspellid] then
-							tpu[cspellid] = {}
-						end
-						if not tpu[cspellid].cooldown_end or (tpu[cspellid].cooldown_end < (now + spelldata.sets_cooldown.cooldown)) then
-							tpu[cspellid].cooldown_start = now
-							tpu[cspellid].cooldown_end = now + spelldata.sets_cooldown.cooldown
-							tpu[cspellid].used_start = tpu[cspellid].used_start or 0
-							tpu[cspellid].used_end = tpu[cspellid].used_end or 0
+					for i,v in ipairs(spelldata.sets_cooldown) do
+						local cspellid = v.spellid
+						local cspelldata = GetSpellData(cspellid)
+						if (tpu[cspellid] and tpu[cspellid].detected) or (not cspelldata.talent and not cspelldata.glyph) then
+							if not tpu[cspellid] then
+								tpu[cspellid] = {}
+							end
+							if not tpu[cspellid].cooldown_end or (tpu[cspellid].cooldown_end < (now + v.cooldown)) then
+								tpu[cspellid].cooldown_start = now
+								tpu[cspellid].cooldown_end = now + v.cooldown
+								tpu[cspellid].used_start = tpu[cspellid].used_start or 0
+								tpu[cspellid].used_end = tpu[cspellid].used_end or 0
+							end
 						end
 					end
 				end
@@ -430,7 +443,7 @@ end
 --- Returns the raw data of a specified cooldown spellid.
 -- @param spellid The cooldown spellid.
 function lib:GetCooldownData(spellid)
-	return SpellData[spellid]
+	return GetSpellData(spellid)
 end
 
 local function CooldownIterator(state, spellid)
@@ -544,7 +557,120 @@ function events:UNIT_SPELLCAST_SUCCEEDED(event, unit, spellName, rank, lineID, s
 	CooldownEvent(event, unit, spellId)
 end
 
+
+local ccauraids = {
+	[64695]	= 5,	-- Earthgrab
+	--[113770]	= 5,	-- Entangling Roots (Force of Nature)
+	[33395]	= 8,	-- Freeze (Water Elemental)
+	[122]		= 8,	-- Frost Nova
+	--[102051]	= 5,	-- Frostjaw
+	[102359]	= 8,	-- Mass Entanglement
+	[136634]	= 8,	-- Narrow Escape
+	[105771]	= 1.5,	-- Warbringer
+
+	-- Silence Auras (8)
+	[1330]	= 3,	-- Garrote (Silence)
+	[15487]	= 5,	-- Silence
+	[47476]	= 5,	-- Strangulate
+	[28730]	= 2,	-- Arcane Torrent (Mana version)
+	[80483]	= 2,	-- Arcane Torrent (Focus version)
+	[25046]	= 2,	-- Arcane Torrent (Energy version)
+	[50613]	= 2,	-- Arcane Torrent (Runic Power version)
+	[69179]	= 2,	-- Arcane Torrent (Rage version)
+	-- Disorients & Stuns Auras (9)
+	[108194]	= 5,	-- Asphyxiate
+	[91800]	= 1,	-- Gnaw (Ghoul)
+	[91797]	= 2,	-- Monstrous Blow (Dark Transformation Ghoul)
+	[89766]	= 4,	-- Axe Toss (Felguard)
+	[117526]	= 3,	-- Binding Shot
+	[224729]	= 4,	-- Bursting Shot
+	[213691]	= 4,	-- Scatter Shot
+	[24394]	= 5,	-- Intimidation
+	[105421]	= 6,	-- Blinding Light
+	--[119392]	= 9,	-- Charging Ox Wave
+	[1833]	= 4,	-- Cheap Shot
+	--[118895]	= 9,	-- Dragon Roar
+	[77505]	= 1.5,	-- Earthquake
+	[120086]	= 4,	-- Fist of Fury
+	--[44572]	= 9,	-- Deep Freeze
+	[99]		= 3,	-- Disorienting Roar
+	[31661]	= 4,	-- Dragon's Breath
+	--[123393]	= 9,	-- Breath of Fire (Glyphed)
+	--[105593]	= 9,	-- Fist of Justice
+	[47481]	= 1,	-- Gnaw
+	[1776]	= 4,	-- Gouge
+	[853]		= 6,	-- Hammer of Justice
+	--[119072]	= 9,	-- Holy Wrath
+	[88625]	= 5,	-- Holy Word: Chastise
+	[19577]	= 5,	-- Intimidation
+	-- [408]		= 9,	-- Kidney Shot
+	[119381]	= 5,	-- Leg Sweep
+	-- [22570]	= 9,	-- Maim
+	[5211]	= 5,	-- Mighty Bash
+	--[113801]	= 9,	-- Bash (Treants)
+	[118345]	= 4,	-- Pulverize (Primal Earth Elemental)
+	--[115001]	= 9,	-- Remorseless Winter
+	[30283]	= 4,	-- Shadowfury
+	[22703]	= 2,	-- Summon Infernal
+	[46968]	= 4,	-- Shockwave
+	[118905]	= 5,	-- Static Charge (Capacitor Totem Stun)
+	[132169]	= 4,	-- Storm Bolt
+	[20549]	= 2,	-- War Stomp
+	[16979]	= 4,	-- Wild Charge
+	[117526]  = 3,    -- Binding Shot
+	[163505]              = 4,    -- Rake
+	-- Crowd Controls Auras (10)
+	-- [710]		= 10,	-- Banish
+	[2094]	= 8,	-- Blind
+	--[137143]	= 10,	-- Blood Horror
+	[33786]	= 6,	-- Cyclone
+	[605]		= 8,	-- Dominate Mind
+	[118699]	= 6,	-- Fear
+	[3355]	= 8,	-- Freezing Trap
+	[51514]	= 8,	-- Hex
+	[5484]	= 6,	-- Howl of Terror
+	[5246]	= 8,	-- Intimidating Shout
+	[115268]	= 8,	-- Mesmerize (Shivarra)
+	[6789]	= 3,	-- Mortal Coil
+	[115078]	= 4,	-- Paralysis
+	[118]		= 8,	-- Polymorph
+	[8122]	= 8,	-- Psychic Scream
+	[64044]	= 4,	-- Psychic Horror
+	[20066]	= 6,	-- Repentance
+	[82691]	= 8,	-- Ring of Frost
+	[6770]	= 8,	-- Sap
+	[107079]	= 4,	-- Quaking Palm
+	--[10326]	= 10,	-- Turn Evil
+	[19386]	= 8,	-- Wyvern Sting
+}
+local ccauranames = {}
+for id,v in pairs (ccauraids) do
+	local name = GetSpellInfo(id)
+	if name then
+		ccauranames[name] = v
+	end
+end
 function events:COMBAT_LOG_EVENT_UNFILTERED(_, timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, spellSchool)
+
+	do --rellss
+		local unit = lib.guid_to_unitid[destGUID]
+		if unit and event == "SPELL_AURA_APPLIED" then
+			if ccauranames[spellName] then
+				local maxD = ccauranames[spellName]
+				local duration = select(6,UnitDebuff(unit,spellName))
+				if duration then
+					if duration/0.8 == maxD or duration*2/0.8 == maxD or duration*4/0.8 == maxD then
+	 					CooldownEvent("SPELL_CAST_SUCCESS", unit, 196029)
+					end
+				end
+			end
+			if spellId == 195901 then
+				CooldownEvent("SPELL_CAST_SUCCESS", unit, 214027)
+			end
+		end
+	end
+
+
 	-- check unit
 	local unit = lib.guid_to_unitid[sourceGUID]
 	if not unit then return end
