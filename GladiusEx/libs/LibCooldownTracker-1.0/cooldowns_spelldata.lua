@@ -5,15 +5,15 @@ LCT_SpellData = {
 
   -- Death Knight
 
-  [51052] = { default = false, cooldown = 120, class = "DEATHKNIGHT" }, -- Anti-Magic Zone
-  [77606] = { default = false, cooldown = 30, class = "DEATHKNIGHT" }, -- Dark Simulacrum
-  [212552] = { default = false, cooldown = 45, class = "DEATHKNIGHT" }, -- Wraith Walk
-  [47528] = { default = true, cooldown = 15, class = "DEATHKNIGHT" }, -- Mind Freeze
-  [49576] = { default = false, cooldown = 25, class = "DEATHKNIGHT", charges = 2 }, -- Death Grip
-  [48707] = { default = false, cooldown = 60, class = "DEATHKNIGHT" }, -- Anti-Magic Shell
-  [61999] = { default = false, cooldown = 600, class = "DEATHKNIGHT" }, -- Raise Ally
+  [51052] = { default = true, cooldown = 120, class = "DEATHKNIGHT",duration = 10,talent = {77606},defensive = true}, -- Anti-Magic Zone
+  [77606] = { default = false, cooldown = 30, class = "DEATHKNIGHT",talent = {51052}}, -- Dark Simulacrum
+  [212552] = { default = true, cooldown = 45, class = "DEATHKNIGHT",duration = 3,sprint = true}, -- Wraith Walk
+  [47528] = { default = true, cooldown = 15, class = "DEATHKNIGHT", interrupt = true,}, -- Mind Freeze
+  [49576] = { default = true, cooldown = 25, class = "DEATHKNIGHT", blink = true}, -- Death Grip
+  [48707] = { default = true, cooldown = 60, class = "DEATHKNIGHT", duration = 5, defensive = true}, -- Anti-Magic Shell
+  [61999] = { default = false, cooldown = 600, class = "DEATHKNIGHT", revival = true }, -- Raise Ally
 
-  -- Blood
+  -- Blood TBD
 
   [43265] = { default = false, cooldown = 30, class = "DEATHKNIGHT", specID = { 250, 252 } }, -- Death and Decay
   [47476] = { default = false, cooldown = 60, class = "DEATHKNIGHT", specID = { 250 } }, -- Strangulate
@@ -33,19 +33,19 @@ LCT_SpellData = {
 
   -- Frost
 
-  [47568] = { default = false, cooldown = 180, class = "DEATHKNIGHT", specID = { 251 }, charges = 2 }, -- Empower Rune Weapon
-  [207127] = { parent = 47568 }, -- Hungering Rune Weapon
-  [48792] = { default = false, cooldown = 180, class = "DEATHKNIGHT", specID = { 251, 252 } }, -- Icebound Fortitude
-  [51271] = { default = false, cooldown = 60, class = "DEATHKNIGHT", specID = { 251 } }, -- Pillar of Frost
-  [152279] = { default = false, cooldown = 120, class = "DEATHKNIGHT", specID = { 251} }, -- Breath of Sindragosa
-  [190778] = { default = false, cooldown = 300, class = "DEATHKNIGHT", specID = { 251} }, -- Sindragosa's Fury
-  [196770] = { default = false, cooldown = 20, class = "DEATHKNIGHT", specID = { 251 } }, -- Remorseless Winter
-  [204143] = { default = false, cooldown = 45, class = "DEATHKNIGHT", specID = { 251 } }, -- Killing Machine
-  [204160] = { default = false, cooldown = 60, class = "DEATHKNIGHT", specID = { 251 } }, -- Chill Streak
-  [207167] = { default = false, cooldown = 60, class = "DEATHKNIGHT", specID = { 251} }, -- Blinding Sleet
-  [207256] = { default = false, cooldown = 90, class = "DEATHKNIGHT", specID = { 251} }, -- Obliteration
+  [47568] = { default = true, cooldown = 180, class = "DEATHKNIGHT", specID = { 251 }, offensive = true}, -- Empower Rune Weapon
+  [207127] = { parent = 47568, default = false, duration = 12 , talent = {47568}}, -- Hungering Rune Weapon
+  [48792] = { default = true, cooldown = 180, class = "DEATHKNIGHT", specID = { 251, 252 }, defensive = true, duration = 8 }, -- Icebound Fortitude
+  [51271] = { default = true, cooldown = 60, class = "DEATHKNIGHT", specID = { 251 }, offensive = true, duration = 20 }, -- Pillar of Frost
+  [152279] = { default = false, cooldown = 120, class = "DEATHKNIGHT", specID = { 251}, offensive = true, duration = 12, talent = {207256}}, -- Breath of Sindragosa
+  [190778] = { default = true, cooldown = 300, class = "DEATHKNIGHT", specID = { 251}, offensive=true }, -- Sindragosa's Fury
+  [196770] = { default = false, cooldown = 20, class = "DEATHKNIGHT", specID = { 251 }, aoecc = true }, -- Remorseless Winter
+  -- [204143] = { default = false, cooldown = 45, class = "DEATHKNIGHT", specID = { 251 } }, -- Killing Machine
+  [204160] = { default = false, cooldown = 45, class = "DEATHKNIGHT", specID = { 251 }, offensive = true }, -- Chill Streak
+  [207167] = { default = false, cooldown = 60, class = "DEATHKNIGHT", specID = { 251}, talent = {}, aoecc = true }, -- Blinding Sleet
+  [207256] = { default = false, cooldown = 90, class = "DEATHKNIGHT", specID = { 251}, talent = {152279}, offensive = true }, -- Obliteration
 
-  -- Unholy
+  -- Unholy TBD
 
   [42650] = { default = false, cooldown = 600, class = "DEATHKNIGHT", specID = { 252 } }, -- Army of the Dead
   [63560] = { default = false, cooldown = 60, class = "DEATHKNIGHT", specID = { 252 } }, -- Dark Transformation
@@ -60,7 +60,7 @@ LCT_SpellData = {
   [91802] = { default = false, cooldown = 30, class = "DEATHKNIGHT", specID = { 252 } }, -- Shambling Rush (Ghoul)
   [207319] = { default = false, cooldown = 60, class = "DEATHKNIGHT", specID = { 252 } }, -- Corpse Shield
 
-  -- Demon Hunter
+  -- Demon Hunter TBD
 
   [179057] = { default = false, cooldown = 60, class = "DEMONHUNTER" }, -- Chaos Nova
   [183752] = { default = true, cooldown = 15, class = "DEMONHUNTER" }, -- Consume Magic
@@ -81,14 +81,14 @@ LCT_SpellData = {
   [207407] = { parent = 214743 }, -- Soul Carver (Vengeance)
   [221527] = { default = false, cooldown = 10, class = "DEMONHUNTER" }, -- Imprison
 
-  -- Havoc
+  -- Havoc TBD
 
   [201467] = { default = false, cooldown = 60, class = "DEMONHUNTER", specID = { 577 } }, -- Fury of the Illidari
   [206491] = { default = false, cooldown = 120, class = "DEMONHUNTER", specID = { 577 } }, -- Nemesis
   [211048] = { default = false, cooldown = 120, class = "DEMONHUNTER", specID = { 577 } }, -- Chaos Blades
   [211881] = { default = false, cooldown = 35, class = "DEMONHUNTER", specID = { 577, 581 } }, -- Fel Eruption
 
-  -- Vengeance
+  -- Vengeance TBD
 
   [202137] = { default = false, cooldown = 60, class = "DEMONHUNTER", specID = { 581 } }, -- Sigil of Silence
   [202138] = { default = false, cooldown = 120, class = "DEMONHUNTER", specID = { 581 } }, -- Sigil of Chains
@@ -103,28 +103,28 @@ LCT_SpellData = {
 
   -- Priest
 
-  [586] = { default = false, cooldown = 30, class = "PRIEST" }, -- Fade
-  [213602] = { parent = 586 }, -- Greater Fade
-  [32375] = { default = false, cooldown = 15, class = "PRIEST" }, -- Mass Dispel
+  -- [586] = { default = false, cooldown = 30, class = "PRIEST" }, -- Fade
+  -- [213602] = { parent = 586 }, -- Greater Fade
+  [32375] = { default = true, cooldown = 15, class = "PRIEST" }, -- Mass Dispel
 
   -- Discipline
 
-  [8122] = { default = false, cooldown = 30, class = "PRIEST", specID = { 256, 258 } }, -- Psychic Scream
-  [10060] = { default = false, cooldown = 120, class = "PRIEST", specID = { 256, 258 } }, -- Power Infusion
-  [33206] = { default = false, cooldown = 210, class = "PRIEST", specID = { 256 } }, -- Pain Suppression
-  [34433] = { default = false, cooldown = 180, class = "PRIEST", specID = { 256, 258 } }, -- Shadowfiend
+  [8122] = { default = true, cooldown = 30, class = "PRIEST", specID = { 256, 258 }, aoecc = true, talent = {205369} }, -- Psychic Scream
+  [10060] = { default = true, cooldown = 120, class = "PRIEST", specID = { 256, 258 }, offensive = true, duration = 20 }, -- Power Infusion
+  [33206] = { default = true, cooldown = 210, class = "PRIEST", specID = { 256 }, defensive = true, duration = 8 }, -- Pain Suppression
+  [34433] = { default = false, cooldown = 180, class = "PRIEST", specID = { 256, 258 }, offensive = true, duration = 12 }, -- Shadowfiend
   [123040] = { parent = 34433, cooldown = 60 }, -- Mindbender (Discipline)
   [200174] = { parent = 34433, cooldown = 60 }, -- Mindbender (Shadow)
-  [47536] = { default = false, cooldown = 120, class = "PRIEST", specID = { 256 } }, -- Rapture
-  [62618] = { default = false, cooldown = 180, class = "PRIEST", specID = { 256 } }, -- Power Word: Barrier
-  [73325] = { default = false, cooldown = 90, class = "PRIEST", specID = { 256, 257 } }, -- Leap of Faith
-  [197862] = { default = false, cooldown = 60, class = "PRIEST", specID = { 256 } }, -- Archangel
-  [204263] = { default = false, cooldown = 60, class = "PRIEST", specID = { 256, 257 } }, -- Shining Force
-  [207946] = { default = false, cooldown = 90, class = "PRIEST", specID = { 256 } }, -- Light's Wrath
-  [208065] = { default = false, cooldown = 45, class = "PRIEST", specID = { 256 }, charges = 2 }, -- Light of T'uure
-  [209780] = { default = false, cooldown = 12, class = "PRIEST", specID = { 256} }, -- Premonition
+  [47536] = { default = true, cooldown = 120, class = "PRIEST", specID = { 256 }, offensive = true, duration = 8, dispelable = true }, -- Rapture
+  [62618] = { default = true, cooldown = 180, class = "PRIEST", specID = { 256 }, defensive = true, duration = 10}, -- Power Word: Barrier
+  [73325] = { default = true, cooldown = 90, class = "PRIEST", specID = { 256, 257 }, blink = true }, -- Leap of Faith
+  [197862] = { default = true, cooldown = 60, class = "PRIEST", specID = { 256 }, offensive = true, duration = 15}, -- Archangel
+  [204263] = { default = false, cooldown = 60, class = "PRIEST", specID = { 256, 257 }, aoecc = true, talent = {} }, -- Shining Force
+  [207946] = { default = true, cooldown = 90, class = "PRIEST", specID = { 256 }, offensive = true, cast = 2.5 }, -- Light's Wrath
+  -- [208065] = { default = false, cooldown = 45, class = "PRIEST", specID = { 256 }, charges = 2 }, -- Light of T'uure
+  [209780] = { default = true, cooldown = 12, class = "PRIEST", specID = { 256}, removecc = true}, -- Premonition
 
-  -- Holy
+  -- Holy TBD
 
   [47788] = { default = false, cooldown = 96, class = "PRIEST", specID = { 257 } }, -- Guardian Spirit
   [64843] = { default = false, cooldown = 180, class = "PRIEST", specID = { 257 } }, -- Divine Hymn
@@ -138,46 +138,46 @@ LCT_SpellData = {
 
   -- Shadow
 
-  [15286] = { default = false, cooldown = 180, class = "PRIEST", specID = { 258 } }, -- Vampiric Embrace
-  [15487] = { default = false, cooldown = 45, class = "PRIEST", specID = { 258 } }, -- Silence
+  [15286] = { default = true, cooldown = 180, class = "PRIEST", specID = { 258 }, defensive = true, duration = 15}, -- Vampiric Embrace
+  [15487] = { default = true, cooldown = 45, class = "PRIEST", specID = { 258 }, cc = true }, -- Silence
   [32379] = { default = false, cooldown = 9, class = "PRIEST", specID = { 258 }, charges = 2 }, -- Shadow Word: Death
-  [47585] = { default = false, cooldown = 90, class = "PRIEST", specID = { 258 } }, -- Dispersion
-  [108968] = { default = false, cooldown = 300, class = "PRIEST", specID = { 258 } }, -- Void Shift
-  [193223] = { default = false, cooldown = 600, class = "PRIEST", specID = { 258 } }, -- Surrender to Madness
-  [197871] = { default = false, cooldown = 60, class = "PRIEST", specID = { 258 } }, -- Dark Archangel
-  [205065] = { default = false, cooldown = 60, class = "PRIEST", specID = { 258 } }, -- Void Torrent
-  [205369] = { default = false, cooldown = 30, class = "PRIEST", specID = { 258 } }, -- Mind Bomb
-  [211522] = { default = false, cooldown = 45, class = "PRIEST", specID = { 258 } }, -- Psyfiend
+  [47585] = { default = true, cooldown = 90, class = "PRIEST", specID = { 258 }, defensive = true, duration = 6 }, -- Dispersion
+  [108968] = { default = false, cooldown = 300, class = "PRIEST", specID = { 258 }, defensive = true, talent = {211522} }, -- Void Shift
+  -- [193223] = { default = false, cooldown = 600, class = "PRIEST", specID = { 258 } }, -- Surrender to Madness
+  -- [197871] = { default = false, cooldown = 60, class = "PRIEST", specID = { 258 } }, -- Dark Archangel
+  [205065] = { default = false, cooldown = 60, class = "PRIEST", specID = { 258 }, offensive = true }, -- Void Torrent
+  [205369] = { default = true, cooldown = 30, class = "PRIEST", specID = { 258 }, talent = {8122}, aoecc = true }, -- Mind Bomb
+  [211522] = { default = false, cooldown = 45, class = "PRIEST", specID = { 258 }, talent = {108968}, offensive = true}, -- Psyfiend
 
   -- Paladin
 
-  [633] = { default = false, cooldown = 600, class = "PALADIN" }, -- Lay on Hands
-  [642] = { default = false, cooldown = 300, class = "PALADIN" }, -- Divine Shield
-  [853] = { default = false, cooldown = 60, class = "PALADIN" }, -- Hammer of Justice
-  [1022] = { default = false, cooldown = 300, class = "PALADIN", charges = 2 }, -- Blessing of Protection
-  [204018] = { parent = 1022, cooldown = 180 }, -- Blessing of Spellwarding
-  [1044] = { default = false, cooldown = 25, class = "PALADIN", charges = 2 }, -- Blessing of Freedom
-  [20066] = { default = false, cooldown = 15, class = "PALADIN" }, -- Repentance
-  [31884] = { default = false, cooldown = 120, class = "PALADIN" }, -- Avenging Wrath
-  [31842] = { parent = 31884 }, -- Avenging Wrath (Holy)
-  [216331] = { parent = 31884, cooldown = 60 }, -- Avenging Crusader
-  [224668] = { parent = 31884 }, -- Crusade
-  [115750] = { default = false, cooldown = 90, class = "PALADIN" }, -- Blinding Light
+  -- [633] = { default = false, cooldown = 600, class = "PALADIN" }, -- Lay on Hands
+  [642] = { default = true, cooldown = 300, class = "PALADIN", defensive = true, duration = 8 }, -- Divine Shield
+  [853] = { default = true, cooldown = 60, class = "PALADIN", cc= true }, -- Hammer of Justice
+  [1022] = { default = true, cooldown = 300, class = "PALADIN", charges = 2, defensive = true, dispelable = true, duration = 10 }, -- Blessing of Protection
+  [1044] = { default = true, cooldown = 25, class = "PALADIN", charges = 2, sprint = true, dispelable = true, duration = 8 }, -- Blessing of Freedom
+  [20066] = { default = false, cooldown = 15, class = "PALADIN", cc=true, talent = {115750} }, -- Repentance
+  [31884] = { default = true, cooldown = 120, class = "PALADIN", offensive = true, duration = 20 }, -- Avenging Wrath
+  [31842] = { parent = 31884 , specID = { 65 }}, -- Avenging Wrath (Holy)
+  [216331] = { parent = 31884, cooldown = 60 , specID = { 65 }}, -- Avenging Crusader
+  [224668] = { parent = 31884 , specID = { 70 }}, -- Crusade
+  [115750] = { default = false, cooldown = 90, class = "PALADIN", aoecc = true, talent = {20066} }, -- Blinding Light
 
   -- Holy
 
-  [498] = { default = false, cooldown = 60, class = "PALADIN", specID = { 65, 66 } }, -- Divine Protection
-  [6940] = { default = false, cooldown = 150, class = "PALADIN", specID = { 65, 66 }, charges = 2 }, -- Blessing of Sacrifice
-  [31821] = { default = false, cooldown = 180, class = "PALADIN", specID = { 65 } }, -- Aura Mastery
-  [105809] = { default = false, cooldown = 90, class = "PALADIN", specID = { 65 } }, -- Holy Avenger
+  [498] = { default = true, cooldown = 60, class = "PALADIN", specID = { 65, 66 }, defensive = true, duration = 8}, -- Divine Protection
+  [6940] = { default = true, cooldown = 150, class = "PALADIN", specID = { 65, 66 }, charges = 2, defensive, duration=10 }, -- Blessing of Sacrifice
+  [31821] = { default = true, cooldown = 180, class = "PALADIN", specID = { 65 }, defensive = true, duration = 6 }, -- Aura Mastery
+  [105809] = { default = true, cooldown = 90, class = "PALADIN", specID = { 65 }, offensive = true, duration = 20 }, -- Holy Avenger
   [114158] = { default = false, cooldown = 60, class = "PALADIN", specID = { 65 } }, -- Light's Hammer
   [183415] = { default = false, cooldown = 180, class = "PALADIN", specID = { 65 } }, -- Aura of Mercy
-  [200652] = { default = false, cooldown = 90, class = "PALADIN", specID = { 65 } }, -- Tyr's Deliverance
-  [210294] = { default = false, cooldown = 45, class = "PALADIN", specID = { 65 } }, -- Divine Favor
+  [200652] = { default = false, cooldown = 90, class = "PALADIN", specID = { 65 }, cast = 2 }, -- Tyr's Deliverance
+  [210294] = { default = true, cooldown = 45, class = "PALADIN", specID = { 65 }, dispelable = true, offensive = true }, -- Divine Favor
   [214202] = { default = false, cooldown = 30, class = "PALADIN", specID = { 65 }, charges = 2 }, -- Rule of Law
 
-  -- Protection
+  -- Protection TBD
 
+  [204018] = { parent = 1022, cooldown = 180, class = "PALADIN", specID = { 66 }, talent = {1022} }, -- Blessing of Spellwarding
   [31850] = { default = false, cooldown = 120, class = "PALADIN", specID = { 66 } }, -- Ardent Defender
   [31935] = { default = true, cooldown = 15, class = "PALADIN", specID = { 66 } }, -- Avenger's Shield
   [86659] = { default = false, cooldown = 300, class = "PALADIN", specID = { 66 } }, -- Guardian of Ancient Kings
@@ -192,51 +192,51 @@ LCT_SpellData = {
 
   -- Retribution
 
-  [184662] = { default = false, cooldown = 120, class = "PALADIN", specID = { 70 } }, -- Shield of Vengeance
+  [184662] = { default = true, cooldown = 120, class = "PALADIN", specID = { 70 }, defensive = true, dispelable = true, duration = 15 }, -- Shield of Vengeance
   [204939] = { default = false, cooldown = 60, class = "PALADIN", specID = { 70 } }, -- Hammer of Reckoning
-  [205191] = { default = false, cooldown = 60, class = "PALADIN", specID = { 70 } }, -- Eye for an Eye
-  [205273] = { default = false, cooldown = 30, class = "PALADIN", specID = { 70 } }, -- Wake of Ashes
-  [210191] = { default = false, cooldown = 60, class = "PALADIN", specID = { 70 } }, -- Word of Glory
-  [210220] = { default = false, cooldown = 180, class = "PALADIN", specID = { 70 } }, -- Holy Wrath
-  [210256] = { default = false, cooldown = 25, class = "PALADIN", specID = { 70 } }, -- Blessing of Sanctuary
+  [205191] = { default = false, cooldown = 60, class = "PALADIN", specID = { 70 }, talent = {}, defensive = true, duration = 10 }, -- Eye for an Eye
+  [205273] = { default = true, cooldown = 30, class = "PALADIN", specID = { 70 }, offensive = true }, -- Wake of Ashes
+  [210191] = { default = false, cooldown = 60, class = "PALADIN", specID = { 70 }, defensive = true }, -- Word of Glory
+  [210220] = { default = false, cooldown = 180, class = "PALADIN", specID = { 70 }, offensive = true }, -- Holy Wrath
+  [210256] = { default = false, cooldown = 25, class = "PALADIN", specID = { 70 }, removecc = true }, -- Blessing of Sanctuary
 
   -- Druid
 
-  [1850] = { default = false, cooldown = 180, class = "DRUID" }, -- Dash
-  [5211] = { default = false, cooldown = 50, class = "DRUID" }, -- Mighty Bash
-  [20484] = { default = false, cooldown = 600, class = "DRUID" }, -- Rebirth
-  [102280] = { default = false, cooldown = 30, class = "DRUID" }, -- Displacer Beast
-  [102359] = { default = false, cooldown = 30, class = "DRUID" }, -- Mass Entanglement
-  [102401] = { default = false, cooldown = 15, class = "DRUID" }, -- Wild Charge
-  [132469] = { default = false, cooldown = 30, class = "DRUID" }, -- Typhoon
+  [1850] = { default = false, cooldown = 180, class = "DRUID", sprint = true, duration = 15 }, -- Dash
+  [5211] = { default = true, cooldown = 50, class = "DRUID", cc = true }, -- Mighty Bash
+  -- [20484] = { default = false, cooldown = 600, class = "DRUID", revival = true }, -- Rebirth
+  [102280] = { default = true, cooldown = 30, class = "DRUID", blink = true, talent = {102401,108238} }, -- Displacer Beast
+  [102359] = { default = false, cooldown = 30, class = "DRUID", talent = {5211,132469} , cc = true}, -- Mass Entanglement
+  [102401] = { default = true, cooldown = 15, class = "DRUID", talent = {102280,108238}, blink = true }, -- Wild Charge
+  [132469] = { default = false, cooldown = 30, class = "DRUID", talent = {5211,102359}, cc = true }, -- Typhoon
 
   -- Balance
 
-  [22812] = { default = false, cooldown = { default = 60, [104] = 35 }, class = "DRUID", specID = { 102, 104, 105 } }, -- Barkskin
+  [22812] = { default = true, cooldown = { default = 60, [104] = 35 }, class = "DRUID", specID = { 102, 104, 105 }, defensive = true, duration = 12 }, -- Barkskin
   [29166] = { default = false, cooldown = 180, class = "DRUID", specID = { 102, 105 } }, -- Innervate
-  [78675] = { default = true, cooldown = 60, class = "DRUID", specID = { 102 } }, -- Solar Beam
-  [102560] = { default = false, cooldown = 180, class = "DRUID", specID = { 102 } }, -- Incarnation: Chosen of Elune
-  [108238] = { default = false, cooldown = 120, class = "DRUID", specID = { 102, 103, 105 } }, -- Renewal
-  [194223] = { default = false, cooldown = 180, class = "DRUID", specID = { 102 } }, -- Celestial Alignment
-  [202425] = { default = false, cooldown = 45, class = "DRUID", specID = { 102 } }, -- Warrior of Elune
-  [202770] = { default = false, cooldown = 90, class = "DRUID", specID = { 102 } }, -- Fury of Elune
-  [205636] = { default = false, cooldown = 60, class = "DRUID", specID = { 102 } }, -- Force of Nature
-  [209749] = { default = false, cooldown = 30, class = "DRUID", specID = { 102 } }, -- Faerie Swarm
+  [78675] = { default = true, cooldown = 60, class = "DRUID", specID = { 102 }, interrupt = true }, -- Solar Beam
+  [102560] = { parent = 194223, default = true, duration = 30 }, -- Incarnation: Chosen of Elune
+  [108238] = { default = false, cooldown = 120, class = "DRUID", specID = { 102, 103, 105 }, defensive = true, talent = {102280,102401} }, -- Renewal
+  [194223] = { default = true, cooldown = 180, class = "DRUID", specID = { 102 }, offensive = true, duration = 15 }, -- Celestial Alignment
+  [202425] = { default = true, cooldown = 45, class = "DRUID", specID = { 102 }, offensive = true }, -- Warrior of Elune
+  [202770] = { default = false, cooldown = 90, class = "DRUID", specID = { 102 }, offensive = true }, -- Fury of Elune
+  [205636] = { default = false, cooldown = 60, class = "DRUID", specID = { 102 }, offensive = true, talent = {202425} }, -- Force of Nature
+  [209749] = { default = false, cooldown = 30, class = "DRUID", specID = { 102 }, talent = {} }, -- Faerie Swarm
 
   -- Feral
 
-  [5217] = { default = false, cooldown = 30, class = "DRUID", specID = { 103 } }, -- Tiger's Fury
-  [22570] = { default = false, cooldown = 10, class = "DRUID", specID = { 103 } }, -- Maim
-  [61336] = { default = false, cooldown = { default = 180, [104] = 120 }, class = "DRUID", specID = { 103, 104 }, charges = 2 }, -- Survival Instincts
-  [102543] = { default = false, cooldown = 180, class = "DRUID", specID = { 103 } }, -- Incarnation: King of the Jungle
-  [106839] = { default = true, cooldown = 15, class = "DRUID", specID = { 103, 104 } }, -- Skull Bash
-  [106898] = { default = false, cooldown = 120, class = "DRUID", specID = { 103, 104 } }, -- Stampeding Roar
-  [106951] = { default = false, cooldown = 180, class = "DRUID", specID = { 103 } }, -- Berserk
-  [202060] = { default = false, cooldown = 45, class = "DRUID", specID = { 103 } }, -- Elune's Guidance
-  [203242] = { default = false, cooldown = 60, class = "DRUID", specID = { 103 } }, -- Rip and Tear
-  [210722] = { default = false, cooldown = 75, class = "DRUID", specID = { 103 } }, -- Ashamane's Frenzy
+  [5217] = { default = false, cooldown = 30, class = "DRUID", specID = { 103 }, offensive = true }, -- Tiger's Fury
+  [22570] = { default = false, cooldown = 10, class = "DRUID", specID = { 103 }, cc = true }, -- Maim
+  [61336] = { default = true, cooldown = { default = 180, [104] = 120 }, class = "DRUID", specID = { 103, 104 }, charges = 2, defensive= true, duration=6 }, -- Survival Instincts
+  [102543] = { parent = 106951, duration = 30}, -- Incarnation: King of the Jungle
+  [106839] = { default = true, cooldown = 15, class = "DRUID", specID = { 103, 104 }, interrupt = true }, -- Skull Bash
+  [106898] = { default = false, cooldown = 120, class = "DRUID", specID = { 103, 104 }, sprint = true, duration =8 }, -- Stampeding Roar
+  [106951] = { default = true, cooldown = 180, class = "DRUID", specID = { 103 }, duration = 15, offensive = true }, -- Berserk
+  [202060] = { default = false, cooldown = 45, class = "DRUID", specID = { 103 }, talent = {} }, -- Elune's Guidance
+  [203242] = { default = false, cooldown = 60, class = "DRUID", specID = { 103 }, talent = {} }, -- Rip and Tear
+  [210722] = { default = false, cooldown = 75, class = "DRUID", specID = { 103 }, offensive = true }, -- Ashamane's Frenzy
 
-  -- Guardian
+  -- Guardian TBD
 
   [99] = { default = false, cooldown = 30, class = "DRUID", specID = { 104 } }, -- Incapacitating Roar
   [22842] = { default = false, cooldown = 24, class = "DRUID", specID = { 104 }, charges = 2 }, -- Frenzied Regeneration
@@ -247,53 +247,53 @@ LCT_SpellData = {
 
   -- Restoration
 
-  [740] = { default = false, cooldown = 120, class = "DRUID", specID = { 105} }, -- Tranquility
-  [18562] = { default = false, cooldown = 30, class = "DRUID", specID = { 105}, charges = 2 }, -- Swiftmend
-  [33891] = { default = false, cooldown = 180, class = "DRUID", specID = { 105} }, -- Incarnation: Tree of Life
-  [102342] = { default = false, cooldown = 60, class = "DRUID", specID = { 105} }, -- Ironbark
-  [102351] = { default = false, cooldown = 30, class = "DRUID", specID = { 105} }, -- Cenarion Ward
-  [102793] = { default = false, cooldown = 60, class = "DRUID", specID = { 105} }, -- Ursol's Vortex
-  [197721] = { default = false, cooldown = 60, class = "DRUID", specID = { 105} }, -- Flourish
-  [201664] = { default = false, cooldown = 60, class = "DRUID", specID = { 105} }, -- Demoralizing Roar
-  [203651] = { default = false, cooldown = 45, class = "DRUID", specID = { 105} }, -- Overgrowth
-  [203727] = { default = false, cooldown = 45, class = "DRUID", specID = { 105} }, -- Thorns
-  [208253] = { default = false, cooldown = 90, class = "DRUID", specID = { 105} }, -- Essence of G'Hanir
+  [740] = { default = true, cooldown = 120, class = "DRUID", specID = { 105}, offensive = true }, -- Tranquility
+  [18562] = { default = false, cooldown = 30, class = "DRUID", specID = { 105}, charges = 2, defensive = true }, -- Swiftmend
+  [33891] = { default = false, cooldown = 180, class = "DRUID", specID = { 105}, talent = {}, offensive = true, defensive = true }, -- Incarnation: Tree of Life
+  [102342] = { default = true, cooldown = 60, class = "DRUID", specID = { 105}, defensive = true, duration = 12 }, -- Ironbark
+  [102351] = { default = false, cooldown = 30, class = "DRUID", specID = { 105}, defensive = true, duration = 8, talent ={} }, -- Cenarion Ward
+  [102793] = { default = true, cooldown = 60, class = "DRUID", specID = { 105}, aoecc = true, duration = 10 }, -- Ursol's Vortex
+  [197721] = { default = false, cooldown = 60, class = "DRUID", specID = { 105}, talent = {} }, -- Flourish
+  -- [201664] = { default = false, cooldown = 60, class = "DRUID", specID = { 105} }, -- Demoralizing Roar
+  [203651] = { default = true, cooldown = 45, class = "DRUID", specID = { 105}, defensive = true }, -- Overgrowth
+  [203727] = { default = false, cooldown = 45, class = "DRUID", specID = { 105}, defensive = true, duration = 12 }, -- Thorns
+  [208253] = { default = false, cooldown = 90, class = "DRUID", specID = { 105}, offensive = true, duration = 8 }, -- Essence of G'Hanir
 
   -- Warrior
 
-  [100] = { default = false, cooldown = 17, class = "WARRIOR", charges = 2 }, -- Charge
+  [100] = { default = true, cooldown = 17, class = "WARRIOR", charges = 2, blink = true }, -- Charge
   [198758] = { parent = 100 }, -- Intercept
-  [1719] = { default = false, cooldown = 45, class = "WARRIOR" }, -- Battle Cry
-  [6544] = { default = false, cooldown = 30, class = "WARRIOR", charges = 2 }, -- Heroic Leap
-  [6552] = { default = true, cooldown = 15, class = "WARRIOR" }, -- Pummel
-  [18499] = { default = false, cooldown = 60, class = "WARRIOR" }, -- Berserker Rage
-  [23920] = { default = false, cooldown = 25, class = "WARRIOR" }, -- Spell Reflection
+  [1719] = { default = true, cooldown = 45, class = "WARRIOR", offensive = true, duration = 5 }, -- Battle Cry
+  [6544] = { default = true, cooldown = 45, class = "WARRIOR", blink = true }, -- Heroic Leap
+  [6552] = { default = true, cooldown = 15, class = "WARRIOR", intercept = true}, -- Pummel
+  [18499] = { default = false, cooldown = 60, class = "WARRIOR", removecc = true }, -- Berserker Rage
+  [23920] = { default = true, cooldown = 25, class = "WARRIOR", defensive = true, talent = {}, duration = 3 }, -- Spell Reflection
   [213915] = { parent = 23920, cooldown = 30 }, -- Mass Spell Reflection
   [216890] = { parent = 23920 }, -- Spell Reflection (Arms, Fury)
-  [46968] = { default = false, cooldown = 40, class = "WARRIOR" }, -- Shockwave
-  [107570] = { default = false, cooldown = 30, class = "WARRIOR" }, -- Storm Bolt
-  [107574] = { default = false, cooldown = 90, class = "WARRIOR" }, -- Avatar
+  [46968] = { default = true, cooldown = 40, class = "WARRIOR", talent = {107570}, cc = true }, -- Shockwave
+  [107570] = { default = true, cooldown = 30, class = "WARRIOR", talent = {46968}, cc = true }, -- Storm Bolt
+  [107574] = { default = true, cooldown = 90, class = "WARRIOR", offensive = true, duration = 20 }, -- Avatar
 
   -- Arms
 
-  [5246] = { default = false, cooldown = 90, class = "WARRIOR", specID = { 71, 72 } }, -- Intimidating Shout
-  [97462] = { default = false, cooldown = 180, class = "WARRIOR", specID = { 71, 72 } }, -- Commanding Shout
-  [118038] = { default = false, cooldown = 180, class = "WARRIOR", specID = { 71 } }, -- Die by the Sword
-  [167105] = { default = false, cooldown = 45, class = "WARRIOR", specID = { 71 } }, -- Colossus Smash
-  [197690] = { default = false, cooldown = 10, class = "WARRIOR", specID = { 71 } }, -- Defensive Stance
-  [198817] = { default = false, cooldown = 45, class = "WARRIOR", specID = { 71 } }, -- Sharpen Blade
-  [209577] = { default = false, cooldown = 60, class = "WARRIOR", specID = { 71 } }, -- Warbreaker
-  [227847] = { default = false, cooldown = 90, class = "WARRIOR", specID = { 71, 72 } }, -- Bladestorm (Arms)
+  [5246] = { default = false, cooldown = 90, class = "WARRIOR", specID = { 71, 72 }, aoecc = true }, -- Intimidating Shout
+  [97462] = { default = false, cooldown = 180, class = "WARRIOR", specID = { 71, 72 }, defensive = true, duration = 10 }, -- Commanding Shout
+  [118038] = { default = false, cooldown = 180, class = "WARRIOR", specID = { 71 }, defensive = true, duration = 8 }, -- Die by the Sword
+  -- [167105] = { default = false, cooldown = 45, class = "WARRIOR", specID = { 71 } }, -- Colossus Smash
+  -- [197690] = { default = false, cooldown = 10, class = "WARRIOR", specID = { 71 }, }, -- Defensive Stance
+  [198817] = { default = true, cooldown = 45, class = "WARRIOR", specID = { 71 }, talent = {}, offensive = true }, -- Sharpen Blade
+  -- [209577] = { default = false, cooldown = 60, class = "WARRIOR", specID = { 71 }, offensive = true }, -- Warbreaker
+  [227847] = { default = true, cooldown = 90, class = "WARRIOR", specID = { 71, 72 }, offensive = true, duration = 6 }, -- Bladestorm (Arms)
   [46924] = { parent = 227847 }, -- Bladestorm (Fury)
-  [152277] = { parent = 227847, cooldown = 60 }, -- Ravager
+  -- [152277] = { parent = 227847, cooldown = 60 }, -- Ravager
 
-  -- Fury
+  -- Fury TBD
 
   [118000] = { default = false, cooldown = 25, class = "WARRIOR", specID = { 72 } }, -- Dragon Roar
   [184364] = { default = false, cooldown = 120, class = "WARRIOR", specID = { 72 } }, -- Enraged Regeneration
   [205545] = { default = false, cooldown = 45, class = "WARRIOR", specID = { 72 } }, -- Odyn's Fury
 
-  -- Protection
+  -- Protection TBD
 
   [871] = { default = false, cooldown = 240, class = "WARRIOR", specID = { 73 } }, -- Shield Wall
   [1160] = { default = false, cooldown = 60, class = "WARRIOR", specID = { 73 } }, -- Demoralizing Shout
@@ -305,19 +305,19 @@ LCT_SpellData = {
 
   -- Warlock
 
-  [1122] = { default = false, cooldown = 180, class = "WARLOCK" }, -- Summon Infernal
-  [6358] = { default = false, cooldown = 30, class = "WARLOCK" }, -- Seduction
-  [6360] = { default = false, cooldown = 25, class = "WARLOCK" }, -- Whiplash
-  [115770] = { parent = 6360 }, -- Fellash
-  [6789] = { default = false, cooldown = 45, class = "WARLOCK" }, -- Mortal Coil
-  [18540] = { default = false, cooldown = 180, class = "WARLOCK" }, -- Summon Doomguard
-  [20707] = { default = false, cooldown = 600, class = "WARLOCK" }, -- Soulstone
-  [104773] = { default = false, cooldown = 180, class = "WARLOCK" }, -- Unending Resolve
-  [108416] = { default = false, cooldown = 60, class = "WARLOCK" }, -- Dark Pact
-  [108501] = { default = false, cooldown = 90, class = "WARLOCK" }, -- Grimoire of Service
-  [115268] = { default = false, cooldown = 6358, class = "WARLOCK" }, -- Mesmerize
-  [115284] = { default = false, cooldown = 15, class = "WARLOCK" }, -- Clone Magic
-  [119910] = { default = true, cooldown = 24, class = "WARLOCK" }, -- Spell Lock (Command Demon)
+  [1122] = { default = false, cooldown = 180, class = "WARLOCK", aoecc = true, offensive = true }, -- Summon Infernal
+  -- [6358] = { default = false, cooldown = 30, class = "WARLOCK" }, -- Seduction
+  -- [6360] = { default = false, cooldown = 25, class = "WARLOCK" }, -- Whiplash
+  -- [115770] = { parent = 6360 }, -- Fellash
+  [6789] = { default = false, cooldown = 45, class = "WARLOCK", talent = {}, cc = true }, -- Mortal Coil
+  -- [18540] = { default = false, cooldown = 180, class = "WARLOCK" }, -- Summon Doomguard
+  -- [20707] = { default = false, cooldown = 600, class = "WARLOCK" }, -- Soulstone
+  [104773] = { default = false, cooldown = {default = 180, [267] = 60}, class = "WARLOCK", defensive = true, duration = 8 }, -- Unending Resolve
+  [108416] = { default = false, cooldown = 60, class = "WARLOCK", talent = {}, defensive = true }, -- Dark Pact
+  [108501] = { default = false, cooldown = 90, class = "WARLOCK", cc = true }, -- Grimoire of Service
+  -- [115268] = { default = false, cooldown = 6358, class = "WARLOCK", }, -- Mesmerize
+  -- [115284] = { default = false, cooldown = 15, class = "WARLOCK" }, -- Clone Magic
+  [119910] = { default = true, cooldown = 24, class = "WARLOCK", intercept = true }, -- Spell Lock (Command Demon)
   [19647] = { parent = 119910 }, -- Spell Lock (Felhunter)
   [119911] = { parent = 119910 }, -- Optical Blast (Command Demon)
   [115781] = { parent = 119910 }, -- Optical Blast (Observer)
@@ -325,22 +325,23 @@ LCT_SpellData = {
   [171138] = { parent = 119910 }, -- Shadow Lock (Doomguard)
   [171139] = { parent = 119910 }, -- Shadow Lock (Grimoire of Sacrifice)
   [171140] = { parent = 119910 }, -- Shadow Lock (Command Demon)
-  [171152] = { default = false, cooldown = 60, class = "WARLOCK" }, -- Meteor Strike
-  [196098] = { default = false, cooldown = 120, class = "WARLOCK" }, -- Soul Harvest
-  [199890] = { default = false, cooldown = 15, class = "WARLOCK" }, -- Curse of Tongues
-  [199892] = { default = false, cooldown = 20, class = "WARLOCK" }, -- Curse of Weakness
-  [199954] = { default = false, cooldown = 45, class = "WARLOCK" }, -- Curse of Fragility
-  [212295] = { default = false, cooldown = 45, class = "WARLOCK" }, -- Nether Ward
-  [221703] = { default = false, cooldown = 30, class = "WARLOCK" }, -- Casting Circle
+  -- [171152] = { default = false, cooldown = 60, class = "WARLOCK" }, -- Meteor Strike
+  [196098] = { default = true, cooldown = 120, class = "WARLOCK", offensive = true, talent = {}, dispelable = true }, -- Soul Harvest
+  -- [199890] = { default = false, cooldown = 15, class = "WARLOCK" }, -- Curse of Tongues
+  -- [199892] = { default = false, cooldown = 20, class = "WARLOCK" }, -- Curse of Weakness
+  -- [199954] = { default = false, cooldown = 45, class = "WARLOCK" }, -- Curse of Fragility
+  [212295] = { default = true, cooldown = 45, class = "WARLOCK", talent = {221703}, offensive = true, duration = 5, dispelable = true }, -- Nether Ward
+  [221703] = { default = false, cooldown = 30, class = "WARLOCK", talent = {212295}, offensive = true, duration = 10 }, -- Casting Circle
+  -- [48018] = { default = false, cooldown = 30, class = "WARLOCK", talent = {5484}, blink = true, duration = 10 }, -- Demonic Circle
 
   -- Affliction
 
-  [5484] = { default = false, cooldown = 40, class = "WARLOCK", specID = { 265 } }, -- Howl of Terror
-  [48181] = { default = false, cooldown = 15, class = "WARLOCK", specID = { 265 } }, -- Haunt
-  [86121] = { default = false, cooldown = 20, class = "WARLOCK", specID = { 265 } }, -- Soul Swap
-  [205179] = { default = false, cooldown = 60, class = "WARLOCK", specID = { 265 } }, -- Phantom Singularity
+  [5484] = { default = false, cooldown = 40, class = "WARLOCK", specID = { 265 }, talent = {48018}, aoecc = true }, -- Howl of Terror
+  -- [48181] = { default = false, cooldown = 15, class = "WARLOCK", specID = { 265 } }, -- Haunt
+  -- [86121] = { default = false, cooldown = 20, class = "WARLOCK", specID = { 265 } }, -- Soul Swap
+  [205179] = { default = false, cooldown = 60, class = "WARLOCK", specID = { 265 }, offensive = true, duration = 15 }, -- Phantom Singularity
 
-  -- Demonology
+  -- Demonology TBD
 
   [30283] = { default = false, cooldown = 30, class = "WARLOCK", specID = { 266, 267 } }, -- Shadowfury
   [89751] = { default = false, cooldown = 45, class = "WARLOCK", specID = { 266 } }, -- Felstorm
@@ -353,7 +354,7 @@ LCT_SpellData = {
   [212459] = { default = false, cooldown = 90, class = "WARLOCK", specID = { 266 } }, -- Call Fel Lord
   [212623] = { default = false, cooldown = 15, class = "WARLOCK", specID = { 266 } }, -- Singe Magic
 
-  --  Destruction
+  --  Destruction TBD
 
   [17962] = { default = false, cooldown = 12, class = "WARLOCK", specID = { 267 }, charges = 2 }, -- Conflagrate
   [80240] = { default = false, cooldown = 20, class = "WARLOCK", specID = { 267 } }, -- Havoc
@@ -364,63 +365,67 @@ LCT_SpellData = {
 
   -- Shaman
 
-  [2825] = { default = false, cooldown = 45, class = "SHAMAN" }, -- Bloodlust
-  [32182] = { parent = 2825 }, -- Heroism
-  [20608] = { default = false, cooldown = 1800, class = "SHAMAN" }, -- Reincarnation
-  [51485] = { default = false, cooldown = 30, class = "SHAMAN" }, -- Earthgrab Totem
-  [51514] = { default = false, cooldown = { default = 30, [264] = 10 }, class = "SHAMAN" }, -- Hex
-  [196932] = { parent = 51514 }, -- Voodoo Totem
+  -- [2825] = { default = false, cooldown = 45, class = "SHAMAN" }, -- Bloodlust
+  -- [32182] = { parent = 2825 }, -- Heroism
+  -- [20608] = { default = false, cooldown = 1800, class = "SHAMAN" }, -- Reincarnation
+  [51514] = { default = false, cooldown = 30, class = "SHAMAN", cc = true }, -- Hex
+  [196932] = { parent = 51514, aoecc = true, talent = {192058,51485}, cooldown = 30 }, -- Voodoo Totem
   [210873] = { parent = 51514 }, -- Hex (Compy)
   [211004] = { parent = 51514 }, -- Hex (Spider)
   [211010] = { parent = 51514 }, -- Hex (Snake)
   [211015] = { parent = 51514 }, -- Hex (Cockroach)
-  [57994] = { default = true, cooldown = 12, class = "SHAMAN" }, -- Wind Shear
-  [108271] = { default = false, cooldown = 90, class = "SHAMAN" }, -- Astral Shift
+  [57994] = { default = true, cooldown = 12, class = "SHAMAN", intercept = true }, -- Wind Shear
+  [108271] = { default = false, cooldown = 90, class = "SHAMAN", defensive = true, duration = 8 }, -- Astral Shift
   [210918] = { parent = 108271, cooldown = 45 }, -- Ethereal Form
-  [114049] = { default = false, cooldown = 180, class = "SHAMAN" }, -- Ascendance
-  [114050] = { parent = 114050 }, -- Ascendance (Elemental)
-  [114051] = { parent = 114050 }, -- Ascendance (Enhancement)
-  [114052] = { parent = 114050 }, -- Ascendance (Restoration)
-  [192058] = { default = false, cooldown = 45, class = "SHAMAN" }, -- Lightning Surge Totem
-  [192077] = { default = false, cooldown = 120, class = "SHAMAN" }, -- Wind Rush Totem
-  [204330] = { default = false, cooldown = 45, class = "SHAMAN" }, -- Skyfury Totem
-  [204331] = { default = false, cooldown = 45, class = "SHAMAN" }, -- Counterstrike Totem
-  [204332] = { default = false, cooldown = 30, class = "SHAMAN" }, -- Windfury Totem
+  [114049] = { default = false, cooldown = 180, class = "SHAMAN", offensive = true, talent = {} }, -- Ascendance
+  [114050] = { parent = 114049 }, -- Ascendance (Elemental)
+  [114051] = { parent = 114049 }, -- Ascendance (Enhancement)
+  [114052] = { parent = 114049 }, -- Ascendance (Restoration)
+  [192058] = { default = false, cooldown = 45, class = "SHAMAN", aoecc = true, talent = {196932,51485} }, -- Lightning Surge Totem
+  [51485] = { default = false, cooldown = 30, class = "SHAMAN", aoecc = true, talent = {196932,192058} }, -- Earthgrab Totem
+  -- [192077] = { default = false, cooldown = 120, class = "SHAMAN" }, -- Wind Rush Totem
+  [204330] = { default = false, cooldown = 45, class = "SHAMAN", talent = {204331,204332}, offensive = true }, -- Skyfury Totem
+  [204331] = { default = false, cooldown = 45, class = "SHAMAN", talent = {204330,204332}, offensive = true }, -- Counterstrike Totem
+  [204332] = { default = false, cooldown = 30, class = "SHAMAN", talent = {204331,204330}, offensive = true }, -- Windfury Totem
 
   -- Elemental
 
-  [51490] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 262 } }, -- Thunderstorm
-  [108281] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 262, 264 } }, -- Ancestral Guidance
-  [16166] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 262 } }, -- Elemental Mastery
-  [192063] = { default = false, cooldown = 15, class = "SHAMAN", specID = { 262, 264 } }, -- Gust of Wind
-  [192222] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 262 } }, -- Liquid Magma Totem
-  [198067] = { default = false, cooldown = 300, class = "SHAMAN", specID = { 262 } }, -- Fire Elemental
+  [51490] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 262 }, defensive = true }, -- Thunderstorm
+  -- [108281] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 262, 264 },  }, -- Ancestral Guidance
+  -- [16166] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 262 } }, -- Elemental Mastery
+  [192063] = { default = false, cooldown = 15, class = "SHAMAN", specID = { 262, 264 },blink = true }, -- Gust of Wind
+  -- [192222] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 262 } }, -- Liquid Magma Totem
+  [198067] = { default = false, cooldown = 300, class = "SHAMAN", specID = { 262 }, offensive = true }, -- Fire Elemental
   [192249] = { parent = 198067 }, -- Storm Elemental
-  [198103] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 262 } }, -- Earth Elemental
-  [204437] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 262 } }, -- Lightning Lasso
-  [205495] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 262 } }, -- Stormkeeper
+  -- [198103] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 262 } }, -- Earth Elemental
+  [204437] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 262 }, talent = {} }, -- Lightning Lasso
+  [205495] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 262 }, offensive = true, cast = 1.5 }, -- Stormkeeper
+  [210714] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 262 }, offensive = true, cast = 2 }, -- Icefury
 
   -- Enhancement
 
-  [58875] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 263 } }, -- Spirit Walk
-  [196884] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 263 } }, -- Feral Lunge
-  [197214] = { default = false, cooldown = 40, class = "SHAMAN", specID = { 263 } }, -- Sundering
-  [201898] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 263 } }, -- Windsong
-  [204366] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 263 } }, -- Thundercharge
-  [204945] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 263 } }, -- Doom Winds
+  [58875] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 263 }, sprint = true, duration = 8 }, -- Spirit Walk
+  [196884] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 263 }, blink = true }, -- Feral Lunge
+  -- [197214] = { default = false, cooldown = 40, class = "SHAMAN", specID = { 263 } }, -- Sundering
+  -- [201898] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 263 } }, -- Windsong
+  -- [204366] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 263 } }, -- Thundercharge
+  [204945] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 263 },offensive = true, duration = 6 }, -- Doom Winds
+  [204945] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 263 },offensive = true, duration = 6 }, -- Doom Winds
+  [2825] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 263 }, offensive = true, duration = 10 }, -- Bloodlust
+  [32182] = { parent = 2825 }, -- Heroism
 
   -- Restoration
 
-  [5394] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 264 }, charges = 30 }, -- Healing Stream Totem
-  [79206] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 264 } }, -- Spiritwalker's Grace
-  [98008] = { default = false, cooldown = 180, class = "SHAMAN", specID = { 264 } }, -- Spirit Link Totem
-  [204293] = { parent = 98008, cooldown = 60 }, -- Spirit Link
-  [108280] = { default = false, cooldown = 180, class = "SHAMAN", specID = { 264 } }, -- Healing Tide Totem
-  [157153] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 264 } }, -- Cloudburst Totem
-  [198838] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 264 } }, -- Earthen Shield Totem
-  [204336] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 264 } }, -- Grounding Totem
-  [207399] = { default = false, cooldown = 300, class = "SHAMAN", specID = { 264 } }, -- Ancestral Protection Totem
-  [207778] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 264 } }, -- Gift of the Queen
+  -- [5394] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 264 }, charges = 30 }, -- Healing Stream Totem
+  [79206] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 264 }, dispelable = true, defensive = true,duration=15 }, -- Spiritwalker's Grace
+  [98008] = { default = false, cooldown = 180, class = "SHAMAN", specID = { 264 }, defensive = true }, -- Spirit Link Totem
+  [204293] = { parent = 98008, cooldown = 30, duration = 20 }, -- Spirit Link
+  [108280] = { default = false, cooldown = 180, class = "SHAMAN", specID = { 264 }, defensive = true }, -- Healing Tide Totem
+  [157153] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 264 }, defensive = true }, -- Cloudburst Totem
+  [198838] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 264 }, defensive = true, talent = {207399} }, -- Earthen Shield Totem
+  [204336] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 264 }, defensive = true }, -- Grounding Totem
+  [207399] = { default = false, cooldown = 300, class = "SHAMAN", specID = { 264 }, defensive = true, talent = {198838} }, -- Ancestral Protection Totem
+  -- [207778] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 264 } }, -- Gift of the Queen
 
   -- Hunter
 

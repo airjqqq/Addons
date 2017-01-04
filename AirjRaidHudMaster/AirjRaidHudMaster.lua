@@ -18,7 +18,7 @@ function M:OnEnable()
     local data = Cache.cache.position or {}
     local guid = UnitGUID("player")
     local px,py = unpack(data[guid] or {})
-    if px and IsInRaid() then
+    if px and IsInRaid() and GetNumGroups() > 10 then
       local toSend = string.format("%06d%06d",px*10,py*10)
       for i=1,20 do
         local guid = UnitGUID("raid"..i)

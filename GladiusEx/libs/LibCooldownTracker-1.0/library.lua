@@ -14,6 +14,7 @@
 
 local version = 10
 local lib = LibStub:NewLibrary("LibCooldownTracker-1.0", version)
+local fn = LibStub("LibFunctional-1.0")
 
 if not lib then return end
 
@@ -179,14 +180,31 @@ local function AddCharge(unit, spellid)
 	end
 end
 
+local function getSpellData(spellid)
+	local data = SpellData[spellid]
+	if not data then return end
+	if data.parent then
+		spellid = data.parent
+		local parentData = SpellData[spellid]
+		data = fn:mega(parentData,data)
+		data.parent = parentData.parent
+	end
+	return data
+end
+
 local function CooldownEvent(event, unit, spellid)
-	local spelldata = SpellData[spellid]
+	local spelldata = getSpellData(spellid)
 	if not spelldata then return end
 
-	if type(spelldata) == "number" then
-		spellid = spelldata
-		spelldata = SpellData[spelldata]
-	end
+	-- if spelldata.parent then
+	-- 	spellid = spelldata.parent
+	-- 	spelldata = SpellData[spellid]
+	-- end
+
+	-- if type(spelldata) == "number" then
+	-- 	spellid = spelldata
+	-- 	spelldata = SpellData[spelldata]
+	-- end
 
 	if lib:IsUnitRegistered(unit) then
 		local now = GetTime()
