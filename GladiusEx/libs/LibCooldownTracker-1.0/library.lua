@@ -186,7 +186,7 @@ local function getSpellData(spellid)
 	if data.parent then
 		spellid = data.parent
 		local parentData = SpellData[spellid]
-		data = fn:mega(parentData,data)
+		data = fn:merge(parentData,data)
 		data.parent = parentData.parent
 	end
 	return data

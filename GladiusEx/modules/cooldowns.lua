@@ -13,155 +13,19 @@ local GetTime, UnitExists, UnitFactionGroup, UnitClass, UnitRace = GetTime, Unit
 local UnitBuff = UnitBuff
 
 local function GetDefaultSpells()
-	return {
-		{ -- group 1
-			-- [28730] = true, -- BloodElf/Arcane Torrent
-			-- [107079] = true, -- Pandaren/Quaking Palm
-			-- [69070] = true, -- Goblin/Rocket Jump
-			-- [7744] = true, -- Scourge/Will of the Forsaken
-			--
-			-- [48707] = true, -- Death Knight/Anti-Magic Shell
-			-- [42650] = true, -- Death Knight/Army of the Dead
-			-- [108194] = true, -- Death Knight/Asphyxiate
-			-- [49576] = true, -- Death Knight/Death Grip
-			-- [48743] = true, -- Death Knight/Death Pact
-			-- [108201] = true, -- Death Knight/Desecrated Ground
-			-- [47568] = true, -- Death Knight/Empower Rune Weapon
-			-- [48792] = true, -- Death Knight/Icebound Fortitude
-			-- [49039] = true, -- Death Knight/Lichborne
-			-- [47528] = true, -- Death Knight/Mind Freeze
-			-- [51271] = true, -- Death Knight/Pillar of Frost
-			-- [61999] = true, -- Death Knight/Raise Ally
-			-- [108200] = true, -- Death Knight/Remorseless Winter
-			-- [47476] = true, -- Death Knight/Strangulate
-			-- [49206] = true, -- Death Knight/Summon Gargoyle
-			--
-			-- [22812] = true, -- Druid/Barkskin
-			-- [33786] = true, -- Druid/Cyclone (feral)
-			-- [99] = true, -- Druid/Disorienting Roar
-			-- [102280] = true, -- Druid/Displacer Beast
-			-- [108288] = true, -- Druid/Heart of the Wild
-			-- [102342] = true, -- Druid/Ironbark
-			-- [102359] = true, -- Druid/Mass Entanglement
-			-- [5211] = true, -- Druid/Mighty Bash
-			-- [88423] = true, -- Druid/Nature's Cure
-			-- [132158] = true, -- Druid/Nature's Swiftness
-			-- [132158] = true, -- Druid/Nature's Swiftness
-			-- [2782] = true, -- Druid/Remove Corruption
-			-- [78675] = true, -- Druid/Solar Beam
-			-- [132469] = true, -- Druid/Typhoon
-			-- [102793] = true, -- Druid/Ursol's Vortex
-			--
-			-- [19574] = true, -- Hunter/Bestial Wrath
-			-- [19263] = true, -- Hunter/Deterrence
-			-- [781] = true, -- Hunter/Disengage
-			-- [1499] = true, -- Hunter/Freezing Trap
-			-- [19577] = true, -- Hunter/Intimidation
-			-- [23989] = true, -- Hunter/Readiness
-			-- [50519] = true, -- Hunter/Sonic Blast
-			-- [121818] = true, -- Hunter/Stampede
-			-- [19386] = true, -- Hunter/Wyvern Sting
-			--
-			-- [108843] = true, -- Mage/Blazing Speed
-			-- [1953] = true, -- Mage/Blink
-			-- [11958] = true, -- Mage/Cold Snap
-			-- [2139] = true, -- Mage/Counterspell
-			-- [44572] = true, -- Mage/Deep Freeze
-			-- [122] = true, -- Mage/Frost Nova
-			-- [102051] = true, -- Mage/Frostjaw
-			-- [113074] = true, -- Mage/Healing Touch
-			-- [45438] = true, -- Mage/Ice Block
-			--
-			-- [115450] = true, -- Monk/Detox
-			-- [122783] = true, -- Monk/Diffuse Magic
-			-- [113656] = true, -- Monk/Fists of Fury
-			-- [115203] = true, -- Monk/Fortifying Brew
-			-- [119381] = true, -- Monk/Leg Sweep
-			-- [116849] = true, -- Monk/Life Cocoon
-			-- [137562] = true, -- Monk/Nimble Brew
-			-- [115078] = true, -- Monk/Paralysis
-			-- [115310] = true, -- Monk/Revival
-			-- [116844] = true, -- Monk/Ring of Peace
-			-- [116705] = true, -- Monk/Spear Hand Strike
-			-- [116680] = true, -- Monk/Thunder Focus Tea
-			-- [116841] = true, -- Monk/Tiger's Lust
-			-- [122470] = true, -- Monk/Touch of Karma
-			--
-			-- [115750] = true, -- Paladin/Blinding Light
-			-- [4987] = true, -- Paladin/Cleanse
-			-- [31821] = true, -- Paladin/Devotion Aura
-			-- [642] = true, -- Paladin/Divine Shield
-			-- [105593] = true, -- Paladin/Fist of Justice
-			-- [853] = true, -- Paladin/Hammer of Justice
-			-- [96231] = true, -- Paladin/Rebuke
-			-- [20066] = true, -- Paladin/Repentance
-			--
-			-- [19236] = true, -- Priest/Desperate Prayer
-			-- [47585] = true, -- Priest/Dispersion
-			-- [47788] = true, -- Priest/Guardian Spirit
-			-- [73325] = true, -- Priest/Leap of Faith
-			-- [33206] = true, -- Priest/Pain Suppression
-			-- [8122] = true, -- Priest/Psychic Scream
-			-- [527] = true, -- Priest/Purify
-			-- [15487] = true, -- Priest/Silence
-			-- [112833] = true, -- Priest/Spectral Guise
-			-- [108920] = true, -- Priest/Void Tendrils
-			--
-			-- [13750] = true, -- Rogue/Adrenaline Rush
-			-- [2094] = true, -- Rogue/Blind
-			-- [31230] = true, -- Rogue/Cheat Death
-			-- [31224] = true, -- Rogue/Cloak of Shadows
-			-- [1766] = true, -- Rogue/Kick
-			-- [137619] = true, -- Rogue/Marked for Death
-			-- [14185] = true, -- Rogue/Preparation
-			-- [51713] = true, -- Rogue/Shadow Dance
-			-- [76577] = true, -- Rogue/Smoke Bomb
-			-- [1856] = true, -- Rogue/Vanish
-			-- [79140] = true, -- Rogue/Vendetta
-			--
-			-- [114049] = true, -- Shaman/Ascendance
-			-- [51886] = true, -- Shaman/Cleanse Spirit
-			-- [8177] = true, -- Shaman/Grounding Totem
-			-- [108280] = true, -- Shaman/Healing Tide Totem
-			-- [51514] = true, -- Shaman/Hex
-			-- [77130] = true, -- Shaman/Purify Spirit
-			-- [30823] = true, -- Shaman/Shamanistic Rage
-			-- [113286] = true, -- Shaman/Solar Beam
-			-- [98008] = true, -- Shaman/Spirit Link Totem
-			-- [79206] = true, -- Shaman/Spiritwalker's Grace
-			-- [51490] = true, -- Shaman/Thunderstorm
-			-- [8143] = true, -- Shaman/Tremor Totem
-			-- [57994] = true, -- Shaman/Wind Shear
-			--
-			-- [89766] = true, -- Warlock/Axe Toss
-			-- [111397] = true, -- Warlock/Blood Horror
-			-- [110913] = true, -- Warlock/Dark Bargain
-			-- [108359] = true, -- Warlock/Dark Regeneration
-			-- [113858] = true, -- Warlock/Dark Soul: Instability
-			-- [113861] = true, -- Warlock/Dark Soul: Knowledge
-			-- [113860] = true, -- Warlock/Dark Soul: Misery
-			-- [48020] = true, -- Warlock/Demonic Circle: Teleport
-			-- [5484] = true, -- Warlock/Howl of Terror
-			-- [6789] = true, -- Warlock/Mortal Coil
-			-- [115781] = true, -- Warlock/Optical Blast
-			-- [30283] = true, -- Warlock/Shadowfury
-			-- [89808] = true, -- Warlock/Singe Magic
-			-- [19647] = true, -- Warlock/Spell Lock
-			-- [104773] = true, -- Warlock/Unending Resolve
-			--
-			-- [107574] = true, -- Warrior/Avatar
-			-- [118038] = true, -- Warrior/Die by the Sword
-			-- [5246] = true, -- Warrior/Intimidating Shout
-			-- [6552] = true, -- Warrior/Pummel
-			-- [1719] = true, -- Warrior/Recklessness
-			-- [871] = true, -- Warrior/Shield Wall
-			-- [46968] = true, -- Warrior/Shockwave
-			-- [23920] = true, -- Warrior/Spell Reflection
-		},
-		{ -- group 2
-			[208683] = true, -- ITEMS/PvP Trinket
-		}
-	}
+	local group1, group2, group3 = {},{},{}
+	for spellid, spelldata in pairs(CT:GetCooldownsData()) do
+		if spelldata.default then
+			if spelldata.pvp_trinket then
+				group2[spellid] = true
+			elseif spelldata.dispel or spelldata.interrupt then
+				group3[spellid] = true
+			else
+				group1[spellid] = true
+			end
+		end
+	end
+	return {group1,group2,group3}
 end
 
 local function MakeGroupDb(settings)
@@ -196,15 +60,16 @@ local function MakeGroupDb(settings)
 		cooldownsCatPriority = {
 			"pvp_trinket", "dispel", "mass_dispel", "immune",
 			"interrupt", "silence", "stun", "knockback", "cc",
-			"offensive", "defensive", "heal", "uncat"
+			"offensive", "defensive", "heal", "sprint", "blink", "uncat"
 		},
 		cooldownsCatColors = {
-			["pvp_trinket"] = { r = 0, g = 0, b = 0 }, ["dispel"] =    { r = 1, g = 1, b = 1 },
+			["pvp_trinket"] = { r = 0, g = 0, b = 0 }, ["dispel"] =    { r = 0.5, g = 1, b = 0 },
 			["mass_dispel"] = { r = 1, g = 1, b = 1 }, ["immune"] =    { r = 0, g = 0, b = 1 },
 			["interrupt"] =   { r = 1, g = 0, b = 1 }, ["silence"] =   { r = 1, g = 0, b = 1 },
 			["stun"] =        { r = 0, g = 1, b = 1 }, ["knockback"] = { r = 0, g = 1, b = 1 },
-			["cc"] =          { r = 0, g = 1, b = 1 }, ["offensive"] = { r = 1, g = 0, b = 0 },
-			["defensive"] =   { r = 0, g = 1, b = 0 }, ["heal"] =      { r = 0, g = 1, b = 0 },
+			["cc"] =          { r = 0, g = 0.5, b = 1 }, ["offensive"] = { r = 1, g = 0.5, b = 0 },
+			["defensive"] =   { r = 0.5, g = 0, b = 1 }, ["heal"] =      { r = 0, g = 1, b = 0 },
+			["sprint"] =   		{ r = 0, g = 0, b = 1 }, ["blink"] =      { r = 0, g = 0, b = 1 },
 			["uncat"] =       { r = 1, g = 1, b = 1 },
 		},
 		cooldownsHideTalentsUntilDetected = true,
@@ -223,10 +88,18 @@ local defaults = {
 local g1_defaults = MakeGroupDb {
 	cooldownsGroupId = 1,
 	cooldownsBorderSize = 0,
+	cooldownsSize = 24,
 	cooldownsPaddingX = 0,
 	cooldownsPaddingY = 2,
 	cooldownsSpacingX = 2,
 	cooldownsSpacingY = 0,
+	cooldownsBorderSize = 2,
+	cooldownsBorderAvailAlpha = 1.0,
+	cooldownsBorderUsingAlpha = 1.0,
+	cooldownsBorderCooldownAlpha = 1.0,
+	cooldownsIconAvailAlpha = 1.0,
+	cooldownsIconUsingAlpha = 1.0,
+	cooldownsIconCooldownAlpha = 0.6,
 	cooldownsSpells = GetDefaultSpells()[1],
 }
 
@@ -246,7 +119,22 @@ local g2_defaults = MakeGroupDb {
 	cooldownsIconCooldownAlpha = 1.0,
 	cooldownsSpells = GetDefaultSpells()[2],
 }
-
+local g3_defaults = MakeGroupDb {
+	cooldownsGroupId = 3,
+	cooldownsPerColumn = 1,
+	cooldownsMax = 2,
+	cooldownsSize = 32,
+	cooldownsCrop = true,
+	cooldownsTooltips = false,
+	cooldownsBorderSize = 1,
+	cooldownsBorderAvailAlpha = 1.0,
+	cooldownsBorderUsingAlpha = 1.0,
+	cooldownsBorderCooldownAlpha = 1.0,
+	cooldownsIconAvailAlpha = 1.0,
+	cooldownsIconUsingAlpha = 1.0,
+	cooldownsIconCooldownAlpha = 1.0,
+	cooldownsSpells = GetDefaultSpells()[3],
+}
 local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 	fn.merge(defaults, {
 		groups = {
@@ -261,7 +149,13 @@ local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 				cooldownsAnchor = "TOPLEFT",
 				cooldownsRelativePoint = "TOPRIGHT",
 				cooldownsGrow = "DOWNRIGHT",
-			})
+			}),
+			["group_3"] = fn.merge(g3_defaults, {
+				cooldownsAttachTo = "Frame",
+				cooldownsAnchor = "TOPLEFT",
+				cooldownsRelativePoint = "TOPRIGHT",
+				cooldownsGrow = "DOWNRIGHT",
+			}),
 		},
 	}),
 	fn.merge(defaults, {
@@ -277,7 +171,13 @@ local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 				cooldownsAnchor = "TOPRIGHT",
 				cooldownsRelativePoint = "TOPLEFT",
 				cooldownsGrow = "DOWNLEFT",
-			})
+			}),
+			["group_3"] = fn.merge(g3_defaults, {
+				cooldownsAttachTo = "Frame",
+				cooldownsAnchor = "TOPRIGHT",
+				cooldownsRelativePoint = "TOPLEFT",
+				cooldownsGrow = "DOWNLEFT",
+			}),
 		}
 	}))
 
@@ -1809,6 +1709,8 @@ function Cooldowns:MakeGroupOptions(unit, group)
 			if spelldata.knockback then tinsert(cats, L["cat:knockback"]) end
 			if spelldata.stun then tinsert(cats, L["cat:stun"]) end
 			if spelldata.immune then tinsert(cats, L["cat:immune"]) end
+			if spelldata.sprint then tinsert(cats, L["cat:sprint"]) end
+			if spelldata.blink then tinsert(cats, L["cat:blink"]) end
 			local catstr
 			if #cats > 0 then
 				catstr = "|cff7f7f7f(" .. strjoin(", ", unpack(cats)) .. ")|r"

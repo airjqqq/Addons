@@ -4,6 +4,8 @@
 L["cat:pvp_trinket"] = "PvP Trinket"
 L["cat:mass_dispel"] = "Mass Dispel"
 L["cat:cc"] = "CC"
+L["cat:sprint"] = "Sprint"
+L["cat:blink"] = "Blink"
 L["cat:offensive"] = "Offensive"
 L["cat:defensive"] = "Defensive"
 L["cat:silence"] = "Silence"
