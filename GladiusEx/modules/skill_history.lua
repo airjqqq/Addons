@@ -9,7 +9,7 @@ local tinsert, tremove = table.insert, table.remove
 local GetSpellTexture, GetTime = GetSpellTexture, GetTime
 
 local defaults = {
-	MaxIcons = 2,
+	MaxIcons = 8,
 	IconSize = 20,
 	Margin = 2,
 	PaddingX = 0,
@@ -30,19 +30,19 @@ local MAX_ICONS = 40
 local SkillHistory = GladiusEx:NewGladiusExModule("SkillHistory",
 	fn.merge(defaults, {
 		AttachTo = "CastBar",
-		Anchor = "RIGHT",
-		RelativePoint = "LEFT",
+		Anchor = "TOPRIGHT",
+		RelativePoint = "BOTTOMRIGHT",
 		GrowDirection = "LEFT",
-		OffsetX = -2,
-		OffsetY = 0,
+		OffsetX = 0,
+		OffsetY = -4,
 	}),
 	fn.merge(defaults, {
 		AttachTo = "CastBar",
-		Anchor = "LEFT",
-		RelativePoint = "RIGHT",
+		Anchor = "TOPLEFT",
+		RelativePoint = "BOTTOMLEFT",
 		GrowDirection = "RIGHT",
-		OffsetX = 2,
-		OffsetY = 0,
+		OffsetX = 0,
+		OffsetY = -4,
 	}))
 
 function SkillHistory:OnEnable()

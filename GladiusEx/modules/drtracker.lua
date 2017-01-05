@@ -10,15 +10,15 @@ local pairs, unpack = pairs, unpack
 local GetTime, GetSpellTexture, UnitGUID = GetTime, GetSpellTexture, UnitGUID
 
 local defaults = {
-	drTrackerAdjustSize = true,
+	drTrackerAdjustSize = false,
 	drTrackerMargin = 1,
-	drTrackerSize = 40,
+	drTrackerSize = 32,
 	drTrackerCrop = true,
 	drTrackerOffsetX = 0,
 	drTrackerOffsetY = 0,
 	drTrackerFrameLevel = 8,
 	drTrackerGloss = false,
-	drTrackerGlossColor = { r = 1, g = 1, b = 1, a = 0.4 },
+	drTrackerGlossColor = { r = 1, g = 1, b = 1, a = 1 },
 	drTrackerCooldown = true,
 	drTrackerCooldownReverse = false,
 	drFontSize = 18,
@@ -27,14 +27,14 @@ local defaults = {
 
 local DRTracker = GladiusEx:NewGladiusExModule("DRTracker",
 	fn.merge(defaults, {
-		drTrackerAttachTo = "ClassIcon",
+		drTrackerAttachTo = "Frame",
 		drTrackerAnchor = "RIGHT",
 		drTrackerRelativePoint = "LEFT",
 		drTrackerGrowDirection = "LEFT",
 		drTrackerOffsetX = -2,
 	}),
 	fn.merge(defaults, {
-		drTrackerAttachTo = "ClassIcon",
+		drTrackerAttachTo = "Frame",
 		drTrackerAnchor = "LEFT",
 		drTrackerRelativePoint = "RIGHT",
 		drTrackerGrowDirection = "RIGHT",
@@ -42,10 +42,10 @@ local DRTracker = GladiusEx:NewGladiusExModule("DRTracker",
 	}))
 
 local drTexts = {
-	[1] =    { "½", 0, 1, 0 },
-	[0.5] =  { "¼", 1, 0.65,0 },
-	[0.25] = { "Ø", 1, 0, 0 },
-	[0] =    { "Ø", 1, 0, 0 },
+	[1] =    { "1/2", 0, 1, 0 },
+	[0.5] =  { "1/4", 1, 0.65,0 },
+	[0.25] = { "0/0", 1, 0, 0 },
+	[0] =    { "0/0", 1, 0, 0 },
 }
 
 function DRTracker:OnEnable()

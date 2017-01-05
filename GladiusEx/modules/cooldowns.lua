@@ -78,16 +78,19 @@ local function MakeGroupDb(settings)
 end
 
 local defaults = {
-	num_groups = 2,
+	num_groups = 3,
 	group_table = {
 		[1] = "group_1",
 		[2] = "group_2",
+		[3] = "group_3",
 	}
 }
 
 local g1_defaults = MakeGroupDb {
 	cooldownsGroupId = 1,
 	cooldownsBorderSize = 0,
+	cooldownsPerColumn = 12,
+	cooldownsMax = 12,
 	cooldownsSize = 24,
 	cooldownsPaddingX = 0,
 	cooldownsPaddingY = 2,
@@ -105,9 +108,9 @@ local g1_defaults = MakeGroupDb {
 
 local g2_defaults = MakeGroupDb {
 	cooldownsGroupId = 2,
-	cooldownsPerColumn = 4,
-	cooldownsMax = 4,
-	cooldownsSize = 42,
+	cooldownsPerColumn = 3,
+	cooldownsMax = 3,
+	cooldownsSize = 40,
 	cooldownsCrop = true,
 	cooldownsTooltips = false,
 	cooldownsBorderSize = 1,
@@ -121,9 +124,9 @@ local g2_defaults = MakeGroupDb {
 }
 local g3_defaults = MakeGroupDb {
 	cooldownsGroupId = 3,
-	cooldownsPerColumn = 1,
-	cooldownsMax = 2,
-	cooldownsSize = 32,
+	cooldownsPerColumn = 3,
+	cooldownsMax = 3,
+	cooldownsSize = 28,
 	cooldownsCrop = true,
 	cooldownsTooltips = false,
 	cooldownsBorderSize = 1,
@@ -149,12 +152,16 @@ local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 				cooldownsAnchor = "TOPLEFT",
 				cooldownsRelativePoint = "TOPRIGHT",
 				cooldownsGrow = "DOWNRIGHT",
+				cooldownsOffsetX = 2,
+				cooldownsOffsetY = 0,
 			}),
 			["group_3"] = fn.merge(g3_defaults, {
 				cooldownsAttachTo = "Frame",
-				cooldownsAnchor = "TOPLEFT",
+				cooldownsAnchor = "BOTTOMLEFT",
 				cooldownsRelativePoint = "TOPRIGHT",
 				cooldownsGrow = "DOWNRIGHT",
+				cooldownsOffsetX = 2,
+				cooldownsOffsetY = 2,
 			}),
 		},
 	}),
@@ -171,12 +178,16 @@ local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 				cooldownsAnchor = "TOPRIGHT",
 				cooldownsRelativePoint = "TOPLEFT",
 				cooldownsGrow = "DOWNLEFT",
+				cooldownsOffsetX = -2,
+				cooldownsOffsetY = 0,
 			}),
 			["group_3"] = fn.merge(g3_defaults, {
 				cooldownsAttachTo = "Frame",
-				cooldownsAnchor = "TOPRIGHT",
-				cooldownsRelativePoint = "BOTTOMLEFT",
+				cooldownsAnchor = "BOTTOMRIGHT",
+				cooldownsRelativePoint = "TOPLEFT",
 				cooldownsGrow = "DOWNLEFT",
+				cooldownsOffsetX = -2,
+				cooldownsOffsetY = 2,
 			}),
 		}
 	}))
@@ -447,7 +458,10 @@ local function GetSpellSortScore(unit, group, spellid)
 		sum = bor(lshift(sum, 8), spelldata.name:byte(i))
 	end
 	score = score + (max - sum) / max
-	if spelldata.item then score = score + 2 end
+	if spelldata.item then score = score + 256 end
+
+	local cooldown = type(spelldata.cooldown) == "number" and spelldata.cooldown or type(spelldata.cooldown) == "table" and spelldata.cooldown.default
+	if cooldown then score = score + cooldown end
 	sortscore[spellid] = score
 
 	return score
