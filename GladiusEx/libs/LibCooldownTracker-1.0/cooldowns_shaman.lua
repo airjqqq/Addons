@@ -1,307 +1,72 @@
--- ================ SHAMAN ================
--- Shaman/baseline
--- Ascendance
-LCT_SpellData[114049] = {
-	class = "SHAMAN",
-	offensive = true,
-	defensive = true,
-	duration = 15,
-	cooldown = 180
-}
--- Capacitor Totem
-LCT_SpellData[108269] = {
-	class = "SHAMAN",
-	stun = true,
-	duration = 5,
-	cooldown = 45
-}
--- Cleanse Spirit
-LCT_SpellData[51886] = {
-	class = "SHAMAN",
-	dispel = true,
-	cooldown_starts_on_dispel = true,
-	cooldown = 8
-}
--- Earth Elemental Totem
-LCT_SpellData[2062] = {
-	class = "SHAMAN",
-	duration = 60,
-	cooldown = 300
-}
--- Earth Shock
-LCT_SpellData[8042] = {
-	class = "SHAMAN",
-	offensive = true,
-	cooldown = 6
-}
--- Earthbind Totem
-LCT_SpellData[2484] = {
-	class = "SHAMAN",
-	cc = true,
-	duration = 20,
-	cooldown = 30
-}
--- Fire Elemental Totem
-LCT_SpellData[2894] = {
-	class = "SHAMAN",
-	duration = 60,
-	offensive = true,
-	cooldown = 300
-}
--- Flame Shock
-LCT_SpellData[8050] = {
-	class = "SHAMAN",
-	offensive = true,
-	cooldown = 6
-}
--- Frost Shock
-LCT_SpellData[8056] = {
-	class = "SHAMAN",
-	cc = true,
-	cooldown = 6
-}
--- Grounding Totem
-LCT_SpellData[8177] = {
-	class = "SHAMAN",
-	defensive = true,
-	duration = 15,
-	cooldown = 25
-}
--- Healing Rain
-LCT_SpellData[73920] = {
-	class = "SHAMAN",
-	heal = true,
-	duration = 10,
-	cooldown = 10
-}
--- Healing Stream Totem
-LCT_SpellData[5394] = {
-	class = "SHAMAN",
-	heal = true,
-	duration = 15,
-	cooldown = 30
-}
--- Hex
-LCT_SpellData[51514] = {
-	class = "SHAMAN",
-	cc = true,
-	cooldown = 45
-}
--- Primal Strike
-LCT_SpellData[73899] = {
-	class = "SHAMAN",
-	offensive = true,
-	cooldown = 8
-}
--- Spiritwalker's Grace
-LCT_SpellData[79206] = {
-	class = "SHAMAN",
-	duration = 15,
-	cooldown = 120
-}
--- Stormblast
-LCT_SpellData[115356] = {
-	class = "SHAMAN",
-	offensive = true,
-	cooldown = 8
-}
--- Tremor Totem
-LCT_SpellData[8143] = {
-	class = "SHAMAN",
-	defensive = true,
-	duration = 6,
-	cooldown = 60
-}
--- Unleash Elements
-LCT_SpellData[73680] = {
-	class = "SHAMAN",
-	cooldown = 15
-}
--- Unleash Life
-LCT_SpellData[73685] = {
-	class = "SHAMAN",
-	heal = true,
-	cooldown = 15
-}
--- Wind Shear
-LCT_SpellData[57994] = {
-	class = "SHAMAN",
-	interrupt = true,
-	cooldown = 12
-}
+local data = {
+	-- Shaman
 
+  -- [2825] = { default = false, cooldown = 45, class = "SHAMAN" }, -- Bloodlust
+  -- [32182] = { parent = 2825 }, -- Heroism
+  -- [20608] = { default = false, cooldown = 1800, class = "SHAMAN" }, -- Reincarnation
+  [ 51514] = { default = false, cooldown = 30, class = "SHAMAN", cc = true, cast = 1.7 }, -- Hex
+  [196932] = { parent = 51514, cc = true, talent = {192058,51485}, cooldown = 30 }, -- Voodoo Totem
+  [210873] = { parent = 51514 }, -- Hex (Compy)
+  [211004] = { parent = 51514 }, -- Hex (Spider)
+  [211010] = { parent = 51514 }, -- Hex (Snake)
+  [211015] = { parent = 51514 }, -- Hex (Cockroach)
+  [ 57994] = { default = true, cooldown = 12, class = "SHAMAN", interrupt = true }, -- Wind Shear
+  [108271] = { default = false, cooldown = 90, class = "SHAMAN", defensive = 0.4, duration = 8 }, -- Astral Shift
+  [210918] = { parent = 108271, cooldown = 45 }, -- Ethereal Form
+  [114049] = { default = false, cooldown = 180, class = "SHAMAN", offensive = true, talent = {} }, -- Ascendance
+  [114050] = { parent = 114049 }, -- Ascendance (Elemental)
+  [114051] = { parent = 114049 }, -- Ascendance (Enhancement)
+  [114052] = { parent = 114049 }, -- Ascendance (Restoration)
+  [192058] = { default = false, cooldown = 45, class = "SHAMAN", cc = true, talent = {196932,51485} }, -- Lightning Surge Totem
+  [ 51485] = { default = false, cooldown = 30, class = "SHAMAN", cc = true, talent = {196932,192058} }, -- Earthgrab Totem
+  -- [192077] = { default = false, cooldown = 120, class = "SHAMAN" }, -- Wind Rush Totem
+  [204330] = { default = false, cooldown = 45, class = "SHAMAN", talent = {204331,204332}, offensive = true }, -- Skyfury Totem
+  [204331] = { default = false, cooldown = 45, class = "SHAMAN", talent = {204330,204332}, offensive = true }, -- Counterstrike Totem
+  [204332] = { default = false, cooldown = 30, class = "SHAMAN", talent = {204331,204330}, offensive = true }, -- Windfury Totem
 
--- Shaman/talents
--- Ancestral Guidance
-LCT_SpellData[108281] = {
-	class = "SHAMAN",
-	talent = true,
-	heal = true,
-	duration = 10,
-	cooldown = 120
-}
--- Ancestral Swiftness
-LCT_SpellData[16188] = {
-	class = "SHAMAN",
-	talent = true,
-	cooldown_starts_on_aura_fade = true,
-	cooldown = 90
-}
--- Astral Shift
-LCT_SpellData[108271] = {
-	class = "SHAMAN",
-	talent = true,
-	defensive = true,
-	duration = 6,
-	cooldown = 90
-}
--- Call of the Elements
-LCT_SpellData[108285] = {
-	class = "SHAMAN",
-	talent = true,
-	-- rests=... = true, TODO: this
-	cooldown = 180
-}
--- Earthgrab Totem
-LCT_SpellData[51485] = {
-	class = "SHAMAN",
-	talent = true,
-	replaces = 2484,
-	duration = 20,
-	cooldown = 30
-}
--- Elemental Blast
-LCT_SpellData[117014] = {
-	class = "SHAMAN",
-	talent = true,
-	offensive = true,
-	cooldown = 12
-}
--- Elemental Mastery
-LCT_SpellData[16166] = {
-	class = "SHAMAN",
-	talent = true,
-	offensive = true,
-	duration = 20,
-	cooldown = 120
-}
--- Healing Tide Totem
-LCT_SpellData[108280] = {
-	class = "SHAMAN",
-	talent = true,
-	heal = true,
-	duration = 10,
-	cooldown = 180
-}
--- Stone Bulwark Totem
-LCT_SpellData[108270] = {
-	class = "SHAMAN",
-	talent = true,
-	defensive = true,
-	duration = 30,
-	cooldown = 60
-}
--- Totem Projection
-LCT_SpellData[108287] = {
-	class = "SHAMAN",
-	talent = true,
-	cooldown = 10
-}
--- Windwalk Totem
-LCT_SpellData[108273] = {
-	class = "SHAMAN",
-	talent = true,
-	defensive = true,
-	duration = 6,
-	cooldown = 60
-}
--- Shaman/Elemental
--- Earthquake
-LCT_SpellData[61882] = {
-	class = "SHAMAN",
-	specID = { 262 },
-	knockback = true,
-	duration = 10,
-	cooldown = 10
-}
--- Lave Burst
-LCT_SpellData[51505] = {
-	class = "SHAMAN",
-	specID = { 262 },
-	offensive = true,
-	cooldown = 8
-}
--- Thunderstorm
-LCT_SpellData[51490] = {
-	class = "SHAMAN",
-	specID = { 262 },
-	knockback = true,
-	cc = true,
-	cooldown = 45
-}
--- Shaman/Enhancement
--- Feral Spirit
-LCT_SpellData[51533] = {
-	class = "SHAMAN",
-	specID = { 263 },
-	offensive = true,
-	heal = true,
-	duration = 30,
-	cooldown = 120
-}
--- Lava Lash
-LCT_SpellData[60103] = {
-	class = "SHAMAN",
-	specID = { 263 },
-	offensive = true,
-	cooldown = 10
-}
--- Shamanistic Rage
-LCT_SpellData[30823] = {
-	class = "SHAMAN",
-	specID = { 262, 263 },
-	defensive = true,
-	duration = 15,
-	cooldown = 60
-}
--- Spirit Walk
-LCT_SpellData[58875] = {
-	class = "SHAMAN",
-	specID = { 263 },
-	defensive = true,
-	duration = 15,
-	cooldown = 60
-}
--- Stormstrike
-LCT_SpellData[17364] = {
-	class = "SHAMAN",
-	specID = { 263 },
-	offensive = true,
-	cooldown = 8
-}
+  -- Elemental
 
--- Shaman/Restoration 264
--- Purify Spirit
-LCT_SpellData[77130] = {
-	class = "SHAMAN",
-	specID = { 264 },
-	dispel = true,
-	replaces = 51886,
-	cooldown_starts_on_dispel = true,
-	cooldown = 8
+  [ 51490] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 262 }, defensive = true }, -- Thunderstorm
+  -- [108281] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 262, 264 },  }, -- Ancestral Guidance
+  -- [16166] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 262 } }, -- Elemental Mastery
+  [192063] = { default = false, cooldown = 15, class = "SHAMAN", specID = { 262, 264 },blink = true }, -- Gust of Wind
+  -- [192222] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 262 } }, -- Liquid Magma Totem
+  [198067] = { default = false, cooldown = 300, class = "SHAMAN", specID = { 262 }, offensive = true }, -- Fire Elemental
+  [192249] = { parent = 198067 }, -- Storm Elemental
+  -- [198103] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 262 } }, -- Earth Elemental
+  [204437] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 262 }, talent = {} }, -- Lightning Lasso
+  [205495] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 262 }, offensive = true, cast = 1.5 }, -- Stormkeeper
+  [210714] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 262 }, offensive = true, cast = 2 }, -- Icefury
+  [ 51886] = { default = true, cooldown = 8, class = "SHAMAN", specID = {262,263}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
+
+  -- Enhancement
+
+  [ 58875] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 263 }, sprint = true, duration = 8 }, -- Spirit Walk
+  [196884] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 263 }, blink = true }, -- Feral Lunge
+  -- [197214] = { default = false, cooldown = 40, class = "SHAMAN", specID = { 263 } }, -- Sundering
+  -- [201898] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 263 } }, -- Windsong
+  -- [204366] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 263 } }, -- Thundercharge
+  [204945] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 263 },offensive = true, duration = 6 }, -- Doom Winds
+  [204945] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 263 },offensive = true, duration = 6 }, -- Doom Winds
+  [  2825] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 263 }, offensive = true, duration = 10 }, -- Bloodlust
+  [ 32182] = { parent = 2825 }, -- Heroism
+
+  -- Restoration
+
+  -- [5394] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 264 }, charges = 30 }, -- Healing Stream Totem
+  [ 79206] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 264 }, dispelable = true, defensive = true,duration=15 }, -- Spiritwalker's Grace
+  [ 98008] = { default = false, cooldown = 180, class = "SHAMAN", specID = { 264 }, defensive = true }, -- Spirit Link Totem
+  [204293] = { parent = 98008, cooldown = 30, duration = 20 }, -- Spirit Link
+  [108280] = { default = false, cooldown = 180, class = "SHAMAN", specID = { 264 }, defensive = true }, -- Healing Tide Totem
+  [157153] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 264 }, defensive = true }, -- Cloudburst Totem
+  [198838] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 264 }, defensive = true, talent = {207399} }, -- Earthen Shield Totem
+  [204336] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 264 }, defensive = true }, -- Grounding Totem
+  [207399] = { default = false, cooldown = 300, class = "SHAMAN", specID = { 264 }, defensive = true, talent = {198838} }, -- Ancestral Protection Totem
+  [ 77130] = { default = true, cooldown = 8, class = "SHAMAN", specID = {264}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
+  [ 77472] = { default = true, class = "SHAMAN", specID = {264}, cast = 2.5, heal = true},  --Healing Wave (Shaman)
+  [207778] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 264 }, heal = true, cast = 2 }, -- Gift of the Queen
+
 }
--- Riptide
-LCT_SpellData[61295] = {
-	class = "SHAMAN",
-	specID = { 264 },
-	heal = true,
-	cooldown = 6
-}
--- Spirit Link Totem
-LCT_SpellData[98008] = {
-	class = "SHAMAN",
-	specID = { 264 },
-	defensive = true,
-	duration = 6,
-	cooldown = 180
-}
+for i,d in pairs(data) do
+  LCT_SpellData[i] = d
+end

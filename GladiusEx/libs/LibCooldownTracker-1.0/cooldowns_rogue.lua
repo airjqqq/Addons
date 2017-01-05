@@ -1,152 +1,52 @@
--- ================ ROGUE ================
--- Rogue/baseline
--- Blind
-LCT_SpellData[2094] = {
-	class = "ROGUE",
-	cc = true,
-	cooldown = 120
-}
--- Cloak of Shadows
-LCT_SpellData[31224] = {
-	class = "ROGUE",
-	defensive = true,
-	duration = 5,
-	cooldown = 60
-}
--- Evasion
-LCT_SpellData[5277] = {
-	class = "ROGUE",
-	defensive = true,
-	duration = 10,
-	cooldown = 120
-}
--- Gouge
-LCT_SpellData[1776] = {
-	class = "ROGUE",
-	cc = true,
-	cooldown = 10
-}
--- Kick
-LCT_SpellData[1766] = {
-	class = "ROGUE",
-	interrupt = true,
-	cooldown = 15
-}
--- Kidney Shot
-LCT_SpellData[408] = {
-	class = "ROGUE",
-	stun = true,
-	cooldown = 20
-}
--- Smoke Bomb
-LCT_SpellData[76577] = {
-	class = "ROGUE",
-	defensive = true,
-	duration = 5,
-	cooldown = 180
-}
--- Sprint
-LCT_SpellData[2983] = {
-	class = "ROGUE",
-	duration = 8,
-	cooldown = 60
-}
--- Tricks of the Trade
-LCT_SpellData[57934] = {
-	class = "ROGUE",
-	offensive = true,
-	duration = 6,
-	cooldown = 30
-}
--- Vanish
-LCT_SpellData[1856] = {
-	class = "ROGUE",
-	defensive = true,
-	duration = 3,
-	cooldown = 120
-}
+local data = {
+  -- Rogue
 
--- Rogue/Assassination 259
--- Vendetta
-LCT_SpellData[79140] = {
-	class = "ROGUE",
-	specID = { 259 },
-	offensive = true,
-	duration = 20,
-	cooldown = 120
-}
--- Rogue/Combat 260
--- Adrenaline Rush
-LCT_SpellData[13750] = {
-	class = "ROGUE",
-	specID = { 260 },
-	offensive = true,
-	duration = 15,
-	cooldown = 180
-}
--- Killing Spree
-LCT_SpellData[51690] = {
-	class = "ROGUE",
-	specID = { 260 },
-	offensive = true,
-	duration = 3,
-	cooldown = 120
-}
+  -- [1725] = { default = false, cooldown = 30, class = "ROGUE" }, -- Distract
+  [  1766] = { default = true, cooldown = 15, class = "ROGUE", interrupt = true }, -- Kick
+  [  1856] = { default = false, cooldown = { default = 120, [259] = 100 }, class = "ROGUE", defensive = true, duration = 3 }, -- Vanish
+  [  2983] = { default = false, cooldown = { default = 60, [259] = 51 }, class = "ROGUE", sprint = true, duration = 8 }, -- Sprint
+  [ 31224] = { default = false, cooldown = { default = 90, [259] = 81 }, class = "ROGUE", defensive = 0.5, duration = 5 }, -- Cloak of Shadows
+  -- [57934] = { default = false, cooldown = 30, class = "ROGUE" }, -- Tricks of the Trade
+  -- [137619] = { default = false, cooldown = 60, class = "ROGUE" }, -- Marked for Death
+  -- [152150] = { default = false, cooldown = 20, class = "ROGUE" }, -- Death from Above
 
--- Rogue/Subtlety 261
--- Premeditation
-LCT_SpellData[14183] = {
-class = "ROGUE",
-specID = { 261 },
-offensive = true,
-cooldown = 20
-}
--- Shadow Dance
-LCT_SpellData[51713] = {
-class = "ROGUE",
-specID = { 261 },
-offensive = true,
-duration = 8,
-cooldown = 60
-}
+  -- Assassination
 
--- Rogue/talents
--- Cheat Death
-LCT_SpellData[31230] = {
-	class = "ROGUE",
-	talent = true,
-	defensive = true,
-	duration = 3,
-	cooldown = 90
+  [   408] = { default = false, cooldown = 20, class = "ROGUE", specID = { 259, 261 }, cc= true }, -- Kidney Shot
+  [   703] = { default = false, cooldown = 15, class = "ROGUE", specID = { 259 }, cc= true }, -- Garrote
+  [  5277] = { default = false, cooldown = 120, class = "ROGUE", specID = { 259, 261 }, defensive = 0.5, duration = 10 }, -- Evasion
+  [ 36554] = { default = false, cooldown = 30, class = "ROGUE", specID = { 259, 261 }, blink = true }, -- Shadowstep
+  [ 79140] = { default = false, cooldown = 90, class = "ROGUE", specID = { 259 }, offensive = true }, -- Vendetta
+  [192759] = { default = false, cooldown = 45, class = "ROGUE", specID = { 259 }, offensive = true }, -- Kingsbane
+  [200806] = { default = false, cooldown = 45, class = "ROGUE", specID = { 259 }, offensive = true }, -- Exsanguinate
+  -- [206328] = { default = false, cooldown = 25, class = "ROGUE", specID = { 259 } }, -- Shiv
+
+  -- Outlaw TBD
+
+  [  1776] = { default = false, cooldown = 10, class = "ROGUE", specID = { 260 } }, -- Gouge
+  [  2094] = { default = false, cooldown = 120, class = "ROGUE", specID = { 260, 261 } }, -- Blind
+  [199743] = { parent = 2094, cooldown = 20 }, -- Parley
+  [ 13750] = { default = false, cooldown = 150, class = "ROGUE", specID = { 260 } }, -- Adrenaline Rush
+  [ 51690] = { default = false, cooldown = 120, class = "ROGUE", specID = { 260 } }, -- Killing Spree
+  [185767] = { default = false, cooldown = 60, class = "ROGUE", specID = { 260 } }, -- Cannonball Barrage
+  [195457] = { default = false, cooldown = 30, class = "ROGUE", specID = { 260 } }, -- Grappling Hook
+  [198529] = { default = false, cooldown = 120, class = "ROGUE", specID = { 260 } }, -- Plunder Armor
+  [199754] = { default = false, cooldown = 120, class = "ROGUE", specID = { 260 } }, -- Riposte
+  [199804] = { default = false, cooldown = 20, class = "ROGUE", specID = { 260 } }, -- Between the Eyes
+  [202665] = { default = false, cooldown = 90, class = "ROGUE", specID = { 260 } }, -- Curse of the Dreadblades
+  [207777] = { default = false, cooldown = 45, class = "ROGUE", specID = { 260 } }, -- Dismantle
+
+  -- Subtlety
+
+  [121471] = { default = false, cooldown = 180, class = "ROGUE", specID = { 261 }, offensive = true }, -- Shadow Blades
+  [185313] = { default = false, cooldown = 20, class = "ROGUE", specID = { 261 }, charges = 3, offensive = true }, -- Shadow Dance
+  -- [207736] = { default = false, cooldown = 120, class = "ROGUE", specID = { 261 } }, -- Shadowy Duel
+  -- [209782] = { default = false, cooldown = 60, class = "ROGUE", specID = { 261 } }, -- Goremaw's Bite
+  -- [212182] = { default = false, cooldown = 180, class = "ROGUE", specID = { 261 } }, -- Smoke Bomb
+  [213981] = { default = false, cooldown = 45, class = "ROGUE", specID = { 261 }, offensive = true }, -- Cold Blood
+
+
 }
-LCT_SpellData[45181] = 31230
--- Combat Readiness
-LCT_SpellData[74001] = {
-	class = "ROGUE",
-	talent = true,
-	defensive = true,
-	duration = 20,
-	cooldown = 120
-}
--- Preparation
-LCT_SpellData[14185] = {
-	class = "ROGUE",
-	talent = true,
-	defensive = true,
-	resets = { 2983, 1856, 31224, 5277 },
-	cooldown = 300
-}
--- Shadowstep
-LCT_SpellData[36554] = {
-	class = "ROGUE",
-	talent = true,
-	offensive = true,
-	duration = 2,
-	cooldown = 20
-}
-LCT_SpellData[137619] = {
-	class = "ROGUE",
-	talent = true,
-	offensive = true,
-	cooldown = 60
-}
+for i,d in pairs(data) do
+  LCT_SpellData[i] = d
+end

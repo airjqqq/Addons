@@ -1,272 +1,69 @@
--- ================ DRUID ================
--- Druid/baseline
--- Barkskin
-LCT_SpellData[22812] = {
-	class = "DRUID",
-	defensive = true,
-	duration = 12,
-	cooldown = 60
-}
--- Dash
-LCT_SpellData[1850] = {
-	class = "DRUID",
-	duration = 15,
-	cooldown = 180
-}
--- Stampeding Roar
-LCT_SpellData[77761] = {
-	class = "DRUID",
-	duration = 8,
-	cooldown = 120
-}
-LCT_SpellData[77764] = 77761
-LCT_SpellData[106898] = 77761
--- Tranquility
-LCT_SpellData[740] = {
-	class = "DRUID",
-	heal = true,
-	duration = 8,
-	cooldown = 480
-}
+local data = {
+  -- Druid
 
--- Druid/talents
--- Cenarion Ward
-LCT_SpellData[102351] = {
-	class = "DRUID",
-	talent = true,
-	heal = true,
-	duration = 30,
-	cooldown = 30
-}
--- Disorienting Roar
-LCT_SpellData[99] = {
-	class = "DRUID",
-	talent = true,
-	cc = true,
-	cooldown = 30
-}
--- Displacer Beast
-LCT_SpellData[102280] = {
-	class = "DRUID",
-	talent = true,
-	cooldown = 30
-}
--- Wild Charge
-LCT_SpellData[102401] = {
-	class = "DRUID",
-	talent = true,
-	cooldown = 15
-}
-LCT_SpellData[16979] = 102401 -- Bear
-LCT_SpellData[49376] = 102401 -- Cat
-LCT_SpellData[102416] = 102401 -- Aquatic
-LCT_SpellData[102417] = 102401 -- Travel
-LCT_SpellData[102383] = 102401 -- Moonkin
--- Force of Nature
-LCT_SpellData[33831] = { -- Balance
-	class = "DRUID",
-	talent = true,
-	offensive = true,
-	charges = 3,
-	cooldown = 20
-}
-LCT_SpellData[102706] = 33831 -- Guardian
-LCT_SpellData[102703] = 33831 -- Feral
-LCT_SpellData[102693] = 33831 -- Restoration
--- Incarnation
-LCT_SpellData[102558] = { -- Guardian
-	class = "DRUID",
-	talent = true,
-	offensive = true,
-	defensive = true,
-	duration = 30,
-	cooldown = 180
-}
-LCT_SpellData[102543] = 102558 -- Feral
-LCT_SpellData[33891] = 102558 -- Restoration
-LCT_SpellData[102560] = 102558 -- Balance
--- Heart of the Wild
-LCT_SpellData[108291] = {
-	class = "DRUID",
-	talent = true,
-	offensive = true,
-	defensive = true,
-	duration = 45,
-	cooldown = 360
-}
-LCT_SpellData[108292] = 108291
-LCT_SpellData[108293] = 108291
-LCT_SpellData[108294] = 108291
--- Mass Entanglement
-LCT_SpellData[102359] = {
-	class = "DRUID",
-	talent = true,
-	cc = true,
-	cooldown = 30
-}
--- Mighty Bash
-LCT_SpellData[5211] = {
-	class = "DRUID",
-	talent = true,
-	stun = true,
-	cooldown = 50
-}
--- Nature's Swiftness
-LCT_SpellData[132158] = {
-	class = "DRUID",
-	talent = true,
-	heal = true,
-	cooldown_starts_on_aura_fade = true,
-	cooldown = 60
-}
--- Nature's Vigil
-LCT_SpellData[124974] = {
-	class = "DRUID",
-	talent = true,
-	offensive = true,
-	defensive = true,
-	duration = 30,
-	cooldown = 90
-}
--- Renewal
-LCT_SpellData[108238] = {
-	class = "DRUID",
-	talent = true,
-	heal = true,
-	cooldown = 120
-}
--- Typhoon
-LCT_SpellData[132469] = {
-	class = "DRUID",
-	talent = true,
-	knockback = true,
-	cooldown = 30
-}
--- Ursol's Vortex
-LCT_SpellData[102793] = {
-	class = "DRUID",
-	talent = true,
-	cc = true,
-	cooldown = 60
-}
+  [  1850] = { default = false, cooldown = 180, class = "DRUID", sprint = true, duration = 15 }, -- Dash
+  [  5211] = { default = true, cooldown = 50, class = "DRUID", cc = true }, -- Mighty Bash
+  -- [20484] = { default = false, cooldown = 600, class = "DRUID", revival = true }, -- Rebirth
+  [102280] = { default = true, cooldown = 30, class = "DRUID", blink = true, talent = {102401,108238} }, -- Displacer Beast
+  [102359] = { default = false, cooldown = 30, class = "DRUID", talent = {5211,132469} , cc = true}, -- Mass Entanglement
+  [102401] = { default = true, cooldown = 15, class = "DRUID", talent = {102280,108238}, blink = true }, -- Wild Charge
+  [132469] = { default = false, cooldown = 30, class = "DRUID", talent = {5211,102359}, cc = true }, -- Typhoon
+  [   339] = { default = true, class = "DRUID", cast = 1.7, cc = true}, -- Entangling Roots
+  -- Balance
 
--- Druid/Balance
--- Celestial Alignment
-LCT_SpellData[112071] = {
-	class = "DRUID",
-	specID = { 102 },
-	offensive = true,
-	duration = 15,
-	cooldown = 180
-}
--- Remove Corruption
-LCT_SpellData[2782] = {
-	class = "DRUID",
-	specID = { 102, 103, 104 },
-	dispel = true,
-	cooldown_starts_on_dispel = true,
-	cooldown = 8
-}
--- Solar Beam
-LCT_SpellData[78675] = {
-	class = "DRUID",
-	specID = { 102 },
-	interrupt = true,
-	silence = true,
-	duration = 10,
-	cooldown = 60
-}
---[[ TODO: support shared charges
--- Starfall
-LCT_SpellData[48505] = {
-	class = "DRUID",
-	specID = { 102 },
-	offensive = true,
-	duration = 10,
-	cooldown = 90
-}
--- Starsurge
-LCT_SpellData[78674] = {
-	class = "DRUID",
-	specID = { 102 },
-	offensive = true,
-	cooldown = 15
-}
-]]
+  [ 22812] = { default = true, cooldown = { default = 60, [104] = 35 }, class = "DRUID", specID = { 102, 104, 105 }, defensive = 0.2, duration = 12 }, -- Barkskin
+  [ 29166] = { default = false, cooldown = 180, class = "DRUID", specID = { 102, 105 } }, -- Innervate
+  [ 78675] = { default = true, cooldown = 60, class = "DRUID", specID = { 102 }, interrupt = true }, -- Solar Beam
+  [102560] = { parent = 194223, default = true, duration = 30 }, -- Incarnation: Chosen of Elune
+  [108238] = { default = false, cooldown = 120, class = "DRUID", specID = { 102, 103, 105 }, defensive = true, talent = {102280,102401} }, -- Renewal
+  [194223] = { default = true, cooldown = 180, class = "DRUID", specID = { 102 }, offensive = true, duration = 15 }, -- Celestial Alignment
+  [202425] = { default = true, cooldown = 45, class = "DRUID", specID = { 102 }, offensive = true, cooldown_starts_on_aura_fade = true, }, -- Warrior of Elune
+  [202770] = { default = false, cooldown = 90, class = "DRUID", specID = { 102 }, offensive = true }, -- Fury of Elune
+  [205636] = { default = false, cooldown = 60, class = "DRUID", specID = { 102 }, offensive = true, talent = {202425} }, -- Force of Nature
+  [209749] = { default = false, cooldown = 30, class = "DRUID", specID = { 102 }, talent = {} }, -- Faerie Swarm
+  [  2782] = { default = true, cooldown = 8, class = "DRUID", specID = {102, 103,104}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
+  [209753] = { default = true, class = "DRUID", specID = { 102}, cast = 2, cc = true}, -- Cyclone
+  [202771] = { default = true, cooldown = 45, class = "DRUID", specID = { 102}, cast = 3, offensive = true}, -- Full Moon
+  -- Feral
 
--- Druid/Feral
--- Berserk (Cat Form)
-LCT_SpellData[106951] = {
-	class = "DRUID",
-	specID = { 103, 104 },
-	offensive = true,
-	sets_cooldown = { spellid = 50334, cooldown = 180 },
-	duration = 15,
-	cooldown = 180
+  [  5217] = { default = false, cooldown = 30, class = "DRUID", specID = { 103 }, offensive = true }, -- Tiger's Fury
+  [ 22570] = { default = false, cooldown = 10, class = "DRUID", specID = { 103 }, cc = true }, -- Maim
+  [ 61336] = { default = true, cooldown = { default = 180, [104] = 120 }, class = "DRUID", specID = { 103, 104 }, charges = 2, defensive= true, duration=6 }, -- Survival Instincts
+  [102543] = { parent = 106951, duration = 30}, -- Incarnation: King of the Jungle
+  [106839] = { default = true, cooldown = 15, class = "DRUID", specID = { 103, 104 }, interrupt = true }, -- Skull Bash
+  [106898] = { default = false, cooldown = 120, class = "DRUID", specID = { 103, 104 }, sprint = true, duration =8 }, -- Stampeding Roar
+  [106951] = { default = true, cooldown = 180, class = "DRUID", specID = { 103 }, duration = 15, offensive = true }, -- Berserk
+  [202060] = { default = false, cooldown = 45, class = "DRUID", specID = { 103 }, talent = {} }, -- Elune's Guidance
+  [203242] = { default = false, cooldown = 60, class = "DRUID", specID = { 103 }, talent = {} }, -- Rip and Tear
+  [210722] = { default = false, cooldown = 75, class = "DRUID", specID = { 103 }, offensive = true }, -- Ashamane's Frenzy
+
+  -- Guardian TBD
+
+  [    99] = { default = false, cooldown = 30, class = "DRUID", specID = { 104 } }, -- Incapacitating Roar
+  [ 22842] = { default = false, cooldown = 24, class = "DRUID", specID = { 104 }, charges = 2 }, -- Frenzied Regeneration
+  [102558] = { default = false, cooldown = 180, class = "DRUID", specID = { 104 } }, -- Incarnation: Guardian of Ursoc
+  [200851] = { default = false, cooldown = 90, class = "DRUID", specID = { 104 } }, -- Rage of the Sleeper
+  [202246] = { default = false, cooldown = 15, class = "DRUID", specID = { 104 } }, -- Overrun
+  [204066] = { default = false, cooldown = 90, class = "DRUID", specID = { 104 } }, -- Lunar Beam
+
+  -- Restoration
+
+  [   740] = { default = true, cooldown = 120, class = "DRUID", specID = { 105}, offensive = true }, -- Tranquility
+  [ 18562] = { default = false, cooldown = 30, class = "DRUID", specID = { 105}, charges = 2, defensive = true }, -- Swiftmend
+  [ 33891] = { default = false, cooldown = 180, class = "DRUID", specID = { 105}, talent = {}, offensive = true, defensive = true }, -- Incarnation: Tree of Life
+  [102342] = { default = true, cooldown = 60, class = "DRUID", specID = { 105}, defensive = 0.4, duration = 12 }, -- Ironbark
+  [102351] = { default = false, cooldown = 30, class = "DRUID", specID = { 105}, defensive = true, duration = 8, talent ={} }, -- Cenarion Ward
+  [102793] = { default = true, cooldown = 60, class = "DRUID", specID = { 105}, cc = true, duration = 10 }, -- Ursol's Vortex
+  [197721] = { default = false, cooldown = 60, class = "DRUID", specID = { 105}, talent = {} }, -- Flourish
+  -- [201664] = { default = false, cooldown = 60, class = "DRUID", specID = { 105} }, -- Demoralizing Roar
+  [203651] = { default = true, cooldown = 45, class = "DRUID", specID = { 105}, defensive = true }, -- Overgrowth
+  [203727] = { default = false, cooldown = 45, class = "DRUID", specID = { 105}, defensive = true, duration = 12 }, -- Thorns
+  [208253] = { default = false, cooldown = 90, class = "DRUID", specID = { 105}, offensive = true, duration = 8 }, -- Essence of G'Hanir
+  [ 88423] = { default = true, cooldown = 8, class = "DRUID", specID = { 105}, dispel = true, cooldown_starts_on_dispel = true }, -- Nature's Cure
+  [  5185] = { default = true, class = "DRUID", specID = { 105}, cast = 2.5, heal = true}, -- Healing Touch
+  [ 33786] = { default = true, class = "DRUID", specID = { 105}, cast = 2, cc = true}, -- Cyclone
+
 }
--- Berserk (Bear Form)
-LCT_SpellData[50334] = {
-	class = "DRUID",
-	specID = { 103, 104 },
-	offensive = true,
-	sets_cooldown = { spellid = 106951, cooldown = 180 },
-	duration = 10,
-	cooldown = 180
-}
--- Tiger's Fury
-LCT_SpellData[5217] = {
-	class = "DRUID",
-	specID = { 103 },
-	offensive = true,
-	duration = 6,
-	cooldown = 30
-}
--- Savage Defense
-LCT_SpellData[62606] = {
-	class = "DRUID",
-	specID = { 104 },
-	charges = 2,
-	defensive = true,
-	duration = 6,
-	cooldown = 9
-}
--- Survival Instincts
-LCT_SpellData[61336] = {
-	class = "DRUID",
-	specID = { 103, 104 },
-	defensive = true,
-	duration = 6,
-	charges = 2,
-	cooldown = 180
-}
--- Druid/Restoration
--- Ironbark
-LCT_SpellData[102342] = {
-	class = "DRUID",
-	specID = { 105 },
-	defensive = true,
-	duration = 12,
-	cooldown = 60
-}
--- Nature's Cure
-LCT_SpellData[88423] = {
-	class = "DRUID",
-	specID = { 105 },
-	dispel = true,
-	cooldown_starts_on_dispel = true,
-	cooldown = 8
-}
--- Swiftmend
-LCT_SpellData[18562] = {
-	class = "DRUID",
-	specID = { 105 },
-	heal = true,
-	cooldown = 15
-}
--- Wild Growth
-LCT_SpellData[48438] = {
-	class = "DRUID",
-	specID = { 105 },
-	heal = true,
-	cooldown = 8
-}
+for i,d in pairs(data) do
+  LCT_SpellData[i] = d
+end

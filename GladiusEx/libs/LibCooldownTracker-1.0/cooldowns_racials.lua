@@ -1,109 +1,47 @@
--- Racials
--- Every Man for Himself (Human)
-LCT_SpellData[59752] = 42292
--- Gift of the Naaru (Draenei)
-LCT_SpellData[59544] = {
-	race = "Draenei",
-	heal = true,
-	duration = 5,
-	cooldown = 180,
+local data = {
+	--Racials
+  [208683] = { default = true, cooldown = 120, pvp_trinket = true, item = true, talent = {214027,196029}, sets_cooldown = {
+    { spellid = 20594, cooldown = 30},
+    { spellid = 59752, cooldown = 30},
+    { spellid =  7744, cooldown = 30},
+  }}, -- Gladiator's Medallion
+  [214027] = { default = true, cooldown = 60, pvp_trinket = true, item = true, talent = {196029,208683}, sets_cooldown = {
+    { spellid = 20594, cooldown = 30},
+    { spellid = 59752, cooldown = 30},
+    { spellid =  7744, cooldown = 30},
+  }},
+  [196029] = { default = true, cooldown = 0, pvp_trinket = true, item = true, talent = {214027,208683}},
+  [59752 ] = { default = true, cooldown = 120, pvp_trinket = true, race = "Human", sets_cooldown = {
+    { spellid =208683, cooldown = 30},
+  } }, -- Every Man
+  [20594 ] = { default = truetrue, cooldown = 120, defensive = true, race = "Dwarf" }, -- Stoneform
+  [26297 ] = { default = true, cooldown = 180, offensive = true, race = "Troll" }, --Berserking (Troll)
+  [20572 ] = { default = true, cooldown = 120, offensive = true, race = "Orc" },
+  [33702 ] = { parent = 20572},
+  [33697 ] = { parent = 20572},
+  [58984 ] = { default = true, cooldown = 120, offensive = true, race = "NightElf" },
+  [68992 ] = { default = true, cooldown = 120, sprint = true, race = "Worgen" },
+  [59545 ] = { default = true, cooldown = 180, heal = true, race = "Draenei" },
+  [59543 ] = { parent = 59545},
+  [59548 ] = { parent = 59545},
+  [59542 ] = { parent = 59545},
+  [59544 ] = { parent = 59545},
+  [59547 ] = { parent = 59545},
+  [28880 ] = { parent = 59545},
+  [121093] = { parent = 59545},
+  [28730 ] = { default = true, cooldown = 120, cc = true, race = "BloodElf" },
+  [ 50613] = { parent = 28730},
+  [ 80483] = { parent = 28730},
+  [ 25046] = { parent = 28730},
+  [ 69179] = { parent = 28730},
+  [129597] = { parent = 28730},
+  [155145] = { parent = 28730},
+  [107079] = { parent = 28730},
+  [ 20549] = { parent = 28730},
+  [20589 ] = { default = true, cooldown = 60, cc = true, race = "Gnome" },
+  [69070 ] = { default = true, cooldown = 120, sprint = true, race = "Goblin" },
+  [ 7744 ] = { default = true, cooldown = 120, pvp_trinket = true, race = "Scourge" },
 }
-LCT_SpellData[28880] = 59544
-LCT_SpellData[59542] = 59544
-LCT_SpellData[59543] = 59544
-LCT_SpellData[59545] = 59544
-LCT_SpellData[59547] = 59544
-LCT_SpellData[59548] = 59544
-LCT_SpellData[121093] = 59544
--- Arcane Torrent (Blood Elf)
-LCT_SpellData[28730] = {
-	race = "BloodElf",
-	silence = true,
-	cooldown = 120,
-}
-LCT_SpellData[50613] = 28730
-LCT_SpellData[80483] = 28730
-LCT_SpellData[129597] = 28730
-LCT_SpellData[155145] = 28730
-LCT_SpellData[25046] = 28730
-LCT_SpellData[69179] = 28730
--- Blood Fury (Orc)
-LCT_SpellData[20572] = {
-	race = "Orc",
-	offensive = true,
-	duration = 15,
-	cooldown = 120,
-}
-LCT_SpellData[33697] = 20572
-LCT_SpellData[33702] = 20572
--- Cannibalize (Undead)
-LCT_SpellData[20577] = {
-	race = "Scourge",
-	heal = true,
-	duration = 10,
-	cooldown = 120,
-}
--- Will of the Forsaken (Undead)
-LCT_SpellData[7744] = {
-	race = "Scourge",
-	sets_cooldown = { spellid = 42292, cooldown = 30 }, -- PvP trinket
-	cooldown = 120,
-}
--- Darkflight (Worgen)
-LCT_SpellData[68992] = {
-	race = "Worgen",
-	duration = 10,
-	cooldown = 120,
-}
--- Escape Artist (Gnome)
-LCT_SpellData[20589] = {
-	race = "Gnome",
-	defensive = true,
-	cooldown = 60,
-}
--- Quaking Palm (Pandaren)
-LCT_SpellData[107079] = {
-	race = "Pandaren",
-	cc = true,
-	cooldown = 120,
-}
--- Rocket Barrage (Goblin)
-LCT_SpellData[69041] = {
-	race = "Goblin",
-	offensive = true,
-	sets_cooldown = { spellid = 69070, cooldown = 120 }, -- Rocket jump
-	cooldown = 120,
-}
--- Rocket Jump (Goblin)
-LCT_SpellData[69070] = {
-	race = "Goblin",
-	sets_cooldown = { spellid = 69041, cooldown = 120 }, -- Rocket Barrage
-	cooldown = 120,
-}
--- Shadowmeld (Night Elf)
-LCT_SpellData[58984] = {
-	race = "NightElf",
-	defensive = true,
-	cooldown = 120,
-}
--- Stoneform (Dwarf)
-LCT_SpellData[20594] = {
-	race = "Dwarf",
-	defensive = true,
-	duration = 8,
-	cooldown = 120,
-}
--- War Stomp (Tauren)
-LCT_SpellData[20549] = {
-	race = "Tauren",
-	stun = true,
-	duration = 2,
-	cooldown = 120,
-}
--- Berserking (Troll)
-LCT_SpellData[26297] = {
-	race = "Troll",
-	offensive = true,
-	duration = 10,
-	cooldown = 180
-}
+for i,d in pairs(data) do
+  LCT_SpellData[i] = d
+end

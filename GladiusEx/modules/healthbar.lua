@@ -108,7 +108,7 @@ function HealthBar:UpdateColor(unit)
 		class = select(2, UnitClass(unit))
 	end
 	if not class then
-		class = GladiusEx.testing[unit].unitClass
+		class = GladiusEx.buttons[unit].class or GladiusEx.testing[unit].unitClass
 	end
 
 	-- set color

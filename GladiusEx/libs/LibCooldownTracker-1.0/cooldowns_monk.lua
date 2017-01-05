@@ -1,262 +1,61 @@
--- ================ MONK ================
--- Monk/baseline
+local data = {
+	-- Monk
 
--- Roll
-LCT_SpellData[109132] = {
-	class = "MONK",
-	charges = 2,
-	cooldown = 20,
-}
--- Chii Torpedo
-LCT_SpellData[115008] = 109132
+  [109132] = { default = true, cooldown = 20, class = "MONK", charges = 2, blink = true }, -- Roll
+  [115008] = { parent = 109132 }, -- Chi Torpedo
+  [115078] = { default = true, cooldown = 15, class = "MONK", cc = true }, -- Paralysis
+  [116841] = { default = true, cooldown = 30, class = "MONK", sprint = true }, -- Tiger's Lust
+  [116844] = { default = true, cooldown = 45, class = "MONK", talent = {119381}, defensive = true, duration = 8}, -- Ring of Peace
+  [119381] = { default = true, cooldown = 45, class = "MONK", talent = {116844}, cc = true }, -- Leg Sweep
+  [119996] = { default = true, cooldown = 25, class = "MONK", blink = true }, -- Transcendence: Transfer
+  -- [122278] = { default = false, cooldown = 120, class = "MONK", }, -- Dampen Harm
+  -- [122783] = { default = false, cooldown = 120, class = "MONK" }, -- Diffuse Magic
+  -- [123986] = { default = false, cooldown = 30, class = "MONK" }, -- Chi Burst
+  -- [137648] = { default = false, cooldown = 120, class = "MONK" }, -- Nimble Brew
 
--- Detox
-LCT_SpellData[115450] = {
-	class = "MONK",
-	dispel = true,
-	cooldown_starts_on_dispel = true,
-	cooldown = 8,
-}
--- Expel Harm
-LCT_SpellData[115072] = {
-	class = "MONK",
-	heal = true,
-	offensive = true,
-	cooldown = 15,
-}
--- Fortifying Brew
-LCT_SpellData[115203] = {
-	class = "MONK",
-	defensive = true,
-	duration = 20,
-	cooldown = 180,
-}
--- Paralysis
-LCT_SpellData[115078] = {
-	class = "MONK",
-	cc = true,
-	cooldown = 15,
-}
--- Spear Hand Strike
-LCT_SpellData[116705] = {
-	class = "MONK",
-	interrupt = true,
-	silence = true,
-	cooldown = 15,
-}
--- Touch of Death
-LCT_SpellData[115080] = {
-	class = "MONK",
-	offensive = true,
-	cooldown = 90,
-}
--- Transcendence
-LCT_SpellData[101643] = {
-	class = "MONK",
-	cooldown = 45,
-}
--- Transcendence: Transfer
-LCT_SpellData[119996] = {
-	class = "MONK",
-	cooldown = 25,
-}
--- Zen Meditation
-LCT_SpellData[115176] = {
-	class = "MONK",
-	defensive = true,
-	duration = 8,
-	cooldown = 180,
-}
--- Nimble Brew
-LCT_SpellData[137562] = {
-	class = "MONK",
-	defensive = true,
-	duration = 6,
-	cooldown = 120,
-}
+  -- Brewmaster TBD
 
--- Monk/talents
--- Charging Ox Wave
-LCT_SpellData[119392] = {
-	class = "MONK",
-	talent = true,
-	stun = true,
-	cooldown = 30,
-}
--- Chi Brew
-LCT_SpellData[115399] = {
-	class = "MONK",
-	talent = true,
-	charges = 2,
-	cooldown = 45
-}
--- Chi Wave
-LCT_SpellData[115098] = {
-	class = "MONK",
-	talent = true,
-	cooldown = 15
-}
--- Dampen Harm
-LCT_SpellData[122278] = {
-	class = "MONK",
-	talent = true,
-	defensive = true,
-	duration = 45,
-	cooldown = 90,
-}
--- Diffuse Magic
-LCT_SpellData[122783] = {
-	class = "MONK",
-	talent = true,
-	defensive = true,
-	duration = 6,
-	cooldown = 90
-}
--- Invoke Xuen, the White
-LCT_SpellData[123904] = {
-	class = "MONK",
-	talent = true,
-	duration = 45,
-	cooldown = 180
-}
--- Leg Sweep
-LCT_SpellData[119381] = {
-	class = "MONK",
-	talent = true,
-	stun = true,
-	cooldown = 45
-}
--- Ring of Peace
-LCT_SpellData[116844] = {
-	class = "MONK",
-	talent = true,
-	defensive = true,
-	duration = 8,
-	cooldown = 45
-}
--- Rushing Jade Wind
-LCT_SpellData[116847] = {
-	class = "MONK",
-	talent = true,
-	offensive = true,
-	cooldown = 6,
-}
--- Tiger's Lust
-LCT_SpellData[116841] = {
-	class = "MONK",
-	talent = true,
-	defensive = true,
-	duration = 6,
-	cooldown = 30,
-}
+  [115203] = { default = false, cooldown = 105, class = "MONK", specID = { 268 } }, -- Fortifying Brew
+  [115399] = { default = false, cooldown = 90, class = "MONK", specID = { 268 } }, -- Black Ox Brew
+  [116705] = { default = true, cooldown = 15, class = "MONK", specID = { 268, 269 }, interrupt = true }, -- Spear Hand Strike
+  [132578] = { default = false, cooldown = 180, class = "MONK", specID = { 268 } }, -- Invoke Niuzao, the Black Ox
+  [202162] = { default = false, cooldown = 45, class = "MONK", specID = { 268 } }, -- Guard
+  [202272] = { default = false, cooldown = 45, class = "MONK", specID = { 268 } }, -- Incendiary Brew
+  [202370] = { default = false, cooldown = 60, class = "MONK", specID = { 268 } }, -- Mighty Ox Kick
 
--- Monk/Brewmaster
--- Elusive Brew
-LCT_SpellData[115308] = {
-	class = "MONK",
-	specID = { 268 },
-	defensive = true,
-	duration = 3,
-	cooldown = 6,
-}
--- Guard
-LCT_SpellData[115295] = {
-	class = "MONK",
-	specID = { 268 },
-	defensive = true,
-	duration = 30,
-	cooldown = 30
-}
--- Keg Smash
-LCT_SpellData[121253] = {
-	class = "MONK",
-	specID = { 268 },
-	offensive = true,
-	cooldown = 8
-}
--- Summon Black Ox
-LCT_SpellData[115315] = {
-	class = "MONK",
-	specID = { 268 },
-	cooldown = 10
-}
--- Monk/Windwalker
--- Energizing Brew
-LCT_SpellData[115288] = {
-	class = "MONK",
-	specID = { 269 },
-	offensive = true,
-	duration = 6,
-	cooldown = 60,
-}
--- Fists of Fury
-LCT_SpellData[113656] = {
-	class = "MONK",
-	specID = { 269 },
-	offensive = true,
-	duration = 4,
-	cooldown = 25,
-}
--- Flying Serpent Kick
-LCT_SpellData[101545] = {
-	class = "MONK",
-	specID = { 269 },
-	cooldown = 25,
+
+  -- Windwalker
+
+  [101545] = { default = true, cooldown = 25, class = "MONK", specID = { 269 }, blink = true}, -- Flying Serpent Kick
+  [113656] = { default = true, cooldown = 22, class = "MONK", specID = { 269 }, offensive = true }, -- Fists of Fury
+  [115080] = { default = true, cooldown = 120, class = "MONK", specID = { 269 }, offensive = true }, -- Touch of Death
+  [152173] = { default = true, cooldown = 90, class = "MONK", specID = { 269 }, offensive = true}, -- Serenity
+  -- [115176] = { default = false, cooldown = 150, class = "MONK", specID = { 269 } }, -- Zen Meditation
+  -- [201325] = { parent = 115176, 180 }, -- Zen Meditation (Windwalker)
+  [115288] = { default = true, cooldown = 60, class = "MONK", specID = { 269 }, offensive = true }, -- Energizing Elixir
+  [122470] = { default = true, cooldown = 90, class = "MONK", specID = { 269 }, defensive = true }, -- Touch of Karma
+  -- [123904] = { default = false, cooldown = 180, class = "MONK", specID = { 269 } }, -- Invoke Xuen, the White Tiger
+  [137639] = { default = true, cooldown = 90, class = "MONK", specID = { 269 }, charges = 2 , offensive = true, talent={152173} }, -- Storm, Earth, and Fire
+  -- [152175] = { default = false, cooldown = 24, class = "MONK", specID = { 269 } }, -- Whirling Dragon Punch
+  [201318] = { default = true, cooldown = 90, class = "MONK", specID = { 269 }, defensive = true }, -- Fortifying Elixir
+  [218164] = { default = true, cooldown = 8, class = "MONK", specID = {268,269}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
+
+  -- Mistweaver
+
+  [115310] = { default = false, cooldown = 180, class = "MONK", specID = { 270 }, defensive = true }, -- Revival
+  -- [116680] = { default = false, cooldown = 30, class = "MONK", specID = { 270 } }, -- Thunder Focus Tea
+  [116849] = { default = false, cooldown = 90, class = "MONK", specID = { 270 }, defensive = 0.4, duration = 12 }, -- Life Cocoon
+  -- [197908] = { default = false, cooldown = 90, class = "MONK", specID = { 270 } }, -- Mana Tea
+  [197945] = { default = false, cooldown = 20, class = "MONK", specID = { 270 }, charges = 2 , blink = true}, -- Mistwalk
+  [198664] = { default = false, cooldown = 180, class = "MONK", specID = { 270 }, defensive = true }, -- Invoke Chi-Ji, the Red Crane
+  -- [198898] = { default = false, cooldown = 30, class = "MONK", specID = { 270 } }, -- Song of Chi-Ji
+  -- [216113] = { default = false, cooldown = 45, class = "MONK", specID = { 270 } }, -- Way of the Crane
+  [115450] = { default = true, cooldown = 8, class = "MONK", specID = {270}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
+  [116670] = { default = true, class = "MONK", specID = {270}, heal = true, cast = 1.5 },  -- Vivify
+  [205406] = { default = true, class = "MONK", specID = {270}, heal = true, cast = 2 },  -- Vivify
+
 
 }
--- Rising Sun Kick
-LCT_SpellData[107428] = {
-	class = "MONK",
-	specID = { 269 },
-	offensive = true,
-	cooldown = 8,
-
-}
--- Touch of Karma
-LCT_SpellData[122470] = {
-	class = "MONK",
-	specID = { 269 },
-	offensive = true,
-	defensive = true,
-	duration = 10,
-	cooldown = 90
-}
--- Monk/Mistweaver
--- Life Cocoon
-LCT_SpellData[116849] = {
-	class = "MONK",
-	specID = { 270 },
-	heal = true,
-	duration = 12,
-	cooldown = 120,
-}
--- Renewing Misg
--- TODO: 3 possible charges with Pool of Mists
-LCT_SpellData[115151] = {
-	class = "MONK",
-	specID = { 270 },
-	heal = true,
-	cooldown = 8
-}
--- Revival
-LCT_SpellData[115310] = {
-	class = "MONK",
-	specID = { 270 },
-	mass_dispel = true,
-	cooldown = 180
-}
--- Summon Jade Serpent
-LCT_SpellData[115313] = {
-	class = "MONK",
-	specID = { 270 },
-	heal = true,
-	cooldown = 10
-}
--- Thunder Focus Tea
-LCT_SpellData[116680] = {
-	class = "MONK",
-	specID = { 270 },
-	heal = true,
-	duration = 30,
-	cooldown = 45
-}
+for i,d in pairs(data) do
+  LCT_SpellData[i] = d
+end

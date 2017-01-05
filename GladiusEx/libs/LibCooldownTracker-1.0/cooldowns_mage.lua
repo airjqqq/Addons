@@ -1,246 +1,66 @@
--- ================ MAGE ================
--- Mage/baseline
--- Blink
-LCT_SpellData[1953] = {
-	class = "MAGE",
-	defensive = true,
-	cooldown = 15
-}
--- Cone of Cold
-LCT_SpellData[120] = {
-	class = "MAGE",
-	offensive = true,
-	cooldown = 12
-}
--- Counterspell
-LCT_SpellData[2139] = {
-	class = "MAGE",
-	interrupt = true,
-	silence = true, -- with glyph
-	cooldown = 24,
-}
--- Evocation
-LCT_SpellData[12051] = {
-	class = "MAGE",
-	defensive = true,
-	duration = 6,
-	cooldown = 120
-}
--- Fire Blast
-LCT_SpellData[2136] = {
-	class = "MAGE",
-	offensive = true,
-	cooldown = 8
-}
--- Flamestrike
-LCT_SpellData[2120] = {
-	class = "MAGE",
-	offensive = true,
-	duration = 8,
-	cooldown = 12
-}
--- Frost Nova
-LCT_SpellData[122] = {
-	class = "MAGE",
-	cc = true,
-	cooldown = 30
-}
--- Ice Block
-LCT_SpellData[45438] = {
-	class = "MAGE",
-	defensive = true,
-	immune = true,
-	duration = 10,
-	cooldown = 300
-}
--- Invisibility
-LCT_SpellData[66] = {
-	class = "MAGE",
-	defensive = true,
-	duration = 3,
-	cooldown = 300
-}
--- Mirror Image
-LCT_SpellData[55342] = {
-	class = "MAGE",
-	offensive = true,
-	duration = 40,
-	cooldown = 120
-}
--- Remove Curse
-LCT_SpellData[475] = {
-	class = "MAGE",
-	dispel = true,
-	cooldown_starts_on_dispel = true,
-	cooldown = 8
-}
+local data = {
+	-- Mage
 
---[[
--- Time Warp
-LCT_SpellData[80353] = {
-	class = "MAGE",
-	offensive = true,
-	duration = 40,
-	cooldown = 300
-}
-]]
--- Mage/talents
--- Alter Time
-LCT_SpellData[108978] = {
-	class = "MAGE",
-	defensive = true,
-	duration = 10,
-	cooldown = 60
-}
--- Blazing Speed
-LCT_SpellData[108843] = {
-	class = "MAGE",
-	talent = true,
-	defensive = true,
-	duration = 1.5,
-	cooldown = 25
-}
--- Cauterize
-LCT_SpellData[86949] = {
-	class = "MAGE",
-	talent = true,
-	defensive = true,
-	duration = 6,
-	cooldown = 120
-}
--- Cold Snap
-LCT_SpellData[11958] = {
-	class = "MAGE",
-	talent = true,
-	resets = { 45438, 122, 120 },
-	cooldown = 180
-}
--- Frostjaw
-LCT_SpellData[102051] = {
-	class = "MAGE",
-	talent = true,
-	silence = true,
-	cc = true,
-	cooldown = 20
-}
--- Greater Invisibility
-LCT_SpellData[110959] = {
-	class = "MAGE",
-	talent = true,
-	defensive = true,
-	replaces = 66,
-	duration = 20,
-	cooldown = 90
-}
--- Ice Barrier
-LCT_SpellData[11426] = {
-	class = "MAGE",
-	talent = true,
-	defensive = true,
-	duration = 60,
-	cooldown = 25
-}
--- Ice Floes
-LCT_SpellData[108839] = {
-	class = "MAGE",
-	talent = true,
-	offensive = true,
-	duration = 15,
-	cooldown = 20
-}
--- Ice Ward
-LCT_SpellData[111264] = {
-	class = "MAGE",
-	talent = true,
-	cc = true,
-	cooldown = 20
-}
--- Incanter's Ward
-LCT_SpellData[1463] = {
-	class = "MAGE",
-	talent = true,
-	defensive = true,
-	duration = 8,
-	cooldown = 25
-}
--- Presence of Mind
-LCT_SpellData[12043] = {
-	class = "MAGE",
-	talent = true,
-	offensive = true,
-	cooldown_starts_on_aura_fade = true,
-	cooldown = 90
-}
--- Ring of Frost
-LCT_SpellData[113724] = {
-	class = "MAGE",
-	talent = true,
-	cc = true,
-	duration = 10,
-	cooldown = 45
-}
--- Temporal Shield
-LCT_SpellData[115610] = {
-	class = "MAGE",
-	talent = true,
-	defensive = true,
-	duration = 4,
-	cooldown = 25
-}
--- Mage/Arcane
--- Arcane Power
-LCT_SpellData[12042] = {
-	class = "MAGE",
-	specID = { 62 },
-	offensive = true,
-	duration = 15,
-	cooldown = 90
-}
--- Mage/Fire
--- Combustion
-LCT_SpellData[11129] = {
-	class = "MAGE",
-	specID = { 63 },
-	stun = true,
-	offensive = true,
-	cooldown = 45
-}
--- Dragon's Breath
-LCT_SpellData[31661] = {
-	class = "MAGE",
-	specID = { 63 },
-	cc = true,
-	cooldown = 20
-}
+  [    66] = { default = false, cooldown = 300, class = "MAGE", defensive = true }, -- Invisibility
+  [110959] = { parent = 66, cooldown = 75 }, -- Greater Invisibility
+  [  1953] = { default = false, cooldown = 15, class = "MAGE", blink = true }, -- Blink
+  [212653] = { parent = 1953, charges = 2 }, -- Shimmer
+  [  2139] = { default = true, cooldown = 24, class = "MAGE", interrupt = true }, -- Counterspell
+  [ 11426] = { default = false, cooldown = 25, class = "MAGE", defensive = true }, -- Ice Barrier
+  [ 45438] = { default = false, cooldown = 300, class = "MAGE", charges = 2, defensive = true, duration = 10 }, -- Ice Block
+  [ 55342] = { default = false, cooldown = 120, class = "MAGE", offensive = true, talent = {} }, -- Mirror Image
+  -- [80353] = { default = false, cooldown = 300, class = "MAGE", }, -- Time Warp
+  [108839] = { default = false, cooldown = 20, class = "MAGE", charges = 3, sprint = true }, -- Ice Floes
+  [113724] = { default = false, cooldown = 45, class = "MAGE", cc = true , talent = {108839} }, -- Ring of Frost
+  -- [116011] = { default = false, cooldown = 40, class = "MAGE", charges = 2 }, -- Rune of Power
+  [   118] = { default = false, class = "MAGE", cc = true, cast = 1.7}, -- Polymorph
+	[ 28271] = { parent = 118 }, -- Turtle
+	[ 28272] = { parent = 118 }, -- Pig
+	[ 61305] = { parent = 118 }, -- Black Cat
+	[ 61721] = { parent = 118 }, -- Rabbit
+	[ 61025] = { parent = 118 }, -- Serpent
+	[ 61780] = { parent = 118 }, -- Turkey
+	[161372] = { parent = 118 }, -- Peacock
+	[161355] = { parent = 118 }, -- Penguin
+	[161353] = { parent = 118 }, -- Polar Bear Cub
+	[161354] = { parent = 118 }, -- Monkey
+	[126819] = { parent = 118 }, -- Porcupine
+  -- Arcane TBD
 
--- Mage/Frost
--- Deep Freeze
-LCT_SpellData[44572] = {
-	class = "MAGE",
-	specID = { 64 },
-	stun = true,
-	cooldown = 30
+  [ 12042] = { default = false, cooldown = 90, class = "MAGE", specID = { 62 } }, -- Arcane Power
+  [ 12051] = { default = false, cooldown = 90, class = "MAGE", specID = { 62 } }, -- Evocation
+  [153626] = { default = false, cooldown = 20, class = "MAGE", specID = { 62 } }, -- Arcane Orb
+  [157980] = { default = false, cooldown = 25, class = "MAGE", specID = { 62 } }, -- Supernova
+  [195676] = { default = false, cooldown = 24, class = "MAGE", specID = { 62 } }, -- Displacement
+  [198158] = { default = false, cooldown = 60, class = "MAGE", specID = { 62 } }, -- Mass Invisibility
+  [205025] = { default = false, cooldown = 60, class = "MAGE", specID = { 62 } }, -- Presence of Mind
+  [224968] = { default = false, cooldown = 60, class = "MAGE", specID = { 62 } }, -- Mark of Aluneth
+
+  -- Fire TBD
+
+  [ 31661] = { default = false, cooldown = 20, class = "MAGE", specID = { 63 } }, -- Dragon's Breath
+  [108853] = { default = false, cooldown = 12, class = "MAGE", specID = { 63 }, charges = 2 }, -- Fire Blast
+  [153561] = { default = false, cooldown = 45, class = "MAGE", specID = { 63 } }, -- Meteor
+  [157981] = { default = false, cooldown = 25, class = "MAGE", specID = { 63 } }, -- Blast Wave
+  [190319] = { default = false, cooldown = 115, class = "MAGE", specID = { 63 } }, -- Combustion
+  [194466] = { default = false, cooldown = 45, class = "MAGE", specID = { 63 }, charges = 3 }, -- Phoenix's Flames
+  [205029] = { default = false, cooldown = 45, class = "MAGE", specID = { 63 } }, -- Flame On
+  [203286] = { default = false, class = "MAGE", specID = { 63 }, cast 4.5, offensive = true }, -- Greater Pyroblast
+
+  -- Frost
+
+  [   122] = { default = false, cooldown = 30, class = "MAGE", specID = { 64 }, cc = true}, -- Frost Nova
+  [ 12472] = { default = false, cooldown = 180, class = "MAGE", specID = { 64 }, offensive = true, dispelable = true, duration = 20 }, -- Icy Veins
+  [198144] = { parent = 12472, cooldown = 60, duration = 12 }, -- Ice Form
+  -- [31687] = { default = false, cooldown = 60, class = "MAGE", specID = { 64 } }, -- Summon Water Elemental
+  -- [84714] = { default = false, cooldown = 60, class = "MAGE", specID = { 64 } }, -- Frozen Orb
+  -- [153595] = { default = false, cooldown = 30, class = "MAGE", specID = { 64 } }, -- Comet Storm
+  [157997] = { default = false, cooldown = 25, class = "MAGE", specID = { 64 }, offensive = true }, -- Ice Nova
+  [205021] = { default = false, cooldown = 60, class = "MAGE", specID = { 64 }, offensive = true, talent = {} }, -- Ray of Frost
+  [199786] = { default = false, class = "MAGE", specID = { 64 }, cast = 3, offensive = true}, -- Glacial Spike
+  -- [214634] = { default = false, cooldown = 45, class = "MAGE", specID = { 64 } }, -- Ebonbolt
+
 }
--- Frozen Orb
-LCT_SpellData[84714] = {
-	class = "MAGE",
-	specID = { 64 },
-	offensive = true,
-	duration = 10,
-	cooldown = 60
-}
--- Icy Veins
-LCT_SpellData[12472] = {
-	class = "MAGE",
-	specID = { 64 },
-	offensive = true,
-	duration = 20,
-	cooldown = 180
-}
--- Summon Water Elemental
-LCT_SpellData[31687] = {
-	class = "MAGE",
-	specID = { 64 },
-	offensive = true,
-	cooldown = 60
-}
+for i,d in pairs(data) do
+  LCT_SpellData[i] = d
+end

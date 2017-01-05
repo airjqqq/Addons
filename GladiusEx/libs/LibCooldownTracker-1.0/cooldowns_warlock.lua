@@ -1,307 +1,68 @@
--- ================ WARLOCK ================
--- Warlock/baseline
--- Soulstone
-LCT_SpellData[20707] = {
-	class = "WARLOCK",
-	res = true,
-	cooldown = 600
-}
--- Unending Resolve
-LCT_SpellData[104773] = {
-	class = "WARLOCK",
-	defensive = true,
-	duration = 8,
-	cooldown = 180
-}
--- Seed of Corruption
-LCT_SpellData[87385] = {
-	class = "WARLOCK",
-	offensive = true,
-	cooldown = 60
-}
--- Demonic Circle: Teleport
-LCT_SpellData[48020] = {
-	class = "WARLOCK",
-	defensive = true,
-	cooldown = 30
-}
+local data = {
+	-- Warlock
 
--- Warlock/talent
--- Dark Regeneration
-LCT_SpellData[108359] = {
-	class = "WARLOCK",
-	talent = true,
-	defensive = true,
-	heal = true,
-	duration = 12,
-	cooldown = 120
-}
--- Howl of Terror
-LCT_SpellData[5484] = {
-	class = "WARLOCK",
-	talent = true,
-	cc = true,
-	cooldown = 40
-}
--- Mortal Coil
-LCT_SpellData[6789] = {
-	class = "WARLOCK",
-	talent = true,
-	cc = true,
-	heal = true,
-	cooldown = 45
-}
--- Shadowfury
-LCT_SpellData[30283] = {
-	class = "WARLOCK",
-	talent = true,
-	stun = true,
-	cooldown = 30
-}
--- Dark Bargain
-LCT_SpellData[110913] = {
-	class = "WARLOCK",
-	talent = true,
-	defensive = true,
-	duration = 8,
-	cooldown = 180
-}
--- Sacrificial Pact
-LCT_SpellData[108416] = {
-	class = "WARLOCK",
-	talent = true,
-	defensive = true,
-	duration = 20,
-	cooldown = 60
-}
--- Blood Horror
-LCT_SpellData[111397] = {
-	class = "WARLOCK",
-	talent = true,
-	cc = true,
-	duration = 60,
-	cooldown = 60
-}
--- Unbound Will
-LCT_SpellData[108482] = {
-	class = "WARLOCK",
-	talent = true,
-	dispel = true,
-	cooldown = 120
-}
--- Grimoire of Service
-LCT_SpellData[108501] = {
-	class = "WARLOCK",
-	talent = true,
-	defensive = true,
-	cooldown = 120
-}
--- Archimonde's Vengeance
-LCT_SpellData[108505] = {
-	class = "WARLOCK",
-	talent = true,
-	offensive = true,
-	defensive = true,
-	duration = 8,
-	cooldown = 120
-}
+  [  1122] = { default = false, cooldown = 180, class = "WARLOCK", cc = true, offensive = true }, -- Summon Infernal
+  [  6358] = { default = false, cooldown = 30, class = "WARLOCK", cast = 1.7, cc= true }, -- Seduction
+  -- [6360] = { default = false, cooldown = 25, class = "WARLOCK" }, -- Whiplash
+  -- [115770] = { parent = 6360 }, -- Fellash
+  [  6789] = { default = false, cooldown = 45, class = "WARLOCK", talent = {}, cc = true }, -- Mortal Coil
+  -- [18540] = { default = false, cooldown = 180, class = "WARLOCK" }, -- Summon Doomguard
+  -- [20707] = { default = false, cooldown = 600, class = "WARLOCK" }, -- Soulstone
+  [104773] = { default = false, cooldown = {default = 180, [267] = 60}, class = "WARLOCK", defensive = true, duration = 8 }, -- Unending Resolve
+  [108416] = { default = false, cooldown = 60, class = "WARLOCK", talent = {}, defensive = true }, -- Dark Pact
+  [108501] = { default = false, cooldown = 90, class = "WARLOCK", cc = true }, -- Grimoire of Service
+  [115268] = { parent = 6358 }, -- Mesmerize
+  -- [115284] = { default = false, cooldown = 15, class = "WARLOCK" }, -- Clone Magic
+  [119910] = { default = true, cooldown = 24, class = "WARLOCK", interrupt = true }, -- Spell Lock (Command Demon)
+  [ 19647] = { parent = 119910 }, -- Spell Lock (Felhunter)
+  [119911] = { parent = 119910 }, -- Optical Blast (Command Demon)
+  [115781] = { parent = 119910 }, -- Optical Blast (Observer)
+  [132409] = { parent = 119910 }, -- Spell Lock (Grimoire of Sacrifice)
+  [171138] = { parent = 119910 }, -- Shadow Lock (Doomguard)
+  [171139] = { parent = 119910 }, -- Shadow Lock (Grimoire of Sacrifice)
+  [171140] = { parent = 119910 }, -- Shadow Lock (Command Demon)
+  -- [171152] = { default = false, cooldown = 60, class = "WARLOCK" }, -- Meteor Strike
+  [196098] = { default = true, cooldown = 120, class = "WARLOCK", offensive = true, talent = {}, dispelable = true }, -- Soul Harvest
+  -- [199890] = { default = false, cooldown = 15, class = "WARLOCK" }, -- Curse of Tongues
+  -- [199892] = { default = false, cooldown = 20, class = "WARLOCK" }, -- Curse of Weakness
+  -- [199954] = { default = false, cooldown = 45, class = "WARLOCK" }, -- Curse of Fragility
+  [212295] = { default = true, cooldown = 45, class = "WARLOCK", talent = {221703}, offensive = true, duration = 5, dispelable = true }, -- Nether Ward
+  [221703] = { default = false, cooldown = 30, class = "WARLOCK", talent = {212295}, offensive = true, duration = 10 }, -- Casting Circle
+  -- [48018] = { default = false, cooldown = 30, class = "WARLOCK", talent = {5484}, blink = true, duration = 10 }, -- Demonic Circle
+  [  5782] = { default = false, class = "WARLOCK", cc = true, cast = 1.7 }, -- Fear
 
--- Warlock/265 - Affliction
--- Dark Soul: Misery
-LCT_SpellData[113860] = {
-	class = "WARLOCK",
-	specID = { 265 },
-	offensive = true,
-	duration = 20,
-	cooldown = 120
-}
--- Warlock/266 - Demonology
--- Demonic Leap
-LCT_SpellData[109151] = {
-	class = "WARLOCK",
-	specID = { 266 },
-	cooldown = 10
-}
--- Dark Soul: Knowledge
-LCT_SpellData[113861] = {
-	class = "WARLOCK",
-	specID = { 266 },
-	offensive = true,
-	duration = 20,
-	cooldown = 120
-}
--- Hand of Gul'dan
-LCT_SpellData[105174] = {
-	class = "WARLOCK",
-	specID = { 266 },
-	offensive = true,
-	charges = 2,
-	cooldown = 15
-}
+  -- Affliction
 
--- Warlock/267 - Destruction
--- Havoc
-LCT_SpellData[80240] = {
-	class = "WARLOCK",
-	specID = { 267 },
-	offensive = true,
-	duration = 15,
-	cooldown = 20
-}
--- Flames of Xoroth
-LCT_SpellData[120451] = {
-	class = "WARLOCK",
-	specID = { 267 },
-	offensive = true,
-	defensive = true,
-	cooldown = 60
-}
--- Dark Soul: Instability
-LCT_SpellData[113858] = {
-	class = "WARLOCK",
-	specID = { 267 },
-	offensive = true,
-	duration = 20,
-	cooldown = 120
-}
--- Conflagrate
-LCT_SpellData[17962] = {
-	class = "WARLOCK",
-	specID = { 267 },
-	offensive = true,
-	charges = 2,
-	cooldown = 12
-}
+  [  5484] = { default = false, cooldown = 40, class = "WARLOCK", specID = { 265 }, talent = {48018}, cc = true }, -- Howl of Terror
+  -- [48181] = { default = false, cooldown = 15, class = "WARLOCK", specID = { 265 } }, -- Haunt
+  -- [86121] = { default = false, cooldown = 20, class = "WARLOCK", specID = { 265 } }, -- Soul Swap
+  [205179] = { default = false, cooldown = 60, class = "WARLOCK", specID = { 265 }, offensive = true, duration = 15 }, -- Phantom Singularity
+  [ 30108] = { default = false, class = "WARLOCK", specID = { 265 }, offensive = true, cast = 1.5 }, -- Unstable Affliction
 
--- Warlock/Felguard
--- Axe Toss
-LCT_SpellData[89766] = {
-	class = "WARLOCK",
-	pet = true,
-	stun = true,
-	cooldown = 30
-}
--- Felstorm
-LCT_SpellData[89751] = {
-	class = "WARLOCK",
-	pet = true,
-	offensive = true,
-	cooldown = 45
-}
--- Pursuit
-LCT_SpellData[30151] = {
-	class = "WARLOCK",
-	pet = true,
-	offensive = true,
-	cooldown = 15
-}
+  -- Demonology TBD
 
--- Warlock/Felhunter
--- Devour Magic
-LCT_SpellData[19505] = {
-	class = "WARLOCK",
-	pet = true,
-	purge = true,
-	cooldown = 15
-}
--- Spell Lock
-LCT_SpellData[19647] = {
-	class = "WARLOCK",
-	pet = true,
-	interrupt = true,
-	silence = true,
-	cooldown = 24
-}
-LCT_SpellData[119910] = 19647
-LCT_SpellData[132409] = 19647
+  [ 30283] = { default = false, cooldown = 30, class = "WARLOCK", specID = { 266, 267 }, cc = true, cast = 1.5 }, -- Shadowfury
+  [ 89751] = { default = false, cooldown = 45, class = "WARLOCK", specID = { 266 } }, -- Felstorm
+  [115831] = { parent = 89751 }, -- Wrathstorm
+  [ 89766] = { default = false, cooldown = 30, class = "WARLOCK", specID = { 266 } }, -- Axe Toss
+  [201996] = { default = false, cooldown = 90, class = "WARLOCK", specID = { 266 } }, -- Call Observer
+  [205180] = { default = false, cooldown = 24, class = "WARLOCK", specID = { 266 } }, -- Summon Darkglare
+  [205181] = { default = false, cooldown = 14, class = "WARLOCK", specID = { 266 }, charges = 2 }, -- Shadowflame
+  [211714] = { default = false, cooldown = 45, class = "WARLOCK", specID = { 266 } }, -- Thal'kiel's Consumption
+  [212459] = { default = false, cooldown = 90, class = "WARLOCK", specID = { 266 } }, -- Call Fel Lord
+  [212623] = { default = false, cooldown = 15, class = "WARLOCK", specID = { 266 } }, -- Singe Magic
 
--- Warlock/Observer
--- Clone Magic
-LCT_SpellData[115284] = {
-	class = "WARLOCK",
-	pet = true,
-	purge = true,
-	cooldown = 15
-}
--- Optical Blast
-LCT_SpellData[115781] = {
-	class = "WARLOCK",
-	pet = true,
-	interrupt = true,
-	silence = true,
-	cooldown = 24
-}
-LCT_SpellData[119911] = 115781
+  --  Destruction TBD
 
+  [ 17962] = { default = false, cooldown = 12, class = "WARLOCK", specID = { 267 }, charges = 2 }, -- Conflagrate
+  [ 80240] = { default = false, cooldown = 20, class = "WARLOCK", specID = { 267 } }, -- Havoc
+  [152108] = { default = false, cooldown = 45, class = "WARLOCK", specID = { 267 } }, -- Cataclysm
+  [196447] = { default = false, cooldown = 15, class = "WARLOCK", specID = { 267 } }, -- Channel Demonfire
+  [196586] = { default = false, cooldown = 45, class = "WARLOCK", specID = { 267 }, charges = 3 }, -- Dimensional Rift
+  [212284] = { default = false, cooldown = 45, class = "WARLOCK", specID = { 267 } }, -- Firestone
+  [116858] = { default = false, class = "WARLOCK", specID = { 267 }, offensive = true, cast = 3 }, -- Chaos Bolt
 
--- Warlock/Fel Imp
--- Sear Magic
-LCT_SpellData[115276] = {
-	class = "WARLOCK",
-	pet = true,
-	dispel = true,
-	cooldown = 30
 }
-
--- Warlock/Imp
--- Cauterize Master
-LCT_SpellData[119899] = {
-	class = "WARLOCK",
-	pet = true,
-	heal = true,
-	duration = 12,
-	cooldown = 30
-}
--- Flee
-LCT_SpellData[89792] = {
-	class = "WARLOCK",
-	pet = true,
-	defensive = true,
-	cooldown = 20
-}
--- Single Magic
-LCT_SpellData[89808] = {
-	class = "WARLOCK",
-	pet = true,
-	dispel = true,
-	cooldown = 10
-}
-
--- Warlock/Shivarra
--- Fellash
-LCT_SpellData[115770] = {
-	class = "WARLOCK",
-	pet = true,
-	offensive = true,
-	knockback = true,
-	cooldown = 25
-}
-
--- Warlock/Succubus
--- Whiplash
-LCT_SpellData[6360] = {
-	class = "WARLOCK",
-	pet = true,
-	offensive = true,
-	knockback = true,
-	cooldown = 25
-}
--- Warlock/Voidwalker
--- Shadow Bulwark
-LCT_SpellData[17767] = {
-	class = "WARLOCK",
-	pet = true,
-	defensive = true,
-	duration = 20,
-	cooldown = 120
-}
-
--- Warlock/Wrathguard
--- Wrathstorm
-LCT_SpellData[115831] = {
-	class = "WARLOCK",
-	pet = true,
-	offensive = true,
-	duration = 6,
-	cooldown = 45
-}
+for i,d in pairs(data) do
+  LCT_SpellData[i] = d
+end

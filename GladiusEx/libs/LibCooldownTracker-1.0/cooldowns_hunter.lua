@@ -1,344 +1,61 @@
--- ================ HUNTER ================
--- Hunter/baseline
--- Concussive Shot
-LCT_SpellData[5116] = {
-	class = "HUNTER",
-	cc = true,
-	cooldown = 5
-}
--- Disengage
-LCT_SpellData[781] = {
-	class = "HUNTER",
-	defensive = true,
-	cooldown = 20
-}
--- Freezing Trap
-LCT_SpellData[1499] = {
-	class = "HUNTER",
-	cc = true,
-	cooldown = 30
-}
--- Kill Shot
-LCT_SpellData[53351] = {
-	class = "HUNTER",
-	offensive = true,
-	cooldown = 10
-}
--- Explosive Trap
-LCT_SpellData[13813] = {
-	class = "HUNTER",
-	offensive = true,
-	cooldown = 30
-}
--- Flare
-LCT_SpellData[1543] = {
-	class = "HUNTER",
-	none = true,
-	cooldown = 20
-}
--- Ice Trap
-LCT_SpellData[13809] = {
-	class = "HUNTER",
-	cc = true,
-	cooldown = 30
-}
--- Snake Trap
-LCT_SpellData[34600] = {
-	class = "HUNTER",
-	offensive = true,
-	cooldown = 30
-}
--- Master's Call
-LCT_SpellData[53271] = {
-	class = "HUNTER",
-	defensive = true,
-	duration = 4,
-	cooldown = 45
-}
--- Deterrence
-LCT_SpellData[19263] = {
-	class = "HUNTER",
-	defensive = true,
-	duration = 5,
-	charges = 2,
-	cooldown = 180
-}
--- Camouflage
-LCT_SpellData[51753] = {
-	class = "HUNTER",
-	defensive = true,
-	duration = 6,
-	cooldown = 60
-}
--- Stampede
-LCT_SpellData[121818] = {
-	class = "HUNTER",
-	offensive = true,
-	duration = 20,
-	cooldown = 300
-}
+local data = {
+	-- Hunter
 
--- Hunter/talent
--- Binding Shot
-LCT_SpellData[109248] = {
-	class = "HUNTER",
-	talent = true,
-	cc = true,
-	cooldown = 45
-}
--- Wyvern Sting
-LCT_SpellData[19386] = {
-	class = "HUNTER",
-	talent = true,
-	cc = true,
-	cooldown = 45
-}
--- Exhilaration
-LCT_SpellData[109304] = {
-	class = "HUNTER",
-	talent = true,
-	heal = true,
-	cooldown = 120
-}
--- Dire Beast
-LCT_SpellData[120679] = {
-	class = "HUNTER",
-	talent = true,
-	offensive = true,
-	duration = 15,
-	cooldown = 30
-}
--- Fervor
-LCT_SpellData[82726] = {
-	class = "HUNTER",
-	talent = true,
-	offensive = true,
-	duration = 10,
-	cooldown = 30
-}
--- A Murder of Crows
-LCT_SpellData[131894] = {
-	class = "HUNTER",
-	talent = true,
-	offensive = true,
-	duration = 15,
-	cooldown = 60
-}
--- Blink Strike
-LCT_SpellData[130392] = {
-	class = "HUNTER",
-	talent = true,
-	offensive = true,
-	cooldown = 20
-}
--- Lynx Rush
-LCT_SpellData[120697] = {
-	class = "HUNTER",
-	talent = true,
-	offensive = true,
-	cooldown = 90
-}
--- Barrage
-LCT_SpellData[120360] = {
-	class = "HUNTER",
-	talent = true,
-	offensive = true,
-	duration = 3,
-	cooldown = 20
-}
--- Glaive Toss
-LCT_SpellData[117050] = {
-	class = "HUNTER",
-	talent = true,
-	offensive = true,
-	cc = true,
-	cooldown = 15
-}
--- Powershot
-LCT_SpellData[109259] = {
-	class = "HUNTER",
-	talent = true,
-	offensive = true,
-	knockback = true,
-	cooldown = 45
-}
--- Intimidation
-LCT_SpellData[19577] = {
-	class = "HUNTER",
-	talent = true,
-	stun = true,
-	cooldown = 60
-}
+  -- [136] = { default = false, cooldown = 10, class = "HUNTER" }, -- Mend Pet
+  [  1543] = { default = false, cooldown = 20, class = "HUNTER" }, -- Flare
+  [  5384] = { default = false, cooldown = 30, class = "HUNTER", defensive = true }, -- Feign Death
+  [109304] = { default = false, cooldown = 120, class = "HUNTER", defensive = true }, -- Exhilaration (Beast Mastery, Survival)
+  [194291] = { parent = 109304 }, -- Exhilaration (Marksmanship)
+  [131894] = { default = false, cooldown = 60, class = "HUNTER", offensive = true }, -- A Murder of Crows (Beast Mastery, Marksmanship)
+  [206505] = { parent = 131894 }, -- A Murder of Crows (Survival)
+  [186257] = { default = false, cooldown = { default = 180, [253] = 120, [255] = 144 }, class = "HUNTER", sprint = true, duration = 12 }, -- Aspect of the Cheetah
+  [186265] = { default = false, cooldown = { default = 180, [255] = 144 }, class = "HUNTER", defensive = true, duration = 8 }, -- Aspect of the Turtle
+  [202914] = { default = false, cooldown = 60, class = "HUNTER", cc = true, talent = {} }, -- Spider Sting
+  [209997] = { default = false, cooldown = 30, class = "HUNTER", defensive = true  }, -- Play Dead
 
--- Hunter/253 - Beast Mastery
--- Kill Command
-LCT_SpellData[34026] = {
-	class = "HUNTER",
-	specID = { 253 },
-	offensive = true,
-	cooldown = 6
-}
--- Bestial Wrath
-LCT_SpellData[19574] = {
-	class = "HUNTER",
-	specID = { 253 },
-	offensive = true,
-	duration = 10,
-	cooldown = 60
-}
--- Hunter/254 - Marksmanship
--- Rapid Fire
-LCT_SpellData[3045] = {
-	class = "HUNTER",
-	specID = { 254 },
-	offensive = true,
-	duration = 15,
-	cooldown = 120
-}
--- Chimera Shot
-LCT_SpellData[53209] = {
-	class = "HUNTER",
-	specID = { 254 },
-	offensive = true,
-	cooldown = 9
-}
--- Hunter/255 - Survival
--- Explosive Shot
-LCT_SpellData[53301] = {
-	class = "HUNTER",
-	specID = { 255 },
-	offensive = true,
-	cooldown = 6
-}
--- Black Arrow
-LCT_SpellData[3674] = {
-	class = "HUNTER",
-	specID = { 255 },
-	offensive = true,
-	cooldown = 24
-}
+  -- Beast Mastery
 
--- Pet/Ferocity
--- Heart of the Phoenix
-LCT_SpellData[55709] = {
-	class = "HUNTER",
-	pet = true,
-	defensive = true,
-	cooldown = 480
-}
--- Dash
-LCT_SpellData[61684] = {
-	class = "HUNTER",
-	pet = true,
-	duration = 16,
-	cooldown = 32
-}
+  [   781] = { default = false, cooldown = 20, class = "HUNTER", specID = { 253, 254 }, blink = true }, -- Disengage
+  [ 19386] = { default = false, cooldown = 45, class = "HUNTER", specID = { 253, 254 }, cc = true, cast = 1.5 }, -- Wyvern Sting
+  [ 19574] = { default = false, cooldown = 75, class = "HUNTER", specID = { 253 }, offensive = true, duration = 20 }, -- Bestial Wrath
+  [ 19577] = { default = false, cooldown = 60, class = "HUNTER", specID = { 253 }, cc = true }, -- Intimidation
+  [109248] = { default = false, cooldown = 45, class = "HUNTER", specID = { 253, 254 }, cc = true }, -- Binding Shot
+  [147362] = { default = true, cooldown = 24, class = "HUNTER", specID = { 253, 254 }, interrupt = true }, -- Counter Shot
+  [193530] = { default = false, cooldown = 120, class = "HUNTER", specID = { 253 },offensive = true, duration = 10 }, -- Aspect of the Wild
+  -- [194386] = { default = false, cooldown = 90, class = "HUNTER", specID = { 253, 254 } }, -- Volley
+  [201430] = { default = false, cooldown = 180, class = "HUNTER", specID = { 253 }, offensive = true }, -- Stampede
+  [207068] = { default = false, cooldown = 60, class = "HUNTER", specID = { 253 }, offensive = true }, -- Titan's Thunder
+  [208652] = { default = false, cooldown = 30, class = "HUNTER", specID = { 253 }, offensive = true }, -- Dire Beast: Hawk
 
--- Pet/Tenacity
--- Last Stand
-LCT_SpellData[53478] = {
-	class = "HUNTER",
-	pet = true,
-	defensive = true,
-	duration = 20,
-	cooldown = 360
-}
--- Charge
-LCT_SpellData[61685] = {
-	class = "HUNTER",
-	pet = true,
-	offensive = true,
-	cooldown = 25
-}
--- Thunderstomp
-LCT_SpellData[63900] = {
-	class = "HUNTER",
-	pet = true,
-	offensive = true,
-	cooldown = 10
-}
+  -- Marksmanship TBD
 
--- Pet/Cunning
--- Roar of Sacrifice
-LCT_SpellData[53480] = {
-	class = "HUNTER",
-	pet = true,
-	defensive = true,
-	duration = 12,
-	cooldown = 60
+  [ 34477] = { default = false, cooldown = 30, class = "HUNTER", specID = { 254 } }, -- Misdirection
+  [186387] = { default = false, cooldown = 20, class = "HUNTER", specID = { 254 } }, -- Bursting Shot
+  [193526] = { default = false, cooldown = 140, class = "HUNTER", specID = { 254 } }, -- Trueshot
+  [199483] = { default = false, cooldown = 60, class = "HUNTER", specID = { 254, 255 } }, -- Camouflage
+  [204147] = { default = false, cooldown = 20, class = "HUNTER", specID = { 254 } }, -- Windburst
+  [206817] = { default = false, cooldown = 30, class = "HUNTER", specID = { 254 } }, -- Sentinel
+  [209789] = { default = false, cooldown = 30, class = "HUNTER", specID = { 254 }, cast = 2 }, -- Freezing Arrow
+  [213691] = { default = false, cooldown = 20, class = "HUNTER", specID = { 254 } }, -- Scatter Shot
+
+  -- Survival
+
+  [ 53271] = { default = false, cooldown = 45, class = "HUNTER", specID = { 255 }, sprint = true, duration = 4, dispelable = true }, -- Master's Call
+  [186289] = { default = false, cooldown = 96, class = "HUNTER", specID = { 255 }, offensive = true, duration = 10 }, -- Aspect of the Eagle
+  [187650] = { default = false, cooldown = 20, class = "HUNTER", specID = { 255 }, cc = true }, -- Freezing Trap
+  -- [187698] = { default = false, cooldown = 20, class = "HUNTER", specID = { 255 } }, -- Tar Trap
+  [187707] = { default = true, cooldown = 15, class = "HUNTER", specID = { 255 }, interrupt = true }, -- Muzzle
+  [190925] = { default = false, cooldown = 20, class = "HUNTER", specID = { 255 }, blink = true }, -- Harpoon
+  -- [191241] = { default = false, cooldown = 30, class = "HUNTER", specID = { 255 } }, -- Sticky Bomb
+  -- [191433] = { default = false, cooldown = 20, class = "HUNTER", specID = { 255 } }, -- Explosive Trap
+  -- [194407] = { default = false, cooldown = 60, class = "HUNTER", specID = { 255 } }, -- Spitting Cobra
+  [201078] = { default = false, cooldown = 90, class = "HUNTER", specID = { 255 }, offensive = true }, -- Snake Hunter
+  -- [203415] = { default = false, cooldown = 45, class = "HUNTER", specID = { 255 } }, -- Fury of the Eagle
+  -- [205691] = { default = false, cooldown = 120, class = "HUNTER", specID = { 255 } }, -- Dire Beast: Basilisk
+  [212640] = { default = false, cooldown = 25, class = "HUNTER", specID = { 255 }, defensive= true }, -- Mending Bandage
+  [ 53480] = { default = false, cooldown = 60, class = "HUNTER", specID = { 255 }, defensive= 0.2, duration = 12 }, -- Mending Bandage
+
 }
--- Bullheaded
-LCT_SpellData[53490] = {
-	class = "HUNTER",
-	pet = true,
-	defensive = true,
-	duration = 12,
-	cooldown = 180
-}
--- Reflective Armor Plating
-LCT_SpellData[137798] = {
-	class = "HUNTER",
-	pet = true,
-	defensive = true,
-	duration = 6,
-	cooldown = 30
-}
--- Shell Shield
-LCT_SpellData[26064] = {
-	class = "HUNTER",
-	pet = true,
-	defensive = true,
-	duration = 12,
-	cooldown = 60
-}
--- Time Warp
-LCT_SpellData[35346] = {
-	class = "HUNTER",
-	pet = true,
-	cc = true,
-	cooldown = 15
-}
--- Ankle Crack
-LCT_SpellData[50433] = {
-	class = "HUNTER",
-	pet = true,
-	cc = true,
-	cooldown = 10
-}
--- Harden Carapace
-LCT_SpellData[90339] = {
-	class = "HUNTER",
-	pet = true,
-	defensive = true,
-	duration = 12,
-	cooldown = 60
-}
--- Eternal Guardian
-LCT_SpellData[126393] = {
-	class = "HUNTER",
-	pet = true,
-	res = true,
-	cooldown = 600
-}
--- Frost Breath
-LCT_SpellData[54644] = {
-	class = "HUNTER",
-	pet = true,
-	cc = true,
-	cooldown = 10
-}
--- Burrow Attack
-LCT_SpellData[93433] = {
-	class = "HUNTER",
-	pet = true,
-	offensive = true,
-	duration = 8,
-	cooldown = 14
-}
--- Spirit Mend
-LCT_SpellData[90361] = {
-	class = "HUNTER",
-	pet = true,
-	heal = true,
-	cooldown = 30
-}
+for i,d in pairs(data) do
+  LCT_SpellData[i] = d
+end

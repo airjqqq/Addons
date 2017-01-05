@@ -1,250 +1,60 @@
--- ================ PALADIN ================
--- Paladin/baseline
--- Avenging Wrath
-LCT_SpellData[31884] = {
-	class = "PALADIN",
-	offensive = true,
-	defensive = true,
-	duration = 20,
-	cooldown = 120
-}
--- Blinding Light
-LCT_SpellData[115750] = {
-	class = "PALADIN",
-	cc = true,
-	cooldown = 120
-}
--- Cleanse
-LCT_SpellData[4987] = {
-	class = "PALADIN",
-	cooldown_starts_on_dispel = true,
-	dispel = true,
-	cooldown = 8
-}
--- Devotion Aura
-LCT_SpellData[31821] = {
-	class = "PALADIN",
-	defensive = true,
-	duration = 6,
-	cooldown = 180
-}
--- Divine Protection
-LCT_SpellData[498] = {
-	class = "PALADIN",
-	defensive = true,
-	duration = 10,
-	cooldown = 60
-}
--- Divine Shield
-LCT_SpellData[642] = {
-	class = "PALADIN",
-	immune = true,
-	duration = 8,
-	cooldown = 300
-}
--- Hammer of Justice
-LCT_SpellData[853] = {
-	class = "PALADIN",
-	stun = true,
-	cooldown = 60
-}
--- Hammer of Wrath
-LCT_SpellData[24275] = {
-	class = "PALADIN",
-	offensive = true,
-	cooldown = 6
-}
--- Hand of Freedom
-LCT_SpellData[1044] = {
-	class = "PALADIN",
-	defensive = true,
-	opt_charges = 2,
-	opt_charges_linked = { 1022, 6940 },
-	duration = 6,
-	cooldown = 25
-}
--- Hand of Protection
-LCT_SpellData[1022] = {
-	class = "PALADIN",
-	defensive = true,
-	opt_charges = 2,
-	opt_charges_linked = { 1044, 6940 },
-	duration = 10,
-	cooldown = 300
-}
--- Hand of Sacrifice
-LCT_SpellData[6940] = {
-	class = "PALADIN",
-	defensive = true,
-	opt_charges = 2,
-	opt_charges_linked = { 1044, 1022 },
-	duration = 12,
-	cooldown = 120
-}
--- Judgement
-LCT_SpellData[20271] = {
-	class = "PALADIN",
-	offensive = true,
-	cooldown = 6
-}
--- Lay on Hands
---[[
-LCT_SpellData[633] = {
-	class = "PALADIN",
-	heal = true -- todo: available on arenas?
-	cooldown = 600
-}
-]]
--- Rebuke
-LCT_SpellData[96231] = {
-	class = "PALADIN",
-	interrupt = true,
-	cooldown = 15
-}
--- Turn Evil
-LCT_SpellData[10326] = {
-	class = "PALADIN",
-	offensive = true,
-	cooldown = 15
-}
--- Paladin/talents
--- Execution Sentence
-LCT_SpellData[114157] = {
-	class = "PALADIN",
-	talent = true,
-	offensive = true,
-	heal = true, -- todo: check spellids for off/heal
-	duration = 10,
-	cooldown = 60
-}
--- Fist of Justice
-LCT_SpellData[105593] = {
-	class = "PALADIN",
-	talent = true,
-	stun = true,
-	replaces = 853,
-	cooldown = 30
-}
--- Hand of Purify
-LCT_SpellData[114039] = {
-	class = "PALADIN",
-	talent = true,
-	defensive = true,
-	duration = 6,
-	cooldown = 30
-}
--- Holy Avenger
-LCT_SpellData[105809] = {
-	class = "PALADIN",
-	talent = true,
-	offensive = true,
-	defensive = true,
-	duration = 18,
-	cooldown = 120
-}
--- Holy Prism
-LCT_SpellData[114165] = {
-	class = "PALADIN",
-	talent = true,
-	offensive = true,
-	heal = true,
-	cooldown = 20
-}
--- Light's Hammer
-LCT_SpellData[114158] = {
-	class = "PALADIN",
-	talent = true,
-	offensive = true,
-	heal = true,
-	duration = 16,
-	cooldown = 60
-}
--- Repentance
-LCT_SpellData[20066] = {
-	class = "PALADIN",
-	talent = true,
-	cc = true,
-	cooldown = 15
-}
--- Sacred Shield
-LCT_SpellData[20925] = {
-	class = "PALADIN",
-	talent = true,
-	defensive = true,
-	duration = 30,
-	cooldown = 6
-}
--- Speed of Light
-LCT_SpellData[85499] = {
-	class = "PALADIN",
-	talent = true,
-	duration = 8,
-	cooldown = 45
-}
+local data = {
 
--- Paladin/Holy
--- Divine Favor
-LCT_SpellData[31842] = {
-	class = "PALADIN",
-	specID = { 65 },
-	defensive = true,
-	duration = 20,
-	cooldown = 180
-}
--- Holy Shock
-LCT_SpellData[20473] = {
-	class = "PALADIN",
-	specID = { 65 },
-	offensive = true,
-	heal = true,
-	cooldown = 6
-}
+	  -- Paladin
 
--- Paladin/Protection
--- Ardent Defender
-LCT_SpellData[31850] = {
-	class = "PALADIN",
-	specID = { 66 },
-	defensive = true,
-	duration = 10,
-	cooldown = 180
+	  -- [633] = { default = false, cooldown = 600, class = "PALADIN" }, -- Lay on Hands
+	  [   642] = { default = true, cooldown = 300, class = "PALADIN", defensive = true, duration = 8 }, -- Divine Shield
+	  [   853] = { default = true, cooldown = 60, class = "PALADIN", cc= true }, -- Hammer of Justice
+	  [  1022] = { default = true, cooldown = 300, class = "PALADIN", charges = 2, defensive = true, dispelable = true, duration = 10 }, -- Blessing of Protection
+	  [  1044] = { default = true, cooldown = 25, class = "PALADIN", charges = 2, sprint = true, dispelable = true, duration = 8 }, -- Blessing of Freedom
+	  [ 20066] = { default = false, cooldown = 15, class = "PALADIN", cc=true, talent = {115750}, cast = 1.7 }, -- Repentance
+	  [ 31884] = { default = true, cooldown = 120, class = "PALADIN", offensive = true, duration = 20 }, -- Avenging Wrath
+	  [ 31842] = { parent = 31884 , specID = { 65 }}, -- Avenging Wrath (Holy)
+	  [216331] = { parent = 31884, cooldown = 60 , specID = { 65 }}, -- Avenging Crusader
+	  [224668] = { parent = 31884 , specID = { 70 }}, -- Crusade
+	  [115750] = { default = false, cooldown = 90, class = "PALADIN", cc = true, talent = {20066} }, -- Blinding Light
+
+	  -- Holy
+
+	  [   498] = { default = true, cooldown = 60, class = "PALADIN", specID = { 65, 66 }, defensive = 0.2, duration = 8}, -- Divine Protection
+	  [  6940] = { default = true, cooldown = 150, class = "PALADIN", specID = { 65, 66 }, charges = 2, defensive, duration=10 }, -- Blessing of Sacrifice
+	  [ 31821] = { default = true, cooldown = 180, class = "PALADIN", specID = { 65 }, defensive = true, duration = 6 }, -- Aura Mastery
+	  [105809] = { default = true, cooldown = 90, class = "PALADIN", specID = { 65 }, offensive = true, duration = 20 }, -- Holy Avenger
+	  [114158] = { default = false, cooldown = 60, class = "PALADIN", specID = { 65 } }, -- Light's Hammer
+	  [183415] = { default = false, cooldown = 180, class = "PALADIN", specID = { 65 } }, -- Aura of Mercy
+	  [200652] = { default = false, cooldown = 90, class = "PALADIN", specID = { 65 }, cast = 2, heal = true }, -- Tyr's Deliverance
+	  [210294] = { default = true, cooldown = 45, class = "PALADIN", specID = { 65 }, dispelable = true, offensive = true }, -- Divine Favor
+	  [214202] = { default = false, cooldown = 30, class = "PALADIN", specID = { 65 }, charges = 2 }, -- Rule of Law
+	  [  4987] = { default = true, cooldown = 8, class = "PALADIN", specID = {65}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
+	  [82326 ] = { default = true, class = "PALADIN", specID = {65}, cast = 2.5, heal = true },  -- Remove Corruption
+
+	  -- Protection TBD
+
+	  [204018] = { parent = 1022, cooldown = 180, class = "PALADIN", specID = { 66 }, talent = {1022} }, -- Blessing of Spellwarding
+	  [ 31850] = { default = false, cooldown = 120, class = "PALADIN", specID = { 66 } }, -- Ardent Defender
+	  [ 31935] = { default = true, cooldown = 15, class = "PALADIN", specID = { 66 } }, -- Avenger's Shield
+	  [ 86659] = { default = false, cooldown = 300, class = "PALADIN", specID = { 66 } }, -- Guardian of Ancient Kings
+	  [228049] = { parent = 86659 }, -- Guardian of the Forgotten Queen
+	  [ 96231] = { default = true, cooldown = 15, class = "PALADIN", specID = { 66, 70 } }, -- Rebuke
+	  [152262] = { default = false, cooldown = 30, class = "PALADIN", specID = { 66 } }, -- Seraphim
+	  [190784] = { default = false, cooldown = 45, class = "PALADIN", specID = { 66 } }, -- Divine Steed
+	  [204035] = { default = false, cooldown = 180, class = "PALADIN", specID = { 66 } }, -- Bastion of Light
+	  [204150] = { default = false, cooldown = 300, class = "PALADIN", specID = { 66 } }, -- Aegis of Light
+	  [209202] = { default = false, cooldown = 60, class = "PALADIN", specID = { 66 } }, -- Eye of Tyr
+	  [215652] = { default = false, cooldown = 25, class = "PALADIN", specID = { 66 } }, -- Shield of Virtue
+	  [213644] = { default = true, cooldown = 8, class = "PALADIN", specID = {66,70}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
+
+	  -- Retribution
+
+	  [184662] = { default = true, cooldown = 120, class = "PALADIN", specID = { 70 }, defensive = true, dispelable = true, duration = 15 }, -- Shield of Vengeance
+	  [204939] = { default = false, cooldown = 60, class = "PALADIN", specID = { 70 } }, -- Hammer of Reckoning
+	  [205191] = { default = false, cooldown = 60, class = "PALADIN", specID = { 70 }, talent = {}, defensive = true, duration = 10 }, -- Eye for an Eye
+	  [205273] = { default = true, cooldown = 30, class = "PALADIN", specID = { 70 }, offensive = true }, -- Wake of Ashes
+	  [210191] = { default = false, cooldown = 60, class = "PALADIN", specID = { 70 }, defensive = true }, -- Word of Glory
+	  [210220] = { default = false, cooldown = 180, class = "PALADIN", specID = { 70 }, offensive = true }, -- Holy Wrath
+	  [210256] = { default = false, cooldown = 25, class = "PALADIN", specID = { 70 }, dispel = true }, -- Blessing of Sanctuary
+
 }
--- Avenger's Shield
-LCT_SpellData[31935] = {
-	class = "PALADIN",
-	specID = { 66 },
-	silence = true,
-	interrupt = true,
-	cooldown = 15
-}
--- Consecration
-LCT_SpellData[26573] = {
-	class = "PALADIN",
-	specID = { 66 },
-	offensive = true,
-	duration = 9,
-	cooldown = 9
-}
--- Guardian of Ancient Kings
-LCT_SpellData[86659] = {
-	class = "PALADIN",
-	specID = { 66 },
-	duration = 12,
-	defensive = true,
-	cooldown = 180
-}
--- Holy Wrath
-LCT_SpellData[119072] = {
-	class = "PALADIN",
-	specID = { 66 },
-	offensive = true,
-	cooldown = 15
-}
--- Paladin/Retribution
--- Exorcism
-LCT_SpellData[879] = {
-	class = "PALADIN",
-	specID = { 70 },
-	offensive = true,
-	cooldown = 15
-}
+for i,d in pairs(data) do
+  LCT_SpellData[i] = d
+end
