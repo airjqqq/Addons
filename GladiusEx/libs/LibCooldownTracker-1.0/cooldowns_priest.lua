@@ -9,12 +9,12 @@ local data = {
   -- Discipline
 
   [  8122] = { default = true, cooldown = 30, class = "PRIEST", specID = { 256, 258 }, cc = true, talent = {205369} }, -- Psychic Scream
-  [ 10060] = { default = true, cooldown = 120, class = "PRIEST", specID = { 256, 258 }, offensive = true, duration = 20 }, -- Power Infusion
+  [ 10060] = { default = true, cooldown = 120, class = "PRIEST", specID = { 256, 258 }, offensive = 0.3, duration = 20 }, -- Power Infusion
   [ 33206] = { default = true, cooldown = 210, class = "PRIEST", specID = { 256 }, defensive = 0.4, duration = 8 }, -- Pain Suppression
   [ 34433] = { default = false, cooldown = 180, class = "PRIEST", specID = { 256, 258 }, offensive = true, duration = 12 }, -- Shadowfiend
   [123040] = { parent = 34433, cooldown = 60 }, -- Mindbender (Discipline)
   [200174] = { parent = 34433, cooldown = 60 }, -- Mindbender (Shadow)
-  [ 47536] = { default = true, cooldown = 120, class = "PRIEST", specID = { 256 }, offensive = true, duration = 8, dispelable = true }, -- Rapture
+  [ 47536] = { default = true, cooldown = 120, class = "PRIEST", specID = { 256 }, offensive = 0.4, duration = 8, dispelable = true }, -- Rapture
   [ 62618] = { default = true, cooldown = 180, class = "PRIEST", specID = { 256 }, defensive = true, duration = 10}, -- Power Word: Barrier
   [ 73325] = { default = true, cooldown = 90, class = "PRIEST", specID = { 256, 257 }, blink = true }, -- Leap of Faith
   [197862] = { default = true, cooldown = 60, class = "PRIEST", specID = { 256 }, offensive = true, duration = 15}, -- Archangel
@@ -44,7 +44,7 @@ local data = {
   [ 15286] = { default = true, cooldown = 180, class = "PRIEST", specID = { 258 }, defensive = true, duration = 15}, -- Vampiric Embrace
   [ 15487] = { default = true, cooldown = 45, class = "PRIEST", specID = { 258 }, cc = true }, -- Silence
   [ 32379] = { default = false, cooldown = 9, class = "PRIEST", specID = { 258 }, charges = 2 }, -- Shadow Word: Death
-  [ 47585] = { default = true, cooldown = 90, class = "PRIEST", specID = { 258 }, defensive = true, duration = 6 }, -- Dispersion
+  [ 47585] = { default = true, cooldown = 90, class = "PRIEST", specID = { 258 }, defensive = 0.6, duration = 6 }, -- Dispersion
   [108968] = { default = false, cooldown = 300, class = "PRIEST", specID = { 258 }, defensive = true, talent = {211522} }, -- Void Shift
   -- [193223] = { default = false, cooldown = 600, class = "PRIEST", specID = { 258 } }, -- Surrender to Madness
   -- [197871] = { default = false, cooldown = 60, class = "PRIEST", specID = { 258 } }, -- Dark Archangel

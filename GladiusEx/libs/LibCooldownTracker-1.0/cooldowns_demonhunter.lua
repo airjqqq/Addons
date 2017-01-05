@@ -5,7 +5,7 @@ local data = {
   [183752] = { default = true, cooldown = 15, class = "DEMONHUNTER" }, -- Consume Magic
   [188499] = { default = false, cooldown = 10, class = "DEMONHUNTER" }, -- Blade Dance
   [188501] = { default = false, cooldown = 30, class = "DEMONHUNTER" }, -- Spectral Sight
-  [191427] = { default = false, cooldown = 300, class = "DEMONHUNTER" }, -- Metamorphosis
+  [191427] = { default = false, cooldown = 300, class = "DEMONHUNTER", duration = 30, offensive = 1, buffs = {162264} }, -- Metamorphosis
   [187827] = { parent = 191427, cooldown = 180 }, -- Metamorphosis (Vengeance)
   [196718] = { default = false, cooldown = 180, class = "DEMONHUNTER" }, -- Darkness
   [198013] = { default = false, cooldown = 45, class = "DEMONHUNTER" }, -- Eye Beam
@@ -24,7 +24,7 @@ local data = {
 
   [201467] = { default = false, cooldown = 60, class = "DEMONHUNTER", specID = { 577 } }, -- Fury of the Illidari
   [206491] = { default = false, cooldown = 120, class = "DEMONHUNTER", specID = { 577 } }, -- Nemesis
-  [211048] = { default = false, cooldown = 120, class = "DEMONHUNTER", specID = { 577 } }, -- Chaos Blades
+  [211048] = { default = false, cooldown = 120, class = "DEMONHUNTER", specID = { 577 }, offensive = 0.5, duration = 12 }, -- Chaos Blades
   [211881] = { default = false, cooldown = 35, class = "DEMONHUNTER", specID = { 577, 581 } }, -- Fel Eruption
 
   -- Vengeance TBD

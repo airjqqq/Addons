@@ -12,16 +12,16 @@ local GetTime = GetTime
 local function GetDefaultCastsSpells()
 	local heal = { priority = 10, color = { r = 0, g = 1, b = 0, a = 1 } }
 	local offensive = { priority = 20, color = { r = 1, g = 0, b = 0, a = 1 } }
-	local cc = { priority = 30, color = { r = 0, g = 0.5, b = 1, a = 1 } }
+	local cc = { priority = 30, color = { r = 1, g = 0, b = 1, a = 1 } }
 	local toRet = {}
 	for id,spelldata in pairs(CT:GetCooldownsData()) do
 		if spelldata.cast then
 			if spelldata.cc then
-				toRet[GladiusEx:SafeGetSpellName(2060)] = cc
+				toRet[GladiusEx:SafeGetSpellName(id)] = cc
 			elseif spelldata.offensive then
-				toRet[GladiusEx:SafeGetSpellName(2060)] = offensive
+				toRet[GladiusEx:SafeGetSpellName(id)] = offensive
 			elseif spelldata.heal then
-				toRet[GladiusEx:SafeGetSpellName(2060)] = heal
+				toRet[GladiusEx:SafeGetSpellName(id)] = heal
 			end
 		end
 	end
@@ -29,110 +29,17 @@ local function GetDefaultCastsSpells()
 end
 
 local function GetDefaultAuraSpells()
-	local off = { priority = 25, color = { r = 1, g = 0.5, b = 0, a = 1 } }
-	local def = { priority = 15, color = { r = 1, g = 0, b = 1, a = 1 } }
-	return {[GladiusEx:SafeGetSpellName(108978)] =def, -- Alter Time
-	[GladiusEx:SafeGetSpellName(108271)] =def, -- Astral Shift
-	[GladiusEx:SafeGetSpellName(22812)] =def, -- Barkskin
-	[GladiusEx:SafeGetSpellName(18499)] =def, -- Berserker Rage
-	--[GladiusEx:SafeGetSpellName(111397)] =def, -- Blood Horror
-	[GladiusEx:SafeGetSpellName(74001)] =def, -- Combat Readiness
-	[GladiusEx:SafeGetSpellName(31224)] =def, -- Cloak of Shadows
-	[GladiusEx:SafeGetSpellName(108359)] =def, -- Dark Regeneration
-	[GladiusEx:SafeGetSpellName(118038)] =def, -- Die by the Sword
-	[GladiusEx:SafeGetSpellName(498)] =def, -- Divine Protection
-	[GladiusEx:SafeGetSpellName(5277)] =def, -- Evasion
-	[GladiusEx:SafeGetSpellName(47788)] =def, -- Guardian Spirit
-	[GladiusEx:SafeGetSpellName(48792)] =def, -- Icebound Fortitude
-	[GladiusEx:SafeGetSpellName(66)] =def, -- Invisibility
-	[GladiusEx:SafeGetSpellName(102342)] =def, -- Ironbark
-	[GladiusEx:SafeGetSpellName(12975)] =def, -- Last Stand
-	[GladiusEx:SafeGetSpellName(49039)] =def, -- Lichborne
-	[GladiusEx:SafeGetSpellName(116849)] =def, -- Life Cocoon
-	[GladiusEx:SafeGetSpellName(114028)] =def, -- Mass Spell Reflection
-	--[GladiusEx:SafeGetSpellName(30884)] =def, -- Nature's Guardian
-	[GladiusEx:SafeGetSpellName(124974)] =def, -- Nature's Vigil
-	--[GladiusEx:SafeGetSpellName(137562)] =def, -- Nimble Brew
-	[GladiusEx:SafeGetSpellName(33206)] =def, -- Pain Suppression
-	[GladiusEx:SafeGetSpellName(53480)] =def, -- Roar of Sacrifice
-	--[GladiusEx:SafeGetSpellName(30823)] =def, -- Shamanistic Rage
-	[GladiusEx:SafeGetSpellName(871)] =def, -- Shield Wall
-	[GladiusEx:SafeGetSpellName(112833)] =def, -- Spectral Guise
-	[GladiusEx:SafeGetSpellName(23920)] =def, -- Spell Reflection
-	[GladiusEx:SafeGetSpellName(122470)] =def, -- Touch of Karma
-	[GladiusEx:SafeGetSpellName(61336)] =def, -- Survival Instincts
-
-
-	[GladiusEx:SafeGetSpellName(48707)] = def, -- Anti-Magic Shell
-	[GladiusEx:SafeGetSpellName(46924)] = def, -- Bladestorm
-	--[GladiusEx:SafeGetSpellName(110913)] = def, -- Dark Bargain
-	[GladiusEx:SafeGetSpellName(19263)] = def, -- Deterrence
-	[GladiusEx:SafeGetSpellName(47585)] = def, -- Dispersion
-	[GladiusEx:SafeGetSpellName(642)] = def, -- Divine Shield
-	[GladiusEx:SafeGetSpellName(45438)] = def, -- Ice Block
-
-	-- Offensive - Melee Auras (4)
-	[GladiusEx:SafeGetSpellName(13750)] = off, -- Adrenaline Rush
-	[GladiusEx:SafeGetSpellName(152151)] = off, -- Shadow Reflection
-	[GladiusEx:SafeGetSpellName(107574)] = off, -- Avatar
-	--[GladiusEx:SafeGetSpellName(106952)] = off, -- Berserk
-	[GladiusEx:SafeGetSpellName(12292)] = off, -- Bloodbath
-	[GladiusEx:SafeGetSpellName(51271)] = off, -- Pillar of Frost
-	[GladiusEx:SafeGetSpellName(1719)] = off, -- Recklessness
-	[GladiusEx:SafeGetSpellName(162264)] = off, -- Metamorphosis
-	[GladiusEx:SafeGetSpellName(211048)] = off, -- Chaos Blades
-	[GladiusEx:SafeGetSpellName(152173)] = off, -- Serenity
-	--[GladiusEx:SafeGetSpellName(51713)] = off, -- Shadow Dance
-
-	[GladiusEx:SafeGetSpellName(12042)] = off, -- Arcane Power
-	[GladiusEx:SafeGetSpellName(114049)] = off, -- Ascendance
-	[GladiusEx:SafeGetSpellName(31884)] = off, -- Avenging Wrath
-	--[GladiusEx:SafeGetSpellName(113858)] = off, -- Dark Soul: Instability
-	--[GladiusEx:SafeGetSpellName(113861)] = off, -- Dark Soul: Knowledge
-	--[GladiusEx:SafeGetSpellName(113860)] = off, -- Dark Soul: Misery
-	[GladiusEx:SafeGetSpellName(16166)] = off, -- Elemental Mastery
-	[GladiusEx:SafeGetSpellName(12472)] = off, -- Icy Veins
-	[GladiusEx:SafeGetSpellName(33891)] = off, -- Incarnation: Tree of Life
-	[GladiusEx:SafeGetSpellName(102560)] = off, -- Incarnation: Chosen of Elune
-	[GladiusEx:SafeGetSpellName(102543)] = off, -- Incarnation: King of the Jungle
-	[GladiusEx:SafeGetSpellName(102558)] = off, -- Incarnation: Son of Ursoc
-	[GladiusEx:SafeGetSpellName(10060)] = off, -- Power Infusion
-	[GladiusEx:SafeGetSpellName(3045)] = off, -- Rapid Fire
-	--[GladiusEx:SafeGetSpellName(48505)] = off, -- Starfall
-
-	[GladiusEx:SafeGetSpellName(202060)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(106951)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(102543)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(102560)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(117679)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(194223)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(210649)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(186289)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(19574)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(193526)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(12042)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(12472)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(190319)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(195446)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(31842)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(31884)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(105809)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(224668)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(10060)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(47536)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(47536)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(51690)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(121471)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(16166)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(114050)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(114051)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(201898)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(205495)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(210714)] = off, -- Elune's Guidance
-	[GladiusEx:SafeGetSpellName(196098)] = off, -- Elune's Guidance
-
-
-	}
+	local offensive = { priority = 25, color = { r = 1, g = 0.5, b = 0, a = 1 } }
+	local defensive = { priority = 15, color = { r = 0, g = 0.5, b = 1, a = 1 } }
+	local toRet = {}
+	for id,spelldata in pairs(CT:GetCooldownsData()) do
+		if type(spelldata.offensive) == "number" and spelldata.offensive >= 0.2 then
+			toRet[GladiusEx:SafeGetSpellName(id)] = offensive
+		elseif type(spelldata.defensive) == "number" and spelldata.defensive >= 0.2 then
+			toRet[GladiusEx:SafeGetSpellName(id)] = defensive
+		end
+	end
+	return toRet
 end
 
 local Alerts = GladiusEx:NewGladiusExModule("Alerts", {

@@ -7,7 +7,7 @@ local data = {
   [212552] = { default = true, cooldown = 45, class = "DEATHKNIGHT",duration = 3,sprint = true}, -- Wraith Walk
   [ 47528] = { default = true, cooldown = 15, class = "DEATHKNIGHT", interrupt = true,}, -- Mind Freeze
   [ 49576] = { default = true, cooldown = 25, class = "DEATHKNIGHT", blink = true}, -- Death Grip
-  [ 48707] = { default = true, cooldown = 60, class = "DEATHKNIGHT", duration = 5, defensive = true}, -- Anti-Magic Shell
+  [ 48707] = { default = true, cooldown = 60, class = "DEATHKNIGHT", duration = 5, defensive = 0.5}, -- Anti-Magic Shell
   [ 61999] = { default = false, cooldown = 600, class = "DEATHKNIGHT", revival = true }, -- Raise Ally
 
   -- Blood TBD
@@ -33,7 +33,7 @@ local data = {
   [ 47568] = { default = true, cooldown = 180, class = "DEATHKNIGHT", specID = { 251 }, offensive = true}, -- Empower Rune Weapon
   [207127] = { parent = 47568, default = false, duration = 12 , talent = {47568}}, -- Hungering Rune Weapon
   [ 48792] = { default = true, cooldown = 180, class = "DEATHKNIGHT", specID = { 251, 252 }, defensive = 0.2, duration = 8 }, -- Icebound Fortitude
-  [ 51271] = { default = true, cooldown = 60, class = "DEATHKNIGHT", specID = { 251 }, offensive = true, duration = 20 }, -- Pillar of Frost
+  [ 51271] = { default = true, cooldown = 60, class = "DEATHKNIGHT", specID = { 251 }, offensive = 0.3, duration = 20 }, -- Pillar of Frost
   [152279] = { default = false, cooldown = 120, class = "DEATHKNIGHT", specID = { 251}, offensive = true, duration = 12, talent = {207256}}, -- Breath of Sindragosa
   [190778] = { default = true, cooldown = 300, class = "DEATHKNIGHT", specID = { 251}, offensive=true }, -- Sindragosa's Fury
   [196770] = { default = false, cooldown = 20, class = "DEATHKNIGHT", specID = { 251 }, cc = true }, -- Remorseless Winter

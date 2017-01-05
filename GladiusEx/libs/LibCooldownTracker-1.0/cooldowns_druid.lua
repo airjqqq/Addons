@@ -14,9 +14,9 @@ local data = {
   [ 22812] = { default = true, cooldown = { default = 60, [104] = 35 }, class = "DRUID", specID = { 102, 104, 105 }, defensive = 0.2, duration = 12 }, -- Barkskin
   [ 29166] = { default = false, cooldown = 180, class = "DRUID", specID = { 102, 105 } }, -- Innervate
   [ 78675] = { default = true, cooldown = 60, class = "DRUID", specID = { 102 }, interrupt = true }, -- Solar Beam
-  [102560] = { parent = 194223, default = true, duration = 30 }, -- Incarnation: Chosen of Elune
+  [102560] = { default = true, cooldown = 180, class = "DRUID", specID = { 102 }, offensive = 0.5, duration = 30, replaces = {194223} }, -- Incarnation: Chosen of Elune
   [108238] = { default = false, cooldown = 120, class = "DRUID", specID = { 102, 103, 105 }, defensive = true, talent = {102280,102401} }, -- Renewal
-  [194223] = { default = true, cooldown = 180, class = "DRUID", specID = { 102 }, offensive = true, duration = 15 }, -- Celestial Alignment
+  [194223] = { default = true, cooldown = 180, class = "DRUID", specID = { 102 }, offensive = 0.5, duration = 15, talent = {102560} }, -- Celestial Alignment
   [202425] = { default = true, cooldown = 45, class = "DRUID", specID = { 102 }, offensive = true, cooldown_starts_on_aura_fade = true, }, -- Warrior of Elune
   [202770] = { default = false, cooldown = 90, class = "DRUID", specID = { 102 }, offensive = true }, -- Fury of Elune
   [205636] = { default = false, cooldown = 60, class = "DRUID", specID = { 102 }, offensive = true, talent = {202425} }, -- Force of Nature
@@ -28,12 +28,12 @@ local data = {
 
   [  5217] = { default = false, cooldown = 30, class = "DRUID", specID = { 103 }, offensive = true }, -- Tiger's Fury
   [ 22570] = { default = false, cooldown = 10, class = "DRUID", specID = { 103 }, cc = true }, -- Maim
-  [ 61336] = { default = true, cooldown = { default = 180, [104] = 120 }, class = "DRUID", specID = { 103, 104 }, charges = 2, defensive= true, duration=6 }, -- Survival Instincts
-  [102543] = { parent = 106951, duration = 30}, -- Incarnation: King of the Jungle
+  [ 61336] = { default = true, cooldown = { default = 180, [104] = 120 }, class = "DRUID", specID = { 103, 104 }, charges = 2, defensive= 0.5, duration=6 }, -- Survival Instincts
+  [102543] = { default = true, cooldown = 180, class = "DRUID", specID = { 103 }, duration = 30, offensive = 0.5 }, -- Incarnation: King of the Jungle
   [106839] = { default = true, cooldown = 15, class = "DRUID", specID = { 103, 104 }, interrupt = true }, -- Skull Bash
   [106898] = { default = false, cooldown = 120, class = "DRUID", specID = { 103, 104 }, sprint = true, duration =8 }, -- Stampeding Roar
-  [106951] = { default = true, cooldown = 180, class = "DRUID", specID = { 103 }, duration = 15, offensive = true }, -- Berserk
-  [202060] = { default = false, cooldown = 45, class = "DRUID", specID = { 103 }, talent = {} }, -- Elune's Guidance
+  [106951] = { default = true, cooldown = 180, class = "DRUID", specID = { 103 }, duration = 15, offensive = 0.4 }, -- Berserk
+  [202060] = { default = false, cooldown = 45, class = "DRUID", specID = { 103 }, talent = {}, offensive = 0.2, duration = 5 }, -- Elune's Guidance
   [203242] = { default = false, cooldown = 60, class = "DRUID", specID = { 103 }, talent = {} }, -- Rip and Tear
   [210722] = { default = false, cooldown = 75, class = "DRUID", specID = { 103 }, offensive = true }, -- Ashamane's Frenzy
 
@@ -41,7 +41,7 @@ local data = {
 
   [    99] = { default = false, cooldown = 30, class = "DRUID", specID = { 104 } }, -- Incapacitating Roar
   [ 22842] = { default = false, cooldown = 24, class = "DRUID", specID = { 104 }, charges = 2 }, -- Frenzied Regeneration
-  [102558] = { default = false, cooldown = 180, class = "DRUID", specID = { 104 } }, -- Incarnation: Guardian of Ursoc
+  [102558] = { default = false, cooldown = 180, class = "DRUID", specID = { 104 }, offensive = 0.5, duration = 30 }, -- Incarnation: Guardian of Ursoc
   [200851] = { default = false, cooldown = 90, class = "DRUID", specID = { 104 } }, -- Rage of the Sleeper
   [202246] = { default = false, cooldown = 15, class = "DRUID", specID = { 104 } }, -- Overrun
   [204066] = { default = false, cooldown = 90, class = "DRUID", specID = { 104 } }, -- Lunar Beam
@@ -50,7 +50,7 @@ local data = {
 
   [   740] = { default = true, cooldown = 120, class = "DRUID", specID = { 105}, offensive = true }, -- Tranquility
   [ 18562] = { default = false, cooldown = 30, class = "DRUID", specID = { 105}, charges = 2, defensive = true }, -- Swiftmend
-  [ 33891] = { default = false, cooldown = 180, class = "DRUID", specID = { 105}, talent = {}, offensive = true, defensive = true }, -- Incarnation: Tree of Life
+  [ 33891] = { default = false, cooldown = 180, class = "DRUID", specID = { 105}, talent = {}, offensive = 0.5, defensive = 0.5, duration = 30 }, -- Incarnation: Tree of Life
   [102342] = { default = true, cooldown = 60, class = "DRUID", specID = { 105}, defensive = 0.4, duration = 12 }, -- Ironbark
   [102351] = { default = false, cooldown = 30, class = "DRUID", specID = { 105}, defensive = true, duration = 8, talent ={} }, -- Cenarion Ward
   [102793] = { default = true, cooldown = 60, class = "DRUID", specID = { 105}, cc = true, duration = 10 }, -- Ursol's Vortex

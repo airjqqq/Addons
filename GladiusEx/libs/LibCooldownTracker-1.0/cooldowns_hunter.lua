@@ -17,7 +17,7 @@ local data = {
 
   [   781] = { default = false, cooldown = 20, class = "HUNTER", specID = { 253, 254 }, blink = true }, -- Disengage
   [ 19386] = { default = false, cooldown = 45, class = "HUNTER", specID = { 253, 254 }, cc = true, cast = 1.5 }, -- Wyvern Sting
-  [ 19574] = { default = false, cooldown = 75, class = "HUNTER", specID = { 253 }, offensive = true, duration = 20 }, -- Bestial Wrath
+  [ 19574] = { default = false, cooldown = 75, class = "HUNTER", specID = { 253 }, offensive = 0.2, duration = 10 }, -- Bestial Wrath
   [ 19577] = { default = false, cooldown = 60, class = "HUNTER", specID = { 253 }, cc = true }, -- Intimidation
   [109248] = { default = false, cooldown = 45, class = "HUNTER", specID = { 253, 254 }, cc = true }, -- Binding Shot
   [147362] = { default = true, cooldown = 24, class = "HUNTER", specID = { 253, 254 }, interrupt = true }, -- Counter Shot
@@ -31,7 +31,7 @@ local data = {
 
   [ 34477] = { default = false, cooldown = 30, class = "HUNTER", specID = { 254 } }, -- Misdirection
   [186387] = { default = false, cooldown = 20, class = "HUNTER", specID = { 254 } }, -- Bursting Shot
-  [193526] = { default = false, cooldown = 140, class = "HUNTER", specID = { 254 } }, -- Trueshot
+  [193526] = { default = false, cooldown = 140, class = "HUNTER", specID = { 254 }, duration = 15, offensive = 0.4 }, -- Trueshot
   [199483] = { default = false, cooldown = 60, class = "HUNTER", specID = { 254, 255 } }, -- Camouflage
   [204147] = { default = false, cooldown = 20, class = "HUNTER", specID = { 254 } }, -- Windburst
   [206817] = { default = false, cooldown = 30, class = "HUNTER", specID = { 254 } }, -- Sentinel
@@ -41,7 +41,7 @@ local data = {
   -- Survival
 
   [ 53271] = { default = false, cooldown = 45, class = "HUNTER", specID = { 255 }, sprint = true, duration = 4, dispelable = true }, -- Master's Call
-  [186289] = { default = false, cooldown = 96, class = "HUNTER", specID = { 255 }, offensive = true, duration = 10 }, -- Aspect of the Eagle
+  [186289] = { default = false, cooldown = 96, class = "HUNTER", specID = { 255 }, offensive = 0.2, duration = 10 }, -- Aspect of the Eagle
   [187650] = { default = false, cooldown = 20, class = "HUNTER", specID = { 255 }, cc = true }, -- Freezing Trap
   -- [187698] = { default = false, cooldown = 20, class = "HUNTER", specID = { 255 } }, -- Tar Trap
   [187707] = { default = true, cooldown = 15, class = "HUNTER", specID = { 255 }, interrupt = true }, -- Muzzle

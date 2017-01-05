@@ -26,8 +26,8 @@ local data = {
   [  1776] = { default = false, cooldown = 10, class = "ROGUE", specID = { 260 } }, -- Gouge
   [  2094] = { default = false, cooldown = 120, class = "ROGUE", specID = { 260, 261 } }, -- Blind
   [199743] = { parent = 2094, cooldown = 20 }, -- Parley
-  [ 13750] = { default = false, cooldown = 150, class = "ROGUE", specID = { 260 } }, -- Adrenaline Rush
-  [ 51690] = { default = false, cooldown = 120, class = "ROGUE", specID = { 260 } }, -- Killing Spree
+  [ 13750] = { default = false, cooldown = 150, class = "ROGUE", specID = { 260 }, offensive = 1, duration = 15 }, -- Adrenaline Rush
+  [ 51690] = { default = false, cooldown = 120, class = "ROGUE", specID = { 260 }, offensive = 0.5, duration = 3 }, -- Killing Spree
   [185767] = { default = false, cooldown = 60, class = "ROGUE", specID = { 260 } }, -- Cannonball Barrage
   [195457] = { default = false, cooldown = 30, class = "ROGUE", specID = { 260 } }, -- Grappling Hook
   [198529] = { default = false, cooldown = 120, class = "ROGUE", specID = { 260 } }, -- Plunder Armor
@@ -38,7 +38,7 @@ local data = {
 
   -- Subtlety
 
-  [121471] = { default = false, cooldown = 180, class = "ROGUE", specID = { 261 }, offensive = true }, -- Shadow Blades
+  [121471] = { default = false, cooldown = 180, class = "ROGUE", specID = { 261 }, offensive = 0.5, duration = 25 }, -- Shadow Blades
   [185313] = { default = false, cooldown = 20, class = "ROGUE", specID = { 261 }, charges = 3, offensive = true }, -- Shadow Dance
   -- [207736] = { default = false, cooldown = 120, class = "ROGUE", specID = { 261 } }, -- Shadowy Duel
   -- [209782] = { default = false, cooldown = 60, class = "ROGUE", specID = { 261 } }, -- Goremaw's Bite

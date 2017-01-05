@@ -185,7 +185,7 @@ local function AddCharge(unit, spellid)
 		local now = GetTime()
 		local spelldata = GetSpellData(spellid)
 		tps.cooldown_start = now
-		tps.cooldown_end = now + spelldata.cooldown
+		tps.cooldown_end = now + type(spelldata.cooldown) == "table" and spelldata.cooldown.default or spelldata.cooldown
 		tps.charge_timer = SetTimer(tps.cooldown_end, AddCharge, unit, spellid)
 	else
 		tps.charge_timer = false
@@ -323,8 +323,9 @@ local function CooldownEvent(event, unit, spellid)
 		if cooldown_start then
 			-- if the spell has charges and the cooldown is already in progress, it does not need to be reset
 			if not tps.charges or not tps.cooldown_end or tps.cooldown_end <= now then
-				tps.cooldown_start = spelldata.cooldown and now
-				tps.cooldown_end = spelldata.cooldown and (now + spelldata.cooldown)
+				local cooldown = type(spelldata.cooldown) == "table" and spelldata.cooldown.default or spelldata.cooldown
+				tps.cooldown_start = cooldown and now
+				tps.cooldown_end = cooldown and (now + cooldown)
 
 				-- set charge timer
 				if tps.charges and not tps.charge_timer then

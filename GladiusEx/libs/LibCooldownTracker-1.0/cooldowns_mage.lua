@@ -7,7 +7,7 @@ local data = {
   [212653] = { parent = 1953, charges = 2 }, -- Shimmer
   [  2139] = { default = true, cooldown = 24, class = "MAGE", interrupt = true }, -- Counterspell
   [ 11426] = { default = false, cooldown = 25, class = "MAGE", defensive = true }, -- Ice Barrier
-  [ 45438] = { default = false, cooldown = 300, class = "MAGE", charges = 2, defensive = true, duration = 10 }, -- Ice Block
+  [ 45438] = { default = false, cooldown = 300, class = "MAGE", charges = 2, defensive = 1, duration = 10 }, -- Ice Block
   [ 55342] = { default = false, cooldown = 120, class = "MAGE", offensive = true, talent = {} }, -- Mirror Image
   -- [80353] = { default = false, cooldown = 300, class = "MAGE", }, -- Time Warp
   [108839] = { default = false, cooldown = 20, class = "MAGE", charges = 3, sprint = true }, -- Ice Floes
@@ -27,7 +27,7 @@ local data = {
 	[126819] = { parent = 118 }, -- Porcupine
   -- Arcane TBD
 
-  [ 12042] = { default = false, cooldown = 90, class = "MAGE", specID = { 62 } }, -- Arcane Power
+  [ 12042] = { default = false, cooldown = 90, class = "MAGE", specID = { 62 }, offensive = 0.3, duration = 10 }, -- Arcane Power
   [ 12051] = { default = false, cooldown = 90, class = "MAGE", specID = { 62 } }, -- Evocation
   [153626] = { default = false, cooldown = 20, class = "MAGE", specID = { 62 } }, -- Arcane Orb
   [157980] = { default = false, cooldown = 25, class = "MAGE", specID = { 62 } }, -- Supernova
@@ -42,16 +42,16 @@ local data = {
   [108853] = { default = false, cooldown = 12, class = "MAGE", specID = { 63 }, charges = 2 }, -- Fire Blast
   [153561] = { default = false, cooldown = 45, class = "MAGE", specID = { 63 } }, -- Meteor
   [157981] = { default = false, cooldown = 25, class = "MAGE", specID = { 63 } }, -- Blast Wave
-  [190319] = { default = false, cooldown = 115, class = "MAGE", specID = { 63 } }, -- Combustion
+  [190319] = { default = false, cooldown = 115, class = "MAGE", specID = { 63 }, duration = 10, offensive = 0.5 }, -- Combustion
   [194466] = { default = false, cooldown = 45, class = "MAGE", specID = { 63 }, charges = 3 }, -- Phoenix's Flames
   [205029] = { default = false, cooldown = 45, class = "MAGE", specID = { 63 } }, -- Flame On
-  [203286] = { default = false, class = "MAGE", specID = { 63 }, cast 4.5, offensive = true }, -- Greater Pyroblast
+  [203286] = { default = false, class = "MAGE", specID = { 63 }, cast = 4.5, offensive = true }, -- Greater Pyroblast
 
   -- Frost
 
   [   122] = { default = false, cooldown = 30, class = "MAGE", specID = { 64 }, cc = true}, -- Frost Nova
-  [ 12472] = { default = false, cooldown = 180, class = "MAGE", specID = { 64 }, offensive = true, dispelable = true, duration = 20 }, -- Icy Veins
-  [198144] = { parent = 12472, cooldown = 60, duration = 12 }, -- Ice Form
+  [ 12472] = { default = false, cooldown = 180, class = "MAGE", specID = { 64 }, offensive = 0.5, dispelable = true, duration = 20, talent = {198144} }, -- Icy Veins
+  [198144] = { default = false, cooldown = 60, class = "MAGE", specID = { 64 }, offensive = 0.5, dispelable = true, duration = 12, replaces = {12472} }, -- Ice Form
   -- [31687] = { default = false, cooldown = 60, class = "MAGE", specID = { 64 } }, -- Summon Water Elemental
   -- [84714] = { default = false, cooldown = 60, class = "MAGE", specID = { 64 } }, -- Frozen Orb
   -- [153595] = { default = false, cooldown = 30, class = "MAGE", specID = { 64 } }, -- Comet Storm

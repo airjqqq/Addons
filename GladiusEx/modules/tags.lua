@@ -390,11 +390,11 @@ function Tags:Update(unit)
 			self.frame[unit][text].fs:SetPoint(position, attachframe, position, ox, oy)
 
 			-- limit text bounds
-			local invpos = (position == "LEFT" and "RIGHT") or (position == "RIGHT" and "LEFT")
-			if invpos then
-				--self.frame[unit][text].fs:SetPoint(invpos, attachframe, invpos, ox, oy)
-				self.frame[unit][text].fs:SetPoint(invpos, attachframe, "CENTER", 0, oy)
-			end
+			-- local invpos = (position == "LEFT" and "RIGHT") or (position == "RIGHT" and "LEFT")
+			-- if invpos then
+			-- 	--self.frame[unit][text].fs:SetPoint(invpos, attachframe, invpos, ox, oy)
+			-- 	self.frame[unit][text].fs:SetPoint(invpos, attachframe, "CENTER", 0, oy)
+			-- end
 
 			-- hide
 			self.frame[unit][text]:Hide()

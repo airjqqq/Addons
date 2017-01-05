@@ -22,7 +22,7 @@ local data = {
   [171139] = { parent = 119910 }, -- Shadow Lock (Grimoire of Sacrifice)
   [171140] = { parent = 119910 }, -- Shadow Lock (Command Demon)
   -- [171152] = { default = false, cooldown = 60, class = "WARLOCK" }, -- Meteor Strike
-  [196098] = { default = true, cooldown = 120, class = "WARLOCK", offensive = true, talent = {}, dispelable = true }, -- Soul Harvest
+  [196098] = { default = true, cooldown = 120, class = "WARLOCK", offensive = 0.2, talent = {}, dispelable = true, duration = 16 }, -- Soul Harvest
   -- [199890] = { default = false, cooldown = 15, class = "WARLOCK" }, -- Curse of Tongues
   -- [199892] = { default = false, cooldown = 20, class = "WARLOCK" }, -- Curse of Weakness
   -- [199954] = { default = false, cooldown = 45, class = "WARLOCK" }, -- Curse of Fragility

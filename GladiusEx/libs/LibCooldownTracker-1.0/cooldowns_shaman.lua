@@ -13,7 +13,7 @@ local data = {
   [ 57994] = { default = true, cooldown = 12, class = "SHAMAN", interrupt = true }, -- Wind Shear
   [108271] = { default = false, cooldown = 90, class = "SHAMAN", defensive = 0.4, duration = 8 }, -- Astral Shift
   [210918] = { parent = 108271, cooldown = 45 }, -- Ethereal Form
-  [114049] = { default = false, cooldown = 180, class = "SHAMAN", offensive = true, talent = {} }, -- Ascendance
+  [114049] = { default = false, cooldown = 180, class = "SHAMAN", offensive = 1, talent = {}, duration = 15 }, -- Ascendance
   [114050] = { parent = 114049 }, -- Ascendance (Elemental)
   [114051] = { parent = 114049 }, -- Ascendance (Enhancement)
   [114052] = { parent = 114049 }, -- Ascendance (Restoration)
@@ -28,15 +28,15 @@ local data = {
 
   [ 51490] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 262 }, defensive = true }, -- Thunderstorm
   -- [108281] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 262, 264 },  }, -- Ancestral Guidance
-  -- [16166] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 262 } }, -- Elemental Mastery
+  [ 16166] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 262 }, offensive = 0.2, duration = 20 }, -- Elemental Mastery
   [192063] = { default = false, cooldown = 15, class = "SHAMAN", specID = { 262, 264 },blink = true }, -- Gust of Wind
   -- [192222] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 262 } }, -- Liquid Magma Totem
   [198067] = { default = false, cooldown = 300, class = "SHAMAN", specID = { 262 }, offensive = true }, -- Fire Elemental
   [192249] = { parent = 198067 }, -- Storm Elemental
   -- [198103] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 262 } }, -- Earth Elemental
   [204437] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 262 }, talent = {} }, -- Lightning Lasso
-  [205495] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 262 }, offensive = true, cast = 1.5 }, -- Stormkeeper
-  [210714] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 262 }, offensive = true, cast = 2 }, -- Icefury
+  [205495] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 262 }, offensive = 0.5, cast = 1.5 }, -- Stormkeeper
+  [210714] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 262 }, offensive = 0.5, cast = 2 }, -- Icefury
   [ 51886] = { default = true, cooldown = 8, class = "SHAMAN", specID = {262,263}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
 
   -- Enhancement

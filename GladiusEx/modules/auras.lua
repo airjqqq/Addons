@@ -35,11 +35,11 @@ local defaults = {
 	aurasBuffsSpacingY = 0,
 	aurasBuffsPerRow = 9,
 	aurasBuffsMaxRows = 2,
-	aurasBuffsSize = 12,
+	aurasBuffsSize = 15,
 	aurasBuffsEnlargeMine = true,
-	aurasBuffsEnlargeScale = 2,
-	aurasBuffsOffsetX = 0,
-	aurasBuffsOffsetY = 0,
+	aurasBuffsEnlargeScale = 1.3,
+	aurasBuffsOffsetX = -2,
+	aurasBuffsOffsetY = -2,
 	aurasBuffsTooltips = true,
 
 	aurasDebuffs = true,
@@ -49,11 +49,11 @@ local defaults = {
 	aurasDebuffsSpacingY = 0,
 	aurasDebuffsPerRow = 9,
 	aurasDebuffsMaxRows = 2,
-	aurasDebuffsSize = 12,
+	aurasDebuffsSize = 15,
 	aurasDebuffsEnlargeMine = true,
-	aurasDebuffsEnlargeScale = 2,
-	aurasDebuffsOffsetX = 0,
-	aurasDebuffsOffsetY = 0,
+	aurasDebuffsEnlargeScale = 1.3,
+	aurasDebuffsOffsetX = 2,
+	aurasDebuffsOffsetY = 2,
 	aurasDebuffsTooltips = true,
 
 	aurasFilterType = FILTER_TYPE_DISABLED,
@@ -195,6 +195,7 @@ function Auras:UpdateUnitAuras(event, unit)
 
 		-- icon
 		aura_frame.icon:SetTexture(icon)
+		-- aura_frame.icon:SetTexCoord(0.07,0.93,0.07,0.93)
 
 		-- cooldown
 		if duration > 0 then
@@ -214,7 +215,15 @@ function Auras:UpdateUnitAuras(event, unit)
 			aura_frame.border:SetVertexColor(color.r, color.g, color.b)
 			aura_frame.border:Show()
 		else
-			aura_frame.border:Hide()
+			-- aura_frame.border:Hide()
+			if buff then
+				aura_frame.border:Hide()
+				-- aura_frame.border:SetVertexColor(0, 0, 0)
+				-- aura_frame.border:Show()
+			else
+				aura_frame.border:SetVertexColor(1, 0, 0)
+				aura_frame.border:Show()
+			end
 		end
 
 		-- show
@@ -226,6 +235,9 @@ function Auras:UpdateUnitAuras(event, unit)
 	local function scan(buffs)
 		local filter = buffs and "HELPFUL" or "HARMFUL"
 		local filter_what = buffs and FILTER_WHAT_BUFFS or FILTER_WHAT_DEBUFFS
+
+		local mutlisized = {}
+		local sizes = {}
 
 		local enlarged = {}
 		local normal = {}
@@ -240,14 +252,25 @@ function Auras:UpdateUnitAuras(event, unit)
 
 			if not name then break end
 
-			if self:IsAuraFiltered(unit, name, filter_what) and
-				(not aurasBuffsOnlyMine or player_units[caster]) and
-				(not aurasBuffsOnlyDispellable or LD:CanDispel(unit, buffs, dispelType, spellID)) then
-				if aurasBuffsEnlargeMine and ((testing and i <= 2) or (not testing and player_units[caster])) then
-					tinsert(enlarged, i)
-				else
-					tinsert(normal, i)
+			if self:IsAuraFiltered(unit, name, filter_what) and (not aurasBuffsOnlyMine or player_units[caster]) and (not aurasBuffsOnlyDispellable or LD:CanDispel(unit, buffs, dispelType, spellID)) then
+				local size = 1
+
+				if spellID == 186401 then
+					size = 2
 				end
+
+
+				if aurasBuffsEnlargeMine and ((testing and i <= 2) or (not testing and player_units[caster])) then
+					size = max(aurasBuffsEnlargeScale,size)
+					-- tinsert(enlarged, i)
+				else
+					-- tinsert(normal, i)
+				end
+				if not mutlisized[size] then
+					mutlisized[size] = {}
+					tinsert(sizes, size)
+				end
+				tinsert(mutlisized[size], i)
 			end
 		end
 
@@ -260,8 +283,12 @@ function Auras:UpdateUnitAuras(event, unit)
 				if durb == 0 then return true end
 				return dura < durb
 			end
-			tsort(enlarged, aura_compare)
-			tsort(normal, aura_compare)
+			-- tsort(enlarged, aura_compare)
+			-- tsort(normal, aura_compare)
+			for i,v in pairs(mutlisized) do
+				tsort(v, aura_compare)
+			end
+			tsort(sizes,function(a,b) return a>b end)
 		end
 
 		local area_width = 36 * aurasBuffsPerRow + aurasBuffsSpacingX * (aurasBuffsPerRow - 1)
@@ -353,40 +380,67 @@ function Auras:UpdateUnitAuras(event, unit)
 			grow_rel, x_sign, y_sign = "BOTTOMRIGHT", -1, 1
 		end
 
-		-- place enlarged auras
-		for i = 1, #enlarged do
-			local aura_index = enlarged[i]
-			local aura_frame = auraFrame[icon_index]
-			local this_scale
+		for i, s in ipairs(sizes) do
+			local size = normal_size * s
+			for i = 1, #mutlisized[s] do
+				local aura_index = mutlisized[s][i]
+				local aura_frame = auraFrame[icon_index]
+				local this_scale
 
-			local sq_info = place_square(enlarged_size)
-			if sq_info then
-				this_scale = aurasBuffsEnlargeScale
-			else
-				-- not enough space for an enlarged icon, try with normal size
-				sq_info = place_square(normal_size)
-				if not sq_info then return end
-				this_scale = 1
+				local sq_info = place_square(size)
+				if sq_info then
+					this_scale = s
+				else
+					-- not enough space for an enlarged icon, try with normal size
+					sq_info = place_square(normal_size)
+					if not sq_info then return end
+					this_scale = 1
+				end
+
+				aura_frame:SetScale(this_scale)
+				aura_frame:SetPoint(grow_rel, auraFrame, grow_rel, sq_info.x / this_scale * x_sign, sq_info.y / this_scale * y_sign)
+
+				if set_aura(aura_index, buffs) then return end
 			end
-
-			aura_frame:SetScale(this_scale)
-			aura_frame:SetPoint(grow_rel, auraFrame, grow_rel, sq_info.x / this_scale * x_sign, sq_info.y / this_scale * y_sign)
-
-			if set_aura(aura_index, buffs) then return end
 		end
 
-		-- place normal auras
-		for i = 1, #normal do
-			local aura_index = normal[i]
-			local aura_frame = auraFrame[icon_index]
-			local sq_info = place_square(normal_size)
-			if not sq_info then return end
 
-			aura_frame:SetScale(1)
-			aura_frame:SetPoint(grow_rel, auraFrame, grow_rel, sq_info.x * x_sign, sq_info.y * y_sign)
 
-			if set_aura(aura_index, buffs) then return end
-		end
+
+		-- -- place enlarged auras
+		-- for i = 1, #enlarged do
+		-- 	local aura_index = enlarged[i]
+		-- 	local aura_frame = auraFrame[icon_index]
+		-- 	local this_scale
+		--
+		-- 	local sq_info = place_square(enlarged_size)
+		-- 	if sq_info then
+		-- 		this_scale = aurasBuffsEnlargeScale
+		-- 	else
+		-- 		-- not enough space for an enlarged icon, try with normal size
+		-- 		sq_info = place_square(normal_size)
+		-- 		if not sq_info then return end
+		-- 		this_scale = 1
+		-- 	end
+		--
+		-- 	aura_frame:SetScale(this_scale)
+		-- 	aura_frame:SetPoint(grow_rel, auraFrame, grow_rel, sq_info.x / this_scale * x_sign, sq_info.y / this_scale * y_sign)
+		--
+		-- 	if set_aura(aura_index, buffs) then return end
+		-- end
+		--
+		-- -- place normal auras
+		-- for i = 1, #normal do
+		-- 	local aura_index = normal[i]
+		-- 	local aura_frame = auraFrame[icon_index]
+		-- 	local sq_info = place_square(normal_size)
+		-- 	if not sq_info then return end
+		--
+		-- 	aura_frame:SetScale(1)
+		-- 	aura_frame:SetPoint(grow_rel, auraFrame, grow_rel, sq_info.x * x_sign, sq_info.y * y_sign)
+		--
+		-- 	if set_aura(aura_index, buffs) then return end
+		-- end
 	end
 
 	local function hide_unused()
@@ -446,12 +500,19 @@ end
 local function CreateAuraFrame(name, parent)
 	local frame = CreateFrame("Button", name, parent, "ActionButtonTemplate")
 	frame.icon = _G[name .. "Icon"]
-	frame.border = _G[name .. "Border"]
+	frame.icon:SetDrawLayer("BORDER")
+	-- frame.border = _G[name .. "Border"]
+	frame.border = frame:CreateTexture(nil,"OVERLAY")
+	frame.border:SetTexture("Interface\\Buttons\\UI-Debuff-Overlays")
+	frame.border:SetPoint("TOPLEFT",frame,"TOPLEFT",-1,1)
+	frame.border:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",1,-1)
+	frame.border:SetTexCoord(0.296875,0.5703125,0,0.515625)
 	frame.cooldown = _G[name .. "Cooldown"]
 	frame.count = _G[name .. "Count"]
 	frame.ButtonData = {
 		Highlight = false
 	}
+	frame.cooldown:SetSwipeColor(0,0,0,1)
 	return frame
 end
 
