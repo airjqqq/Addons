@@ -33,7 +33,7 @@ local SkillHistory = GladiusEx:NewGladiusExModule("SkillHistory",
 		Anchor = "TOPRIGHT",
 		RelativePoint = "BOTTOMRIGHT",
 		GrowDirection = "LEFT",
-		OffsetX = 0,
+		OffsetX = -40,
 		OffsetY = -4,
 	}),
 	fn.merge(defaults, {
@@ -41,7 +41,7 @@ local SkillHistory = GladiusEx:NewGladiusExModule("SkillHistory",
 		Anchor = "TOPLEFT",
 		RelativePoint = "BOTTOMLEFT",
 		GrowDirection = "RIGHT",
-		OffsetX = 0,
+		OffsetX = 40,
 		OffsetY = -4,
 	}))
 

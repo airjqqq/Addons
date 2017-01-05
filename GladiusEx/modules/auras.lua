@@ -63,25 +63,25 @@ local defaults = {
 
 local Auras = GladiusEx:NewGladiusExModule("Auras",
 	fn.merge(defaults, {
-		aurasBuffsAttachTo = "Frame",
+		aurasBuffsAttachTo = "HealthBar",
 		aurasBuffsAnchor = "BOTTOMRIGHT",
 		aurasBuffsRelativePoint = "TOPRIGHT",
 		aurasBuffsGrow = "UPLEFT",
 
-		aurasDebuffsAttachTo = "Frame",
+		aurasDebuffsAttachTo = "HealthBar",
 		aurasDebuffsAnchor = "BOTTOMRIGHT",
 		aurasDebuffsRelativePoint = "TOPRIGHT",
 		aurasDebuffsGrow = "UPLEFT",
 	}),
 	fn.merge(defaults, {
-		aurasBuffsAttachTo = "Frame",
-		aurasBuffsAnchor = "BOTTOMLEFT",
-		aurasBuffsRelativePoint = "TOPLEFT",
-		aurasBuffsGrow = "UPRIGHT",
+		aurasBuffsAttachTo = "HealthBar",
+		aurasBuffsAnchor = "TOPRIGHT",
+		aurasBuffsRelativePoint = "TOPRIGHT",
+		aurasBuffsGrow = "DOWNLEFT",
 
-		aurasDebuffsAttachTo = "Frame",
+		aurasDebuffsAttachTo = "HealthBar",
 		aurasDebuffsAnchor = "BOTTOMLEFT",
-		aurasDebuffsRelativePoint = "TOPLEFT",
+		aurasDebuffsRelativePoint = "BOTTOMLEFT",
 		aurasDebuffsGrow = "UPRIGHT",
 	}))
 

@@ -6,7 +6,7 @@ local defaults = {
 	OffsetX = 0,
 	OffsetY = 0,
 	Height = 20,
-	Width = 100,
+	Width = 80,
 	Inverse = false,
 	Color = { r = 1, g = 1, b = 1, a = 1 },
 	ClassColor = true,
@@ -20,15 +20,19 @@ local defaults = {
 local TargetBar = GladiusEx:NewUnitBarModule("TargetBar",
 	fn.merge(defaults, {
 		AttachTo = "Frame",
-		RelativePoint = "TOPLEFT",
-		Anchor = "BOTTOMLEFT",
+		RelativePoint = "BOTTOMLEFT",
+		Anchor = "TOPRIGHT",
 		IconPosition = "LEFT",
+		OffsetX = 40,
+		OffsetY = -5,
 	}),
 	fn.merge(defaults, {
 		AttachTo = "Frame",
-		RelativePoint = "TOPRIGHT",
-		Anchor = "BOTTOMRIGHT",
-		IconPosition = "RIGHT",
+		RelativePoint = "BOTTOMRIGHT",
+		Anchor = "TOPLEFT",
+		IconPosition = "LEFT",
+		OffsetX = -40,
+		OffsetY = -5,
 	}))
 
 function TargetBar:GetFrameUnit(unit)

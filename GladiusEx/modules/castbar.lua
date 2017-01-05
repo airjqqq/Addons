@@ -53,8 +53,8 @@ local defaults = {
 local CastBar = GladiusEx:NewGladiusExModule("CastBar",
 	fn.merge(defaults, {
 		castBarAttachTo = "Frame",
-		castBarRelativePoint = "TOPLEFT",
-		castBarAnchor = "TOPRIGHT",
+		castBarRelativePoint = "BOTTOMLEFT",
+		castBarAnchor = "BOTTOMRIGHT",
 		castBarOffsetX = -2,
 		castBarOffsetY = 0,
 

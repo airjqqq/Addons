@@ -44,7 +44,7 @@ local group_defaults = {
 	backgroundPadding = 5,
 	margin = 2,
 	barWidth = 174,
-	barsHeight = 40,
+	barsHeight = 64,
 	frameScale = 1,
 	borderSize = 2,
 	modMargin = 1,
@@ -54,23 +54,23 @@ local group_defaults = {
 GladiusEx.defaults_arena = fn.merge(group_defaults, {
 	modules = {
 		["*"] = true,
-		["TargetBar"] = false,
+		-- ["TargetBar"] = false,
 		["PetBar"] = false,
-		["Clicks"] = false,
-		["Auras"] = false,
-		["Alerts"] = false,
+		-- ["Clicks"] = false,
+		-- ["Auras"] = false,
+		-- ["Alerts"] = false,
 	},
 })
 
 GladiusEx.defaults_party = fn.merge(group_defaults, {
 	modules = {
 		["*"] = true,
-		["TargetBar"] = false,
+		-- ["TargetBar"] = false,
 		["PetBar"] = false,
-		["Clicks"] = false,
+		-- ["Clicks"] = false,
 		["Announcements"] = false,
-		["Auras"] = false,
-		["Alerts"] = false,
+		-- ["Auras"] = false,
+		-- ["Alerts"] = false,
 	},
 })
 
