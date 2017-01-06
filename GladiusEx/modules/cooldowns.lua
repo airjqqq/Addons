@@ -16,11 +16,11 @@ local function GetDefaultSpells()
 	local group1, group2, group3 = {},{},{}
 	for spellid, spelldata in pairs(CT:GetCooldownsData()) do
 		if spelldata.default then
-			if spelldata.pvp_trinket then
-				group2[spellid] = true
-			elseif spelldata.dispel or spelldata.interrupt then
+			if spelldata.pvp_trinket or spelldata.race then
 				group3[spellid] = true
-			else
+			elseif spelldata.defensive or spelldata.dispel then
+				group2[spellid] = true
+			elseif spelldata.offensive or spelldata.interrupt then
 				group1[spellid] = true
 			end
 		end
@@ -93,7 +93,7 @@ local g1_defaults = MakeGroupDb {
 	cooldownsMax = 12,
 	cooldownsSize = 24,
 	cooldownsPaddingX = 0,
-	cooldownsPaddingY = 2,
+	-- cooldownsPaddingY = 2,
 	cooldownsSpacingX = 2,
 	cooldownsSpacingY = 0,
 	cooldownsBorderSize = 2,
@@ -108,28 +108,31 @@ local g1_defaults = MakeGroupDb {
 
 local g2_defaults = MakeGroupDb {
 	cooldownsGroupId = 2,
-	cooldownsPerColumn = 3,
-	cooldownsMax = 3,
-	cooldownsSize = 40,
-	cooldownsCrop = true,
-	cooldownsTooltips = false,
-	cooldownsBorderSize = 1,
+	cooldownsBorderSize = 0,
+	cooldownsPerColumn = 12,
+	cooldownsMax = 12,
+	cooldownsSize = 24,
+	cooldownsPaddingX = 0,
+	-- cooldownsPaddingY = 2,
+	cooldownsSpacingX = 2,
+	cooldownsSpacingY = 0,
+	cooldownsBorderSize = 2,
 	cooldownsBorderAvailAlpha = 1.0,
 	cooldownsBorderUsingAlpha = 1.0,
 	cooldownsBorderCooldownAlpha = 1.0,
 	cooldownsIconAvailAlpha = 1.0,
 	cooldownsIconUsingAlpha = 1.0,
-	cooldownsIconCooldownAlpha = 1.0,
+	cooldownsIconCooldownAlpha = 0.6,
 	cooldownsSpells = GetDefaultSpells()[2],
 }
 local g3_defaults = MakeGroupDb {
 	cooldownsGroupId = 3,
-	cooldownsPerColumn = 3,
+	cooldownsPerColumn = 1,
 	cooldownsMax = 3,
-	cooldownsSize = 28,
+	cooldownsSize = 32,
 	cooldownsCrop = true,
-	cooldownsTooltips = false,
-	cooldownsBorderSize = 1,
+	-- cooldownsTooltips = false,
+	cooldownsBorderSize = 2,
 	cooldownsBorderAvailAlpha = 1.0,
 	cooldownsBorderUsingAlpha = 1.0,
 	cooldownsBorderCooldownAlpha = 1.0,
@@ -171,19 +174,19 @@ local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 		groups = {
 			["group_1"] = fn.merge(g1_defaults, {
 				cooldownsAttachTo = "Frame",
-				cooldownsAnchor = "TOPRIGHT",
-				cooldownsRelativePoint = "BOTTOMRIGHT",
-				cooldownsGrow = "DOWNLEFT",
-				cooldownsOffsetX = -50,
-				cooldownsOffsetY = 0,
+				cooldownsAnchor = "TOPLEFT",
+				cooldownsRelativePoint = "BOTTOMLEFT",
+				cooldownsGrow = "DOWNRIGHT",
+				cooldownsOffsetX = 0,
+				cooldownsOffsetY = -2,
 			}),
 			["group_2"] = fn.merge(g2_defaults, {
 				cooldownsAttachTo = "Frame",
-				cooldownsAnchor = "TOPRIGHT",
-				cooldownsRelativePoint = "TOPLEFT",
-				cooldownsGrow = "DOWNLEFT",
-				cooldownsOffsetX = -2,
-				cooldownsOffsetY = 0,
+				cooldownsAnchor = "TOPLEFT",
+				cooldownsRelativePoint = "BOTTOMLEFT",
+				cooldownsGrow = "DOWNRIGHT",
+				cooldownsOffsetX = 0,
+				cooldownsOffsetY = -28,
 			}),
 			["group_3"] = fn.merge(g3_defaults, {
 				cooldownsAttachTo = "Frame",
@@ -191,7 +194,7 @@ local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 				cooldownsRelativePoint = "TOPLEFT",
 				cooldownsGrow = "DOWNLEFT",
 				cooldownsOffsetX = -2,
-				cooldownsOffsetY = -40,
+				cooldownsOffsetY = 0,
 			}),
 		}
 	}))

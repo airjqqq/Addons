@@ -995,8 +995,9 @@ function Tags:GetBuiltinTags()
 	local function short(fn)
 		return function(unit)
 			local amount = fn(unit) or 0
-			if amount >= 1000 then
-				return strformat("%.1fk", (amount / 1000))
+			if amount >= 10000 then
+				-- return strformat("%.1fk", (amount / 1000))
+				return strformat("%.0f万", (amount / 10000))
 			else
 				return amount
 			end

@@ -19,11 +19,11 @@ local defaults = {
 		castBarOffsetY = 0,
 		castBarWidth = 175,
 		castBarPosition = "BOTTOM",
-		castBarHeight = 20,
+		castBarHeight = 24,
 		castBarInverse = false,
 		castBarColor = { r = 1, g = 1, b = 0, a = 1 },
 		castBarNotIntColor = { r = 1, g = 0, b = 0, a = 1 },
-		castBarBackgroundColor = { r = 0.5, g = 0.5, b = 0.5, a = 0.0 },
+		castBarBackgroundColor = { r = 0.2, g = 0.2, b = 0.2, a = 0.5 },
 		castBarGlobalTexture = true,
 		castBarTexture = GladiusEx.default_bar_texture,
 		castIcon = true,
@@ -34,11 +34,11 @@ local defaults = {
 		castTextGlobalFontSize = true,
 		castTextSize = 11,
 		castTextColor = { r = 1, g = 1, b = 1, a = 1 },
-		castTextAlign = "LEFT",
+		castTextAlign = "CENTER",
 		castTextOffsetX = 2,
 		castTextOffsetY = 0,
 		castTimeText = true,
-		castTimeTextCastTime = true,
+		castTimeTextCastTime = false,
 		castTimeTextRemainingTime = true,
 		castTimeTextTotalTime = false,
 		castTimeTextDelay = true,
@@ -53,13 +53,13 @@ local defaults = {
 local CastBar = GladiusEx:NewGladiusExModule("CastBar",
 	fn.merge(defaults, {
 		castBarAttachTo = "Frame",
-		castBarRelativePoint = "BOTTOMLEFT",
+		castBarRelativePoint = "TOPLEFT",
 		castBarAnchor = "BOTTOMRIGHT",
-		castBarOffsetX = -2,
-		castBarOffsetY = 0,
+		castBarOffsetX = 64,
+		castBarOffsetY = -28,
 
 		castIconPosition = "LEFT",
-		castTextAlign = "LEFT",
+		castTextAlign = "CENTER",
 		castTextOffsetX = 2,
 		castTextOffsetY = 0,
 		castTimeTextAlign = "RIGHT",
@@ -69,12 +69,12 @@ local CastBar = GladiusEx:NewGladiusExModule("CastBar",
 	fn.merge(defaults, {
 		castBarAttachTo = "Frame",
 		castBarRelativePoint = "BOTTOMRIGHT",
-		castBarAnchor = "BOTTOMLEFT",
-		castBarOffsetX = 2,
-		castBarOffsetY = 0,
+		castBarAnchor = "TOPLEFT",
+		castBarOffsetX = -64,
+		castBarOffsetY = -28,
 
 		castIconPosition = "LEFT",
-		castTextAlign = "LEFT",
+		castTextAlign = "CENTER",
 		castTextOffsetX = -2,
 		castTextOffsetY = 0,
 		castTimeTextAlign = "RIGHT",
@@ -247,6 +247,8 @@ function CastBar:CastStart(unit, channel)
 		f.delay = 0
 
 		f.icon:SetTexture(icon)
+		f.icon.bg:Show()
+		f.background:Show()
 
 		self:SetInterruptible(unit, not notInterruptible)
 
@@ -265,8 +267,10 @@ function CastBar:CastEnd(frame)
 	frame.timeText:SetText("")
 	frame.castText:SetText("")
 	frame.icon:SetTexture("")
+	frame.icon.bg:Hide()
 	frame.bar:SetValue(0)
 	frame.spark:Hide()
+	frame.background:Hide()
 	self:SetInterruptible(frame.unit, true)
 end
 
@@ -279,6 +283,7 @@ function CastBar:CreateBar(unit)
 	self.frame[unit].bar = CreateFrame("STATUSBAR", "GladiusEx" .. self:GetName() .. unit .. "Bar", self.frame[unit])
 	self.frame[unit].background = self.frame[unit].bar:CreateTexture("GladiusEx" .. self:GetName() .. unit .. "Background", "BACKGROUND")
 	self.frame[unit].background:SetAllPoints()
+	self.frame[unit].background:Hide()
 	-- self.frame[unit].castText = self.frame[unit].bar:CreateFontString("GladiusEx" .. self:GetName() .. "CastText" .. unit, "OVERLAY")
 	-- self.frame[unit].timeText = self.frame[unit].bar:CreateFontString("GladiusEx" .. self:GetName() .. "TimeText" .. unit, "OVERLAY")
 	self.frame[unit].textsFrame = CreateFrame("Frame", nil, self.frame[unit].bar)
@@ -287,6 +292,7 @@ function CastBar:CreateBar(unit)
 
 	self.frame[unit].icon = self.frame[unit]:CreateTexture("GladiusEx" .. self:GetName() .. "IconFrame" .. unit, "ARTWORK")
 	self.frame[unit].icon.bg = self.frame[unit]:CreateTexture("GladiusEx" .. self:GetName() .. "IconFrameBackground" .. unit, "BACKGROUND")
+	self.frame[unit].icon.bg:Hide()
 
 	self.frame[unit].icon.shield_frame = CreateFrame("Frame", nil, self.frame[unit])
 	self.frame[unit].icon.shield = self.frame[unit].icon.shield_frame:CreateTexture(nil, "OVERLAY")
@@ -339,10 +345,10 @@ function CastBar:Update(unit)
 
 	if self.db[unit].castIcon then
 		self.frame[unit].icon:Show()
-		self.frame[unit].icon.bg:Show()
+		-- self.frame[unit].icon.bg:Show()
 	else
 		self.frame[unit].icon:Hide()
-		self.frame[unit].icon.bg:Hide()
+		-- self.frame[unit].icon.bg:Hide()
 	end
 	self.frame[unit].icon:SetTexture(nil)
 

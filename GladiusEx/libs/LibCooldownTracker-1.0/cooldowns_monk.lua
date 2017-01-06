@@ -33,7 +33,7 @@ local data = {
   -- [115176] = { default = false, cooldown = 150, class = "MONK", specID = { 269 } }, -- Zen Meditation
   -- [201325] = { parent = 115176, 180 }, -- Zen Meditation (Windwalker)
   [115288] = { default = true, cooldown = 60, class = "MONK", specID = { 269 }, offensive = true }, -- Energizing Elixir
-  [122470] = { default = true, cooldown = 90, class = "MONK", specID = { 269 }, defensive = 1, duration = 10 }, -- Touch of Karma
+  [122470] = { default = true, cooldown = 90, class = "MONK", specID = { 269 }, defensive = 1, duration = 10, aura = {125174} }, -- Touch of Karma
   -- [123904] = { default = false, cooldown = 180, class = "MONK", specID = { 269 } }, -- Invoke Xuen, the White Tiger
   [137639] = { default = true, cooldown = 90, class = "MONK", specID = { 269 }, charges = 2 , offensive = true, talent={152173} }, -- Storm, Earth, and Fire
   -- [152175] = { default = false, cooldown = 24, class = "MONK", specID = { 269 } }, -- Whirling Dragon Punch

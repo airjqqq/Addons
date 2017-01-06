@@ -17,7 +17,7 @@ local data = {
 	  -- Arms
 
 	  [  5246] = { default = false, cooldown = 90, class = "WARRIOR", specID = { 71, 72 }, cc = true }, -- Intimidating Shout
-	  [ 97462] = { default = false, cooldown = 180, class = "WARRIOR", specID = { 71, 72 }, defensive = true, duration = 10 }, -- Commanding Shout
+	  [ 97462] = { default = false, cooldown = 180, class = "WARRIOR", specID = { 71, 72 }, defensive = true, duration = 10, aura = {97462} }, -- Commanding Shout
 	  [118038] = { default = false, cooldown = 180, class = "WARRIOR", specID = { 71 }, defensive = 0.6, duration = 8 }, -- Die by the Sword
 	  -- [167105] = { default = false, cooldown = 45, class = "WARRIOR", specID = { 71 } }, -- Colossus Smash
 	  -- [197690] = { default = false, cooldown = 10, class = "WARRIOR", specID = { 71 }, }, -- Defensive Stance

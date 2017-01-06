@@ -1,7 +1,7 @@
 ﻿local fn = LibStub("LibFunctional-1.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("GladiusEx")
 
-GladiusEx.default_bar_texture = "Wglass (GladiusEx)"
+GladiusEx.default_bar_texture = "Blizzard Raid Bar" --"Wglass (GladiusEx)"
 GladiusEx.defaults = {
 	profile = {
 		locked = false,
@@ -42,7 +42,7 @@ local group_defaults = {
 	deadAlpha = 0.2,
 	backgroundColor = { r = 0, g = 0, b = 0, a = 0 },
 	backgroundPadding = 5,
-	margin = 2,
+	margin = 5,
 	barWidth = 174,
 	barsHeight = 64,
 	frameScale = 1,

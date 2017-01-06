@@ -10,7 +10,7 @@ local GetSpellTexture, GetTime = GetSpellTexture, GetTime
 
 local defaults = {
 	MaxIcons = 8,
-	IconSize = 20,
+	IconSize = 40,
 	Margin = 2,
 	PaddingX = 0,
 	PaddingY = 0,
@@ -29,20 +29,20 @@ local MAX_ICONS = 40
 
 local SkillHistory = GladiusEx:NewGladiusExModule("SkillHistory",
 	fn.merge(defaults, {
-		AttachTo = "CastBar",
+		AttachTo = "Frame",
 		Anchor = "TOPRIGHT",
-		RelativePoint = "BOTTOMRIGHT",
+		RelativePoint = "TOPLEFT",
 		GrowDirection = "LEFT",
-		OffsetX = -40,
-		OffsetY = -4,
+		OffsetX = -34,
+		OffsetY = -50,
 	}),
 	fn.merge(defaults, {
-		AttachTo = "CastBar",
+		AttachTo = "Frame",
 		Anchor = "TOPLEFT",
-		RelativePoint = "BOTTOMLEFT",
+		RelativePoint = "TOPRIGHT",
 		GrowDirection = "RIGHT",
-		OffsetX = 40,
-		OffsetY = -4,
+		OffsetX = 34,
+		OffsetY = -50,
 	}))
 
 function SkillHistory:OnEnable()

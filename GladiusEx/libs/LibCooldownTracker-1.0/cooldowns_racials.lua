@@ -1,6 +1,6 @@
 local data = {
 	--Racials
-  [208683] = { default = true, cooldown = 120, pvp_trinket = true, item = true, talent = {214027,196029}, sets_cooldown = {
+  [208683] = { default = true, cooldown = 120, pvp_trinket = true, item = true, replaces = {214027,196029}, sets_cooldown = {
     { spellid = 20594, cooldown = 30},
     { spellid = 59752, cooldown = 30},
     { spellid =  7744, cooldown = 30},

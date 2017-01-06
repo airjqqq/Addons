@@ -33,7 +33,7 @@ local function GetDefaultAuraSpells()
 	local defensive = { priority = 15, color = { r = 0, g = 0.5, b = 1, a = 1 } }
 	local toRet = {}
 	for id,spellid in pairs(CT:GetAurasMap()) do
-		local spelldata = CT:GetSpellData(spellid)
+		local spelldata = CT:GetCooldownData(spellid)
 		if type(spelldata.offensive) == "number" and spelldata.offensive >= 0.2 then
 			toRet[GladiusEx:SafeGetSpellName(id)] = offensive
 		elseif type(spelldata.defensive) == "number" and spelldata.defensive >= 0.2 then

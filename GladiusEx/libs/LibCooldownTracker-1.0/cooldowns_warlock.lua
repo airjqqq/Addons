@@ -36,8 +36,8 @@ local data = {
   [  5484] = { default = false, cooldown = 40, class = "WARLOCK", specID = { 265 }, talent = {48018}, cc = true }, -- Howl of Terror
   -- [48181] = { default = false, cooldown = 15, class = "WARLOCK", specID = { 265 } }, -- Haunt
   -- [86121] = { default = false, cooldown = 20, class = "WARLOCK", specID = { 265 } }, -- Soul Swap
-  [205179] = { default = false, cooldown = 60, class = "WARLOCK", specID = { 265 }, offensive = true, duration = 15 }, -- Phantom Singularity
-  [ 30108] = { default = false, class = "WARLOCK", specID = { 265 }, offensive = true, cast = 1.5 }, -- Unstable Affliction
+  [205179] = { default = false, cooldown = 60, class = "WARLOCK", specID = { 265 }, important = true, duration = 15 }, -- Phantom Singularity
+  [ 30108] = { default = false, class = "WARLOCK", specID = { 265 }, important = true, cast = 1.5, aura = {233490, 233496, 233497, 233498, 233499} }, -- Unstable Affliction
 
   -- Demonology TBD
 

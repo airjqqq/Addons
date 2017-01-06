@@ -34,7 +34,7 @@ local defaults = {
 	aurasBuffsOnlyMine = false,
 	aurasBuffsSpacingX = 0,
 	aurasBuffsSpacingY = 0,
-	aurasBuffsPerRow = 9,
+	aurasBuffsPerRow = 12,
 	aurasBuffsMaxRows = 2,
 	aurasBuffsSize = 15,
 	aurasBuffsEnlargeMine = true,
@@ -48,7 +48,7 @@ local defaults = {
 	aurasDebuffsOnlyMine = false,
 	aurasDebuffsSpacingX = 0,
 	aurasDebuffsSpacingY = 0,
-	aurasDebuffsPerRow = 9,
+	aurasDebuffsPerRow = 12,
 	aurasDebuffsMaxRows = 2,
 	aurasDebuffsSize = 15,
 	aurasDebuffsEnlargeMine = true,
@@ -152,9 +152,48 @@ local player_units = {
 }
 
 local function GetTestAura(index, buff)
-	local spellID = buff and 21562 or 589
+	local debuffs = {
+		8122,
+		107570,
+		233490,
+		980,
+		205179,
+	}
+	local buffs = {
+		102543,
+		102342,
+		1850,
+		155777,
+		33763,
+	}
+	local dtype = {
+		[8122] = "Magic",
+		[233490] = "Magic",
+		[980] = "Curse",
+		[155777] = "Magic",
+		[33763] = "Magic",
+	}
+	if index > 10 then return end
+	local spellID, dispelTypePre
+	if buff then
+		spellID = buffs[index]
+		if spellID then
+			dispelTypePre = dtype[spellID]
+		else
+			spellID = 774
+			dispelTypePre = "Magic"
+		end
+	else
+		spellID = debuffs[index]
+		if spellID then
+			dispelTypePre = dtype[spellID]
+		else
+			spellID = 589
+			dispelTypePre = "Magic"
+		end
+	end
 	local name, rank, icon = GetSpellInfo(spellID)
-	local count, dispelType, duration, caster, isStealable, shouldConsolidate = 1, "Magic", 3600 * index, "player", false, false
+	local count, dispelType, duration, caster, isStealable, shouldConsolidate = 1, dispelTypePre, 8 + index, "player", false, false
 	local expires = GetTime() + duration
 	return name, rank, icon, count, dispelType, duration, expires, caster, isStealable, shouldConsolidate, spellID
 end
@@ -253,7 +292,7 @@ function Auras:UpdateUnitAuras(event, unit)
 
 			if not name then break end
 
-			if self:IsAuraFiltered(unit, name, filter_what) and (not aurasBuffsOnlyMine or player_units[caster]) and (not aurasBuffsOnlyDispellable or LD:CanDispel(unit, buffs, dispelType, spellID)) then
+			if self:IsAuraFiltered(unit, name, filter_what) and (not aurasBuffsOnlyMine or player_units[caster]) and (not aurasBuffsOnlyDispellable or LD:CanDispel(unit, buffs, dispelType, spellID)) and (duration>0 and duration < 600 or not buffs) then
 				local size = 1
 
 				local spelldata = CT:GetSpellDataByAuraId(spellID)
@@ -262,22 +301,21 @@ function Auras:UpdateUnitAuras(event, unit)
 						if dispelType == "Magic" then
 							size = 2
 						else
-							size = 1.8
+							size = 1.6
 						end
+					elseif spelldata.important then
+						size = 1.3
 					elseif spelldata.offensive then
-						size = 1.6
+						size = 2
 					elseif spelldata.defensive then
-						size = 1.4
+						size = 1.6
 					elseif spelldata.sprint then
-						size = 1.2
+						size = 1.3
 					end
 				end
 
 				if aurasBuffsEnlargeMine and ((testing and i <= 2) or (not testing and player_units[caster])) then
 					size = max(aurasBuffsEnlargeScale,size)
-					-- tinsert(enlarged, i)
-				else
-					-- tinsert(normal, i)
 				end
 				if not mutlisized[size] then
 					mutlisized[size] = {}
@@ -288,21 +326,30 @@ function Auras:UpdateUnitAuras(event, unit)
 		end
 
 		-- sort auras by duration
-		if not testing then
-			local function aura_compare(a, b)
+		local aura_compare
+		if testing then
+			aura_compare = function(a, b)
+				local dura = select(6, GetTestAura(a, filter))
+				local durb = select(6, GetTestAura(b, filter))
+				if dura == 0 then return false end
+				if durb == 0 then return true end
+				return dura < durb
+			end
+		else
+			aura_compare = function(a, b)
 				local dura = select(6, UnitAura(unit, a, filter))
 				local durb = select(6, UnitAura(unit, b, filter))
 				if dura == 0 then return false end
 				if durb == 0 then return true end
 				return dura < durb
 			end
+		end
 			-- tsort(enlarged, aura_compare)
 			-- tsort(normal, aura_compare)
-			for i,v in pairs(mutlisized) do
-				tsort(v, aura_compare)
-			end
-			tsort(sizes,function(a,b) return a>b end)
+		for i,v in pairs(mutlisized) do
+			tsort(v, aura_compare)
 		end
+		tsort(sizes,function(a,b) return a>b end)
 
 		local area_width = 36 * aurasBuffsPerRow + aurasBuffsSpacingX * (aurasBuffsPerRow - 1)
 		local area_height = 36 * ceil(aurasBuffsMax / aurasBuffsPerRow) + (aurasBuffsSpacingY * (ceil(aurasBuffsMax / aurasBuffsPerRow) - 1))
