@@ -50,6 +50,14 @@ do
 				DEFAULT_CHAT_FRAME:AddMessage("LibCooldownTracker-1.0: bad spellid for " .. (spelldata.class or spelldata.race or "ITEM") .. ": " .. spellid)
 				LCT_SpellData[spellid] = nil
 			else
+
+				if spelldata.parent then
+					local parentData = LCT_SpellData[spelldata.parent]
+					local data = fn:merge(parentData,spelldata)
+					data.parent = parentData.parent
+					LCT_SpellData[spellid] = data
+					spelldata = data
+				end
 				-- add name and icon
 				spelldata.name = name
 				spelldata.icon = icon
