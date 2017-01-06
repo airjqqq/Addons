@@ -3,6 +3,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("GladiusEx")
 local LSM = LibStub("LibSharedMedia-3.0")
 local fn = LibStub("LibFunctional-1.0")
 local LD = LibStub("LibDispellable-1.0")
+local CT = LibStub("LibCooldownTracker-1.0")
 local MSQ = LibStub("Masque", true)
 local MSQ_Buffs
 local MSQ_Debuffs
@@ -255,10 +256,22 @@ function Auras:UpdateUnitAuras(event, unit)
 			if self:IsAuraFiltered(unit, name, filter_what) and (not aurasBuffsOnlyMine or player_units[caster]) and (not aurasBuffsOnlyDispellable or LD:CanDispel(unit, buffs, dispelType, spellID)) then
 				local size = 1
 
-				if spellID == 186401 then
-					size = 2
+				local spelldata = CT:GetSpellDataByAuraId(spellID)
+				if spelldata then
+					if spelldata.cc then
+						if dispelType == "Magic" then
+							size = 2
+						else
+							size = 1.8
+						end
+					elseif spelldata.offensive then
+						size = 1.6
+					elseif spelldata.defensive then
+						size = 1.4
+					elseif spelldata.sprint then
+						size = 1.2
+					end
 				end
-
 
 				if aurasBuffsEnlargeMine and ((testing and i <= 2) or (not testing and player_units[caster])) then
 					size = max(aurasBuffsEnlargeScale,size)

@@ -13,7 +13,7 @@ local data = {
   -- Assassination
 
   [   408] = { default = false, cooldown = 20, class = "ROGUE", specID = { 259, 261 }, cc= true }, -- Kidney Shot
-  [   703] = { default = false, cooldown = 15, class = "ROGUE", specID = { 259 }, cc= true }, -- Garrote
+  [   703] = { default = false, cooldown = 15, class = "ROGUE", specID = { 259 }, cc= true, duration = 3, aura = {1330} }, -- Garrote
   [  5277] = { default = false, cooldown = 120, class = "ROGUE", specID = { 259, 261 }, defensive = 0.5, duration = 10 }, -- Evasion
   [ 36554] = { default = false, cooldown = 30, class = "ROGUE", specID = { 259, 261 }, blink = true }, -- Shadowstep
   [ 79140] = { default = false, cooldown = 90, class = "ROGUE", specID = { 259 }, offensive = true }, -- Vendetta

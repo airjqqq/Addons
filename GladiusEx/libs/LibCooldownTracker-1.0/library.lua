@@ -41,6 +41,7 @@ local item_spelldata = {}
 local race_spelldata = {}
 
 -- generate lookup tables
+local aura2SpellId = {}
 do
 	for spellid, spelldata in pairs(LCT_SpellData) do
 		if type(spelldata) == "table" then
@@ -81,6 +82,15 @@ do
 				end
 				if spelldata.item then
 					item_spelldata[spellid] = spelldata
+				end
+
+				-- map aura to spell
+				if spelldata.aura then
+					for i,v in ipairs(spelldata.aura) do
+						aura2SpellId[v] = spellid
+					end
+				else
+					aura2SpellId[spellid] = spellid
 				end
 			end
 		end
@@ -441,9 +451,22 @@ function lib:GetCooldownsData()
 	return SpellData
 end
 
+--- Returns the map from aura to spellid
+function lib:GetAurasMap()
+	return aura2SpellId
+end
+
+
 --- Returns the raw data of a specified cooldown spellid.
 -- @param spellid The cooldown spellid.
 function lib:GetCooldownData(spellid)
+	return GetSpellData(spellid)
+end
+
+--- Returns the raw data of a specified aura spellid.
+-- @param spellid The cooldown spellid.
+function lib:GetSpellDataByAuraId(spellid)
+	spellid = aura2SpellId[spellid]
 	return GetSpellData(spellid)
 end
 
