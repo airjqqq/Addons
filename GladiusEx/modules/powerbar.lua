@@ -9,7 +9,7 @@ local UnitPower, UnitPowerMax, UnitPowerType = UnitPower, UnitPowerMax, UnitPowe
 
 local PowerBar = GladiusEx:NewGladiusExModule("PowerBar", {
 	powerBarAttachTo = "HealthBar",
-	powerBarHeight = -25,
+	powerBarHeight = -20,
 	powerBarAdjustWidth = true,
 	powerBarWidth = 200,
 	powerBarInverse = false,

@@ -9,9 +9,9 @@ local tinsert, tremove = table.insert, table.remove
 local GetSpellTexture, GetTime = GetSpellTexture, GetTime
 
 local defaults = {
-	MaxIcons = 4,
+	MaxIcons = 5,
 	IconSize = 32,
-	Margin = 2,
+	Margin = 0,
 	PaddingX = 0,
 	PaddingY = 0,
 	BackgroundColor = { r = 0, g = 0, b = 0, a = 0 },
@@ -127,21 +127,21 @@ function SkillHistory:Reset(unit)
 end
 
 function SkillHistory:Test(unit)
-	self:ClearUnit(unit)
-
-	-- local spells = { GetSpecializationSpells(GetSpecialization()) }
-	-- for i = 1, #spells / 2 do
-	-- 	self:QueueSpell(unit, spells[i * 2 - 1], GetTime())
+	-- self:ClearUnit(unit)
+	--
+	-- -- local spells = { GetSpecializationSpells(GetSpecialization()) }
+	-- -- for i = 1, #spells / 2 do
+	-- -- 	self:QueueSpell(unit, spells[i * 2 - 1], GetTime())
+	-- -- end
+	-- local specID, class, race
+	-- specID = GladiusEx.testing[unit].specID
+	-- class = GladiusEx.testing[unit].unitClass
+	-- race = GladiusEx.testing[unit].unitRace
+	-- local n = 1
+	-- for spellid, spelldata in LibStub("LibCooldownTracker-1.0"):IterateCooldowns(class, specID, race) do
+	-- 	self:QueueSpell(unit, spellid, GetTime() + n * self.db[unit].EnterAnimDuration)
+	-- 	n = n + 1
 	-- end
-	local specID, class, race
-	specID = GladiusEx.testing[unit].specID
-	class = GladiusEx.testing[unit].unitClass
-	race = GladiusEx.testing[unit].unitRace
-	local n = 1
-	for spellid, spelldata in LibStub("LibCooldownTracker-1.0"):IterateCooldowns(class, specID, race) do
-		self:QueueSpell(unit, spellid, GetTime() + n * self.db[unit].EnterAnimDuration)
-		n = n + 1
-	end
 end
 
 function SkillHistory:Refresh(unit)
@@ -153,7 +153,8 @@ function SkillHistory:UNIT_SPELLCAST_SUCCEEDED(event, unit, spellName, rank, lin
 		-- casts with lineID = 0 seem to be secondary effects not directly casted by the unit
 		if lineID ~= 0 and lineID ~= prev_lineid[unit] then
 			prev_lineid[unit] = lineID
-			self:QueueSpell(unit, spellId, GetTime())
+			-- self:QueueSpell(unit, spellId, GetTime())
+			self:SpellCasted(unit, spellId, GetTime())
 		end
 	end
 end
@@ -166,6 +167,93 @@ end
 
 local unit_spells = {}
 local unit_queue = {}
+local unit_icons = {}
+local unit_icons_caches = {}
+
+local function InverseDirection(direction)
+	if direction == "LEFT" then
+		return "RIGHT", -1
+	elseif direction == "RIGHT" then
+		return "LEFT", 1
+	else
+		assert(false, "Invalid grow direction")
+	end
+end
+
+function SkillHistory:NewIcon(unit)
+	unit_icons_caches[unit] = unit_icons_caches[unit] or {}
+	local icon = tremove(unit_icons_caches[unit])
+	if not icon then
+		icon = CreateFrame("Frame", nil, self.frame[unit])
+		icon.icon = icon:CreateTexture(nil, "OVERLAY")
+		icon.icon:SetAllPoints()
+		icon:EnableMouse(false)
+		icon:SetScript("OnEnter", function(self)
+			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+			GameTooltip:SetSpellByID(icon.spellid)
+		end)
+		icon:SetScript("OnLeave", function(self) GameTooltip:Hide() end)
+	end
+	return icon
+end
+
+local speed = 0.5
+
+function SkillHistory:SpellCasted(unit, spellid, time)
+	local icon = self:NewIcon(unit)
+	icon.spellid = spellid
+	icon.width = self.db[unit].IconSize
+	icon.height = self.db[unit].IconSize
+	icon.started = 0
+	icon.delayed = 0
+	icon:SetScript("OnUpdate",function(f,escape)
+		if icon.delayed > 0 then
+			local fast = math.min(escape*10,icon.delayed)
+			icon.started = icon.started + escape + fast
+			icon.delayed = icon.delayed - fast
+		else
+			icon.started = icon.started + escape * speed
+		end
+		if icon.started > self.db[unit].MaxIcons then
+			for i, v in pairs(unit_icons[unit]) do
+				if v == icon then
+					tremove(unit_icons[unit],i)
+					icon:Hide()
+					icon:SetScript("OnUpdate",nil)
+					unit_icons_caches[unit] = unit_icons_caches[unit] or {}
+					tinsert(unit_icons_caches[unit],icon)
+					break
+				end
+			end
+		end
+		-- position
+		local dir = self.db[unit].GrowDirection
+		local invdir, sign = InverseDirection(dir)
+
+		local posx = self.db[unit].PaddingX + (self.db[unit].IconSize + self.db[unit].Margin) * icon.started
+		icon:ClearAllPoints()
+		icon:SetPoint(invdir, self.frame[unit], invdir, sign * posx, 0)
+		icon:SetSize(icon.width,icon.height)
+	end)
+	icon.icon:SetTexture(GetSpellTexture(spellid))
+
+	if self.db[unit].Crop then
+		local n = 5
+		icon.icon:SetTexCoord(n / 64, 1 - n / 64, n / 64, 1 - n / 64)
+	else
+		icon.icon:SetTexCoord(0, 1, 0, 1)
+	end
+	icon:Show()
+	unit_icons[unit] = unit_icons[unit] or {}
+	local last = 1
+	for i, v in pairs(unit_icons[unit]) do
+		if v.started < last then
+			v.delayed = last - v.started
+		end
+		last = last + 1
+	end
+	tinsert(unit_icons[unit],1,icon)
+end
 
 function SkillHistory:QueueSpell(unit, spellid, time)
 	if not unit_queue[unit] then unit_queue[unit] = {} end
@@ -197,15 +285,6 @@ function SkillHistory:QueueSpell(unit, spellid, time)
 	end
 end
 
-local function InverseDirection(direction)
-	if direction == "LEFT" then
-		return "RIGHT", -1
-	elseif direction == "RIGHT" then
-		return "LEFT", 1
-	else
-		assert(false, "Invalid grow direction")
-	end
-end
 
 local ease_funcs = {
 	["LINEAR"] = function(t) return t end,
@@ -261,7 +340,7 @@ function SkillHistory:SetupAnimation(unit)
 	local animdur = self.db[unit].EnterAnimDuration
 	-- speed up animation if there are too many queued spells
 	if #uq >= 2 then
-		animdur = animdur * 0.5
+		animdur = animdur * 0.1
 	end
 
 	local st = GetTime()
@@ -282,86 +361,104 @@ function SkillHistory:SetupAnimation(unit)
 
 	-- while this could be implemented with AnimationGroups, they are more
 	-- trouble than it is worth, sadly
-	local function AnimationFrame()
-		local t = (GetTime() - st) / animdur
-		if t < 1 then
-			t = ease(t)
-			local ox = off * t
-			local oy = 0
-			-- move all but the last icon
-			for i = 1, maxicons - 1 do
-				if not frame[i] or not frame[i]:IsShown() then break end
-				self:UpdateIconPosition(unit, i, ox, oy)
-			end
+	local function AnimationFrame(f,escape)
+		-- if #uq > 0 then
+		-- 	animdur = self.db[unit].EnterAnimDuration * 0.1
+		-- else
+		-- 	animdur = self.db[unit].EnterAnimDuration
+		-- end
+		-- local t = (GetTime() - st) / animdur
+		-- if t < 1 then
+		-- 	t = ease(t)
+		-- 	local ox = off * t
+		-- 	local oy = 0
+		-- 	-- move all but the last icon
+		-- 	for i = 1, maxicons - 1 do
+		-- 		if not frame[i] or not frame[i]:IsShown() then break end
+		-- 		self:UpdateIconPosition(unit, i, ox, oy)
+		-- 	end
+		--
+		-- 	if leave then
+		-- 		-- move the leaving icon with clipping
+		-- 		self:UpdateIconPosition(unit, maxicons, ox, oy)
+		-- 		local left, right
+		-- 		if dir == "LEFT" then
+		-- 			left = min(iconsize, ox)
+		-- 			right = 0
+		-- 		elseif dir == "RIGHT" then
+		-- 			left = 0
+		-- 			right = min(iconsize, ox)
+		-- 		end
+		-- 		leave.icon:SetPoint("TOPLEFT", left, 0)
+		-- 		leave.icon:SetPoint("BOTTOMRIGHT", -right, 0)
+		-- 		if crop then
+		-- 			local n = 5
+		-- 			local range = 1 - (n / 32)
+		-- 			local texleft = n / 64 + (left / iconsize * range)
+		-- 			local texright = n / 64 + ((1 - right / iconsize) * range)
+		-- 			leave.icon:SetTexCoord(texleft, texright, n / 64, 1 - n / 64)
+		-- 		else
+		-- 			leave.icon:SetTexCoord(left / iconsize, 1 - right / iconsize, 0, 1)
+		-- 		end
+		--
+		-- 		-- fade out leaving icon to alpha 0
+		-- 		--frame[maxicons]:SetAlpha(1 - t)
+		-- 	end
+		--
+		-- 	-- enter new icon with clipping
+		-- 	self:UpdateIconPosition(unit, "enter", ox, oy)
+		-- 	local left, right
+		-- 	if dir == "LEFT" then
+		-- 		left = 0
+		-- 		right = iconsize - max(0, ox - margin)
+		-- 	elseif dir == "RIGHT" then
+		-- 		left = iconsize - max(0, ox - margin)
+		-- 		right = 0
+		-- 	end
+		-- 	enter.icon:SetPoint("TOPLEFT", left, 0)
+		-- 	enter.icon:SetPoint("BOTTOMRIGHT", -right, 0)
+		-- 	if crop then
+		-- 		local n = 5
+		-- 		local range = 1 - (n / 32)
+		-- 		local texleft = n / 64 + (left / iconsize * range)
+		-- 		local texright = n / 64 + ((1 - right / iconsize) * range)
+		-- 		enter.icon:SetTexCoord(texleft, texright, n / 64, 1 - n / 64)
+		-- 	else
+		-- 		enter.icon:SetTexCoord(left / iconsize, 1 - right / iconsize, 0, 1)
+		-- 	end
+		--
+		-- 	-- fade in enter icon to alpha 1
+		-- 	--enter:SetAlpha(t)
+		-- else
+		-- 	-- restore last icon
+		-- 	if leave then
+		-- 		self:UpdateIcon(unit, maxicons)
+		-- 	end
+		--
+		-- 	-- after:
+		-- 	--  updatespells, hide tmp1
+		-- 	tremove(uq, 1)
+		-- 	-- if #uq > 0 then
+		-- 	-- 	self:SetupAnimation(unit)
+		-- 	-- else
+		-- 	-- 	self:StopAnimation(unit)
+		-- 	-- end
+		--
+		-- 	self:AddSpell(unit, entry)
+		-- end
 
-			if leave then
-				-- move the leaving icon with clipping
-				self:UpdateIconPosition(unit, maxicons, ox, oy)
-				local left, right
-				if dir == "LEFT" then
-					left = min(iconsize, ox)
-					right = 0
-				elseif dir == "RIGHT" then
-					left = 0
-					right = min(iconsize, ox)
-				end
-				leave.icon:SetPoint("TOPLEFT", left, 0)
-				leave.icon:SetPoint("BOTTOMRIGHT", -right, 0)
-				if crop then
-					local n = 5
-					local range = 1 - (n / 32)
-					local texleft = n / 64 + (left / iconsize * range)
-					local texright = n / 64 + ((1 - right / iconsize) * range)
-					leave.icon:SetTexCoord(texleft, texright, n / 64, 1 - n / 64)
-				else
-					leave.icon:SetTexCoord(left / iconsize, 1 - right / iconsize, 0, 1)
-				end
+		-- local ox = off * t
+		-- local oy = 0
+		-- -- move all but the last icon
+		-- for i = 1, maxicons - 1 do
+		-- 	if not frame[i] or not frame[i]:IsShown() then break end
+		-- 	self:UpdateIconPosition(unit, i, ox, oy)
+		-- end
+		-- for i = 1, maxicons - 1 do
+		-- 	if not frame[i] or not frame[i]:IsShown() then break end
+		-- 	self:UpdateIconPosition(unit, i, ox, oy)
+		-- end
 
-				-- fade out leaving icon to alpha 0
-				--frame[maxicons]:SetAlpha(1 - t)
-			end
-
-			-- enter new icon with clipping
-			self:UpdateIconPosition(unit, "enter", ox, oy)
-			local left, right
-			if dir == "LEFT" then
-				left = 0
-				right = iconsize - max(0, ox - margin)
-			elseif dir == "RIGHT" then
-				left = iconsize - max(0, ox - margin)
-				right = 0
-			end
-			enter.icon:SetPoint("TOPLEFT", left, 0)
-			enter.icon:SetPoint("BOTTOMRIGHT", -right, 0)
-			if crop then
-				local n = 5
-				local range = 1 - (n / 32)
-				local texleft = n / 64 + (left / iconsize * range)
-				local texright = n / 64 + ((1 - right / iconsize) * range)
-				enter.icon:SetTexCoord(texleft, texright, n / 64, 1 - n / 64)
-			else
-				enter.icon:SetTexCoord(left / iconsize, 1 - right / iconsize, 0, 1)
-			end
-
-			-- fade in enter icon to alpha 1
-			--enter:SetAlpha(t)
-		else
-			-- restore last icon
-			if leave then
-				self:UpdateIcon(unit, maxicons)
-			end
-
-			-- after:
-			--  updatespells, hide tmp1
-			tremove(uq, 1)
-			if #uq > 0 then
-				self:SetupAnimation(unit)
-			else
-				self:StopAnimation(unit)
-			end
-
-			self:AddSpell(unit, entry)
-		end
 	end
 
 	frame.animating = true
@@ -379,7 +476,7 @@ function SkillHistory:StopAnimation(unit)
 end
 
 function SkillHistory:ClearQueue(unit)
-	unit_queue[unit] = {}
+		unit_queue[unit] = {}
 	self:StopAnimation(unit)
 end
 

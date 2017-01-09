@@ -23,15 +23,15 @@ local function GetDefaultImportantAuras()
 			if spelldata.immune == "all" then
 				priority = 100
 			elseif spelldata.immune == "spell" or spelldata.immune == "cc" then
-				priority = 85
+				priority = 95
 			else
 				priority = 30
 			end
 		elseif spelldata.cc then
 			if spelldata.cc == "disorient" or spelldata.cc == "incapacitate" then
-				priority = 90
-			elseif spelldata.cc == "stun" then
 				priority = 80
+			elseif spelldata.cc == "stun" then
+				priority = 90
 			elseif spelldata.cc == "silence" then
 				priority = 70
 			elseif spelldata.cc == "root" then
@@ -41,15 +41,15 @@ local function GetDefaultImportantAuras()
 			end
 		elseif type(spelldata.offensive) == "number" then
 			if spelldata.offensive >= 0.4 then
-				prototype = 60
+				prototype = 60 + spelldata.offensive*10
 			else
-				prototype = 30
+				prototype = 30 + spelldata.offensive*10
 			end
 		elseif type(spelldata.defensive) == "number" then
 			if spelldata.defensive >=0.4 then
-				prototype = 50
+				prototype = 50 + spelldata.defensive*10
 			else
-				prototype = 25
+				prototype = 25 + spelldata.defensive*10
 			end
 		elseif spelldata.important then
 			prototype = 20

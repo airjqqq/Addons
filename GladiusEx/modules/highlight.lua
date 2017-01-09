@@ -9,17 +9,17 @@ local GetRealNumRaidMembers, GetPartyAssignment, GetRaidTargetIndex = GetRealNum
 local UnitGUID = UnitGUID
 
 local Highlight = GladiusEx:NewGladiusExModule("Highlight", {
-	highlightBorderWidth = 2,
+	highlightBorderWidth = 5,
 
 	highlightHover = true,
 	highlightHoverColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 },
 
 	highlightTarget = true,
-	highlightTargetColor = { r = 1, g = .7, b = 0, a = 1 },
+	highlightTargetColor = { r = 1, g = 1, b = 0, a = 1 },
 	highlightTargetPriority = 10,
 
 	highlightFocus = true,
-	highlightFocusColor = { r = 0, g = 0, b = 1, a = 1 },
+	highlightFocusColor = { r = 0, g = 1, b = 0, a = 1 },
 	highlightFocusPriority = 0,
 
 	highlightAssist = true,
