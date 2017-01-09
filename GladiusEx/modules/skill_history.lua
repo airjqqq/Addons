@@ -1,6 +1,7 @@
 local GladiusEx = _G.GladiusEx
 local L = LibStub("AceLocale-3.0"):GetLocale("GladiusEx")
 local fn = LibStub("LibFunctional-1.0")
+local CT = LibStub("LibCooldownTracker-1.0")
 
 -- upvalues
 local pairs = pairs
@@ -16,13 +17,12 @@ local function GetDefaultSpells()
 	local interrupt = { size = 2, color = { r = 1, g = 0, b = 1, a = 1 } }
 	local dispel = { size = 2, color = { r = 1, g = 0.5, b = 0, a = 1 } }
 	local toRet = {}
-	for id,spelldata in pairs(CT:GetCooldownDatas()) do
-		local spelldata = CT:GetCooldownData(spellid)
+	for id,spelldata in pairs(CT:GetCooldownsData()) do
 		if spelldata.interrupt then
 			toRet[id] = interrupt
 		elseif spelldata.dispel then
 			toRet[id] = dispel
-		elseif spelldata.cc then
+		elseif spelldata.cc and spelldata.cooldown then
 			toRet[id] = cc
 		elseif spelldata.blink then
 			toRet[id] = blink
@@ -46,7 +46,7 @@ local ignoreSpells = {
 local defaults = {
 	MaxIcons = 5,
 	IconSize = 32,
-	BorderSize = 4,
+	BorderSize = 2,
 	Margin = 2,
 	PaddingX = 0,
 	PaddingY = 0,
@@ -57,7 +57,7 @@ local defaults = {
 	MoveSpeed = 0.5,
 	TimeoutAnimDuration = 0.5,
 
-	EnterAnimDuration = 1.0,
+	EnterAnimDuration = 0.2,
 	EnterAnimEase = "OUT",
 	EnterAnimEaseMode = "CUBIC",
 }
@@ -286,6 +286,9 @@ function SkillHistory:SpellCasted(unit, spellid, time)
 		-- border
 
 		local bordersize = self.db[unit].BorderSize
+		if icon.width > 1 then
+			bordersize = bordersize * 2
+		end
 		icon.icon:ClearAllPoints()
 		icon.icon:SetPoint("TOPLEFT",bordersize,-bordersize)
 		icon.icon:SetPoint("BOTTOMRIGHT",-bordersize,bordersize)

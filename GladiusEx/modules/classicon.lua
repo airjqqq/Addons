@@ -67,7 +67,7 @@ local defaults = {
 	classIconGloss = false,
 	classIconGlossColor = { r = 1, g = 1, b = 1, a = 0.4 },
 	classIconImportantAuras = true,
-	classIconCrop = false,
+	classIconCrop = true,
 	classIconCooldown = true,
 	classIconCooldownReverse = true,
 	classIconAuras = GetDefaultImportantAuras()
@@ -216,8 +216,10 @@ function ClassIcon:SetTexture(unit, texture, needs_crop, left, right, top, botto
 	else
 		self.frame[unit].texture:ClearAllPoints()
 		self.frame[unit].texture:SetPoint("CENTER")
-		self.frame[unit].texture:SetWidth(size)
-		self.frame[unit].texture:SetHeight(size)
+		-- self.frame[unit].texture:SetWidth(size)
+		-- self.frame[unit].texture:SetHeight(size)
+		self.frame[unit].texture:SetWidth(size * (1 - 6 / 64))
+		self.frame[unit].texture:SetHeight(size * (1 - 6 / 64))
 		self.frame[unit].texture_border:Hide()
 	end
 
