@@ -8,16 +8,53 @@ local min, max = math.min, math.max
 local tinsert, tremove = table.insert, table.remove
 local GetSpellTexture, GetTime = GetSpellTexture, GetTime
 
+local function GetDefaultSpells()
+	local offensive = { size = 1.5, color = { r = 1, g = 0.4, b = 0, a = 1 } }
+	local defensive = { size = 1.5, color = { r = 0, g = 0.5, b = 1, a = 1 } }
+	local cc = { size = 1.8, color = { r = 0, g = 1, b = 1, a = 1 } }
+	local blink = { size = 1.8, color = { r = 0, g = 1, b = 0, a = 1 } }
+	local interrupt = { size = 2, color = { r = 1, g = 0, b = 1, a = 1 } }
+	local dispel = { size = 2, color = { r = 1, g = 0.5, b = 0, a = 1 } }
+	local toRet = {}
+	for id,spelldata in pairs(CT:GetCooldownDatas()) do
+		local spelldata = CT:GetCooldownData(spellid)
+		if spelldata.interrupt then
+			toRet[id] = interrupt
+		elseif spelldata.dispel then
+			toRet[id] = dispel
+		elseif spelldata.cc then
+			toRet[id] = cc
+		elseif spelldata.blink then
+			toRet[id] = blink
+		elseif spelldata.offensive then
+			toRet[id] = offensive
+		elseif spelldata.defensive then
+			toRet[id] = defensive
+		end
+	end
+	return toRet
+end
+
+local spellDatas = GetDefaultSpells()
+
+local ignoreSpells = {
+	[123] = true,
+	[1234] = true,
+}
+
+
 local defaults = {
 	MaxIcons = 5,
 	IconSize = 32,
-	Margin = 0,
+	BorderSize = 4,
+	Margin = 2,
 	PaddingX = 0,
 	PaddingY = 0,
 	BackgroundColor = { r = 0, g = 0, b = 0, a = 0 },
 	Crop = true,
 
 	Timeout = 5,
+	MoveSpeed = 0.5,
 	TimeoutAnimDuration = 0.5,
 
 	EnterAnimDuration = 1.0,
@@ -93,24 +130,24 @@ function SkillHistory:Update(unit)
 	self.frame[unit]:SetBackdrop({ bgFile = [[Interface\Buttons\WHITE8X8]], tile = true, tileSize = 8 })
 	self.frame[unit]:SetBackdropColor(bgcolor.r, bgcolor.g, bgcolor.b, bgcolor.a)
 
-	-- icons
-	if not self.frame[unit].enter then
-		self:CreateIcon(unit, "enter")
-	end
-	self:UpdateIcon(unit, "enter")
-	for i = 1, MAX_ICONS do
-		if not self.frame[unit][i] then
-			if i <= self.db[unit].MaxIcons then
-				self:CreateIcon(unit, i)
-			else
-				break
-			end
-		end
-		self:UpdateIcon(unit, i)
-	end
-
-	self:StopAnimation(unit)
-	self:UpdateSpells(unit)
+	-- -- icons
+	-- if not self.frame[unit].enter then
+	-- 	self:CreateIcon(unit, "enter")
+	-- end
+	-- self:UpdateIcon(unit, "enter")
+	-- for i = 1, MAX_ICONS do
+	-- 	if not self.frame[unit][i] then
+	-- 		if i <= self.db[unit].MaxIcons then
+	-- 			self:CreateIcon(unit, i)
+	-- 		else
+	-- 			break
+	-- 		end
+	-- 	end
+	-- 	self:UpdateIcon(unit, i)
+	-- end
+	--
+	-- self:StopAnimation(unit)
+	-- self:UpdateSpells(unit)
 
 	self.frame[unit]:Hide()
 end
@@ -186,7 +223,8 @@ function SkillHistory:NewIcon(unit)
 	if not icon then
 		icon = CreateFrame("Frame", nil, self.frame[unit])
 		icon.icon = icon:CreateTexture(nil, "OVERLAY")
-		icon.icon:SetAllPoints()
+		icon:SetBackdrop({ bgFile = [[Interface\Buttons\WHITE8X8]], tile = true, tileSize = 8 })
+		icon:SetBackdropColor(0,0,0,1)
 		icon:EnableMouse(false)
 		icon:SetScript("OnEnter", function(self)
 			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -197,23 +235,32 @@ function SkillHistory:NewIcon(unit)
 	return icon
 end
 
-local speed = 0.5
-
 function SkillHistory:SpellCasted(unit, spellid, time)
+	if ignoreSpells[spellid] then
+		return
+	end
+	local spelldata = spellDatas[spellid]
+
+	local speed = self.db[unit].MoveSpeed
 	local icon = self:NewIcon(unit)
 	icon.spellid = spellid
-	icon.width = self.db[unit].IconSize
-	icon.height = self.db[unit].IconSize
+	icon.width = spelldata and spelldata.size or 1
+	icon.height = spelldata and spelldata.size or 1
+	icon.color = spelldata and spelldata.color
 	icon.started = 0
 	icon.delayed = 0
 	icon:SetScript("OnUpdate",function(f,escape)
+		-- speed up
+		local delta = escape * speed
 		if icon.delayed > 0 then
-			local fast = math.min(escape*10,icon.delayed)
-			icon.started = icon.started + escape + fast
-			icon.delayed = icon.delayed - fast
+			local extern = math.min(delta*10,icon.delayed)
+			icon.started = icon.started + delta + extern
+			icon.delayed = icon.delayed - extern
 		else
-			icon.started = icon.started + escape * speed
+			icon.started = icon.started + delta
 		end
+
+		-- hide icon
 		if icon.started > self.db[unit].MaxIcons then
 			for i, v in pairs(unit_icons[unit]) do
 				if v == icon then
@@ -226,6 +273,7 @@ function SkillHistory:SpellCasted(unit, spellid, time)
 				end
 			end
 		end
+
 		-- position
 		local dir = self.db[unit].GrowDirection
 		local invdir, sign = InverseDirection(dir)
@@ -233,7 +281,30 @@ function SkillHistory:SpellCasted(unit, spellid, time)
 		local posx = self.db[unit].PaddingX + (self.db[unit].IconSize + self.db[unit].Margin) * icon.started
 		icon:ClearAllPoints()
 		icon:SetPoint(invdir, self.frame[unit], invdir, sign * posx, 0)
-		icon:SetSize(icon.width,icon.height)
+		icon:SetSize(icon.width * self.db[unit].IconSize, icon.height * self.db[unit].IconSize)
+
+		-- border
+
+		local bordersize = self.db[unit].BorderSize
+		icon.icon:ClearAllPoints()
+		icon.icon:SetPoint("TOPLEFT",bordersize,-bordersize)
+		icon.icon:SetPoint("BOTTOMRIGHT",-bordersize,bordersize)
+		if icon.color then
+			icon:SetBackdropColor(icon.color.r,icon.color.g,icon.color.b,icon.color.a)
+		else
+			icon:SetBackdropColor(0,0,0,1)
+		end
+
+
+		-- alpha
+		local alpha = 1
+		local started = icon.started
+		if started < self.db[unit].EnterAnimDuration then
+			alpha = started/self.db[unit].EnterAnimDuration
+		elseif started > self.db[unit].MaxIcons - self.db[unit].TimeoutAnimDuration then
+			alpha = (self.db[unit].MaxIcons - started) / self.db[unit].TimeoutAnimDuration
+		end
+		icon:SetAlpha(alpha)
 	end)
 	icon.icon:SetTexture(GetSpellTexture(spellid))
 
@@ -243,18 +314,22 @@ function SkillHistory:SpellCasted(unit, spellid, time)
 	else
 		icon.icon:SetTexCoord(0, 1, 0, 1)
 	end
-	icon:Show()
+
+	-- insert to list
 	unit_icons[unit] = unit_icons[unit] or {}
-	local last = 1
+	local heap = icon.width
 	for i, v in pairs(unit_icons[unit]) do
-		if v.started < last then
-			v.delayed = last - v.started
+		if v.started < heap then
+			v.delayed = heap - v.started
 		end
-		last = last + 1
+		heap = heap + v.width
 	end
 	tinsert(unit_icons[unit],1,icon)
+
+	icon:Show()
 end
 
+--[[
 function SkillHistory:QueueSpell(unit, spellid, time)
 	if not unit_queue[unit] then unit_queue[unit] = {} end
 	local uq = unit_queue[unit]
@@ -269,8 +344,6 @@ function SkillHistory:QueueSpell(unit, spellid, time)
 
 	-- replace trinket icon
 	-- if spellid == 42292 then
-	-- 	icon_alliance = [[Interface\Icons\INV_Jewelry_TrinketPVP_01]]
-	-- 	icon_horde = [[Interface\Icons\INV_Jewelry_TrinketPVP_02]]
 	-- end
 
 	local entry = {
@@ -591,6 +664,8 @@ function SkillHistory:UpdateIconPosition(unit, index, ox, oy)
 	self.frame[unit][index]:SetPoint(invdir, self.frame[unit], invdir, sign * (posx + ox), oy)
 end
 
+]]
+
 function SkillHistory:GetOptions(unit)
 	local options
 	options = {
@@ -660,30 +735,38 @@ function SkillHistory:GetOptions(unit)
 							disabled = function() return not self:IsUnitEnabled(unit) end,
 							order = 1,
 						},
-						EnterAnimEase = {
-							type = "select",
-							name = L["Ease mode"],
-							desc = L["Animation ease mode"],
-							values = {
-								["IN"] = L["In"],
-								["IN_OUT"] = L["In-Out"],
-								["OUT"] = L["Out"],
-								["NONE"] = L["None"],
-							},
+						MoveSpeed = {
+							type = "range",
+							name = "Speed",
+							desc = "N/s",
+							min = 0.1, softMax = 3, bigStep = 0.05,
 							disabled = function() return not self:IsUnitEnabled(unit) end,
-							order = 2,
+							order = 4,
 						},
-						EnterAnimEaseMode = {
-							type = "select",
-							name = L["Ease function"],
-							desc = L["Animation ease function"],
-							values = {
-								["QUAD"] = L["Quadratic"],
-								["CUBIC"] = L["Cubic"],
-							},
-							disabled = function() return not self:IsUnitEnabled(unit) end,
-							order = 3,
-						},
+						-- EnterAnimEase = {
+						-- 	type = "select",
+						-- 	name = L["Ease mode"],
+						-- 	desc = L["Animation ease mode"],
+						-- 	values = {
+						-- 		["IN"] = L["In"],
+						-- 		["IN_OUT"] = L["In-Out"],
+						-- 		["OUT"] = L["Out"],
+						-- 		["NONE"] = L["None"],
+						-- 	},
+						-- 	disabled = function() return not self:IsUnitEnabled(unit) end,
+						-- 	order = 2,
+						-- },
+						-- EnterAnimEaseMode = {
+						-- 	type = "select",
+						-- 	name = L["Ease function"],
+						-- 	desc = L["Animation ease function"],
+						-- 	values = {
+						-- 		["QUAD"] = L["Quadratic"],
+						-- 		["CUBIC"] = L["Cubic"],
+						-- 	},
+						-- 	disabled = function() return not self:IsUnitEnabled(unit) end,
+						-- 	order = 3,
+						-- },
 					},
 				},
 				timeout = {
@@ -693,14 +776,14 @@ function SkillHistory:GetOptions(unit)
 					inline = true,
 					order = 2,
 					args = {
-						Timeout = {
-							type = "range",
-							name = L["Timeout"],
-							desc = L["Timeout, in seconds"],
-							min = 1, softMin = 3, softMax = 30, bigStep = 0.5,
-							disabled = function() return not self:IsUnitEnabled(unit) end,
-							order = 1,
-						},
+						-- Timeout = {
+						-- 	type = "range",
+						-- 	name = L["Timeout"],
+						-- 	desc = L["Timeout, in seconds"],
+						-- 	min = 1, softMin = 3, softMax = 30, bigStep = 0.5,
+						-- 	disabled = function() return not self:IsUnitEnabled(unit) end,
+						-- 	order = 1,
+						-- },
 						TimeoutAnimDuration = {
 							type = "range",
 							name = L["Fade out duration"],
@@ -723,6 +806,14 @@ function SkillHistory:GetOptions(unit)
 							name = L["Icon size"],
 							desc = L["Size of the cooldown icons"],
 							min = 1, softMin = 10, softMax = 100, step = 1,
+							disabled = function() return not self:IsUnitEnabled(unit) end,
+							order = 5,
+						},
+						BorderSize = {
+							type = "range",
+							name = L["Border size"],
+							desc = L["Size of the cooldown icon borders"],
+							min = 0, softMin = 0, softMax = 10, step = 1,
 							disabled = function() return not self:IsUnitEnabled(unit) end,
 							order = 5,
 						},

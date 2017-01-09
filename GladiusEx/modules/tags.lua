@@ -29,9 +29,9 @@ local Tags = GladiusEx:NewGladiusExModule("Tags", {
 			size = 16,
 			color = { r = 1, g = 1, b = 1, a = 1 },
 
-			text = "[name:status]",
+			text = "[spec] - [name:status]",
 		},
-		["HealthBar Right Text"] = {
+		["HealthBar Center Text"] = {
 			attachTo = "HealthBar",
 			position = "CENTER",
 			offsetX = -2,
@@ -45,7 +45,7 @@ local Tags = GladiusEx:NewGladiusExModule("Tags", {
 		},
 		-- ["PowerBar Left Text"] = {
 		-- 	attachTo = "PowerBar",
-		-- 	position = "LEFT",
+		-- 	position = "BOTTOMLEFT",
 		-- 	offsetX = 2,
 		-- 	offsetY = -1,
 		--
