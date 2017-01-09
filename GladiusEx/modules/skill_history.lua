@@ -9,8 +9,8 @@ local tinsert, tremove = table.insert, table.remove
 local GetSpellTexture, GetTime = GetSpellTexture, GetTime
 
 local defaults = {
-	MaxIcons = 8,
-	IconSize = 40,
+	MaxIcons = 4,
+	IconSize = 32,
 	Margin = 2,
 	PaddingX = 0,
 	PaddingY = 0,

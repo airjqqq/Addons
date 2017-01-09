@@ -38,8 +38,8 @@ local group_defaults = {
 	growDirection = "VCENTER",
 	groupButtons = true,
 	oorAlpha = 0.7,
-	stealthAlpha = 0.4,
-	deadAlpha = 0.2,
+	stealthAlpha = 0.7,
+	deadAlpha = 1,
 	backgroundColor = { r = 0, g = 0, b = 0, a = 0 },
 	backgroundPadding = 5,
 	margin = 5,
@@ -47,7 +47,7 @@ local group_defaults = {
 	barsHeight = 64,
 	frameScale = 1,
 	borderSize = 2,
-	modMargin = 1,
+	modMargin = 2,
 	backdropColor = { r = 0, g = 0, b = 0, a = 0.8 },
 }
 

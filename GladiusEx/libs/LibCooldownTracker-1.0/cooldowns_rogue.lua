@@ -3,7 +3,7 @@ local data = {
 
   -- [1725] = { default = true, cooldown = 30, class = "ROGUE" }, -- Distract
   [  1766] = { default = true, cooldown = 15, class = "ROGUE", interrupt = true }, -- Kick
-  [  1856] = { default = true, cooldown = { default = 120, [259] = 100 }, class = "ROGUE", defensive = true, duration = 3 }, -- Vanish
+  [  1856] = { default = true, cooldown = { default = 120, [259] = 100 }, class = "ROGUE", defensive = 0.2, duration = 3 }, -- Vanish
   [  2983] = { default = true, cooldown = { default = 60, [259] = 51 }, class = "ROGUE", sprint = true, duration = 8 }, -- Sprint
   [ 31224] = { default = true, cooldown = { default = 90, [259] = 81 }, class = "ROGUE", defensive = 0.5, duration = 5, immune = "magic" }, -- Cloak of Shadows
   -- [57934] = { default = true, cooldown = 30, class = "ROGUE" }, -- Tricks of the Trade

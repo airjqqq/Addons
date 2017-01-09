@@ -2,6 +2,7 @@
 
 -- Cooldowns module
 L["cat:pvp_trinket"] = "PvP Trinket"
+L["cat:race"] = "Race"
 L["cat:mass_dispel"] = "Mass Dispel"
 L["cat:cc"] = "CC"
 L["cat:sprint"] = "Sprint"

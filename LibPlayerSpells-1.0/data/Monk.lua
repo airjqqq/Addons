@@ -117,6 +117,7 @@ lib:__RegisterSpells("MONK", 70000, 7, {
 			CROWD_CTRL = {
 				[116706] = "ROOT", -- Disable (root)
 				[120086] = "STUN", -- Fists of Fury (stun)
+				[232055] = "STUN", -- Fists of Fury (stun)
 			},
 		},
 		PERSONAL = {

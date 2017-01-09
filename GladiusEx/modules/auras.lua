@@ -37,8 +37,8 @@ local defaults = {
 	aurasBuffsPerRow = 12,
 	aurasBuffsMaxRows = 2,
 	aurasBuffsSize = 15,
-	aurasBuffsEnlargeMine = true,
-	aurasBuffsEnlargeScale = 1.3,
+	aurasBuffsEnlargeMine = false,
+	aurasBuffsEnlargeScale = 1.5,
 	aurasBuffsOffsetX = -2,
 	aurasBuffsOffsetY = -2,
 	aurasBuffsTooltips = true,
@@ -52,7 +52,7 @@ local defaults = {
 	aurasDebuffsMaxRows = 2,
 	aurasDebuffsSize = 15,
 	aurasDebuffsEnlargeMine = true,
-	aurasDebuffsEnlargeScale = 1.3,
+	aurasDebuffsEnlargeScale = 1.5,
 	aurasDebuffsOffsetX = 2,
 	aurasDebuffsOffsetY = 2,
 	aurasDebuffsTooltips = true,
@@ -65,14 +65,14 @@ local defaults = {
 local Auras = GladiusEx:NewGladiusExModule("Auras",
 	fn.merge(defaults, {
 		aurasBuffsAttachTo = "HealthBar",
-		aurasBuffsAnchor = "BOTTOMRIGHT",
+		aurasBuffsAnchor = "TOPRIGHT",
 		aurasBuffsRelativePoint = "TOPRIGHT",
-		aurasBuffsGrow = "UPLEFT",
+		aurasBuffsGrow = "DOWNLEFT",
 
 		aurasDebuffsAttachTo = "HealthBar",
-		aurasDebuffsAnchor = "BOTTOMRIGHT",
-		aurasDebuffsRelativePoint = "TOPRIGHT",
-		aurasDebuffsGrow = "UPLEFT",
+		aurasDebuffsAnchor = "BOTTOMLEFT",
+		aurasDebuffsRelativePoint = "BOTTOMLEFT",
+		aurasDebuffsGrow = "UPRIGHT",
 	}),
 	fn.merge(defaults, {
 		aurasBuffsAttachTo = "HealthBar",
@@ -154,7 +154,7 @@ local player_units = {
 local function GetTestAura(index, buff)
 	local debuffs = {
 		8122,
-		107570,
+		46968,
 		233490,
 		980,
 		205179,
@@ -301,14 +301,14 @@ function Auras:UpdateUnitAuras(event, unit)
 						if dispelType == "Magic" then
 							size = 2
 						else
-							size = 1.6
+							size = 1.8
 						end
 					elseif spelldata.important then
-						size = 1.3
+						size = 1.5
 					elseif spelldata.offensive then
-						size = 2
+						size = 1.8
 					elseif spelldata.defensive then
-						size = 1.6
+						size = 1.5
 					elseif spelldata.sprint then
 						size = 1.3
 					end
@@ -572,7 +572,7 @@ local function CreateAuraFrame(name, parent)
 	frame.ButtonData = {
 		Highlight = false
 	}
-	frame.cooldown:SetSwipeColor(0,0,0,1)
+	frame.cooldown:SetSwipeColor(0,0,0,0.75)
 	return frame
 end
 

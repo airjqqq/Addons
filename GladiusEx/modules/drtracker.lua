@@ -12,10 +12,10 @@ local GetTime, GetSpellTexture, UnitGUID = GetTime, GetSpellTexture, UnitGUID
 local defaults = {
 	drTrackerAdjustSize = false,
 	drTrackerMargin = 1,
-	drTrackerSize = 48,
+	drTrackerSize = 40,
 	drTrackerCrop = true,
 	drTrackerOffsetX = 0,
-	drTrackerOffsetY = 0,
+	drTrackerOffsetY = -4,
 	drTrackerFrameLevel = 8,
 	drTrackerGloss = false,
 	drTrackerGlossColor = { r = 1, g = 1, b = 1, a = 1 },
@@ -92,7 +92,10 @@ function DRTracker:CreateIcon(unit, drCat)
 	f.normalTexture:SetAllPoints()
 
 	f.cooldown = CreateFrame("Cooldown", nil, f, "CooldownFrameTemplate")
-	f.cooldown:SetAllPoints()
+	f.cooldown:SetPoint("TOPLEFT", f, "TOPLEFT",3,-3)
+	f.cooldown:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT",-3,3)
+	f.cooldown:SetSwipeColor(0,0,0,0.5)
+	-- f.cooldown:SetAllPoints()
 
 	f.text = f:CreateFontString(nil, "OVERLAY")
 
@@ -135,8 +138,8 @@ function DRTracker:UpdateIcon(unit, drCat)
 	tracked.normalTexture:SetPoint("CENTER", 0, 0)
 
 	tracked.texture:ClearAllPoints()
-	tracked.texture:SetPoint("TOPLEFT", tracked, "TOPLEFT")
-	tracked.texture:SetPoint("BOTTOMRIGHT", tracked, "BOTTOMRIGHT")
+	tracked.texture:SetPoint("TOPLEFT", tracked, "TOPLEFT",3,-3)
+	tracked.texture:SetPoint("BOTTOMRIGHT", tracked, "BOTTOMRIGHT",-3,3)
 	if self.db[unit].drTrackerCrop then
 		local n = 5
 		tracked.texture:SetTexCoord(n / 64, 1 - n / 64, n / 64, 1 - n / 64)
@@ -167,10 +170,11 @@ function DRTracker:DRFaded(unit, spellID)
 	tracked.reset_time = time_left + GetTime()
 
 	local text, r, g, b = unpack(drTexts[tracked.diminished])
-	tracked.text:SetText(text)
+	tracked.text:SetText("")
 	tracked.text:SetTextColor(r,g,b)
 	tracked.texture:SetTexture(GetSpellTexture(spellID))
-
+	tracked:SetBackdrop({ edgeFile = [[Interface\ChatFrame\ChatFrameBackground]], edgeSize = 3 })
+	tracked:SetBackdropBorderColor(r, g, b)
 	if self.db[unit].drTrackerCooldown then
 		CooldownFrame_Set(tracked.cooldown, GetTime(), time_left, 1)
 	end

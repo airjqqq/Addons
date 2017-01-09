@@ -2,6 +2,7 @@ local GladiusEx = _G.GladiusEx
 local L = LibStub("AceLocale-3.0"):GetLocale("GladiusEx")
 local fn = LibStub("LibFunctional-1.0")
 local LSM = LibStub("LibSharedMedia-3.0")
+local CT = LibStub("LibCooldownTracker-1.0")
 
 -- global functions
 local strfind, strformat = string.find, string.format
@@ -13,6 +14,28 @@ local UnitCastingInfo, UnitChannelInfo = UnitCastingInfo, UnitChannelInfo
 local time_text_format_normal = "%.01f "
 local time_text_format_delay = "+%.01f %.01f "
 
+local function GetDefaultCastsSpells()
+	local heal = { width = 1.5,height = 1.5, color = { r = 0, g = 1, b = 0, a = 1 } }
+	local offensive = { width = 1.5,height = 1.5, color = { r = 1, g = 0.2, b = 0, a = 1 } }
+	local cc = { width = 2, height = 2, color = { r = 0, g = 1, b = 1, a = 1 } }
+	local toRet = {}
+	for id,spelldata in pairs(CT:GetCooldownsData()) do
+		if spelldata.cast then
+			if spelldata.cc then
+				toRet[GladiusEx:SafeGetSpellName(id)] = cc
+			elseif spelldata.offensive then
+				toRet[GladiusEx:SafeGetSpellName(id)] = offensive
+			elseif spelldata.heal then
+				toRet[GladiusEx:SafeGetSpellName(id)] = heal
+			end
+		end
+	end
+	return toRet
+end
+
+local castspells = GetDefaultCastsSpells()
+
+
 local defaults = {
 		castBarAttachMode = "Widget",
 		castBarOffsetX = 0,
@@ -22,8 +45,8 @@ local defaults = {
 		castBarHeight = 24,
 		castBarInverse = false,
 		castBarColor = { r = 1, g = 1, b = 0, a = 1 },
-		castBarNotIntColor = { r = 1, g = 0, b = 0, a = 1 },
-		castBarBackgroundColor = { r = 0.2, g = 0.2, b = 0.2, a = 0.5 },
+		castBarNotIntColor = { r = 1, g = 0, b = 1, a = 1 },
+		castBarBackgroundColor = { r = 0.2, g = 0.2, b = 0.2, a = 1 },
 		castBarGlobalTexture = true,
 		castBarTexture = GladiusEx.default_bar_texture,
 		castIcon = true,
@@ -53,8 +76,8 @@ local defaults = {
 local CastBar = GladiusEx:NewGladiusExModule("CastBar",
 	fn.merge(defaults, {
 		castBarAttachTo = "Frame",
-		castBarRelativePoint = "TOPLEFT",
-		castBarAnchor = "BOTTOMRIGHT",
+		castBarRelativePoint = "BOTTOMLEFT",
+		castBarAnchor = "TOPRIGHT",
 		castBarOffsetX = 64,
 		castBarOffsetY = -28,
 
@@ -192,10 +215,12 @@ end
 function CastBar:SetInterruptible(unit, interruptible)
 	if not self.frame[unit] then return end
 
-	local color = interruptible and self.db[unit].castBarColor or self.db[unit].castBarNotIntColor
-
-	self.frame[unit].bar:SetStatusBarColor(color.r, color.g, color.b, color.a)
-	self.frame[unit].spark:SetVertexColor(color.r, color.g, color.b, color.a)
+	local color = self.db[unit].castBarNotIntColor
+	if interruptible then
+		self.frame[unit]:SetBackdropColor(0,0,0,1)
+	else
+		self.frame[unit]:SetBackdropColor(color.r, color.g, color.b, color.a)
+	end
 
 	if not self.db[unit].castShieldIcon or interruptible then
 		self.frame[unit].icon.shield:Hide()
@@ -245,10 +270,13 @@ function CastBar:CastStart(unit, channel)
 		f.endTime = endTime / 1000
 		f.maxValue = f.endTime - f.startTime
 		f.delay = 0
+		local spelldata = castspells[spell]
+		self:Update(unit,spelldata)
 
 		f.icon:SetTexture(icon)
 		f.icon.bg:Show()
 		f.background:Show()
+		f:Show()
 
 		self:SetInterruptible(unit, not notInterruptible)
 
@@ -271,6 +299,7 @@ function CastBar:CastEnd(frame)
 	frame.bar:SetValue(0)
 	frame.spark:Hide()
 	frame.background:Hide()
+	frame:Hide()
 	self:SetInterruptible(frame.unit, true)
 end
 
@@ -284,6 +313,8 @@ function CastBar:CreateBar(unit)
 	self.frame[unit].background = self.frame[unit].bar:CreateTexture("GladiusEx" .. self:GetName() .. unit .. "Background", "BACKGROUND")
 	self.frame[unit].background:SetAllPoints()
 	self.frame[unit].background:Hide()
+	self.frame[unit]:SetBackdrop({ bgFile = [[Interface\ChatFrame\ChatFrameBackground]]})
+	self.frame[unit]:Hide()
 	-- self.frame[unit].castText = self.frame[unit].bar:CreateFontString("GladiusEx" .. self:GetName() .. "CastText" .. unit, "OVERLAY")
 	-- self.frame[unit].timeText = self.frame[unit].bar:CreateFontString("GladiusEx" .. self:GetName() .. "TimeText" .. unit, "OVERLAY")
 	self.frame[unit].textsFrame = CreateFrame("Frame", nil, self.frame[unit].bar)
@@ -291,7 +322,7 @@ function CastBar:CreateBar(unit)
 	self.frame[unit].timeText = GladiusEx:CreateSuperFS(self.frame[unit].textsFrame, "OVERLAY")
 
 	self.frame[unit].icon = self.frame[unit]:CreateTexture("GladiusEx" .. self:GetName() .. "IconFrame" .. unit, "ARTWORK")
-	self.frame[unit].icon.bg = self.frame[unit]:CreateTexture("GladiusEx" .. self:GetName() .. "IconFrameBackground" .. unit, "BACKGROUND")
+	self.frame[unit].icon.bg = self.frame[unit]:CreateTexture("GladiusEx" .. self:GetName() .. "IconFrameBackground" .. unit, "BACKGROUND", nil, 1)
 	self.frame[unit].icon.bg:Hide()
 
 	self.frame[unit].icon.shield_frame = CreateFrame("Frame", nil, self.frame[unit])
@@ -305,7 +336,7 @@ function CastBar:CreateBar(unit)
 	self.frame[unit].unit = unit
 end
 
-function CastBar:Update(unit)
+function CastBar:Update(unit,spelldata)
 	-- create cast bar
 	if not self.frame[unit] then
 		self:CreateBar(unit)
@@ -317,6 +348,11 @@ function CastBar:Update(unit)
 	if self.db[unit].castBarAttachMode == "Widget" then
 		local parent = GladiusEx:GetAttachFrame(unit, self.db[unit].castBarAttachTo)
 		local width = self.db[unit].castBarWidth
+
+		if spelldata then
+			width = spelldata.width * width
+			height = spelldata.height * height
+		end
 		self.frame[unit]:ClearAllPoints()
 		self.frame[unit]:SetPoint(self.db[unit].castBarAnchor, parent, self.db[unit].castBarRelativePoint, self.db[unit].castBarOffsetX, self.db[unit].castBarOffsetY)
 		self.frame[unit]:SetWidth(width)
@@ -331,11 +367,11 @@ function CastBar:Update(unit)
 	-- update icon
 	self.frame[unit].icon.bg:ClearAllPoints()
 	self.frame[unit].icon.bg:SetPoint(self.db[unit].castIconPosition, self.frame[unit], self.db[unit].castIconPosition, 0, 0)
-	self.frame[unit].icon.bg:SetSize(height, height)
-	self.frame[unit].icon.bg:SetTexture(bar_texture)
-	-- self.frame[unit].icon.bg:SetTexture(1, 1, 1, 1)
-	self.frame[unit].icon.bg:SetVertexColor(self.db[unit].castBarBackgroundColor.r, self.db[unit].castBarBackgroundColor.g,
-		self.db[unit].castBarBackgroundColor.b, self.db[unit].castBarBackgroundColor.a)
+	self.frame[unit].icon.bg:SetSize(height+6, height+6)
+	self.frame[unit].icon.bg:SetColorTexture(0, 0, 0, 1)
+	-- self.frame[unit].icon.bg:SetTexture(bar_texture)
+	-- self.frame[unit].icon.bg:SetVertexColor(self.db[unit].castBarBackgroundColor.r, self.db[unit].castBarBackgroundColor.g,
+		-- self.db[unit].castBarBackgroundColor.b, self.db[unit].castBarBackgroundColor.a)
 
 	self.frame[unit].icon:SetSize(height, height)
 	self.frame[unit].icon:ClearAllPoints()
@@ -364,18 +400,18 @@ function CastBar:Update(unit)
 		-- attach to icon
 		if self.db[unit].castIconPosition == "LEFT" then
 			-- self.frame[unit].bar:SetPoint("LEFT", self.frame[unit].icon, "RIGHT")
-			self.frame[unit].bar:SetPoint("LEFT", height, 0)
-			self.frame[unit].bar:SetPoint("RIGHT")
+			self.frame[unit].bar:SetPoint("LEFT", height + 9, 0)
+			self.frame[unit].bar:SetPoint("RIGHT", -3, 0)
 		else
-			self.frame[unit].bar:SetPoint("LEFT")
-			self.frame[unit].bar:SetPoint("RIGHT", -height, 0)
+			self.frame[unit].bar:SetPoint("LEFT", 3, 0)
+			self.frame[unit].bar:SetPoint("RIGHT", -height - 9, 0)
 			-- self.frame[unit].bar:SetPoint("RIGHT", self.frame[unit].icon, "LEFT")
 		end
 	else
 		-- attach to frame
 		self.frame[unit].bar:SetAllPoints()
 	end
-	self.frame[unit].bar:SetHeight(height)
+	self.frame[unit].bar:SetHeight(height-6)
 	self.frame[unit].bar:SetMinMaxValues(0, 100)
 	self.frame[unit].bar:SetValue(0)
 	self.frame[unit].bar:SetStatusBarTexture(bar_texture)
@@ -389,7 +425,13 @@ function CastBar:Update(unit)
 	self.frame[unit].spark:SetHeight(height * 2)
 	self.frame[unit].spark:Hide()
 
+	local color = spelldata and spelldata.color or self.db[unit].castBarColor
+	self.frame[unit].bar:SetStatusBarColor(color.r, color.g, color.b, color.a)
+	self.frame[unit].spark:SetVertexColor(color.r, color.g, color.b, color.a)
 	-- update cast bar background
+
+	-- self.frame[unit]:SetBackdrop({ edgeFile = [[Interface\ChatFrame\ChatFrameBackground]], edgeSize = 3, insets = {left = -3,right = -3,top = -3,bottom = -3}})
+
 	self.frame[unit].background:SetTexture(bar_texture)
 	self.frame[unit].background:SetVertexColor(self.db[unit].castBarBackgroundColor.r, self.db[unit].castBarBackgroundColor.g,
 		self.db[unit].castBarBackgroundColor.b, self.db[unit].castBarBackgroundColor.a)
@@ -472,7 +514,7 @@ end
 
 function CastBar:Show(unit)
 	-- show frame
-	self.frame[unit]:Show()
+	-- self.frame[unit]:Show()
 end
 
 function CastBar:Reset(unit)

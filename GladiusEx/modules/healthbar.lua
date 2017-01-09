@@ -17,7 +17,7 @@ local HealthBar = GladiusEx:NewGladiusExModule("HealthBar", {
 	healthBarInverse = false,
 	healthBarColor = { r = 1, g = 1, b = 1, a = 1 },
 	healthBarClassColor = true,
-	healthBarBackgroundColor = { r = 1, g = 1, b = 1, a = 0.3 },
+	healthBarBackgroundColor = { r = 0.1, g = 0.1, b = 0.1, a = 1 },
 	healthBarGlobalTexture = true,
 	healthBarTexture = GladiusEx.default_bar_texture,
 	healthBarOrder = 1,
@@ -213,8 +213,8 @@ function HealthBar:CreateBar(unit)
 	self.frame[unit].inc_frame = CreateFrame("Frame", "GladiusEx" .. self:GetName() .. unit .. "IncBars", self.frame[unit])
 	self.frame[unit].inc_frame:SetAllPoints()
 
-	self.frame[unit].incabsorbs = self.frame[unit].inc_frame:CreateTexture("GladiusEx" .. self:GetName() .. unit .. "IncAbsorbs", "OVERLAY", nil, 6)
-	self.frame[unit].incheals = self.frame[unit].inc_frame:CreateTexture("GladiusEx" .. self:GetName() .. unit .. "IncHeals", "OVERLAY", nil, 7)
+	self.frame[unit].incabsorbs = self.frame[unit].inc_frame:CreateTexture("GladiusEx" .. self:GetName() .. unit .. "IncAbsorbs", "OVERLAY", nil, 2)
+	self.frame[unit].incheals = self.frame[unit].inc_frame:CreateTexture("GladiusEx" .. self:GetName() .. unit .. "IncHeals", "OVERLAY", nil, 3)
 end
 
 function HealthBar:Refresh(unit)
@@ -227,6 +227,8 @@ function HealthBar:Update(unit)
 	if not self.frame[unit] then
 		self:CreateBar(unit)
 	end
+
+	self:UpdateColor(unit)
 
 	local bar_texture = self.db[unit].healthBarGlobalTexture and LSM:Fetch(LSM.MediaType.STATUSBAR, GladiusEx.db.base.globalBarTexture) or LSM:Fetch(LSM.MediaType.STATUSBAR, self.db[unit].healthBarTexture)
 	self.frame[unit]:SetStatusBarTexture(bar_texture)
@@ -253,7 +255,8 @@ function HealthBar:Update(unit)
 	self.frame[unit].incabsorbs:Hide()
 
 	-- update health bar background
-	self.frame[unit].background:SetTexture(bar_texture)
+	-- self.frame[unit].background:SetTexture(bar_texture)
+	self.frame[unit].background:SetColorTexture(1,1,1,1)
 	self.frame[unit].background:SetVertexColor(self.db[unit].healthBarBackgroundColor.r, self.db[unit].healthBarBackgroundColor.g,
 		self.db[unit].healthBarBackgroundColor.b, self.db[unit].healthBarBackgroundColor.a)
 	self.frame[unit].background:SetHorizTile(false)

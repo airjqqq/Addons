@@ -203,7 +203,7 @@ local function AddCharge(unit, spellid)
 		local now = GetTime()
 		local spelldata = GetSpellData(spellid)
 		tps.cooldown_start = now
-		tps.cooldown_end = now + type(spelldata.cooldown) == "table" and spelldata.cooldown.default or spelldata.cooldown
+		tps.cooldown_end = now + (type(spelldata.cooldown) == "table" and spelldata.cooldown.default or spelldata.cooldown or 0)
 		tps.charge_timer = SetTimer(tps.cooldown_end, AddCharge, unit, spellid)
 	else
 		tps.charge_timer = false
@@ -287,7 +287,11 @@ local function CooldownEvent(event, unit, spellid)
 		-- apply actions
 		if used_start then
 			tps.used_start = now
-			tps.used_end = spelldata.duration and (now + spelldata.duration)
+			-- tps.used_end = spelldata.duration and (now + spelldata.duration)
+			if not spelldata.cooldown_starts_on_aura_fade and spelldata.duration ~= 0 then
+				duration = spelldata.duration or 1
+				tps.used_end = now + (spelldata.duration or 1)
+			end
 
 			-- remove charge
 			if tps.charges then

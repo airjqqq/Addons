@@ -1,7 +1,7 @@
 local data = {
 	-- Warrior
 
-	  [   100] = { default = true, cooldown = 17, class = "WARRIOR", charges = 2, blink = true }, -- Charge
+	  [   100] = { default = true, cooldown = 17, class = "WARRIOR", charges = 2, blink = true, aura = {105771,7922}, cc = "root", duration = 1.5 }, -- Charge
 	  [198758] = { parent = 100 }, -- Intercept
 	  [  1719] = { default = true, cooldown = 45, class = "WARRIOR", offensive = 1, duration = 5 }, -- Battle Cry
 	  [  6544] = { default = true, cooldown = 45, class = "WARRIOR", blink = true }, -- Heroic Leap
@@ -17,7 +17,7 @@ local data = {
 	  -- Arms
 
 	  [  5246] = { default = true, cooldown = 90, class = "WARRIOR", specID = { 71, 72 }, cc = "disorient", duration = 8 }, -- Intimidating Shout
-	  [ 97462] = { default = true, cooldown = 180, class = "WARRIOR", specID = { 71, 72 }, defensive = true, duration = 10, aura = {97462} }, -- Commanding Shout
+	  [ 97462] = { default = true, cooldown = 180, class = "WARRIOR", specID = { 71, 72 }, defensive = 0.1, duration = 10, aura = {97462} }, -- Commanding Shout
 	  [118038] = { default = true, cooldown = 180, class = "WARRIOR", specID = { 71 }, defensive = 0.6, duration = 8, immune = "evasion" }, -- Die by the Sword
 	  -- [167105] = { default = true, cooldown = 45, class = "WARRIOR", specID = { 71 } }, -- Colossus Smash
 	  [197690] = { default = true, cooldown = 10, class = "WARRIOR", specID = { 71 }, defensive = 0.2, cooldown_starts_on_aura_fade = true, duration = 0 }, -- Defensive Stance

@@ -55,7 +55,7 @@ function GladiusEx:NewUnitBarModule(name, defaults_arena, defaults_party)
 		else
 			class = GladiusEx.testing[unit].unitClass
 		end
-
+		-- class = class or GladiusEx.buttons[unit].class
 		if class then
 			-- color
 			local color = self.db[unit].ClassColor and self:GetBarColor(class) or self.db[unit].Color
@@ -87,6 +87,17 @@ function GladiusEx:NewUnitBarModule(name, defaults_arena, defaults_party)
 	function UnitBar:UpdateHealth(unit, health, maxHealth)
 		-- update min max values
 		self.frame[unit].statusbar:SetMinMaxValues(0, maxHealth)
+
+		local color = {0,0,0,1}
+
+		if UnitExists(unit) then
+			if UnitCanAssist("player", unit.."target") then
+				color = {0,1,0,1}
+			elseif UnitCanAttack("player", unit.."target") then
+				color = {1,0,0,1}
+			end
+		end
+		self.frame[unit].background:SetVertexColor(unpack(color))
 
 		-- inverse bar
 		if self.db[unit].Inverse then
@@ -216,13 +227,13 @@ function GladiusEx:NewUnitBarModule(name, defaults_arena, defaults_party)
 		self.frame[unit].statusbar:ClearAllPoints()
 		if self.db[unit].Icon then
 			if self.db[unit].IconPosition == "LEFT" then
-				self.frame[unit].statusbar:SetPoint("LEFT", self.frame[unit].icon, "RIGHT")
-				self.frame[unit].statusbar:SetPoint("RIGHT", self.frame[unit], "RIGHT")
+				self.frame[unit].statusbar:SetPoint("LEFT", self.frame[unit].icon, "RIGHT", 2, 0)
+				self.frame[unit].statusbar:SetPoint("RIGHT", self.frame[unit], "RIGHT", -2, 0)
 			else
-				self.frame[unit].statusbar:SetPoint("LEFT", self.frame[unit], "LEFT")
-				self.frame[unit].statusbar:SetPoint("RIGHT", self.frame[unit].icon, "LEFT")
+				self.frame[unit].statusbar:SetPoint("LEFT", self.frame[unit], "LEFT", 2, 0)
+				self.frame[unit].statusbar:SetPoint("RIGHT", self.frame[unit].icon, "LEFT", -2, 0)
 			end
-			self.frame[unit].statusbar:SetHeight(height)
+			self.frame[unit].statusbar:SetHeight(height-4)
 		else
 			self.frame[unit].statusbar:SetAllPoints(self.frame[unit])
 		end

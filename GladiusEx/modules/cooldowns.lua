@@ -13,19 +13,22 @@ local GetTime, UnitExists, UnitFactionGroup, UnitClass, UnitRace = GetTime, Unit
 local UnitBuff = UnitBuff
 
 local function GetDefaultSpells()
-	local group1, group2, group3 = {},{},{}
+	local group1, group2, group3, group4 = {},{},{},{}
 	for spellid, spelldata in pairs(CT:GetCooldownsData()) do
-		if spelldata.default then
+		spelldata = CT:GetCooldownData(spellid)
+		if spelldata.default and spelldata.cooldown then
 			if spelldata.pvp_trinket or spelldata.race then
 				group3[spellid] = true
-			elseif spelldata.defensive or spelldata.dispel then
+			elseif spelldata.interrupt or spelldata.dispel then
+				group4[spellid] = true
+			elseif spelldata.defensive or spelldata.blink or spelldata.sprint then
 				group2[spellid] = true
-			elseif spelldata.offensive or spelldata.interrupt then
+			elseif spelldata.offensive or spelldata.cc then
 				group1[spellid] = true
 			end
 		end
 	end
-	return {group1,group2,group3}
+	return {group1,group2,group3,group4}
 end
 
 local function MakeGroupDb(settings)
@@ -50,26 +53,47 @@ local function MakeGroupDb(settings)
 		cooldownsGroupByUnit = false,
 		cooldownsTooltips = true,
 		cooldownsSpells = {},
-		cooldownsBorderSize = 1,
-		cooldownsBorderAvailAlpha = 1,
-		cooldownsBorderUsingAlpha = 1,
-		cooldownsBorderCooldownAlpha = 0.2,
-		cooldownsIconAvailAlpha = 1,
-		cooldownsIconUsingAlpha = 1,
-		cooldownsIconCooldownAlpha = 0.2,
+		cooldownsBorderSize = 5,
+		cooldownsBorderAvailAlpha = 0.0,
+		cooldownsBorderUsingAlpha = 1.0,
+		cooldownsBorderCooldownAlpha = 0.0,
+		cooldownsIconAvailAlpha = 1.0,
+		cooldownsIconUsingAlpha = 1.0,
+		cooldownsIconCooldownAlpha = 0.6,
 		cooldownsCatPriority = {
-			"pvp_trinket", "dispel", "mass_dispel", "immune",
-			"interrupt", "silence", "stun", "knockback", "cc",
-			"offensive", "defensive", "heal", "sprint", "blink", "uncat"
+			"pvp_trinket",
+			"race",
+			"interrupt",
+			"dispel",
+			"mass_dispel",
+			"immune",
+			-- "silence",
+			-- "stun",
+			-- "knockback",
+			"offensive",
+			"defensive",
+			"cc",
+			"heal",
+			"sprint",
+			"blink",
+			"uncat"
 		},
 		cooldownsCatColors = {
-			["pvp_trinket"] = { r = 0, g = 0, b = 0 }, ["dispel"] =    { r = 0.5, g = 1, b = 0 },
-			["mass_dispel"] = { r = 1, g = 1, b = 1 }, ["immune"] =    { r = 0, g = 0, b = 1 },
-			["interrupt"] =   { r = 1, g = 0, b = 1 }, ["silence"] =   { r = 1, g = 0, b = 1 },
-			["stun"] =        { r = 0, g = 1, b = 1 }, ["knockback"] = { r = 0, g = 1, b = 1 },
-			["cc"] =          { r = 0, g = 0.5, b = 1 }, ["offensive"] = { r = 1, g = 0.5, b = 0 },
-			["defensive"] =   { r = 0.5, g = 0, b = 1 }, ["heal"] =      { r = 0, g = 1, b = 0 },
-			["sprint"] =   		{ r = 0, g = 0, b = 1 }, ["blink"] =      { r = 0, g = 0, b = 1 },
+			["pvp_trinket"] = { r = 0, g = 1, b = 1 },
+			["race"] = 		{ r = 1, g = 0.4, b = 0 },
+			["dispel"] =    { r = 0.5, g = 1, b = 0 },
+			["mass_dispel"] = { r = 1, g = 1, b = 1 },
+			["immune"] =    { r = 0.5, g = 0, b = 1 },
+			["interrupt"] =   { r = 1, g = 0, b = 1 },
+			-- ["silence"] =   { r = 1, g = 0, b = 1 },
+			-- ["stun"] =        { r = 0, g = 1, b = 1 },
+			-- ["knockback"] = { r = 0, g = 1, b = 1 },
+			["cc"] =          { r = 1, g = 0, b = 1 },
+			["offensive"] = { r = 1, g = 0.4, b = 0 },
+			["defensive"] =   { r = 0, g = 0.4, b = 1 },
+			["heal"] =      { r = 0, g = 0.5, b = 0 },
+			["sprint"] =   		{ r = 1, g = 1, b = 0 },
+			["blink"] =      { r = 1, g = 1, b = 0 },
 			["uncat"] =       { r = 1, g = 1, b = 1 },
 		},
 		cooldownsHideTalentsUntilDetected = true,
@@ -78,95 +102,90 @@ local function MakeGroupDb(settings)
 end
 
 local defaults = {
-	num_groups = 3,
+	num_groups = 4,
 	group_table = {
 		[1] = "group_1",
 		[2] = "group_2",
 		[3] = "group_3",
+		[4] = "group_4",
 	}
 }
 
 local g1_defaults = MakeGroupDb {
 	cooldownsGroupId = 1,
-	cooldownsBorderSize = 0,
-	cooldownsPerColumn = 12,
-	cooldownsMax = 12,
-	cooldownsSize = 24,
+	cooldownsPerColumn = 5,
+	cooldownsMax = 5,
+	cooldownsSize = 32,
 	cooldownsPaddingX = 0,
 	-- cooldownsPaddingY = 2,
 	cooldownsSpacingX = 2,
 	cooldownsSpacingY = 0,
-	cooldownsBorderSize = 2,
-	cooldownsBorderAvailAlpha = 1.0,
-	cooldownsBorderUsingAlpha = 1.0,
-	cooldownsBorderCooldownAlpha = 1.0,
-	cooldownsIconAvailAlpha = 1.0,
-	cooldownsIconUsingAlpha = 1.0,
-	cooldownsIconCooldownAlpha = 0.6,
 	cooldownsSpells = GetDefaultSpells()[1],
 }
 
 local g2_defaults = MakeGroupDb {
 	cooldownsGroupId = 2,
-	cooldownsBorderSize = 0,
-	cooldownsPerColumn = 12,
-	cooldownsMax = 12,
-	cooldownsSize = 24,
+	cooldownsPerColumn = 5,
+	cooldownsMax = 5,
+	cooldownsSize = 32,
 	cooldownsPaddingX = 0,
 	-- cooldownsPaddingY = 2,
 	cooldownsSpacingX = 2,
 	cooldownsSpacingY = 0,
-	cooldownsBorderSize = 2,
-	cooldownsBorderAvailAlpha = 1.0,
-	cooldownsBorderUsingAlpha = 1.0,
-	cooldownsBorderCooldownAlpha = 1.0,
-	cooldownsIconAvailAlpha = 1.0,
-	cooldownsIconUsingAlpha = 1.0,
-	cooldownsIconCooldownAlpha = 0.6,
 	cooldownsSpells = GetDefaultSpells()[2],
 }
 local g3_defaults = MakeGroupDb {
 	cooldownsGroupId = 3,
 	cooldownsPerColumn = 1,
-	cooldownsMax = 3,
-	cooldownsSize = 32,
+	cooldownsMax = 2,
+	cooldownsSize = 36,
 	cooldownsCrop = true,
 	-- cooldownsTooltips = false,
-	cooldownsBorderSize = 2,
-	cooldownsBorderAvailAlpha = 1.0,
-	cooldownsBorderUsingAlpha = 1.0,
-	cooldownsBorderCooldownAlpha = 1.0,
-	cooldownsIconAvailAlpha = 1.0,
-	cooldownsIconUsingAlpha = 1.0,
-	cooldownsIconCooldownAlpha = 1.0,
 	cooldownsSpells = GetDefaultSpells()[3],
+}
+local g4_defaults = MakeGroupDb {
+	cooldownsGroupId = 4,
+	cooldownsPerColumn = 1,
+	cooldownsMax = 2,
+	cooldownsSize = 36,
+	cooldownsCrop = true,
+	-- cooldownsTooltips = false,
+	cooldownsSpells = GetDefaultSpells()[4],
 }
 local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 	fn.merge(defaults, {
 		groups = {
 			["group_1"] = fn.merge(g1_defaults, {
 				cooldownsAttachTo = "Frame",
-				cooldownsAnchor = "TOPLEFT",
-				cooldownsRelativePoint = "BOTTOMLEFT",
-				cooldownsGrow = "DOWNRIGHT",
-				cooldownsOffsetX = 50,
-				cooldownsOffsetY = 0,
+				cooldownsAnchor = "TOPRIGHT",
+				cooldownsRelativePoint = "BOTTOMRIGHT",
+				cooldownsGrow = "DOWNLEFT",
+				cooldownsOffsetX = 0,
+				cooldownsOffsetY = -2,
 			}),
 			["group_2"] = fn.merge(g2_defaults, {
 				cooldownsAttachTo = "Frame",
-				cooldownsAnchor = "TOPLEFT",
-				cooldownsRelativePoint = "TOPRIGHT",
-				cooldownsGrow = "DOWNRIGHT",
-				cooldownsOffsetX = 2,
-				cooldownsOffsetY = 0,
+				cooldownsAnchor = "TOPRIGHT",
+				cooldownsRelativePoint = "BOTTOMRIGHT",
+				cooldownsGrow = "DOWNLEFT",
+				cooldownsOffsetX = 0,
+				cooldownsOffsetY = -36,
 			}),
 			["group_3"] = fn.merge(g3_defaults, {
 				cooldownsAttachTo = "Frame",
 				cooldownsAnchor = "TOPLEFT",
 				cooldownsRelativePoint = "TOPRIGHT",
 				cooldownsGrow = "DOWNRIGHT",
-				cooldownsOffsetX = 2,
-				cooldownsOffsetY = -40,
+				cooldownsOffsetX = 5,
+				cooldownsOffsetY = 5,
+			}),
+			["group_4"] = fn.merge(g4_defaults, {
+				cooldownsAttachTo = "Frame",
+				cooldownsAnchor = "TOPLEFT",
+				cooldownsRelativePoint = "BOTTOMRIGHT",
+				cooldownsGrow = "DOWNRIGHT",
+				cooldownsOffsetX = 5,
+				cooldownsOffsetY = -1,
 			}),
 		},
 	}),
@@ -178,7 +197,7 @@ local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 				cooldownsRelativePoint = "BOTTOMLEFT",
 				cooldownsGrow = "DOWNRIGHT",
 				cooldownsOffsetX = 0,
-				cooldownsOffsetY = -2,
+				cooldownsOffsetY = -5,
 			}),
 			["group_2"] = fn.merge(g2_defaults, {
 				cooldownsAttachTo = "Frame",
@@ -186,15 +205,23 @@ local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 				cooldownsRelativePoint = "BOTTOMLEFT",
 				cooldownsGrow = "DOWNRIGHT",
 				cooldownsOffsetX = 0,
-				cooldownsOffsetY = -28,
+				cooldownsOffsetY = -40,
 			}),
 			["group_3"] = fn.merge(g3_defaults, {
 				cooldownsAttachTo = "Frame",
 				cooldownsAnchor = "TOPRIGHT",
 				cooldownsRelativePoint = "TOPLEFT",
 				cooldownsGrow = "DOWNLEFT",
-				cooldownsOffsetX = -2,
-				cooldownsOffsetY = 0,
+				cooldownsOffsetX = -5,
+				cooldownsOffsetY = 5,
+			}),
+			["group_4"] = fn.merge(g4_defaults, {
+				cooldownsAttachTo = "Frame",
+				cooldownsAnchor = "TOPRIGHT",
+				cooldownsRelativePoint = "BOTTOMLEFT",
+				cooldownsGrow = "DOWNLEFT",
+				cooldownsOffsetX = -5,
+				cooldownsOffsetY = -1,
 			}),
 		}
 	}))
@@ -343,7 +370,7 @@ local function CooldownFrame_OnUpdate(frame)
 	local tracked = frame.tracked
 	local now = GetTime()
 
-	if tracked and (not tracked.charges_detected or not tracked.charges or tracked.charges <= 0) then
+	if tracked then
 		if tracked.used_start and ((not tracked.used_end and not tracked.cooldown_start) or (tracked.used_end and tracked.used_end > now)) then
 			-- using
 			if frame.state == 0 then
@@ -356,7 +383,8 @@ local function CooldownFrame_OnUpdate(frame)
 				end
 				local a = Cooldowns:GetGroupDB(frame.unit, frame.group).cooldownsIconUsingAlpha
 				local ab = Cooldowns:GetGroupDB(frame.unit, frame.group).cooldownsBorderUsingAlpha
-				frame:SetBackdropBorderColor(frame.color.r, frame.color.g, frame.color.b, ab)
+				local r,g,b = (frame.color.r + 3)/4, (frame.color.g + 3)/4, (frame.color.b + 3)/4
+				frame:SetBackdropBorderColor(r,g,b)
 				frame.icon_frame:SetAlpha(a)
 				frame.state = 1
 			end
@@ -367,14 +395,15 @@ local function CooldownFrame_OnUpdate(frame)
 			if frame.state ~= 2 then
 				local a = Cooldowns:GetGroupDB(frame.unit, frame.group).cooldownsIconUsingAlpha
 				local ab = Cooldowns:GetGroupDB(frame.unit, frame.group).cooldownsBorderUsingAlpha
-				frame:SetBackdropBorderColor(frame.color.r, frame.color.g, frame.color.b, ab)
+				local r,g,b = (frame.color.r + 3)/4, (frame.color.g + 3)/4, (frame.color.b + 3)/4
+				frame:SetBackdropBorderColor(r,g,b)
 				frame.icon_frame:SetAlpha(a)
 				frame.cooldown:Hide()
 				frame.state = 2
 			end
 			return
 		end
-		if tracked.cooldown_end and tracked.cooldown_end > now then
+		if tracked.cooldown_end and tracked.cooldown_end > now and (not tracked.charges_detected or not tracked.charges or tracked.charges <= 0) then
 			-- in cooldown
 			if frame.state ~= 3 then
 				frame.cooldown:SetReverse(false)
@@ -537,7 +566,7 @@ local function GetCooldownList(unit, group)
 						end
 					end
 					-- do not overwrite if this spell has been replaced
-					if spell_list[spellid] == nil or (tracked and tracked.detected) then
+					if db.cooldownsSpells[spellid] and (spell_list[spellid] == nil or (tracked and tracked.detected)) then
 						spell_list[spellid] = true
 					end
 				end
@@ -691,9 +720,16 @@ local function CreateCooldownFrame(name, parent)
 	frame.icon = frame.icon_frame:CreateTexture(nil, "BACKGROUND") -- bg
 	frame.icon:SetPoint("CENTER")
 
+	-- frame.highlight = frame.icon_frame:CreateTexture(nil,"OVERLAY")
+	-- frame.highlight:SetTexture("Interface\\Buttons\\UI-Debuff-Overlays")
+	-- frame.highlight:SetPoint("TOPLEFT",frame,"TOPLEFT",-1,1)
+	-- frame.highlight:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",1,-1)
+	-- frame.highlight:SetTexCoord(0.296875,0.5703125,0,0.515625)
+
 	frame.cooldown = CreateFrame("Cooldown", name .. "Cooldown", frame.icon_frame, "CooldownFrameTemplate")
 	frame.cooldown:SetAllPoints(frame.icon)
 	frame.cooldown:SetReverse(true)
+	frame.cooldown:SetSwipeColor(0,0,0,0)
 	frame.cooldown:Hide()
 
 	frame.count = frame.icon_frame:CreateFontString(nil, "OVERLAY")
@@ -1767,10 +1803,11 @@ function Cooldowns:MakeGroupOptions(unit, group)
 				local spelldesc = FormatSpellDescription(spellid)
 				local extradesc = {}
 				if spelldata.duration then table.insert(extradesc, string.format(L["Duration: %is"], spelldata.duration)) end
-				if spelldata.replaces or spelldata.talen then
+				if spelldata.replaces or spelldata.talent then
 					local names = {}
 					for i,v in ipairs(fn:merge(spelldata.talent or {},spelldata.replaces or {})) do
-						tinsert(names,GetSpellInfo(v))
+						local name = GetSpellInfo(v)
+						tinsert(names,name)
 					end
 					table.insert(extradesc, string.format(L["Replaces: %s"], table.concat(names,",")))
 				end

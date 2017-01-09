@@ -14,46 +14,56 @@ local function GetDefaultCastsSpells()
 	local offensive = { priority = 20, color = { r = 1, g = 0, b = 0, a = 1 } }
 	local cc = { priority = 30, color = { r = 1, g = 0, b = 1, a = 1 } }
 	local toRet = {}
-	for id,spelldata in pairs(CT:GetCooldownsData()) do
-		if spelldata.cast then
-			if spelldata.cc then
-				toRet[GladiusEx:SafeGetSpellName(id)] = cc
-			elseif spelldata.offensive then
+	-- for id,spelldata in pairs(CT:GetCooldownsData()) do
+	-- 	if spelldata.cast then
+	-- 		if spelldata.cc then
+	-- 			toRet[GladiusEx:SafeGetSpellName(id)] = cc
+	-- 		elseif spelldata.offensive then
+	-- 			toRet[GladiusEx:SafeGetSpellName(id)] = offensive
+	-- 		elseif spelldata.heal then
+	-- 			toRet[GladiusEx:SafeGetSpellName(id)] = heal
+	-- 		end
+	-- 	end
+	-- end
+	return toRet
+end
+
+local function GetDefaultAuraSpells()
+	local offensive = { priority = 25, color = { r = 1, g = 0.4, b = 0, a = 0.4 } }
+	local bigoffensive = { priority = 26, color = { r = 1, g = 0.4, b = 0, a = 1 } }
+	local defensive = { priority = 15, color = { r = 0, g = 0.5, b = 1, a = 0.4 } }
+	local bigdefensive = { priority = 16, color = { r = 0, g = 0.5, b = 1, a = 1 } }
+	local toRet = {}
+	for id,spellid in pairs(CT:GetAurasMap()) do
+		local spelldata = CT:GetCooldownData(spellid)
+		if type(spelldata.offensive) == "number" then
+			if spelldata.offensive >= 0.2 then
+				toRet[GladiusEx:SafeGetSpellName(id)] = bigoffensive
+			elseif spelldata.offensive >= 0.1 then
 				toRet[GladiusEx:SafeGetSpellName(id)] = offensive
-			elseif spelldata.heal then
-				toRet[GladiusEx:SafeGetSpellName(id)] = heal
+			end
+		elseif type(spelldata.defensive) == "number" then
+			if spelldata.defensive >= 0.2 then
+				toRet[GladiusEx:SafeGetSpellName(id)] = bigdefensive
+			elseif spelldata.defensive >= 0.1 then
+				toRet[GladiusEx:SafeGetSpellName(id)] = defensive
 			end
 		end
 	end
 	return toRet
 end
 
-local function GetDefaultAuraSpells()
-	local offensive = { priority = 25, color = { r = 1, g = 0.5, b = 0, a = 1 } }
-	local defensive = { priority = 15, color = { r = 0, g = 0.5, b = 1, a = 1 } }
-	local toRet = {}
-	for id,spellid in pairs(CT:GetAurasMap()) do
-		local spelldata = CT:GetCooldownData(spellid)
-		if type(spelldata.offensive) == "number" and spelldata.offensive >= 0.2 then
-			toRet[GladiusEx:SafeGetSpellName(id)] = offensive
-		elseif type(spelldata.defensive) == "number" and spelldata.defensive >= 0.2 then
-			toRet[GladiusEx:SafeGetSpellName(id)] = defensive
-		end
-	end
-	return toRet
-end
-
 local Alerts = GladiusEx:NewGladiusExModule("Alerts", {
-		minAlpha = 0.2,
-		maxAlpha = 0.6,
+		minAlpha = 0.0,
+		maxAlpha = 1.0,
 		duration = 0.35,
 		ease = "OUT",
-		blendMode = "BLEND",
+		blendMode = "ADD",
 
 		health = true,
-		healthThreshold = 0.25,
+		healthThreshold = 0.5,
 		healthPriority = 10,
-		healthColor = { r = 1, g = 0, b = 0, a = 1 },
+		healthColor = { r = 1, g = 0, b = 0, a = 0.8 },
 
 		casts = true,
 		castsSpells = GetDefaultCastsSpells(),
@@ -93,10 +103,17 @@ function Alerts:CreateFrame(unit)
 
 	-- create frame
 	self.frame[unit] = CreateFrame("Frame", "GladiusEx" .. self:GetName() .. unit, button)
-	self.frame[unit].texture = self.frame[unit]:CreateTexture("GladiusEx" .. self:GetName() .. "Texture" .. unit, "OVERLAY")
+	self.frame[unit]:ClearAllPoints()
+	-- self.frame[unit]:SetAllPoints()
+	self.frame[unit]:SetPoint("TOPLEFT",button,"TOPLEFT",2,-2)
+	self.frame[unit]:SetPoint("BOTTOMRIGHT",button,"BOTTOMRIGHT",-2,2)
+	self.frame[unit].texture = self.frame[unit]:CreateTexture("GladiusEx" .. self:GetName() .. "Texture" .. unit, "OVERLAY") -- BORDER
 	self.frame[unit].texture:SetAllPoints()
 	self.frame[unit].ag = self.frame[unit]:CreateAnimationGroup()
 	self.frame[unit].ag.aa = self.frame[unit].ag:CreateAnimation("Alpha")
+	self.frame[unit].ag.as = self.frame[unit].ag:CreateAnimation("Scale")
+	self.frame[unit].ag.as:SetOrigin("CENTER",0,0)
+	self.frame[unit].ag.as:SetScale(1.2,2)
 end
 
 function Alerts:Update(unit)
@@ -109,9 +126,8 @@ function Alerts:Update(unit)
 
 	-- frame
 	local parent = GladiusEx:GetAttachFrame(unit, "Frame")
-	self.frame[unit]:ClearAllPoints()
-	self.frame[unit]:SetAllPoints()
-	self.frame[unit]:SetFrameLevel(100)
+	-- self.frame[unit]:SetFrameLevel(100)
+	self.frame[unit]:SetFrameStrata("WORLD")
 
 	-- texture
 	self.frame[unit].texture:SetColorTexture(1, 1, 1)
@@ -124,6 +140,8 @@ function Alerts:Update(unit)
 	self.frame[unit].ag.aa:SetFromAlpha(self.db[unit].maxAlpha)
 	self.frame[unit].ag.aa:SetDuration(self.db[unit].duration)
 	self.frame[unit].ag.aa:SetSmoothing(self.db[unit].ease)
+	self.frame[unit].ag.as:SetDuration(self.db[unit].duration)
+	self.frame[unit].ag.as:SetSmoothing(self.db[unit].ease)
 	self.frame[unit].ag:Stop()
 
 	self.frame[unit]:Hide()
@@ -141,7 +159,16 @@ end
 
 function Alerts:Test(unit)
 	self:ClearAllAlerts(unit)
-	self:SetAlert(unit, "test", 1, { r = 1, g = 0, b = 0, a = 1 })
+	local color = { r = 1, g = 0.5, b = 0, a = 1 }
+	local colors = {
+		party1 = { r = 1, g = 0.5, b = 0, a = 1 },
+		party2 = { r = 0, g = 0.5, b = 1, a = 1 },
+		arena1 = { r = 1, g = 0, b = 1, a = 1 },
+		arena2 = { r = 1, g = 0, b = 0, a = 1 },
+		arena3 = { r = 0, g = 1, b = 0, a = 1 },
+	}
+	color = colors[unit] or color
+	self:SetAlert(unit, "test", 1, color)
 end
 
 function Alerts:Refresh(unit)
@@ -153,7 +180,8 @@ end
 
 function Alerts:StartFlash(unit, color)
 	local f = self.frame[unit]
-	f.texture:SetVertexColor(color.r, color.g, color.b, color.a)
+	self:SetFlashColor(unit,color)
+	-- f.texture:SetVertexColor(color.r, color.g, color.b, color.a)
 
 	f:SetAlpha(self.db[unit].maxAlpha)
 	f:Show()

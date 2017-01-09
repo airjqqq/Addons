@@ -10,7 +10,7 @@ local defaults = {
 	Inverse = false,
 	Color = { r = 1, g = 1, b = 1, a = 1 },
 	ClassColor = true,
-	BackgroundColor = { r = 1, g = 1, b = 1, a = 0.3 },
+	BackgroundColor = { r = 0, g = 0, b = 0, a = 1 },
 	GlobalTexture = true,
 	Texture = GladiusEx.default_bar_texture,
 	Icon = true,

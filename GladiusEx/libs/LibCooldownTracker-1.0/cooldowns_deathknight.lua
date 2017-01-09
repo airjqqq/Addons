@@ -2,12 +2,12 @@ local data = {
 
   -- Death Knight
 
-  [ 51052] = { default = true, cooldown = 120, class = "DEATHKNIGHT", duration = 10,replaces = {77606},defensive = true}, -- Anti-Magic Zone
+  [ 51052] = { default = true, cooldown = 120, class = "DEATHKNIGHT", duration = 10,replaces = {77606},defensive = 0.3}, -- Anti-Magic Zone
   [ 77606] = { default = true, cooldown = 30, class = "DEATHKNIGHT", talent = {51052}, important = true, duration = 12}, -- Dark Simulacrum
   [212552] = { default = true, cooldown = 45, class = "DEATHKNIGHT", duration = 3, sprint = true, dispellable = true}, -- Wraith Walk
   [ 47528] = { default = true, cooldown = 15, class = "DEATHKNIGHT", interrupt = true,}, -- Mind Freeze
   [ 49576] = { default = true, cooldown = 25, class = "DEATHKNIGHT", blink = true}, -- Death Grip
-  [ 48707] = { default = true, cooldown = 60, class = "DEATHKNIGHT", duration = 5, defensive = 0.5}, -- Anti-Magic Shell
+  [ 48707] = { default = true, cooldown = 60, class = "DEATHKNIGHT", duration = 5, defensive = 0.5, immune = "spell"}, -- Anti-Magic Shell
   [ 61999] = { default = true, cooldown = 600, class = "DEATHKNIGHT", revival = true }, -- Raise Ally
 
   -- Blood TBD
@@ -56,9 +56,10 @@ local data = {
   [ 47482] = { default = true, cooldown = 30, class = "DEATHKNIGHT", specID = { 252 } }, -- Leap (Ghoul)
   [ 91802] = { default = true, cooldown = 30, class = "DEATHKNIGHT", specID = { 252 } }, -- Shambling Rush (Ghoul)
   [207319] = { default = true, cooldown = 60, class = "DEATHKNIGHT", specID = { 252 }, defensive = 0.9, duration = 10}, -- Corpse Shield
-	[ 91797] = { default = true, cooldown = 90, class = "DEATHKNIGHT", specID = { 252 }, cc = "stun", duration = 2 },, -- Monstrous Blow
-	[ 91800] = { default = true, cooldown = 90, class = "DEATHKNIGHT", specID = { 252 }, cc = "stun", duration = 1 },, -- Monstrous Blow
-	[223929] = { default = true, class = "DEATHKNIGHT", specID = { 252 }, important = true, duration = 10 },, -- Monstrous Blow
+	[ 91797] = { default = true, cooldown = 90, class = "DEATHKNIGHT", specID = { 252 }, cc = "stun", duration = 2 }, -- Monstrous Blow
+	[ 91800] = { default = true, cooldown = 90, class = "DEATHKNIGHT", specID = { 252 }, cc = "stun", duration = 1 }, -- Monstrous Blow
+	[223929] = { default = true, class = "DEATHKNIGHT", specID = { 252 }, important = true, duration = 10 }, -- Monstrous Blow
+	[ 91807] = { default = false, class = "DEATHKNIGHT", specID = { 252 }, cc = "root", duration = 2 }, -- Monstrous Blow
 }
 
 for i,d in pairs(data) do
