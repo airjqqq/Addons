@@ -612,16 +612,47 @@ do --Guarm
     "{rt6}",
     "{rt3}",
   }
+  local sounds = {
+    "mm2",
+    "mm6",
+    "mm3",
+  }
+  function H:GuarmFoam2()
+    for i = 1,3 do
+      if UnitDebuff("player",constNames[i]) then
+        if self.buffer.foamtimer3 then
+          self:CancelTimer(self.buffer.foamtimer3)
+        end
+        self.buffer.foamtimer3 = self:ScheduleRepeatingTimer(function()
+          SendChatMessage(messages[i],"SAY")
+        end,0.75)
+        self.buffer.foamtimer4 = self:ScheduleTimer(function()
+          self:CancelTimer(self.buffer.foamtimer3)
+        end,9)
+        return
+      end
+    end
+    -- body...
+  end
   function H:GuarmFoam(index)
-    if UnitDebuff("player",constNames[index]) then return end
     self.buffer.foam = self.buffer.foam or {}
-    SendChatMessage(messages[index],"SAY")
+    -- SendChatMessage(messages[index],"SAY")
     self.buffer.foamtimer = self:ScheduleRepeatingTimer(function()
-      SendChatMessage(messages[index],"SAY")
+      -- SendChatMessage(messages[index],"SAY")
     end,0.75)
     self.buffer.foamtimer2 = self:ScheduleTimer(function()
       self:CancelTimer(self.buffer.foamtimer)
     end,9)
+    local expire = GetTime() + 9
+    self:SetBar(expire,expire-9)
+    local function play()
+      if self.buffer.foamtimer and  GetTime()<expire then
+        self:PlayYike(sounds[index])
+        self:ScheduleTimer(play,1.5)
+      end
+    end
+    play()
+
     for i=1,20 do
       local u = "raid"..i
       if not UnitIsUnit("player",u) then
@@ -853,10 +884,13 @@ function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
       [228819] = 3,
     }
 
-    if destGUID == playerGuid and debuffs[spellId] and event == "SPELL_AURA_APPLIED" then -- foam
-      self:SetRange(30)
-      self:GuarmFoamClear()
-      self:GuarmFoam(debuffs[spellId])
+    if debuffs[spellId] and event == "SPELL_AURA_APPLIED" then -- foam
+      H:GuarmFoam2()
+      if destGUID == playerGuid then
+        self:SetRange(30)
+        self:GuarmFoamClear()
+        self:GuarmFoam(debuffs[spellId])
+      end
     end
 
     if destGUID == playerGuid and debuffs[spellId] and event == "SPELL_AURA_REMOVED" then -- foam

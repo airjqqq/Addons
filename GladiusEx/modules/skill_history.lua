@@ -42,7 +42,9 @@ local ignoreSpells = {
 	[126664] = true,
 	[ 50622] = true,
 	[ 52174] = true,
-	--
+	--mage
+	[228597] = true,
+
 	[1234] = true,
 }
 
@@ -91,8 +93,14 @@ function SkillHistory:OnEnable()
 		self.frame = {}
 	end
 
-	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 	self:RegisterEvent("UNIT_NAME_UPDATE")
+	self:RegisterEvent("UNIT_SPELLCAST_START")
+	self:RegisterEvent("UNIT_SPELLCAST_STOP")
+	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	self:RegisterEvent("UNIT_SPELLCAST_FAILED", "UNIT_SPELLCAST_STOP")
+	self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED", "UNIT_SPELLCAST_STOP")
+	self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START", "UNIT_SPELLCAST_START")
+	self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP", "UNIT_SPELLCAST_STOP")
 end
 
 function SkillHistory:OnDisable()
@@ -189,14 +197,35 @@ function SkillHistory:Refresh(unit)
 end
 
 local prev_lineid = {}
+local caststarted = {}
 function SkillHistory:UNIT_SPELLCAST_SUCCEEDED(event, unit, spellName, rank, lineID, spellId)
 	if self.frame[unit] then
 		-- casts with lineID = 0 seem to be secondary effects not directly casted by the unit
-		if lineID ~= 0 and lineID ~= prev_lineid[unit] then
+		if lineID ~= 0 and lineID ~= prev_lineid[unit] and not caststarted[lineID] then
 			prev_lineid[unit] = lineID
 			-- self:QueueSpell(unit, spellId, GetTime())
-			self:SpellCasted(unit, spellId, GetTime())
+			self:SpellCasted(unit, spellId, lineID)
 		end
+		caststarted[lineID] = nil
+	end
+end
+function SkillHistory:UNIT_SPELLCAST_START(event, unit, spellName, rank, lineID, spellId)
+	if self.frame[unit] then
+		-- casts with lineID = 0 seem to be secondary effects not directly casted by the unit
+		if lineID ~= 0 and lineID ~= prev_lineid[unit] then
+			caststarted[lineID] = true
+			prev_lineid[unit] = lineID
+			-- self:QueueSpell(unit, spellId, GetTime())
+			self:SpellCasted(unit, spellId, lineID)
+		end
+	end
+end
+function SkillHistory:UNIT_SPELLCAST_STOP(event, unit, spellName, rank, lineID, spellId)
+	if event == "UNIT_SPELLCAST_STOP" then return end
+	if self.frame[unit] then
+		-- casts with lineID = 0 seem to be secondary effects not directly casted by the unit
+		caststarted[lineID] = nil
+		self:SpellCanceled(unit, spellId, lineID)
 	end
 end
 
@@ -227,6 +256,9 @@ function SkillHistory:NewIcon(unit)
 	if not icon then
 		icon = CreateFrame("Frame", nil, self.frame[unit])
 		icon.icon = icon:CreateTexture(nil, "OVERLAY")
+		icon.canceled = icon:CreateTexture(nil, "OVERLAY",nil,1)
+		icon.canceled:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcon_7")
+		icon.canceled:SetAllPoints()
 		icon:SetBackdrop({ bgFile = [[Interface\Buttons\WHITE8X8]], tile = true, tileSize = 8 })
 		icon:SetBackdropColor(0,0,0,1)
 		icon:EnableMouse(false)
@@ -239,7 +271,7 @@ function SkillHistory:NewIcon(unit)
 	return icon
 end
 
-function SkillHistory:SpellCasted(unit, spellid, time)
+function SkillHistory:SpellCasted(unit, spellid, lineID)
 	if ignoreSpells[spellid] then
 		return
 	end
@@ -253,6 +285,8 @@ function SkillHistory:SpellCasted(unit, spellid, time)
 	icon.color = spelldata and spelldata.color
 	icon.started = 0
 	icon.delayed = 0
+	icon.canceled:Hide()
+	icon.lineID = lineID
 	icon:SetScript("OnUpdate",function(f,escape)
 		-- speed up
 		local delta = escape * speed
@@ -334,6 +368,15 @@ function SkillHistory:SpellCasted(unit, spellid, time)
 	tinsert(unit_icons[unit],1,icon)
 
 	icon:Show()
+end
+
+function SkillHistory:SpellCanceled(unit, spellid, lineID)
+	unit_icons[unit] = unit_icons[unit] or {}
+	for i, v in pairs(unit_icons[unit]) do
+		if v.lineID == lineID then
+			v.canceled:Show()
+		end
+	end
 end
 
 --[[

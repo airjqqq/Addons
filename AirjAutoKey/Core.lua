@@ -195,7 +195,7 @@ do
     end,
     gui = function(value)
       if AirjAutoKey_GUI_anchor then
-        AirjAutoKey_GUI_anchor:SetPoint("BOTTOMLEFT",UIParent,"BOTTOM",0,120)
+        AirjAutoKey_GUI_anchor:SetPoint("BOTTOMRIGHT",UIParent,"BOTTOMRIGHT",0,90)
       end
     end,
   }

@@ -157,9 +157,9 @@ end
 do
   local markerindex = {6,1,3}
   local offset = {
-    {10,30},
+    {13,20},
     {0,30},
-    {-10,30},
+    {-13,20},
   }
   function mod:SetRaidMarkerForGuarm(s)
     if UnitCastingInfo("player") or UnitChannelInfo("player") then
@@ -168,20 +168,23 @@ do
     end
     -- local bx,by,z,f = AirjHack:Position("player")
     local bx,by,z,f = AirjHack:Position("boss1")
+    if not bx then
+      bx,by,z,f = AirjHack:Position("player")
+    end
     if bx then
       for i,v in ipairs(s) do
         local x,y
         local ox,oy = unpack(offset[i])
         x = bx+ox*math.cos(f)-oy*math.sin(f)
         y = by+oy*math.cos(f)+ox*math.sin(f)
-        local mi = markerindex[i]
+        local mi = markerindex[v]
         PlaceRaidMarker(mi)
         AirjHack:TerrainClick(x,y,z)
       end
     end
   end
 	mod:RegisterChatCommand("agom", function(str,...)
-    mod:SetRaidMarkerForGuarm({1,2,3})
+    mod:SetRaidMarkerForGuarm({2,3,1})
   end)
 end
 

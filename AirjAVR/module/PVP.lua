@@ -71,6 +71,7 @@ function mod:OnInitialize()
   local spells = {
     118, -- poly
     209753, -- cyclone
+    5782, --Fear
   }
   local pguid = Cache:PlayerGUID()
   if Cache then
