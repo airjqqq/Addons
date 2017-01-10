@@ -40,16 +40,16 @@ local function GetDefaultImportantAuras()
 				priority = 40
 			end
 		elseif type(spelldata.offensive) == "number" then
-			if spelldata.offensive >= 0.4 then
-				prototype = 60 + spelldata.offensive*10
+			if spelldata.offensive >= 0.2 then
+				prototype = 60 + spelldata.offensive*20
 			else
-				prototype = 30 + spelldata.offensive*10
+				prototype = 30 + spelldata.offensive*20
 			end
 		elseif type(spelldata.defensive) == "number" then
-			if spelldata.defensive >=0.4 then
-				prototype = 50 + spelldata.defensive*10
+			if spelldata.defensive >=0.2 then
+				prototype = 50 + spelldata.defensive*20
 			else
-				prototype = 25 + spelldata.defensive*10
+				prototype = 25 + spelldata.defensive*20
 			end
 		elseif spelldata.important then
 			prototype = 20
@@ -376,6 +376,8 @@ function ClassIcon:Update(unit)
 		self.db[unit].classIconGlossColor.b, self.db[unit].classIconGloss and self.db[unit].classIconGlossColor.a or 0)
 
 	self.frame[unit].cooldown:SetReverse(self.db[unit].classIconCooldownReverse)
+
+	-- animation
 
 	-- hide
 	self.frame[unit]:Hide()

@@ -11,21 +11,21 @@ local GetSpellTexture, GetTime = GetSpellTexture, GetTime
 
 local function GetDefaultSpells()
 	local offensive = { size = 1.5, color = { r = 1, g = 0.4, b = 0, a = 1 } }
-	local defensive = { size = 1.5, color = { r = 0, g = 0.5, b = 1, a = 1 } }
-	local cc = { size = 1.8, color = { r = 0, g = 1, b = 1, a = 1 } }
-	local blink = { size = 1.8, color = { r = 0, g = 1, b = 0, a = 1 } }
+	local defensive = { size = 1.5, color = { r = 0, g = 0.3, b = 1, a = 1 } }
+	local cc = { size = 1.8, color = { r = 0.5, g = 0, b = 1, a = 1 } }
+	local blink = { size = 1.8, color = { r = 1, g = 1, b = 0, a = 1 } }
 	local interrupt = { size = 2, color = { r = 1, g = 0, b = 1, a = 1 } }
-	local dispel = { size = 2, color = { r = 1, g = 0.5, b = 0, a = 1 } }
+	local dispel = { size = 2, color = { r = 0, g = 1, b = 0, a = 1 } }
 	local toRet = {}
 	for id,spelldata in pairs(CT:GetCooldownsData()) do
 		if spelldata.interrupt then
 			toRet[id] = interrupt
 		elseif spelldata.dispel then
 			toRet[id] = dispel
-		elseif spelldata.cc and spelldata.cooldown then
-			toRet[id] = cc
 		elseif spelldata.blink then
 			toRet[id] = blink
+		elseif spelldata.cc and spelldata.cooldown then
+			toRet[id] = cc
 		elseif spelldata.offensive then
 			toRet[id] = offensive
 		elseif spelldata.defensive then
@@ -38,7 +38,11 @@ end
 local spellDatas = GetDefaultSpells()
 
 local ignoreSpells = {
-	[123] = true,
+	--warrior
+	[126664] = true,
+	[ 50622] = true,
+	[ 52174] = true,
+	--
 	[1234] = true,
 }
 
@@ -159,7 +163,7 @@ end
 function SkillHistory:Reset(unit)
 	if not self.frame[unit] then return end
 	-- hide
-	self:ClearUnit(unit)
+	-- self:ClearUnit(unit)
 	self.frame[unit]:Hide()
 end
 
@@ -198,7 +202,7 @@ end
 
 function SkillHistory:UNIT_NAME_UPDATE(event, unit)
 	if self.frame[unit] then
-		self:ClearUnit(unit)
+		-- self:ClearUnit(unit)
 	end
 end
 

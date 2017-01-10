@@ -31,8 +31,8 @@ end
 local function GetDefaultAuraSpells()
 	local offensive = { priority = 25, color = { r = 1, g = 0.4, b = 0, a = 0.4 } }
 	local bigoffensive = { priority = 26, color = { r = 1, g = 0.4, b = 0, a = 1 } }
-	local defensive = { priority = 15, color = { r = 0, g = 0.5, b = 1, a = 0.4 } }
-	local bigdefensive = { priority = 16, color = { r = 0, g = 0.5, b = 1, a = 1 } }
+	local defensive = { priority = 5, color = { r = 0, g = 0.5, b = 1, a = 0.4 } }
+	local bigdefensive = { priority = 15, color = { r = 0, g = 0.5, b = 1, a = 1 } }
 	local toRet = {}
 	for id,spellid in pairs(CT:GetAurasMap()) do
 		local spelldata = CT:GetCooldownData(spellid)
