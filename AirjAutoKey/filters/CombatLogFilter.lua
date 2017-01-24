@@ -8,6 +8,7 @@ local L = setmetatable({},{__index = function(t,k) return k end})
 
 function F:OnInitialize()
   self:RegisterFilter("CHANNELDAMAGE",L["Since Last Damage"])
+  self:RegisterFilter("CHANNELHEAL",L["Since Last Heal"])
   self:RegisterFilter("NEXTSWING",L["Next Swing"],{
     value = {},
     greater = {},
@@ -125,6 +126,21 @@ function F:CHANNELDAMAGE(filter)
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local list = Cache.cache.damageTo[guid]
+  if not list then return 120 end
+  local spellId = filter.name[1]
+  list = list[spellId]
+  if not list then return 120 end
+  list = list.array
+  if #list == 0 then return 120 end
+  local lastT = list[#list].t
+  return GetTime()-lastT
+end
+function F:CHANNELHEAL(filter)
+  assert(filter.name and #filter.name==1)
+  filter.unit = filter.unit or "player"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local list = Cache.cache.healTo[guid]
   if not list then return 120 end
   local spellId = filter.name[1]
   list = list[spellId]

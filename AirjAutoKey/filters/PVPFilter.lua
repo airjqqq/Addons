@@ -82,7 +82,7 @@ local buffs = {
     [ 11426] = "SHEILD",
     [198111] = "SHEILD",
   	[ 45438] = "IPDAMAGE IPDEBUFF IMDAMAGE IMDEBUFF", -- Ice Block
-  	[198065] = "IMDAMAGE", -- Ice Block
+  	[198065] = "IMDAMAGE", --
   },
   monk = {
 	  [125174] = "IPDAMAGE IMDAMAGE", -- Touch of Karma
@@ -434,6 +434,7 @@ local debuffs = {
 			6343, -- Thunder Clap (slow)
 		  1715, -- Hamstring (slow)
 		 12323, -- Piercing Howl (slow)
+		236027, -- Charge (slow)
     },
 		[5246] = "DISORIENT", -- Intimidating Shout (disorient)
 		STUN = {
@@ -827,7 +828,7 @@ function F:PVPIMMUNITY(filter)
       return true
     end
   end
-  local debuffs = Cache:GetDebuffs(guid,filter.unit,{[33786]=true,[209753]=true})
+  local debuffs = Cache:GetDebuffs(guid,filter.unit,{[33786]=true,[209753]=true,[203337]=true})
   for i,v in pairs(debuffs) do
     local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
     local value

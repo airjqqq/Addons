@@ -41,7 +41,7 @@ local data = {
 	  [198304] = { default = true, cooldown = 20, class = "WARRIOR", specID = { 73 }, charges = 2 }, -- Intercept
 	  [206572] = { default = true, cooldown = 20, class = "WARRIOR", specID = { 73 } }, -- Dragon Charge
 	  [213871] = { default = true, cooldown = 15, class = "WARRIOR", specID = { 73 }, defensive = 0.2, duration = 60 }, -- Bodyguard
-	  [228920] = { default = true, cooldown = 60, class = "WARRIOR", specID = { 73 }, defensive = 0.15, duration = 12, talent = true }, -- Ravager
+	  [228920] = { default = true, cooldown = 60, class = "WARRIOR", specID = { 73 }, defensive = 0.15, duration = 12, talent = {} }, -- Ravager
 
 }
 for i,d in pairs(data) do

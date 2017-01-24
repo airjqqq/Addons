@@ -820,7 +820,7 @@ function GladiusEx:UpdateUnitSpecialization(unit, specID)
 	local _, class, spec
 
 	if specID and specID > 0 then
-		_, spec, _, _, _, _, class = GetSpecializationInfoByID(specID)
+		_, spec, _, _, _, class = GetSpecializationInfoByID(specID)
 	end
 
 	specID = (specID and specID > 0) and specID or nil

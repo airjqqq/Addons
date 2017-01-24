@@ -87,6 +87,9 @@ function F:PVEATTACK(filter)
   if id == "103694" then
     return false
   end
+  if id == "109804" then
+    return false
+  end
   if id == "114568" then
     local health, max, prediction, absorb, healAbsorb, isdead = AirjHack:UnitHealth(Cache:UnitGUID("boss1") or "")
     if health and health/max>0.4 then
@@ -108,7 +111,7 @@ function F:ISPLAYER(filter)
   filter.unit = filter.unit or "target"
   local _,currentZoneType = IsInInstance()
 	if currentZoneType ~= "pvp" and currentZoneType ~= "arena" then
-    if UnitLevel(filter.unit) <=  UnitLevel("player") then
+    if UnitLevel(filter.unit) <=  UnitLevel("player") and UnitCanAttack("player",filter.unit) then
 	    return true
     end
 	end
@@ -149,7 +152,7 @@ function F:UNITSPEC(filter)
   filter.unit = filter.unit or "target"
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
-  local id, name, description, icon, background, role, class = Cache:GetSpecInfo(guid)
+  local id, name, description, icon, role, class = Cache:GetSpecInfo(guid)
   local specs = Core:ToKeyTable(filter.name)
   return specs[id] or false
 end
@@ -158,7 +161,7 @@ function F:UNITISTANK(filter)
   filter.unit = filter.unit or "target"
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
-  local id, name, description, icon, background, role, class = Cache:GetSpecInfo(guid)
+  local id, name, description, icon, role, class = Cache:GetSpecInfo(guid)
   return role == "TANK"
 end
 
@@ -169,7 +172,7 @@ local melee = {
   [103] = true,
   [251] = true,
   [252] = true,
-  [256] = true,
+  [255] = true,
   [259] = true,
   [260] = true,
   [261] = true,
@@ -182,7 +185,7 @@ function F:UNITISMELEE(filter)
   filter.unit = filter.unit or "target"
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
-  local id, name, description, icon, background, role, class = Cache:GetSpecInfo(guid)
+  local id, name, description, icon, role, class = Cache:GetSpecInfo(guid)
   return melee[id] or false
 end
 
@@ -190,7 +193,7 @@ function F:UNITISHEALER(filter)
   filter.unit = filter.unit or "target"
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
-  local id, name, description, icon, background, role, class = Cache:GetSpecInfo(guid)
+  local id, name, description, icon, role, class = Cache:GetSpecInfo(guid)
   if IsResting and UnitIsUnit("focus",filter.unit) then return true end
   return role == "HEALER"
 end

@@ -649,7 +649,7 @@ function GladiusEx:SetupOptions()
 					get = function() return self.db.base.testUnits[unit].specID end,
 					set = function(info, value)
 						self.db.base.testUnits[unit].specID = value
-						self.db.base.testUnits[unit].unitClass = select(7, GetSpecializationInfoByID(value))
+						self.db.base.testUnits[unit].unitClass = select(6, GetSpecializationInfoByID(value))
 						self:UpdateFrames()
 					end,
 					values = function()
@@ -659,7 +659,7 @@ function GladiusEx:SetupOptions()
 							local color = RAID_CLASS_COLORS[classTag]
 							local colorfmt = string.format("|cff%02x%02x%02x", color.r * 255, color.g * 255, color.b * 255)
 							for specNum = 1, GetNumSpecializationsForClassID(classID) do
-								local specID, name, description, icon, background, role = GetSpecializationInfoForClassID(classID, specNum)
+								local specID, name, description, icon, role = GetSpecializationInfoForClassID(classID, specNum)
 								t[specID] = string.format("%s%s/%s", colorfmt, classDisplayName, name)
 							end
 						end

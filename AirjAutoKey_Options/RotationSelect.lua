@@ -6,7 +6,7 @@ local f2n = {}
 FillLocalizedClassList(f2n)
 local specId = {}
 for i = 1,1000 do
-	local _,specName,_,_,_,_,class = GetSpecializationInfoByID(i)
+	local _,specName,_,_,_,class = GetSpecializationInfoByID(i)
 	if class then
 		specId[class] = specId[class] or {}
 		specId[class][i] = specName

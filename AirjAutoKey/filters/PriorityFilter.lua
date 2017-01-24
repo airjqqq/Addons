@@ -5,16 +5,20 @@ local Filter = Core:GetModule("Filter")
 local F = Filter:NewModule(filterName)
 local color = "7F7F3F"
 local L = setmetatable({},{__index = function(t,k) return k end})
+local CombatLogFilter
 
 function F:OnInitialize()
+  CombatLogFilter = Filter:GetModule("CombatLogFilter")
   self:RegisterFilter("AIRTYPE",L["[P] Other Filter"],{name={}})
   self:RegisterFilter("AIRSPECIFICUNIT",L["[P] Specific Unit"],{name={},value={}})
   self:RegisterFilter("AIRRANGE",L["[P] Range (near)"])
   self:RegisterFilter("AIRLOWHEALTH",L["[P] Health (low)"])
+  self:RegisterFilter("AIRLOWHEALTHFUTURE",L["[P] Health Future (low)"])
   self:RegisterFilter("AIRHIGHHEALTH",L["[P] Health (high)"])
   self:RegisterFilter("AIRBUFF",L["[P] Buff (short)"],{name={}})
   self:RegisterFilter("AIRDEBUFF",L["[P] Debuff (short)"],{name={}})
   self:RegisterFilter("AIRDEBUFFORTARGET",L["[P] Debuff or target"],{name={}})
+  self:RegisterFilter("AIRFASTTODIE",L["[P] ToDie (fast)"])
 end
 
 function F:RegisterFilter(key,name,keys,subtypes,c)
@@ -44,14 +48,15 @@ end
 
 function F:AIRSPECIFICUNIT(filter)
   filter.value = filter.value or 2
-  filter.name = filter.name or "player"
+  filter.name = filter.name or {"player"}
   local unitKeys = Core:ToKeyTable(filter.name)
   local unit = Core:GetAirUnit()
-  for u in pairs(unitKeys) do
-    if Cache:Call("UnitIsUnit",unit) then
+  for u,v in pairs(unitKeys) do
+    if Cache:Call("UnitIsUnit",u,unit) then
       return filter.value
     end
   end
+  return 1
 end
 
 function F:AIRRANGE(filter)
@@ -136,4 +141,30 @@ function F:AIRDEBUFFORTARGET(filter)
   else
     return 0.5
   end
+end
+
+function F:AIRFASTTODIE(filter)
+  local unit = Core:GetAirUnit()
+  local guid = unit and Cache:UnitGUID(unit)
+  local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+  if not health then return end
+  if isdead then return end
+  health = health + prediction + absorb
+  local damage = CombatLogFilter:GetDamageTaken(guid,5)
+  if damage == 0 then
+    return
+  else
+    return 1 + exp(-health/(damage)*5+10)
+  end
+end
+
+function F:AIRLOWHEALTHFUTURE(filter)
+  local unit = Core:GetAirUnit()
+  local guid = unit and Cache:UnitGUID(unit)
+  if not guid then return end
+  local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+  if not health then return end
+  local damage = CombatLogFilter:GetDamageTaken(guid,5)
+  local value = (health+absorb+healAbsorb - damage)/max
+  return exp(-value)
 end

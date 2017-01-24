@@ -420,7 +420,7 @@ do
           -- end
           local tguid = fixate[guid] and fixate[guid][2]
           if tguid then
-            local id, name, description, icon, background, role, class = Cache:GetSpecInfo(tguid)
+            local id, name, description, icon, role, class = Cache:GetSpecInfo(tguid)
             if id and melee[id] then
               value = value*0.7
             end

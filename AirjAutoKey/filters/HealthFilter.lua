@@ -34,7 +34,9 @@ function F:OnInitialize()
     [SPELL_POWER_PAIN]=L["Pain"],
     [SPELL_POWER_INSANITY]=L["Insanity"],
     [SPELL_POWER_LUNAR_POWER]=L["Lunar Power"],
+    [SPELL_POWER_FURY]=L["Fury"],
   })
+  self:RegisterFilter("BOSSMANA",L["Boss Mana"],{unit= {},greater={},value={}})
 end
 
 function F:RegisterFilter(key,name,keys,subtypes,c)
@@ -98,6 +100,12 @@ function F:HEALTH(filter)
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+  if health < 0 then
+    health = 2^32+health
+  end
+  if max < 0 then
+    max = 2^32+max
+  end
   if not health then return false end
   if isdead then return false end
   local types = Core:ToKeyTable(filter.name)
@@ -216,4 +224,24 @@ function F:POWER(filter)
     power = power/scale
   end
   return power
+end
+
+function F:BOSSMANA(filter)
+  filter.unit = filter.unit or "boss1"
+  filter.value = filter.value or 0.1
+  local power = Cache:Call("UnitPower","power",SPELL_POWER_MANA)
+  local maxPower = Cache:Call("UnitPowerMax","power",SPELL_POWER_MANA)
+  local bossguid = UnitGUID(filter.unit)
+  local bosshealth,powerPercent
+  if bossguid then
+    local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(bossguid)
+    bosshealth = health/max
+  end
+  if power then
+    powerPercent = power/maxPower
+  end
+  if bosshealth and powerPercent then
+    return powerPercent - bosshealth
+  end
+  return true
 end

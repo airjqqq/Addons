@@ -9,6 +9,7 @@
 AirjAVR.lua
 module/EmeraldNightmare.lua
 module/TrialOfVaior.lua
+module/Nighthold.lua
 
 module/GiftOfTheOx.lua
 module/PVP.lua

@@ -276,17 +276,17 @@ function mod:GetDebugChatFrame()
 end
 
 function mod:SetRaidTarget(guid,index)
-  if not self:HasHacked() then return end
-	if not guid then return end
-	index = index or 8
-	local focusguid=UnitGUID("focus")
-	self:Focus(guid)
-	SetRaidTarget("focus",index)
-	if focusguid then
-		self:Focus(focusguid)
-	else
-		self:RunMacroText("/clearfocus")
-	end
+  -- if not self:HasHacked() then return end
+	-- if not guid then return end
+	-- index = index or 8
+	-- local focusguid=UnitGUID("focus")
+	-- self:Focus(guid)
+	-- SetRaidTarget("focus",index)
+	-- if focusguid then
+	-- 	self:Focus(focusguid)
+	-- else
+	-- 	self:RunMacroText("/clearfocus")
+	-- end
 end
 
 function mod:GetGUIDInfo(guid)

@@ -19,7 +19,7 @@ function Core:OnEnable()
   AirjGuildDB = AirjGuildDB or {}
   self.db = AirjGuildDB
   self.db.standbyList = {}
-  AirjAutoKey:OnChatCommmand("world",120,"2 上班族公会,只要上班族,开荒M团队本,进度7/7M,同招休闲")
+  AirjAutoKey:OnChatCommmand("world",120,"2 上班族公会,只要上班族,开荒M团队本,7.0进度7/7M,暗夜要塞H8/10,同招休闲")
 end
 
 function Core:OnDisable()

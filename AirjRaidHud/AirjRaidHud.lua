@@ -434,6 +434,10 @@ do --line
   function H:UpdateLine(line)
     local fx,fy,ff = self:GetPosition(line.from)
     local tx,ty,tf = self:GetPosition(line.to)
+    if not line.to and ff then
+      local s,c = math.sin(ff),math.cos(ff)
+      tx,ty = fx-100*s,fy+100*c
+    end
     if not fx or not tx then
       for k,v in pairs(line.texture) do
         v:Hide()
@@ -626,6 +630,9 @@ do --Guarm
         self.buffer.foamtimer3 = self:ScheduleRepeatingTimer(function()
           SendChatMessage(messages[i],"SAY")
         end,0.75)
+        if self.buffer.foamtimer4 then
+          self:CancelTimer(self.buffer.foamtimer4)
+        end
         self.buffer.foamtimer4 = self:ScheduleTimer(function()
           self:CancelTimer(self.buffer.foamtimer3)
         end,9)
@@ -635,6 +642,7 @@ do --Guarm
     -- body...
   end
   function H:GuarmFoam(index)
+    if UnitDebuff("player",constNames[index]) then return end
     self.buffer.foam = self.buffer.foam or {}
     -- SendChatMessage(messages[index],"SAY")
     self.buffer.foamtimer = self:ScheduleRepeatingTimer(function()
@@ -660,9 +668,9 @@ do --Guarm
         if UnitDebuff(u,constNames[index]) then
           color = colors[index]
         else
-          color = {0.3,0.3,0.3,0.6}
+          color = {0.8,0.8,0.8,0.6}
         end
-        self.buffer.foam[i] = self:New("Point",{color=color,radius=2,expire=GetTime()+9,position={unit=u}})
+        self.buffer.foam[i] = self:New("Point",{color=color,radius=2,expire=expire,position={unit=u}})
       end
     end
   end
@@ -897,7 +905,12 @@ function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
       self:GuarmFoamClear()
     end
   end
-
+  --Nighthold
+  --204471
+  if spellId == 204471 and event == "SPELL_CAST_START" then  --
+    self:SetRange(20)
+    self:New("Line",{width = 10, color={1,1,0,0.5},expire=GetTime()+4,from={guid=sourceGUID}})
+  end
 
 
 

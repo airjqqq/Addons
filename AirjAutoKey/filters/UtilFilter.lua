@@ -460,7 +460,7 @@ function F:NEXTINSANITY(filter)
   local buffs = Cache:GetBuffs(guid,"player",{[194249]=true})
   if buffs[1] and fstart then
     local value = Cache:GetSpellCooldown(name)
-    local speed = 8+ math.floor(GetTime()-fstart-stotal+1)*0.55
+    local speed = 6+ math.floor(GetTime()-fstart-stotal+1)*0.66
     -- if speed > 55 then
     --   speed = speed + 4
     -- end
@@ -476,12 +476,12 @@ function F:NEXTINSANITY(filter)
     local data = Cache.cache.casting[i]
     if data.spellId == 8092 then
       if (GetTime() - data.t) < 0.1 then
-        casting = 12
+        casting = 15
       end
     end
     if data.spellId == 34914 then
       if (GetTime() - data.t) < 0.1 then
-        casting = 4
+        casting = 6
       end
     end
     if casting>0 then
@@ -504,7 +504,7 @@ function F:NEXTINSANITY(filter)
   if casting>0 then
     local insbuffs = Cache:GetBuffs(guid,"player",{[193223]=true})
     if #insbuffs>0 then
-      power = power + casting*2.5
+      power = power + casting*2
     else
       power = power + casting
     end

@@ -1,5 +1,6 @@
 local Core =  LibStub("AceAddon-3.0"):GetAddon("AirjAVR")
 local mod = Core:NewModule("TrialOfVaior","AceEvent-3.0","AceTimer-3.0","AceConsole-3.0")
+local Cache
 
 function mod:OnInitialize()
 end
@@ -82,6 +83,7 @@ function mod:OnEnable()
 	mod:RegisterChatCommand("aodyn", function(str,...)
     mod:SetRaidMarkerForOdyn()
   end)
+  Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
 end
 
 local function range (x1,y1,x2,y2)
@@ -158,9 +160,11 @@ do
   local markerindex = {6,1,3}
   local offset = {
     {13,20},
-    {0,30},
+    {0,20},
     {-13,20},
   }
+  local midmarker = {7,8,5}
+  local midmarkerrange = {12,28,36}
   function mod:SetRaidMarkerForGuarm(s)
     if UnitCastingInfo("player") or UnitChannelInfo("player") then
       self:ScheduleTimer(self.SetRaidMarkerForGuarm,0.75,self,s)
@@ -181,6 +185,16 @@ do
         PlaceRaidMarker(mi)
         AirjHack:TerrainClick(x,y,z)
       end
+
+      for i,v in ipairs(midmarker) do
+        local x,y
+        local ox,oy = 0,midmarkerrange[i]
+        x = bx+ox*math.cos(f)-oy*math.sin(f)
+        y = by+oy*math.cos(f)+ox*math.sin(f)
+        local mi = v
+        PlaceRaidMarker(mi)
+        AirjHack:TerrainClick(x,y,z)
+      end
     end
   end
 	mod:RegisterChatCommand("agom", function(str,...)
@@ -188,6 +202,15 @@ do
   end)
 end
 
+local constids = {
+  228758,
+  228768,
+  228769,
+}
+local constNames = {}
+for i,v in ipairs(constids) do
+  constNames[i] = GetSpellInfo(v)
+end
 function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
 
   local data
@@ -223,6 +246,50 @@ function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sou
   if breathids[spellId] and event == "SPELL_CAST_SUCCESS" then
     mod:SetRaidMarkerForGuarm(breathids[spellId])
   end
+  if Cache then
+    local debuffs = {
+      [157736] = 1,
+      [228744] = 1,
+      [228810] = 2,
+      [228818] = 3,
+      [228794] = 1,
+      [228811] = 2,
+      [228819] = 3,
+    }
+    local constids = {
+      228758,
+      228768,
+      228769,
+    }
+    local colors = {
+      {0.6,0.5,0,0.1},
+      {0,0.6,0.5,0.1},
+      {0.5,0,0.6,0.1},
+    }
+    local colors2 = {
+      {1,0.5,0,0.2},
+      {0,1,0.5,0.2},
+      {0.8,0,1,0.2},
+    }
+    if event == "SPELL_AURA_APPLIED" and debuffs[spellId] then
+      local unit = Cache:FindUnitByGUID(destGUID)
+      local index = debuffs[spellId]
+      if not UnitDebuff(unit,constNames[index]) then
+        local name, rank, icon, count, dispelType, duration, expires = UnitDebuff(unit,spellName)
+        Core:ShowUnitMesh({
+              color=colors[index],
+              color2=colors2[index],
+              radius=8,
+              duration=expires-GetTime(),
+            },spellId,sourceGUID,destGUID)
+      end
+    end
+    if event == "SPELL_AURA_REMOVED" and debuffs[spellId] then
+      local index = debuffs[spellId]
+      Core:HideUnitMesh({},spellId,sourceGUID,destGUID)
+    end
+  end
+
 end
 
 function mod:UNIT_SPELLCAST_START(event,unitId,spell,rank,spellGUID)
