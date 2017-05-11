@@ -1,0 +1,10 @@
+## Interface: 70200
+## Title: GridCustomLayouts
+## Notes: Adds custom layouts for Grid
+## Author: Warbaby
+## Dependencies: Grid
+
+SecureGroupHeadersCopy.lua
+Locales.lua
+GridCustomLayouts.lua
+GridCustomLayoutsFrame.xml

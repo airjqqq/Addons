@@ -14,18 +14,6 @@ function F:OnInitialize()
     greater = {},
     unit = {},
   })
-  self:RegisterFilter("BEHITEDCNT",L["Swing By"],{
-    value = {},
-    greater = {},
-    name = {name="Scan Interval"},
-    unit = {},
-  })
-  self:RegisterFilter("SPELLHITCNT",L["Spell Hited"],{
-    value = {},
-    greater = {},
-    name = {name="Spell ID|Scan Interval"},
-    unit = {},
-  })
   self:RegisterFilter("DAMAGETAKEN",L["Damage Taken"],{
     value = {},
     greater = {},
@@ -54,6 +42,7 @@ function F:OnInitialize()
     NOHEAL = L["Exclude Heal"],
     SWING = L["Swing[Exclude Heal]"],
     MAGIC = L["Magic[Exclude Heal]"],
+    PERIODIC = L["Periodic"],
   })
   self:RegisterFilter("LASTCASTSEND",L["Cast Send"],{
     value = {},
@@ -71,12 +60,6 @@ function F:OnInitialize()
     value = {},
     greater = {},
     name = {name="Spell ID, blank as anyspell"},
-    unit = {name="Unit, blank as anybody"},
-  })
-  self:RegisterFilter("CASTSTARTGCD",L["Cast Start GCD"],{
-    value = {},
-    greater = {},
-    name = {name="Spell ID | GCD times"},
     unit = {name="Unit, blank as anybody"},
   })
   self:RegisterFilter("CASTSUCCESSED",L["Cast Success"],{
@@ -124,31 +107,23 @@ function F:CHANNELDAMAGE(filter)
   assert(filter.name and #filter.name==1)
   filter.unit = filter.unit or "player"
   local guid = Cache:UnitGUID(filter.unit)
-  if not guid then return false end
-  local list = Cache.cache.damageTo[guid]
-  if not list then return 120 end
-  local spellId = filter.name[1]
-  list = list[spellId]
-  if not list then return 120 end
-  list = list.array
-  if #list == 0 then return 120 end
-  local lastT = list[#list].t
-  return GetTime()-lastT
+  local toFind = {sourceGUID = guid,spellId = filter.name[1]}
+  local data = Cache.cache.damage:find(toFind)
+  if data then
+    return GetTime() - data.t
+  end
 end
 function F:CHANNELHEAL(filter)
   assert(filter.name and #filter.name==1)
   filter.unit = filter.unit or "player"
   local guid = Cache:UnitGUID(filter.unit)
-  if not guid then return false end
-  local list = Cache.cache.healTo[guid]
-  if not list then return 120 end
-  local spellId = filter.name[1]
-  list = list[spellId]
-  if not list then return 120 end
-  list = list.array
-  if #list == 0 then return 120 end
-  local lastT = list[#list].t
-  return GetTime()-lastT
+  local toFind = {sourceGUID = guid,spellId = filter.name[1]}
+  local data = Cache.cache.heal:find(toFind)
+  if data then
+    return GetTime() - data.t
+  else
+    return 120
+  end
 end
 
 function F:NEXTSWING(filter)
@@ -166,166 +141,17 @@ function F:NEXTSWING(filter)
   return speed - (GetTime()-lastT)
 end
 
-function F:BEHITEDCNT(filter)
-  filter.unit = filter.unit or "player"
-  filter.name = filter.name or {5}
-  assert(filter.name and #filter.name==1)
-	local time = filter.name[1]
-  local guid = Cache:UnitGUID(filter.unit)
-  if not guid then return 0 end
-  local by = Cache.cache.damageBy[guid]
-  if not by then return 0 end
-  local array = by.array or {}
-  local guids = {}
-  local t = GetTime()
-  local count = 0
-  for i = #array,1,-1 do
-  -- for i,v in ipairs(array) do
-    local v = array[i]
-    local eventTime,sourceGUID,spellId = v.t,v.guid,v.spellId
-    if t-eventTime>time then
-      break
-    end
-    if spellId=="Swing" then
-      if not guids[sourceGUID] then
-        guids[sourceGUID] = true
-        local isdead = select(6,Cache:GetHealth(sourceGUID))
-        if isdead == false then
-          count = count + 1
-        end
-      end
-    end
-  end
-  return count
-end
-
-function F:GetSpellHitCount(guid,spellId,time)
-  local to = Cache.cache.damageTo[guid]
-  if not to then return 0 end
-  to = to[spellId]
-  if not to then return 0 end
-  local array = to.array
-  if not array then return 0 end
-  local array = to.array
-  if #array == 0 then return 0 end
-  local last = array[#array]
-  if not last then return 0 end
-  local pguid = Cache:PlayerGUID()
-  local castTo = Cache.cache.castSuccessTo[pguid]
-  if castTo then
-    castTo = castTo[spellId]
-    if castTo and castTo.last and abs(castTo.last.t - last.t)>0.5 then
-      return 0
-    end
-  end
-  local calculated = {}
-  local count = 0
-  local t = GetTime()
-  for i = #array,1,-1 do
-  -- for i,v in ipairs(array) do
-    local v = array[i]
-    if t - v.t > time then
-      break
-    end
-    if abs(v.t - last.t)>0. then
-      break
-    end
-    local guid = v.guid
-    if not calculated[guid] then
-      calculated[guid] = true
-      local isdead = select(6,Cache:GetHealth(guid))
-      if isdead == false then
-        count = count + 1
-      end
-    end
-  end
-  return count
-end
-
-function F:SPELLHITCNT(filter)
-  local spellId, time = unpack(Core:ToValueTable(filter.name))
-  filter.unit = filter.unit or "player"
-  assert(spellId)
-	local time = time or 5
-  local guid = Cache:UnitGUID(filter.unit)
-  if not guid then return false end
-  return F:GetSpellHitCount(guid,spellId,time)
-end
-
-function F:GetDamageTaken(guid,time)
-  local by = Cache.cache.damageBy[guid]
-  if not by then return 0 end
-  local array = by.array or {}
+-- filter = {swing = true/false, magic = true/false, periodic = true/false}
+function F:GetDamageTaken(guid,time,filter)
   local t = GetTime()
   local total = 0
-  for i = #array,1,-1 do
-  -- for i,v in ipairs(array) do
-    local v = array[i]
-    local eventTime,sourceGUID,spellId,damage = v.t,v.guid,v.spellId,v.value
-    if t-eventTime>time then
+  filter = filter or {}
+  filter.destGUID = guid
+  for v,k,i in Cache.cache.damage:iterator(filter) do
+    if t-v.t>time then
       break
     end
-    total = total + damage
-  end
-  return total
-end
-
-function F:GetDamageTakenSwing(guid,time)
-  local by = Cache.cache.damageBy[guid]
-  if not by then return 0 end
-  local array = by.array or {}
-  local t = GetTime()
-  local total = 0
-  for i = #array,1,-1 do
-  -- for i,v in ipairs(array) do
-    local v = array[i]
-    local eventTime,sourceGUID,spellId,damage = v.t,v.guid,v.spellId,v.value
-    if t-eventTime>time then
-      break
-    end
-    if "Swing" == spellId then
-      total = total + damage
-    end
-  end
-  return total
-end
-function F:GetDamageTakenPeriodic(guid,time)
-  local by = Cache.cache.damageBy[guid]
-  if not by then return 0 end
-  local array = by.array or {}
-  local t = GetTime()
-  local total = 0
-  for i = #array,1,-1 do
-  -- for i,v in ipairs(array) do
-    local v = array[i]
-    local eventTime,sourceGUID,spellId,damage = v.t,v.guid,v.spellId,v.value
-    local periodic = v.periodic
-    if t-eventTime>time then
-      break
-    end
-    if periodic then
-      total = total + damage
-    end
-  end
-  return total
-end
-function F:GetDamageTakenDirect(guid,time)
-  local by = Cache.cache.damageBy[guid]
-  if not by then return 0 end
-  local array = by.array or {}
-  local t = GetTime()
-  local total = 0
-  for i = #array,1,-1 do
-  -- for i,v in ipairs(array) do
-    local v = array[i]
-    local eventTime,sourceGUID,spellId,damage = v.t,v.guid,v.spellId,v.value
-    local periodic = v.periodic
-    if t-eventTime>time then
-      break
-    end
-    if not periodic then
-      total = total + damage
-    end
+    total = total+v.value
   end
   return total
 end
@@ -337,50 +163,26 @@ function F:DAMAGETAKEN(filter)
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   if filter.subtype == "SWING" then
-    return F:GetDamageTakenSwing(guid,time)
+    return F:GetDamageTaken(guid,time,{swing=true})
   elseif filter.subtype == "DIRECT" then
-    return F:GetDamageTakenDirect(guid,time)
+    return F:GetDamageTaken(guid,time,{periodic=false})
   elseif filter.subtype == "PERIODIC" then
-    return F:GetDamageTakenPeriodic(guid,time)
+    return F:GetDamageTaken(guid,time,{periodic=true})
   else
     return F:GetDamageTaken(guid,time)
   end
 end
 
-function F:GetHealTaken(guid,time)
-  local by = Cache.cache.healBy[guid]
-  if not by then return 0 end
-  local array = by.array or {}
+function F:GetHealTaken(guid,time,filter)
   local t = GetTime()
   local total = 0
-  for i = #array,1,-1 do
-  -- for i,v in ipairs(array) do
-    local v = array[i]
-    local eventTime,sourceGUID,spellId,value = v.t,v.guid,v.spellId,v.value
-    if t-eventTime>time then
+  filter = filter or {}
+  filter.destGUID = guid
+  for v,k,i in Cache.cache.heal:iterator(filter) do
+    if t-v.t>time then
       break
     end
-    total = total + value
-  end
-  return total
-end
-
-function F:GetHealTakenDirect(guid,time)
-  local by = Cache.cache.healBy[guid]
-  if not by then return 0 end
-  local array = by.array or {}
-  local t = GetTime()
-  local total = 0
-  for i = #array,1,-1 do
-  -- for i,v in ipairs(array) do
-    local v = array[i]
-    local eventTime,sourceGUID,spellId,value,periodic = v.t,v.guid,v.spellId,v.value,v.periodic
-    if t-eventTime>time then
-      break
-    end
-    if not periodic then
-      total = total + value
-    end
+    total = total+v.value
   end
   return total
 end
@@ -392,7 +194,7 @@ function F:HEALTAKEN(filter)
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   if filter.subtype == "DIRECT" then
-    return F:GetHealTakenDirect(guid,time)
+    return F:GetHealTakenDirect(guid,time,{periodic=false})
   else
     return F:GetHealTaken(guid,time)
   end
@@ -419,14 +221,21 @@ function F:TIMETODIE(filter)
       return health/(damage)*time
     end
   elseif filter.subtype == "SWING" then
-    local damage = F:GetDamageTakenSwing(guid,time)
+    local damage = F:GetDamageTaken(guid,time,{swing=true})
     if damage == 0 then
       return 3600
     else
       return health/(damage)*time
     end
   elseif filter.subtype == "MAGIC" then
-    local damage = F:GetDamageTakenMagic(guid,time)
+    local damage = F:GetDamageTaken(guid,time,{magic=true})
+    if damage == 0 then
+      return 3600
+    else
+      return health/(damage)*time
+    end
+  elseif filter.subtype == "PERIODIC" then
+    local damage = F:GetDamageTaken(guid,time,{periodic=true})
     if damage == 0 then
       return 3600
     else
@@ -445,214 +254,138 @@ end
 
 function F:LASTCASTSEND(filter)
   assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
-	local spellID = filter.name[1]
+	local spellId = filter.name[1]
   local guid
   if filter.unit then
     guid = Cache:UnitGUID(filter.unit)
-  else
-    guid = "last"
+    if not guid then return false end
   end
-  if not guid then return false end
-  local data = Cache.cache.castSend[spellID]
-  if not data then return 120 end
-  data = data[guid]
+  local data = Cache.cache.castSend:find({spellId=spellId,guid=guid})
   if not data then return 120 end
   return GetTime() - data.t
 end
 
 function F:CASTSTART(filter)
   assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
-	local spellID = filter.name[1]
-  local guid
-  if filter.unit then
-    guid = Cache:UnitGUID(filter.unit)
-  else
-    guid = "last"
-  end
-  if not guid then return false end
-  local data = Cache.cache.castStartTo[spellID]
-  if not data then return 120 end
-  data = data[guid]
-  if not data then return 120 end
-  return GetTime() - data.t
-end
-
-function F:SINCECASTING(filter)
-  -- assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
-	local spellID = filter.name and filter.name[1]
-  local spells = Core:ToKeyTable(filter.name)
+	local spellId = filter.name[1]
   local guid
   if filter.unit then
     guid = Cache:UnitGUID(filter.unit)
     if not guid then return false end
   end
-  -- dump(Cache.cache.casting[#Cache.cache.casting],#Cache.cache.casting)
-  for i = #Cache.cache.casting,1,-1 do
-    local data = Cache.cache.casting[i]
-    if (not guid or data.guid == guid) and (not spellID or spells[data.spellId]) then
-      return GetTime() - data.t
-    end
-  end
-  return 120
+  local sourceGUID = AirjCache:PlayerGUID()
+  local data = Cache.cache.castStart:find({spellId=spellId,destGUID=guid,sourceGUID=sourceGUID})
+  if not data then return 120 end
+  return GetTime() - data.t
 end
 
-function F:CASTSTARTGCD(filter)
-  assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
-	local spellID = filter.name[1]
-	local gcdtime = filter.name[2] or 1
+function F:SINCECASTING(filter)
+
+  local spellId = filter.name and filter.name[1]
   local guid
   if filter.unit then
     guid = Cache:UnitGUID(filter.unit)
-  else
-    guid = "last"
+    if not guid then return false end
   end
-  local gcd = Cache.cache.gcd.duration or 1
-  if not guid then return false end
-  local data = Cache.cache.castStartTo[spellID]
+  local data = Cache.cache.casting:find({spellId=spellId,guid=guid})
   if not data then return 120 end
-  data = data[guid]
-  if not data then return 120 end
-  return math.abs(GetTime() - data.t - gcd*gcdtime)
+  return GetTime() - data.endTime/1000
 end
+
 function F:CASTSUCCESSED(filter)
   assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
-	local spellID = filter.name[1]
+	local spellId = filter.name[1]
   local guid
   if filter.unit then
     guid = Cache:UnitGUID(filter.unit)
-  else
-    guid = "last"
+    if not guid then return false end
   end
-  if not guid then return false end
-  local pguid = Cache:PlayerGUID()
-  local data = Cache.cache.castSuccessTo[pguid]
-  if not data then return 120 end
-  data = data[spellID]
-  if not data then return 120 end
-  data = data[guid]
+  local sourceGUID = AirjCache:PlayerGUID()
+  local data = Cache.cache.castSuccess:find({spellId=spellId,destGUID=guid,sourceGUID=sourceGUID})
   if not data then return 120 end
   return GetTime() - data.t
 end
 function F:CASTSUCCESSEDUNIT(filter)
   assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
-	local spellID = filter.name[1]
+	local spellId = filter.name[1]
   local guid
   guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
-  local pguid = Cache:PlayerGUID()
-  local data = Cache.cache.castSuccessTo[pguid]
-  if not data then return end
-  data = data[spellID]
-  if not data then return end
-  data = data.last
-  if not data then return end
-  return data.guid == guid
+  local sourceGUID = AirjCache:PlayerGUID()
+  local data = Cache.cache.castSuccess:find({spellId=spellId,sourceGUID=sourceGUID})
+  return data and data.guid == guid or false
 end
 
 function F:SINCELASTCAST(filter)
   local guid
   guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
-  local pguid = Cache:PlayerGUID()
-  local data = Cache.cache.castSuccessTo[guid]
-  if not data then return 120 end
-  data = data.array
-  if not data then return 120 end
-  data = data[#data]
+  local data = Cache.cache.castSuccess:find({sourceGUID=guid})
   if not data then return 120 end
   return GetTime() - data.t
 end
 
 function F:AURANUM(filter)
   assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
-	local spellID = filter.name[1]
-  local pguid = Cache:PlayerGUID()
-  local data = Cache.cache.auraTo[pguid]
-  local overTimeData
-  if filter.subtype == "DOT" then
-    overTimeData = Cache.cache.damageTo[pguid]
-  elseif filter.subtype == "HOT" then
-    overTimeData = Cache.cache.healTo[pguid]
-  end
-  if not data then return 0 end
-  data = data[spellID]
-  if overTimeData then overTimeData = overTimeData[spellID] end
-  if not data then return 0 end
-  if filter.subtype and not overTimeData then return 0 end
-  local count = 0
+	local spellId = filter.name[1]
+  local sourceGUID = AirjCache:PlayerGUID()
+  local guids = {}
   local t = GetTime()
-  for k,v in pairs(data) do
-    if k~="last" then
-      if overTimeData then
-        local d = overTimeData[k]
-        if d and t-d.t<5 or t-v.t<5 then
-          count = count + 1
+  local overTimeFifo
+  if filter.subtype == "DOT" then
+    overTimeFifo = Cache.cache.damage
+  elseif filter.subtype == "HOT" then
+    overTimeFifo = Cache.cache.heal
+  end
+
+  local getguids = {}
+  for v,k,i in Cache.cache.aura:iterator({sourceGUID=sourceGUID,spellId=spellId}) do
+    if t-v.t>120 then
+      break
+    end
+    if v.destGUID then
+      if v.destGUID then
+        if not getguids[v.destGUID] or v.t > getguids[v.destGUID] then
+          if overTimeFifo then
+            local od = overTimeFifo:find({sourceGUID=sourceGUID,spellId=spellId,destGUID=v.destGUID})
+            if od and t-od.t<5 then
+              getguids[v.destGUID] = v.t
+            end
+          else
+            getguids[v.destGUID] = v.t
+          end
         end
-      else
-        count = count + 1
       end
+    end
+  end
+
+  local fadeguids = {}
+  for v,k,i in Cache.cache.auraFade:iterator({sourceGUID=sourceGUID,spellId=spellId}) do
+    if t-v.t>120 then
+      break
+    end
+    if v.destGUID then
+      if not fadeguids[v.destGUID] or v.t > fadeguids[v.destGUID] then
+        fadeguids[v.destGUID] = v.t
+      end
+    end
+  end
+  local count = 0
+  for guid,time in pairs(getguids) do
+    if not fadeguids[guid] or time >fadeguids[guid] then
+      count = count + 1
     end
   end
   return count
 end
 
 function F:GetFutureDamagePVE(guid,time,futureTime)
-  time = time or 5
-  local damageBy = Cache.cache.damageBy[guid]
-    -- dump(damageBy)
-  if not damageBy then return 0 end
-  damageBy = damageBy.array
-  local t = GetTime()
-  local debuffsBySpellName = {}
-  local debuffs = Cache:GetDebuffs(guid)
-  for i,v in ipairs(debuffs) do
-    local name = v[1]
-    debuffsBySpellName[name] = v
-  end
-  local periodicDamage = {}
-  for i = #damageBy,1,-1 do
-    local data = damageBy[i]
-      -- dump(data)
-    if t-data.t>time then break end
-    if data.periodic or true then -- periodic damage
-      local timeLeft
-      local spellName = data.spellName
-      if periodicDamage[spellName] then
-        if periodicDamage[spellName].first then
-          local interval = periodicDamage[spellName].first-data.t
-          if interval >0 then
-            periodicDamage[spellName].interval = interval
-            periodicDamage[spellName].first = nil
-          end
-        end
-      else
-        local debuff = debuffsBySpellName[spellName]
-        if debuff then
-          timeLeft = debuff[7] - t
-          timeLeft = max(timeLeft,0)
-          periodicDamage[spellName] = {
-            timeLeft = timeLeft,
-            value = data.value,
-            first = data.t,
-          }
-        end
-      end
-    else -- directdamage
-      -- do nothing
-    end
-  end
-  futureTime = futureTime or 15
-  local totalDamage = 0
-  for i,data in pairs(periodicDamage) do
-    local dpt = data.value
-    local interval = (data.interval or max(1,t-data.first))
-    local tick = math.ceil(min(data.timeLeft,futureTime)/interval)
-    totalDamage = tick * dpt
-  end
-  return totalDamage
+  local pd = F:GetDamageTaken(guid,time,{periodic=true})
+  local sd = F:GetDamageTaken(guid,time,{swing=true})
+  return (pd+sd)*futureTime/time
 end
 
-local careSpellIds = {
+local windWalkerMonkCareSpellIds = {
   [205320] = true,
   [100784] = true,
   [113656] = true,
@@ -670,18 +403,14 @@ local careSpellIds = {
 
 function F:LASTSPELLINTERVAL(filter)
   assert(filter.name and #filter.name == 1 and type(filter.name[1])=="number")
-	local spellID = filter.name[1]
-  local pguid = Cache:PlayerGUID()
-  local data = Cache.cache.castSuccessTo[pguid]
-  if not data then return 120 end
-  local array = data.array
+  local spellId = filter.name[1]
+  local sourceGUID = AirjCache:PlayerGUID()
   local interval = 0
-  for i=#array,1,-1 do
-    local spellId = array[i].spellId
-    if careSpellIds[spellId] then
+  for v,k,i in Cache.cache.castSuccess:iterator({sourceGUID=sourceGUID}) do
+    if windWalkerMonkCareSpellIds[v.spellId] then
       interval = interval + 1
     end
-    if spellId == spellID then
+    if v.spellId == spellId then
       return interval
     end
   end

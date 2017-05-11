@@ -248,7 +248,6 @@ function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sou
     end
   end
 
-
 end
 
 function mod:UNIT_SPELLCAST_START(event,unitId,spell,rank,spellGUID)

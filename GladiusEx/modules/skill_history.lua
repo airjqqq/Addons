@@ -10,16 +10,19 @@ local tinsert, tremove = table.insert, table.remove
 local GetSpellTexture, GetTime = GetSpellTexture, GetTime
 
 local function GetDefaultSpells()
-	local offensive = { size = 1.5, color = { r = 1, g = 0.4, b = 0, a = 1 } }
-	local defensive = { size = 1.5, color = { r = 0, g = 0.3, b = 1, a = 1 } }
-	local cc = { size = 1.8, color = { r = 0.5, g = 0, b = 1, a = 1 } }
-	local blink = { size = 1.8, color = { r = 1, g = 1, b = 0, a = 1 } }
-	local interrupt = { size = 2, color = { r = 1, g = 0, b = 1, a = 1 } }
-	local dispel = { size = 2, color = { r = 0, g = 1, b = 0, a = 1 } }
+	local pvp_trinket = { size = 2, color = { r = 1, g = 1, b = 1, a = 1 } }
+	local offensive = { size = 1.8, color = { r = 1, g = 0.4, b = 0, a = 1 } }
+	local defensive = { size = 1.8, color = { r = 0, g = 0.3, b = 1, a = 1 } }
+	local cc = { size = 1.2, color = { r = 0.5, g = 0, b = 1, a = 1 } }
+	local blink = { size = 1.2, color = { r = 1, g = 1, b = 0, a = 1 } }
+	local interrupt = { size = 1.5, color = { r = 1, g = 0, b = 1, a = 1 } }
+	local dispel = { size = 1.5, color = { r = 0, g = 1, b = 0, a = 1 } }
 	local toRet = {}
 	for id,spelldata in pairs(CT:GetCooldownsData()) do
 		if spelldata.interrupt then
 			toRet[id] = interrupt
+		elseif spelldata.pvp_trinket then
+			toRet[id] = pvp_trinket
 		elseif spelldata.dispel then
 			toRet[id] = dispel
 		elseif spelldata.blink then
@@ -46,6 +49,7 @@ local ignoreSpells = {
 	[228597] = true,
 
 	[1234] = true,
+	[240022] = true,
 }
 
 
@@ -57,7 +61,7 @@ local defaults = {
 	PaddingX = 0,
 	PaddingY = 0,
 	BackgroundColor = { r = 0, g = 0, b = 0, a = 0 },
-	Crop = true,
+	Crop = false,
 
 	Timeout = 5,
 	MoveSpeed = 0.5,
@@ -72,20 +76,22 @@ local MAX_ICONS = 40
 
 local SkillHistory = GladiusEx:NewGladiusExModule("SkillHistory",
 	fn.merge(defaults, {
+		minShowSize = 1.5,
 		AttachTo = "Frame",
 		Anchor = "TOPRIGHT",
 		RelativePoint = "TOPLEFT",
 		GrowDirection = "LEFT",
-		OffsetX = -34,
-		OffsetY = -50,
+		OffsetX = -0,
+		OffsetY = -0,
 	}),
 	fn.merge(defaults, {
+		minShowSize = 1.2,
 		AttachTo = "Frame",
 		Anchor = "TOPLEFT",
 		RelativePoint = "TOPRIGHT",
 		GrowDirection = "RIGHT",
-		OffsetX = 34,
-		OffsetY = -50,
+		OffsetX = 0,
+		OffsetY = 0,
 	}))
 
 function SkillHistory:OnEnable()
@@ -101,6 +107,9 @@ function SkillHistory:OnEnable()
 	self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED", "UNIT_SPELLCAST_STOP")
 	self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START", "UNIT_SPELLCAST_START")
 	self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP", "UNIT_SPELLCAST_STOP")
+
+
+	CT.RegisterCallback(self, "LCT_CooldownUsed")
 end
 
 function SkillHistory:OnDisable()
@@ -198,6 +207,19 @@ end
 
 local prev_lineid = {}
 local caststarted = {}
+local cdToCast = {
+	[214027] = true,
+}
+
+function SkillHistory:LCT_CooldownUsed(event, unit, spellId)
+	if self.frame[unit] then
+		if cdToCast[spellId] then
+			print(unit,spellId)
+			self:SpellCasted(unit, spellId)
+		end
+	end
+end
+
 function SkillHistory:UNIT_SPELLCAST_SUCCEEDED(event, unit, spellName, rank, lineID, spellId)
 	if self.frame[unit] then
 		-- casts with lineID = 0 seem to be secondary effects not directly casted by the unit
@@ -276,12 +298,17 @@ function SkillHistory:SpellCasted(unit, spellid, lineID)
 		return
 	end
 	local spelldata = spellDatas[spellid]
+	local size = spelldata and spelldata.size or 1
+	if size < self.db[unit].minShowSize then
+		return
+	end
+
 
 	local speed = self.db[unit].MoveSpeed
 	local icon = self:NewIcon(unit)
 	icon.spellid = spellid
-	icon.width = spelldata and spelldata.size or 1
-	icon.height = spelldata and spelldata.size or 1
+	icon.width = size
+	icon.height = size
 	icon.color = spelldata and spelldata.color
 	icon.started = 0
 	icon.delayed = 0
@@ -857,13 +884,21 @@ function SkillHistory:GetOptions(unit)
 							desc = L["Size of the cooldown icons"],
 							min = 1, softMin = 10, softMax = 100, step = 1,
 							disabled = function() return not self:IsUnitEnabled(unit) end,
-							order = 5,
+							order = 3,
+						},
+						minShowSize = {
+							type = "range",
+							name = "minShowSize",
+							desc = "",
+							min = 1, max = 3, bigStep = 0.05, isPercent = true,
+							disabled = function() return not self:IsUnitEnabled(unit) end,
+							order = 4,
 						},
 						BorderSize = {
 							type = "range",
 							name = L["Border size"],
 							desc = L["Size of the cooldown icon borders"],
-							min = 0, softMin = 0, softMax = 10, step = 1,
+							min = -10, softMin = 0, softMax = 10, step = 1,
 							disabled = function() return not self:IsUnitEnabled(unit) end,
 							order = 5,
 						},

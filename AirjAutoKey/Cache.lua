@@ -3,7 +3,6 @@ local Cache = LibStub("AceAddon-3.0"):NewAddon("AirjCache", "AceConsole-3.0", "A
 local AirjHack = LibStub("AceAddon-3.0"):GetAddon("AirjHack")
 AirjCache = Cache
 
-
 local band = bit.band
 
 
@@ -11,13 +10,32 @@ function Cache:OnInitialize()
 	--self.cache.name[key]={t=GetTime(),k=v}
 	self.cache = setmetatable({},{
 		__index=function(t,k)
-			t[k]={}
+			t[k]=AirjUtil:NewFIFO(self.fifosize[k] or 1000)
 			return t[k]
 		end
 	})
+	self.interval = {
+		buffs = 1,
+		debuffs = 1,
+		health = 0.2,
+		position = 0,
+		spell = 10,
+		spec = 5,
+		exists = 1,
+	}
+	self.recoverDuration = {
+		line2guid = 5,
+		myhealth = 30,
+		casting = 30,
+	}
+	self.fifosize = {
+
+	}
 end
 
 function Cache:OnEnable()
+
+	-- do return end
 	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	self:RegisterEvent("UNIT_SPELLCAST_SENT")
 	self:RegisterEvent("UNIT_SPELLCAST_FAILED")
@@ -37,19 +55,11 @@ function Cache:OnEnable()
 			self:OnCoolDownChanged()
 		end
 	end)
+	self:RegisterEvent("PLAYER_TARGET_CHANGED")
 
   self:RegisterMessage("AIRJ_HACK_OBJECT_CREATED",self.OnObjectChanged,self)
   self:RegisterMessage("AIRJ_HACK_OBJECT_DESTROYED",self.OnObjectChanged,self)
 
-	self.interval = {
-		buffs = 1,
-		debuffs = 1,
-		health = 0.05,
-		position = 0,
-		spell = 10,
-		spec = 5,
-		exists = 1,
-	}
 	self.scanTimer = self:ScheduleRepeatingTimer(function()
 		local units = self:GetUnitList()
 		local guids = self:GetUnitGUIDs()
@@ -66,47 +76,43 @@ function Cache:OnEnable()
 		self:ScanExists(t,guids,units)
 		self:ScanCasting(t,guids,units)
 	end,0.05)
-
-  self.mainTimerProtectorTimer = self:ScheduleRepeatingTimer(function()
-    if GetTime() - (self.lastScanPositionTime or 0) > 0.5 then
-      self:Print("RestartScanPositionTimer")
-      -- self.lastScanPositionTime = GetTime()
-      self:RestartScanPostionTimer()
-    end
-
-    if GetTime() - (self.lastRecoverTime or 0) > 2 then
-      self:Print("RestarRecovertTimer")
-      -- self.lastRecoverTime = GetTime()
-      self:RestarRecovertTimer()
-    end
-    if GetTime() - (self.lastScanHealthTime or 0) > 0.5 then
-      self:Print("RestartScanHealthTimer")
-      -- self.lastScanHealthTime = GetTime()
-      self:RestartScanHealthTimer()
-    end
-  end,0.1)
-	self.recoverDuration = {
-		line2guid = 5,
-		myhealth = 30,
-	}
+	self:ScheduleTimer(function()
+	  self.mainTimerProtectorTimer = self:ScheduleRepeatingTimer(function()
+	    if GetTime() - (self.lastScanPositionTime or 0) > 0.5 then
+	      self:Print("RestartScanPositionTimer")
+	      -- self.lastScanPositionTime = GetTime()
+	      self:RestartScanPostionTimer()
+	    end
+	    if GetTime() - (self.lastScanHealthTime or 0) > 0.5 then
+	      self:Print("RestartScanHealthTimer")
+	      -- self.lastScanHealthTime = GetTime()
+	      self:RestartScanHealthTimer()
+	    end
+	    -- if GetTime() - (self.lastRecoverTime or 0) > 2 then
+	    --   self:Print("RestarRecovertTimer")
+	    --   -- self.lastRecoverTime = GetTime()
+	    --   self:RestarRecovertTimer()
+	    -- end
+	  end,0.1)
+	end,5)
 end
 
-function Cache:RestarRecovertTimer()
-	if self.recoverTimer then
-		self:CancelTimer(self.recoverTimer,true)
-		self.recoverTimer = nil
-	end
-	self.lastRecoverTime=GetTime()
-	self.recoverTimer = self:ScheduleRepeatingTimer(function()
-		local t = GetTime()
-    self.lastRecoverTime=t
-		for k,v in pairs(self.cache) do
-			if self.recoverDuration[k] then
-				self:Recover(v,t,self.recoverDuration[k])
-			end
-		end
-	end,1)
-end
+-- function Cache:RestarRecovertTimer()
+-- 	if self.recoverTimer then
+-- 		self:CancelTimer(self.recoverTimer,true)
+-- 		self.recoverTimer = nil
+-- 	end
+-- 	self.lastRecoverTime=GetTime()
+-- 	self.recoverTimer = self:ScheduleRepeatingTimer(function()
+-- 		local t = GetTime()
+--     self.lastRecoverTime=t
+-- 		for k,v in pairs(self.cache) do
+-- 			if self.recoverDuration[k] then
+-- 				self:Recover(v,t,self.recoverDuration[k])
+-- 			end
+-- 		end
+-- 	end,1)
+-- end
 function Cache:RestartScanHealthTimer()
 	if self.scanHealthTimer then
 		self:CancelTimer(self.scanHealthTimer,true)
@@ -119,7 +125,7 @@ function Cache:RestartScanHealthTimer()
     local t=GetTime()
     self.lastScanHealthTime=t
 		self:ScanHealth(t,guids,units)
-	end,0.02)
+	end,0.1)
 end
 function Cache:RestartScanPostionTimer()
 	if self.scanPositionTimer then
@@ -133,7 +139,7 @@ function Cache:RestartScanPostionTimer()
     local t=GetTime()
     self.lastScanPositionTime=t
 		self:ScanPosition(t,guids,units)
-	end,0.05)
+	end,0.1)
 end
 
 function Cache:OnDisable()
@@ -150,64 +156,85 @@ do
     return playerGUID
   end
 	local lastT
+	local guids = {}
 	function Cache:UnitGUID(unit)
-		if not unit then return end
-		local t = GetTime()
-		local guids = self.cache.guid
-		if t~=lastT then
-			lastT = t
-			wipe(guids)
-		end
-		local guid = guids[unit]
-		if guid == nil then
-			guid = UnitGUID(unit)
-			guids[unit] = guid or false
-			return guid
-		elseif guid == false then
-			return nil
-		else
-			return guid
-		end
+		return UnitGUID(unit)
+		-- if not unit then return end
+		-- local t = GetTime()
+		-- if t~=lastT then
+		-- 	lastT = t
+		-- 	wipe(guids)
+		-- end
+		-- local guid = guids[unit]
+		-- if guid == nil then
+		-- 	guid = UnitGUID(unit)
+		-- 	guids[unit] = guid
+		-- 	return guid
+		-- elseif guid == false then
+		-- 	return nil
+		-- else
+		-- 	return guid
+		-- end
 	end
 end
 
-function Cache:Call(fcnName,...)
-	local key = fcnName
-	for i,v in ipairs({...}) do
-		key = key.."-"..v
-	end
-	local toRet = self.cache.call[key]
-	local t = GetTime()
-	if toRet and toRet.t == t then
-		return unpack(toRet,1,20)
-	else
-		toRet = {_G[fcnName](...)}
-		toRet.t = t
-		self.cache.call[key]=toRet
-		return unpack(toRet,1,20)
+do
+
+	local lastT
+	local calls = {}
+	local _G = _G
+	function Cache:Call(fcnName,...)
+		return _G[fcnName](...)
+		-- local key = fcnName
+		-- for i,v in ipairs({...}) do
+		-- 	key = key.."-"..v
+		-- end
+		-- local t = GetTime()
+		-- if t~=lastT then
+		-- 	lastT = t
+		-- 	wipe(calls)
+		-- end
+		-- local toRet = calls[key]
+		-- if not toRet then
+		-- 	toRet = {_G[fcnName](...)}
+		-- 	calls[key] = toRet
+		-- end
+		-- return unpack(toRet,1,20)
 	end
 end
 
 --util functions
 do
+	--[[
 	local recoverd = 0
 	local function recover(data,t,duration)
 		-- if recoverd > 1000 then
 		-- 	return
 		-- end
-		for k,v in pairs(data) do
-			if type(v) == "table" then
-				recoverd = recoverd + 1
-				if v.t then
-					if t-v.t > duration then
-						if data.isArray then
+		if data.isArray then
+			for k,v in ipairs(data) do
+				if type(v) == "table" then
+					recoverd = recoverd + 1
+					if v.t then
+						if t-v.t > duration then
 							tremove(data,k)
-						else
+						end
+					else
+						recover(v,t,duration)
+					end
+				end
+			end
+		else
+			for k,v in pairs(data) do
+				if type(v) == "table" then
+					recoverd = recoverd + 1
+					if v.t then
+						if t-v.t > duration then
 							data[k] = nil
 						end
+					else
+						recover(v,t,duration)
 					end
-				else
-					recover(v,t,duration)
 				end
 			end
 		end
@@ -216,6 +243,7 @@ do
 		recoverd = 0
 		recover(data,t,duration)
 	end
+	]]
 	function Cache:GetUnitList()
 		if self.unitListCache then return self.unitListCache end
 		local subUnit = {"","target","pet","pettarget"}
@@ -291,7 +319,7 @@ do
 		if AirjHack and AirjHack:HasHacked() then
 			local objects = AirjHack.objectCache or AirjHack:GetObjects()
 			for guid,type in pairs(objects) do
-				if band(type,0x08)~=0 then
+				if band(type,0x28)~=0 then
 					toRet[guid] = type
 				end
 			end
@@ -303,6 +331,18 @@ end
 
 --events
 do
+	local lasttargetguid
+	function Cache:PLAYER_TARGET_CHANGED(...)
+		local guid = UnitGUID("target")
+		if guid then
+			self.cache.targeted:set({t=GetTime()},guid)
+		end
+		if lasttargetguid then
+			self.cache.targeted:set({t=GetTime()},lasttargetguid)
+		end
+		lasttargetguid = guid
+	end
+
 	local lastErrorCode
 	function Cache:UNIT_SPELLCAST_SENT(...)
 		-- print(...)
@@ -323,20 +363,11 @@ do
 	    end
 			local spellId = spellID
 	    if spellID then
-				self.cache.castSend[spellId]=self.cache.castSend[spellId] or {}
-				self.cache.castSend.last = {t=t,guid=guid,spellId=spellId}
-				local to = self.cache.castSend[spellId]
-				to.last={t=t,guid=guid}
-				if guid then
-					to[guid]={t=t}
-				end
+				self.cache.castSend:push({t=t,guid=guid,spellId=spellID})
 			end
 				-- self:Print("UNIT_SPELLCAST_SENT",lineID)
 			if lineID then
-		    self.cache.line2guid[lineID]={
-					t=t,
-					guid=guid,
-				}
+		    self.cache.line2guid:set({t=t,guid=guid},lineID)
 			end
 		end
 	end
@@ -345,23 +376,20 @@ do
 		local event,unitID, spell, rank, lineID, spellID = ...
 		if unitID == "player" then
 			-- self:Print(GetTime(),...)
-	    local data = self.cache.line2guid[lineID]
+	    local data = self.cache.line2guid:get(lineID)
 			if data then
 				if GetTime() - data.t < 1 then
 					local guid = data.guid
 			    if guid then
-						local current = self.cache.serverRefused[guid]
+						local current = self.cache.serverRefused:get(guid)
 						local increase = lastErrorCode == 50 and 10 or 1
 						if current and data.t-current.t<1 then
 							current.count = current.count + increase
 						else
-							self.cache.serverRefused[guid] = {
+							self.cache.serverRefused:set({
 								t=data.t,
 								count=increase,
-							}
-						end
-						if self.cache.serverRefused[guid].count>1 then
-							-- self:Print(GetTime(),"Server Refused",guid)
+							},guid)
 						end
 			    end
 				end
@@ -375,13 +403,13 @@ do
 		local event,unitID, spell, rank, lineID, spellID = ...
 		if unitID == "player" then
 			-- self:Print(GetTime(),...)
-			local data = self.cache.line2guid[lineID]
+			local data = self.cache.line2guid:get(lineID)
 			if data then
 				if GetTime() - data.t < 1 then
 					local guid = data.guid
 					if guid then
 						-- self:Print("Server Confirmed",guid)
-						self.cache.serverRefused[guid] = nil
+						self.cache.serverRefused:set(nil,guid)
 					end
 				end
 			end
@@ -410,7 +438,7 @@ do
 				end
 				if passed then
 					local s,m = pcall(fcn,t,...)
-					if not s then self:Print("error:",m) end
+					if not s then self:Print("error:",event,m) end
 				end
 			end
 			-- body...
@@ -426,10 +454,10 @@ do
 				},
 				fcn = function(localtime,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,...)
 					if sourceGUID then
-						self.cache.flag[sourceGUID] = {sourceFlags,sourceFlags2}
+						self.cache.flag:set({sourceFlags,sourceFlags2,t=localtime},sourceGUID)
 					end
 					if destGUID then
-						self.cache.flag[destGUID] = {destFlags,destFlags2}
+						self.cache.flag:set({destFlags,destFlags2,t=localtime},destGUID)
 					end
 				end
 
@@ -442,18 +470,20 @@ do
 				},
 				fcn = function(localtime,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
 					local periodic = strfind(event,"_PERIODIC") and true or false
+					local isMagic = spellSchool and bit.band(spellSchool,0x7e) ~= 0 or false
 					local damage = 0
 					local rawDamage = 0
 					local args
+					local swing
 					if spellId == 196917 then
 						return
 					end
 					if strfind(event,"SWING_") then
-						args= {spellId,spellName,spellSchool,...}
-						spellId="Swing"
-						spellName = "Swing"
+						args = {spellId,spellName,spellSchool,...}
+						swing = true
 					else
 						args= {...}
+						swing = false
 					end
 					if strfind(event,"_DAMAGE") then
 						local amount,overkill,school,resisted,blocked,absorbed = unpack(args)
@@ -464,35 +494,9 @@ do
 						damage = damage + (amountMissed or 0)
 						rawDamage = (amount or 0)
 					end
-					sourceGUID = sourceGUID or "Unknown"
-					destGUID = destGUID or "Unknown"
-					spellId = spellId or "Unknown"
-					spellName = spellName or "Unknown"
-
-					self.cache.damageTo[sourceGUID]=self.cache.damageTo[sourceGUID] or {}
-
-					local to = self.cache.damageTo[sourceGUID]
-					to.array = to.array or {isArray = true}
-					tinsert(to.array,{t=localtime,value=damage,guid=destGUID,spellId=spellId,spellName=spellName,periodic=periodic})
-					to[spellId]=to[spellId] or {}
-					to[spellId].array = to[spellId].array or {isArray = true}
-					tinsert(to[spellId].array, {t=localtime,value=damage,guid=destGUID,periodic=periodic})
-					-- to[spellId].last={t=localtime,value=damage,guid=destGUID,periodic=periodic}
-					-- to[spellId][destGUID]={t=localtime,value=damage,periodic=periodic}
-
-
-					self.cache.damageBy[destGUID]=self.cache.damageBy[destGUID] or {}
-					local by = self.cache.damageBy[destGUID]
-					by.array = by.array or {isArray = true}
-					tinsert(by.array,{t=localtime,value=damage,guid=sourceGUID,spellId=spellId,spellName=spellName,periodic=periodic})
-					by[spellId]=by[spellId] or {}
-					by[spellId].array = by[spellId].array or {isArray = true}
-					tinsert(by[spellId].array, {t=localtime,value=damage,guid=sourceGUID,periodic=periodic})
-					-- by[spellId].last={t=localtime,value=damage,guid=sourceGUID,periodic=periodic}
-					-- by[spellId][sourceGUID]={t=localtime,value=damage,periodic=periodic}
-					if self.cache.health[destGUID] then
-						self.cache.health[destGUID].changed = true
-					end
+					local data = {sourceGUID=sourceGUID,t=localtime,value=damage,destGUID=destGUID,spellId=spellId,spellName=spellName,periodic=periodic,magic=isMagic,swing=swing}
+					self.cache.damage:push(data)
+					self.cache.healthChanged:set(true,destGUID)
 				end
 			},
 			{
@@ -516,33 +520,9 @@ do
 						absorbed = 0
 					end
 					rawHeal = (amount or 0) - ((overhealing or 0)+(absorbed or 0))
-					sourceGUID = sourceGUID or "Unknown"
-					destGUID = destGUID or "Unknown"
-					spellId = spellId or "Unknown"
-
-					self.cache.healTo[sourceGUID]=self.cache.healTo[sourceGUID] or {}
-					local to = self.cache.healTo[sourceGUID]
-					to.array = to.array or {isArray = true}
-					tinsert(to.array,{t=localtime,value=heal,guid=destGUID,spellId=spellId,periodic=periodic})
-					to[spellId]=to[spellId] or {}
-					to[spellId].array = to[spellId].array or {isArray = true}
-					tinsert(to[spellId].array, {t=localtime,value=heal,guid=destGUID,periodic=periodic})
-					-- to[spellId].last={t=localtime,value=heal,guid=destGUID,periodic=periodic}
-					-- to[spellId][destGUID]={t=localtime,value=heal,periodic=periodic}
-
-					self.cache.healBy[destGUID]=self.cache.healBy[destGUID] or {}
-					local by = self.cache.healBy[destGUID]
-					by.array = by.array or {isArray = true}
-					tinsert(by.array,{t=localtime,value=heal,guid=sourceGUID,spellId=spellId,periodic=periodic})
-					by[spellId]=by[spellId] or {}
-					by[spellId].array = by[spellId].array or {isArray = true}
-					tinsert(by[spellId].array, {t=localtime,value=heal,guid=sourceGUID,periodic=periodic})
-					-- by[spellId].last={t=localtime,value=heal,guid=sourceGUID,periodic=periodic}
-					-- by[spellId][sourceGUID]={t=localtime,value=heal,periodic=periodic}
-
-					if self.cache.health[destGUID] then
-						self.cache.health[destGUID].changed = true
-					end
+					local data = {sourceGUID=sourceGUID,t=localtime,value=heal,destGUID=destGUID,spellId=spellId,spellName=spellName,periodic=periodic}
+					self.cache.heal:push(data)
+					self.cache.healthChanged:set(true,destGUID)
 				end
 			},
 			{
@@ -551,23 +531,8 @@ do
 					SPELL_CAST_SUCCESS=true,
 				},
 				fcn = function(localtime,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
-
-					sourceGUID = sourceGUID or "Unknown"
-					destGUID = destGUID or "Unknown"
-					spellId = spellId or "Unknown"
-					self.cache.castSuccessTo[sourceGUID]=self.cache.castSuccessTo[sourceGUID] or {}
-					local to = self.cache.castSuccessTo[sourceGUID]
-					to.array = to.array or {isArray = true}
-					tinsert(to.array,{t=localtime,guid=destGUID,spellId=spellId})
-					to[spellId]=to[spellId] or {}
-					to[spellId].last={t=localtime,guid=destGUID}
-					to[spellId][destGUID]={t=localtime}
-
-					self.cache.castSuccessBy[destGUID]=self.cache.castSuccessBy[destGUID] or {}
-					local by = self.cache.castSuccessBy[destGUID]
-					by[spellId]=by[spellId] or {}
-					by[spellId].last={t=localtime,guid=sourceGUID}
-					by[spellId][sourceGUID]={t=localtime}
+					local data = {sourceGUID=sourceGUID,t=localtime,value=heal,destGUID=destGUID,spellId=spellId,spellName=spellName}
+					self.cache.castSuccess:push(data)
 				end
 			},
 			{
@@ -576,26 +541,16 @@ do
 					SPELL_CAST_START=true,
 				},
 				fcn = function(localtime,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
-					if self:PlayerGUID() == sourceGUID or UnitGUID("pet") == sourceGUID then
-						destGUID = destGUID or "Unknown"
-						spellId = spellId or "Unknown"
-						local data = self.cache.castSend[spellId] and self.cache.castSend[spellId].last
+					if sourceGUID == AirjCache:PlayerGUID() then
+						local send = self.cache.castSend:find({spellId=spellId})
 						local guid
-						if data and data.t and localtime-data.t<1 then
-							guid = data.guid
+						if send and send.t and localtime-send.t<1 then
+							guid = send.guid
 						end
-						guid = guid or destGUID
-						self.cache.castStartTo[spellId]=self.cache.castStartTo[spellId] or {}
-						self.cache.castStartTo.last = {t=localtime,guid=guid,spellId=spellId}
-						if self:PlayerGUID() == sourceGUID  then
-							self.cache.castStartTo.lastplayer = {t=localtime,guid=guid,spellId=spellId}
-						end
-						local to = self.cache.castStartTo[spellId]
-						to.last={t=localtime,guid=guid}
-						if guid then
-							to[guid]={t=localtime}
-						end
+						destGUID = guid or destGUID
 					end
+					local data = {sourceGUID=sourceGUID,t=localtime,value=heal,destGUID=destGUID,spellId=spellId,spellName=spellName}
+					self.cache.castStart:push(data)
 				end
 			},
 			{
@@ -605,26 +560,13 @@ do
 					_AURA_REFRESH=true,
 				},
 				fcn = function(localtime,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,auraType)
-					sourceGUID = sourceGUID or "Unknown"
-					destGUID = destGUID or "Unknown"
-					spellId = spellId or "Unknown"
-
-					self.cache.auraTo[sourceGUID]=self.cache.auraTo[sourceGUID] or {}
-					local to = self.cache.auraTo[sourceGUID]
-					to[spellId]=to[spellId] or {}
-					to[spellId].last={t=localtime,guid=destGUID}
-					to[spellId][destGUID]={t=localtime}
-
-					self.cache.auraBy[destGUID]=self.cache.auraBy[destGUID] or {}
-					local by = self.cache.auraBy[destGUID]
-					by[spellId]=by[spellId] or {}
-					by[spellId].last={t=localtime,guid=sourceGUID}
-					by[spellId][sourceGUID]={t=localtime}
-					local cacheKey = auraType == "DEBUFF" and "debuffs" or "buffs"
-					if self.cache[cacheKey][destGUID] then
-						self.cache[cacheKey][destGUID].changed = self.cache[cacheKey][destGUID].changed or {}
-						self.cache[cacheKey][destGUID].changed[spellId] = true
-						self.cache[cacheKey][destGUID].changed[spellName] = true
+					local data = {sourceGUID=sourceGUID,t=localtime,destGUID=destGUID,spellId=spellId,spellName=spellName,auraType=auraType}
+					self.cache.aura:push(data)
+					local cacheKey = auraType == "DEBUFF" and "debuffsChanged" or "buffChanged"
+					if destGUID then
+						self.cache[cacheKey]:set(true,destGUID)
+					else
+						dump(data)
 					end
 				end
 			},
@@ -635,24 +577,44 @@ do
 					_AURA_REMOVED=true,
 				},
 				fcn = function(localtime,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,auraType)
-					sourceGUID = sourceGUID or "Unknown"
-					destGUID = destGUID or "Unknown"
-					spellId = spellId or "Unknown"
-					self.cache.auraTo[sourceGUID]=self.cache.auraTo[sourceGUID] or {}
-					local to = self.cache.auraTo[sourceGUID]
-					to[spellId]=to[spellId] or {}
-					to[spellId][destGUID]=nil
-
-					self.cache.auraBy[destGUID]=self.cache.auraBy[destGUID] or {}
-					local by = self.cache.auraBy[destGUID]
-					by[spellId]=by[spellId] or {}
-					by[spellId][sourceGUID]=nil
-					local cacheKey = auraType == "DEBUFF" and "debuffs" or "buffs"
-					if self.cache[cacheKey][destGUID] then
-						self.cache[cacheKey][destGUID].changed = self.cache[cacheKey][destGUID].changed or {}
-						self.cache[cacheKey][destGUID].changed[spellId] = true
-						self.cache[cacheKey][destGUID].changed[spellName] = true
+					-- local data,key = self.cache.aura:find({
+					-- 	sourceGUID = sourceGUID,
+					-- 	destGUID = destGUID,
+					-- 	spellId = spellId,
+					-- })
+					-- if key then
+					-- 	self.cache.aura:set(nil,key)
+					-- end
+					local data = {sourceGUID=sourceGUID,t=localtime,destGUID=destGUID,spellId=spellId,spellName=spellName,auraType=auraType}
+					self.cache.auraFade:push(data)
+					local cacheKey = auraType == "DEBUFF" and "debuffsChanged" or "buffChanged"
+					if destGUID then
+						self.cache[cacheKey]:set(true,destGUID)
+					else
+						dump(data)
 					end
+				end
+			},
+			{
+				name = "died",
+				events = {
+					UNIT_DIED=true,
+				},
+				fcn = function(localtime,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,auraType)
+					local ot = AirjHack:GetGUIDInfo(destGUID)
+					if ot == "Creature" then
+						self.cache.died:push({t=localtime,guid=destGUID})
+					end
+				end
+			},
+			{
+				name = "interrupt",
+				events = {
+					_INTERRUPT=true,
+				},
+				fcn = function(localtime,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,extraSpellId,extraSpellName,extraSchool)
+					local data = {sourceGUID=sourceGUID,t=localtime,value=heal,destGUID=destGUID,spellId=spellId,spellName=spellName,extraSpellId=extraSpellId,extraSpellName=extraSpellName}
+					self.cache.interrupt:push(data)
 				end
 			},
 		}
@@ -663,49 +625,43 @@ end
 do
 	function Cache:OnHealthChanged(event,unit)
 		local guid = unit and UnitGUID(unit)
-		if guid and self.cache.health[guid] then
-			self.cache.health[guid].changed = true
+		if guid then
+			self.cache.healthChanged:set(true,guid)
 		end
 		if guid == self:PlayerGUID() then
 			local data = {AirjHack:UnitHealth(guid)}
 			data.t = GetTime()
-			tinsert(self.cache.myhealth,data)
+			self.cache.myhealth:push(data)
 		end
 	end
 
 	function Cache:ScanOnesHealth(t,guid)
 		local data = {AirjHack:UnitHealth(guid)}
 		data.t = t
-		self.cache.health[guid] = data
+		self.cache.health:set(data,guid)
+		self.cache.healthChanged:set(nil,guid)
 		return data
 	end
 
 	function Cache:ScanHealth(t,guids,units)
 		for guid in pairs(guids) do
-		-- for i,unit in ipairs(units) do
-		-- 	local guid = UnitGUID(unit)
-			-- if guid and guids[guid] then
-				local data = self.cache.health[guid]
-				if not data or t - data.t>self.interval.health then
-					self:ScanOnesHealth(t,guid)
-				end
-			-- end
+			local data = self.cache.health:get(guid)
+			if not data or t - data.t>self.interval.health then
+				self:ScanOnesHealth(t,guid)
+			end
 		end
-		-- if guids then
-		-- 	for guid in pairs(guids) do
-		-- 	end
-		-- end
 	end
 
 	function Cache:GetHealth(guid)
-		local data = self.cache.health[guid]
-		if not data or data.changed then
+		local data = self.cache.health:get(guid)
+		local changed = self.cache.healthChanged:get(guid)
+		if not data or changed then
 			data = self:ScanOnesHealth(GetTime(),guid)
 		end
 		return unpack(data or {})
 	end
 	function Cache:GetHealthArray()
-		return self.cache.myhealth or {}
+		return self.cache.myhealth
 	end
 end
 
@@ -715,12 +671,19 @@ do
 		local data = {t=t}
 		for i=1,100 do
 			local value = {UnitBuff(unit,i)}
+
 			if not value[1] then
 				break
 			end
+	    local a=AirjGameTooltip or CreateFrame("GameTooltip","AirjGameTooltip",UIParent,"GameTooltipTemplate")
+	    a:SetOwner(UIParent,"ANCHOR_NONE")
+	    a:SetUnitBuff(unit,i)
+			local tooltip = AirjGameTooltipTextLeft2:GetText()
+			value.tooltip = tooltip
 			data[i] = value
 		end
-		self.cache.buffs[guid] = data
+		self.cache.buffs:set(data,guid)
+		self.cache.buffChanged:set(nil,guid)
 		return data
 	end
 
@@ -731,9 +694,15 @@ do
 			if not value[1] then
 				break
 			end
+	    local a=AirjGameTooltip or CreateFrame("GameTooltip","AirjGameTooltip",UIParent,"GameTooltipTemplate")
+	    a:SetOwner(UIParent,"ANCHOR_NONE")
+	    a:SetUnitDebuff(unit,i)
+			local tooltip = AirjGameTooltipTextLeft2:GetText()
+			value.tooltip = tooltip
 			data[i] = value
 		end
-		self.cache.debuffs[guid] = data
+		self.cache.debuffs:set(data,guid)
+		self.cache.debuffChanged:set(nil,guid)
 		return data
 	end
 
@@ -742,11 +711,11 @@ do
 			for i,unit in ipairs(units) do
 				local guid = UnitGUID(unit)
 				if guid then
-					local data = self.cache.buffs[guid]
+					local data = self.cache.buffs:get(guid)
 					if not data or t - data.t>self.interval.buffs then
 						Cache:ScanOnesBuffs(t,guid,unit)
 					end
-					data = self.cache.debuffs[guid]
+					data = self.cache.debuffs:get(guid)
 					if not data or t - data.t>self.interval.debuffs then
 						Cache:ScanOnesDebuffs(t,guid,unit)
 					end
@@ -758,20 +727,14 @@ do
 	function Cache:GetBuffs(guid,unit,spellKeys,mine)
 		local toRet = {}
 		if not guid then return toRet end
-		local buffs = self.cache.buffs[guid]
-		if not buffs or buffs.changed then
-			local needReload
-			if spellKeys then
-				for k, v in pairs(buffs.changed) do
-					if spellKeys[k] then
-						needReload = true
-						break
-					end
-				end
-			else
-				needReload = true
-			end
-			if needReload then
+		local buffs
+		local changed = self.cache.buffChanged:get(guid)
+		if not changed then
+			buffs = self.cache.buffs:get(guid)
+		end
+		if not buffs then
+			if not unit then unit = self:FindUnitByGUID(guid) end
+			if unit then
 				buffs =	Cache:ScanOnesBuffs(GetTime(),guid,unit)
 			end
 		end
@@ -790,21 +753,14 @@ do
 	function Cache:GetDebuffs(guid,unit,spellKeys,mine)
 		local toRet = {}
 		if not guid then return toRet end
-		local debuffs = self.cache.debuffs[guid]
-		if not unit then unit = self:FindUnitByGUID(guid) end
-		if unit and (not debuffs or debuffs.changed) then
-			local needReload
-			if spellKeys then
-				for k, v in pairs(debuffs.changed) do
-					if spellKeys[k] then
-						needReload = true
-						break
-					end
-				end
-			else
-				needReload = true
-			end
-			if needReload then
+		local debuffs
+		local changed = self.cache.debuffChanged:get(guid)
+		if not changed then
+			debuffs = self.cache.debuffs:get(guid)
+		end
+		if not debuffs then
+			if not unit then unit = self:FindUnitByGUID(guid) end
+			if unit then
 				debuffs =	Cache:ScanOnesDebuffs(GetTime(),guid,unit)
 			end
 		end
@@ -824,19 +780,21 @@ end
 --Position
 do
 	local scanT
+	local position = {}
 	function Cache:ScanPosition(t,guids,units)
 		if not scanT or t-scanT>self.interval.position then
-			wipe(self.cache.position)
-			local px,py,pz,pf = AirjHack:Position("player")
+			local px,py,pz,pf = AirjHack:Position(self:PlayerGUID())
 			local pi = math.pi
+			wipe(position)
 			if guids then
 				for guid,type in pairs(guids) do
-					if bit.band(type,0x08)~=0 then
+					if bit.band(type,0x28)~=0 then
 						local x,y,z,f,s = AirjHack:Position(guid)
 						if x then
 							local dx,dy,dz = x-px, y-py, z-pz
 							local distance = sqrt(dx*dx+dy*dy+dz*dz)
-							self.cache.position[guid]={x,y,z,f,distance,s}
+							position[guid] = {x,y,z,f,distance,s}
+							-- self.cache.position:set({x,y,z,f,distance,s},guid)
 						end
 					end
 				end
@@ -846,15 +804,11 @@ do
 	end
 
 	function Cache:ScanSpeed(t,guids,unit)
-		local cache = {t=t}
-		self.cache.speed.isArray = true
-		tinsert(self.cache.speed,cache)
-		cache.value = GetUnitSpeed("player")
-
+		self.cache.speed:push({t=t,value=GetUnitSpeed("player")})
 	end
 
 	function Cache:GetPosition(guid)
-		return unpack(self.cache.position[guid] or {})
+		return unpack(position[guid] or {})
 	end
 end
 
@@ -867,12 +821,11 @@ do
 		-- self:Print("changed")
 		changed = true
 	end
+	local spells = {}
+	local knows = {}
 	function Cache:ScanAllSpell(t)
-		-- self:Print("ScanAllSpell")
-		wipe(self.cache.charge)
-		wipe(self.cache.cooldown)
-		wipe(self.cache.usable)
-		wipe(self.cache.known)
+		wipe(spells)
+		wipe(knows)
 		for i=1,200 do
 			-- local name, rank, icon, castingTime, minRange, maxRange, spellID = GetSpellInfo(i, "spell")
 			local t,spellID = GetSpellBookItemInfo(i,"spell")
@@ -881,12 +834,16 @@ do
 			end
 			if spellID then
 				local offId = select(7,GetSpellInfo(i, "spell"))
-				self.cache.charge[spellID] = {GetSpellCharges(spellID)}
-				self.cache.cooldown[spellID] = {GetSpellCooldown(spellID)}
-				self.cache.usable[spellID] = {IsUsableSpell(spellID)}
-				self.cache.known[spellID] = true
+				local data = {
+					charge = {GetSpellCharges(spellID)},
+					cooldown = {GetSpellCooldown(spellID)},
+					usable = {IsUsableSpell(spellID)},
+				}
+				spells[spellID] = data
+				knows[spellID] = true
 				if offId then
-					self.cache.known[offId] = true
+					spells[offId] = data
+					knows[offId] = true
 				end
 			end
 		end
@@ -897,19 +854,25 @@ do
 				break
 			end
 			if spellID then
-				self.cache.charge[spellID] = {GetSpellCharges(spellID)}
-				self.cache.cooldown[spellID] = {GetSpellCooldown(spellID)}
-				self.cache.usable[spellID] = {IsUsableSpell(spellID)}
-				self.cache.known[spellID] = true
+				local data = {
+					charge = {GetSpellCharges(spellID)},
+					cooldown = {GetSpellCooldown(spellID)},
+					usable = {IsUsableSpell(spellID)},
+				}
+				spells[spellID] = data
+				knows[spellID] = true
 			end
 		end
 		for spellID in pairs(externSpellIDs) do
 			if tonumber(spellID) then
-				self.cache.charge[spellID] = {GetSpellCharges(spellID)}
-				self.cache.cooldown[spellID] = {GetSpellCooldown(spellID)}
-				self.cache.usable[spellID] = {IsUsableSpell(spellID)}
+				local data = {
+					charge = {GetSpellCharges(spellID)},
+					cooldown = {GetSpellCooldown(spellID)},
+					usable = {IsUsableSpell(spellID)},
+				}
+				spells[spellID] = data
 				if IsPlayerSpell(spellID) then
-					self.cache.known[spellID] = true
+					knows[spellID] = true
 				end
 			end
 		end
@@ -927,15 +890,17 @@ do
 		if changed or not scanT then
 			self:ScanAllSpell(t)
 		end
-		if not self.cache.cooldown[spellID] then
+		local data = spells[spellID]
+		if not data then
 			externSpellIDs[spellID] = true
 			self:ScanAllSpell(t)
+			data = spells[spellID]
 		end
-		local know, usable
-		know = self.cache.known[spellID] and true or false
-		usable = self.cache.usable[spellID] and self.cache.usable[spellID][1] or false
-		local charges, maxCharges, cstart, cduration = unpack(self.cache.charge[spellID] or {})
-		local start, duration, enable = unpack(self.cache.cooldown[spellID] or {})
+		if not data then return end
+		local know = knows[spellID]
+		local usable = data.usable[1] or false
+		local charges, maxCharges, cstart, cduration = unpack(data.charge or {})
+		local start, duration, enable = unpack(data.cooldown or {})
 		local cd = enable~=1 and 300 or start==0 and 0 or (duration - (t - start))
 		if cd < 0 then cd = 0 end
 		local charge
@@ -957,19 +922,30 @@ do
 	  end
 	end
 
+	function Cache:GetGCDInfo()
+		if not self.cache.gcd.duration then
+			self:ScanGCD(GetTime())
+		end
+		return self.cache.gcd.duration,self.cache.gcd.start
+	end
+
 	function Cache:ScanCasting(t,guids,unit)
-		self.cache.casting.isArray = true
 		local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo("player")
-		local data = self.cache.castStartTo.lastplayer
-		if endTime and endTime/1000-t<0.2 then
+		local data = self.cache.castStart:find({sourceGUID=self:PlayerGUID()})
+		local cache = {t=t}
+		if endTime and endTime/1000-t<0.3 then
 			if data and data.spellId then
 				local startName = GetSpellInfo(data.spellId)
-				if startName == name then
-					local cache = {t=t}
-					cache.guid = data.guid
+				if startName == name or data.spellName == name then
+					cache.guid = data.destGUID
 					cache.spellId = data.spellId
-					tinsert(self.cache.casting,cache)
 				end
+			end
+			cache.spellName = name
+			cache.endTime = endTime
+			local lastData = self.cache.casting:geti()
+			if not lastData or lastData.endTime ~= endTime or lastData.spellName ~= spellName then
+				self.cache.casting:push(cache)
 			end
 		end
 	end
@@ -988,6 +964,7 @@ do
 				id2info[i] = v
 			end
 		end
+		return id2info
 	end
 	function Cache:OnSpecChanged(event)
 		changed = true
@@ -997,8 +974,8 @@ do
 			if guids then
 				for guid,gt in pairs(guids) do
 					if band(gt,0x10)~=0 then
-						local spec = AirjHack:ObjectInt(guid,0x10E0)
-						self.cache.spec[guid] = spec
+						local spec = AirjHack:ObjectInt(guid,0x10D0)  --0x0320 0x0D80
+						self.cache.spec:set(spec,guid)
 					end
 				end
 			end
@@ -1008,7 +985,7 @@ do
 	function Cache:GetSpecInfo(guid)
 		if not guid then return end
 		if not id2info then self:InitializeSpecId2Info() end
-		local spec = self.cache.spec[guid]
+		local spec = self.cache.spec:get(guid)
 		if not spec then return end
 		return unpack(id2info[spec] or {})
 	end
@@ -1018,49 +995,44 @@ end
 do
 	local scanT
 	local changed
+	local exists = {}
+	Cache.exists = exists
 	function Cache:ScanExists(t,guids,units)
 		if units then
 			if not scanT or t-scanT>self.interval.exists or changed then
 				-- self:Print("ScanExists")
-				wipe(self.cache.exists)
+				-- self.cache.exists:flush()
+				wipe(exists)
 				local pguid = self:PlayerGUID()
 				if guids then
 					for guid in pairs(guids) do
-						self.cache.exists[guid] = {true,AirjHack:UnitCanAttack(pguid,guid),AirjHack:UnitCanAssist(pguid,guid)}
+						-- self.cache.exists:set({true,AirjHack:UnitCanAttack(pguid,guid),AirjHack:UnitCanAssist(pguid,guid)},guid)
+						exists[guid] = {true,AirjHack:UnitCanAttack(pguid,guid),AirjHack:UnitCanAssist(pguid,guid)}
 					end
 				end
 				scanT = t
-
-				-- local checked = {}
-				-- for i,unit in ipairs(units) do
-				-- 	local guid = UnitGUID(unit)
-				-- 	if guid and guids[guid] and not checked[guid] then
-				-- 		checked[guid] = true
-				-- 		self.cache.exists[guid] = {UnitExists(unit),UnitCanAttack("player",unit),UnitCanAssist("player",unit)}
-				-- 	end
-				-- end
-				-- scanT = t
 			end
 		end
 	end
 
 	function Cache:GetExists(guid,unit)
-		local e,ha,he unpack(self.cache.exists[guid] or {})
-		if not e and unit then
-			self.cache.exists[guid] = {UnitExists(unit),UnitCanAttack("player",unit),UnitCanAssist("player",unit)}
+		-- local data = self.cache.exists:get(guid)
+		local data = exists[guid]
+		if not data and unit then
+			data = {UnitExists(unit),UnitCanAttack("player",unit),UnitCanAssist("player",unit)}
+			-- self.cache.exists:set(data,guid)
+			exists[guid] = data
 		end
-		return unpack(self.cache.exists[guid] or {})
+		return unpack(data or {})
 	end
-
 end
 
 --flag
 do
 	function Cache:FlagIsSet(guid,mask)
-		local flag = self.cache.flag[guid]
+		local flag = self.cache.flag:get(guid)
 		flag = flag and flag[1]
 		if not flag then return end
 		return bit.band(flag,mask)~=0
 	end
-
 end

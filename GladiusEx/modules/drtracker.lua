@@ -15,7 +15,7 @@ local defaults = {
 	drTrackerSize = 40,
 	drTrackerCrop = true,
 	drTrackerOffsetX = 0,
-	drTrackerOffsetY = -4,
+	drTrackerOffsetY = 0,
 	drTrackerFrameLevel = 8,
 	drTrackerGloss = false,
 	drTrackerGlossColor = { r = 1, g = 1, b = 1, a = 1 },
@@ -31,14 +31,14 @@ local DRTracker = GladiusEx:NewGladiusExModule("DRTracker",
 		drTrackerAnchor = "TOPRIGHT",
 		drTrackerRelativePoint = "TOPLEFT",
 		drTrackerGrowDirection = "LEFT",
-		drTrackerOffsetX = -2,
+		drTrackerOffsetX = -5,
 	}),
 	fn.merge(defaults, {
 		drTrackerAttachTo = "Frame",
 		drTrackerAnchor = "TOPLEFT",
 		drTrackerRelativePoint = "TOPRIGHT",
 		drTrackerGrowDirection = "RIGHT",
-		drTrackerOffsetX = 2,
+		drTrackerOffsetX = 5,
 	}))
 
 local drTexts = {

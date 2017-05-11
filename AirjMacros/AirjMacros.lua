@@ -276,7 +276,7 @@ function mod:UpdateRealButtons()
 
 	if InCombatLockdown() then
 		self.UpdateWhileCombat = true
-		message("战斗状态无法更新按键设置,战斗结束后自动更新")
+		-- message("战斗状态无法更新按键设置,战斗结束后自动更新")
 		return
 	end
 	self.UpdateWhileCombat = nil

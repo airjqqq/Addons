@@ -228,6 +228,7 @@ local function CooldownEvent(event, unit, spellid)
 	if lib:IsUnitRegistered(unit) then
 		local now = GetTime()
 
+
 		if not lib.tracked_players[unit] then
 			lib.tracked_players[unit] = {}
 		end
@@ -266,6 +267,10 @@ local function CooldownEvent(event, unit, spellid)
 
 		if spelldata.cooldown_starts_on_dispel then
 			if event == "SPELL_DISPEL" then
+
+					if event == "SPELL_DISPEL" then
+						print(event, unit,spelldata,spellid and GetSpellLink(spellid))
+					end
 				used_start = true
 				cooldown_start = true
 			end

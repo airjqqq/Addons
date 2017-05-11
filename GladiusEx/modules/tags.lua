@@ -26,95 +26,28 @@ local Tags = GladiusEx:NewGladiusExModule("Tags", {
 			offsetY = -2,
 
 			globalFontSize = false,
-			size = 16,
+			size = 12,
 			color = { r = 1, g = 1, b = 1, a = 1 },
 
-			text = "[spec] - [name:status]",
+			text = "[spec]",
 		},
-		["HealthBar Center Text"] = {
+	},
+},{
+	tags = {},
+	tagEvents = {},
+	tagsTexts = {
+		["HealthBar Left Text"] = {
 			attachTo = "HealthBar",
-			position = "CENTER",
-			offsetX = -2,
-			offsetY = -1,
+			position = "TOPLEFT",
+			offsetX = 5,
+			offsetY = -2,
 
 			globalFontSize = false,
-			size = 18,
-			color = { r = 0.5, g = 0.5, b = 0.5, a = 1 },
-
-			text = "[health:short]",
-		},
-		-- ["PowerBar Left Text"] = {
-		-- 	attachTo = "PowerBar",
-		-- 	position = "BOTTOMLEFT",
-		-- 	offsetX = 2,
-		-- 	offsetY = -1,
-		--
-		-- 	globalFontSize = true,
-		-- 	size = 11,
-		-- 	color = { r = 1, g = 1, b = 1, a = 1 },
-		--
-		-- 	text = "[spec]",
-		-- },
-		["PowerBar Right Text"] = {
-			attachTo = "PowerBar",
-			position = "BOTTOMRIGHT",
-			offsetX = -2,
-			offsetY = -1,
-
-			globalFontSize = true,
-			size = 11,
+			size = 12,
 			color = { r = 1, g = 1, b = 1, a = 1 },
 
-			text = "[power:short]",
+			text = "[name]",
 		},
-		["TargetBar Left Text"] = {
-			attachTo = "TargetBar",
-			position = "LEFT",
-			offsetX = 2,
-			offsetY = 0,
-
-			globalFontSize = false,
-			size = 9,
-			color = { r = 1, g = 1, b = 1, a = 1 },
-
-			text = "[name:status]",
-		},
-		-- ["TargetBar Right Text"] = {
-		-- 	attachTo = "TargetBar",
-		-- 	position = "RIGHT",
-		-- 	offsetX = -2,
-		-- 	offsetY = 0,
-		--
-		-- 	globalFontSize = false,
-		-- 	size = 9,
-		-- 	color = { r = 1, g = 1, b = 1, a = 1 },
-		--
-		-- 	text = "[health:short]",
-		-- },
-		-- ["PetBar Left Text"] = {
-		-- 	attachTo = "PetBar",
-		-- 	position = "LEFT",
-		-- 	offsetX = 2,
-		-- 	offsetY = 0,
-		--
-		-- 	globalFontSize = false,
-		-- 	size = 9,
-		-- 	color = { r = 1, g = 1, b = 1, a = 1 },
-		--
-		-- 	text = "[name:status]",
-		-- },
-		-- ["PetBar Right Text"] = {
-		-- 	attachTo = "PetBar",
-		-- 	position = "RIGHT",
-		-- 	offsetX = -2,
-		-- 	offsetY = 0,
-		--
-		-- 	globalFontSize = false,
-		-- 	size = 9,
-		-- 	color = { r = 1, g = 1, b = 1, a = 1 },
-		--
-		-- 	text = "[health:short]",
-		-- },
 	},
 })
 

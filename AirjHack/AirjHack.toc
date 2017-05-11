@@ -1,5 +1,5 @@
 ## Interface: 70300
-## Title: AirjHack
+## Title: [Airj's] Hack
 ## Notes: Hack function support
 ## Version: 1.0
 ## Author: Airj

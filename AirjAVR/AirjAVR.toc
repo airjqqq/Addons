@@ -1,10 +1,10 @@
 ## Interface: 70300
-## Title: AirjAVR
+## Title: [Airj's] AVR
 ## Notes: AVR!!
 ## Version: 1.0
 ## Author: Airj
 ## SavedVariables: AirjAVRDB
-## RequiredDeps: Ace3 LibPlayerSpells-1.0
+## RequiredDeps: Ace3 LibPlayerSpells-1.0 AirjHack
 
 AirjAVR.lua
 module/EmeraldNightmare.lua

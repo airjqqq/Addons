@@ -6,7 +6,13 @@ AirjRaidHud = H
 function H:OnInitialize()
   AirjRaidHudDB = AirjRaidHudDB or {}
   self.db = AirjRaidHudDB
-  self.position = {}
+  -- self.position = {}
+  self.position = setmetatable({},{__index=function(t,k)
+    if AirjHack and AirjHack:HasHacked() then
+      local x,y,_,f = AirjHack:Position(k)
+      return {x,y,f}
+    end
+  end})
   self.activities = {}
   self.buffer = {}
   self.pointcache = {}
@@ -18,6 +24,9 @@ function H:OnEnable()
   self.range = 45
   H:RegisterComm("AIRJRH_COMM")
   self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+  if self.db.autohide == nil then
+    self.db.autohide = true
+  end
 
 	self:RegisterChatCommand("arh", function(str,...)
     local key, value, nextposition = self:GetArgs(str, 2)
@@ -59,6 +68,22 @@ function H:OnEnable()
     elseif key == "enable" then
       self.db.disable = not self.db.disable
       self:Print("插件已"..(self.db.disable and "禁用" or "启用")..".")
+      self:UpdateMainFrame()
+    elseif key == "test" then
+      local expire = GetTime() + 6
+      self:SetRange(20)
+      self:New("Point",{color={0,0.5,0,0.5},radius=6,expire=expire,position={unit="player"}})
+      self:SetBar(expire)
+      for i=1,20 do
+        local u = "raid"..i
+        if not UnitIsUnit("player",u) then
+          local _,class = UnitClass(u)
+          if class then
+            local c = RAID_CLASS_COLORS[class]
+            self:New("Point",{color={c.r,c.g,c.b,1},radius=2,expire=expire,position={unit=u}})
+          end
+        end
+      end
       self:UpdateMainFrame()
     else
       self:Print("/arh - 显示帮助.")
@@ -687,6 +712,64 @@ do --Guarm
   end
 end
 
+do
+  local playerPoints={}
+  function H:ShowAllPlayers(expire)
+    for i=1,20 do
+      local u = "raid"..i
+      self:ShowPlayer(u,expire)
+    end
+  end
+
+  function H:HideAllPlayers()
+    for guid,point in pairs(playerPoints) do
+      point.remove = true
+    end
+    wipe(playerPoints)
+  end
+
+  function H:ShowPlayer(unit,expire)
+    expire = expire or (GetTime() + 600)
+    local guid = UnitGUID(u)
+    if guid then
+      local point = playerPoints[guid]
+      if point and point.expire then
+        point.expire = expire
+      else
+        if not UnitIsUnit("player",u) then
+          local _,class = UnitClass(u)
+          if class then
+            local c = RAID_CLASS_COLORS[class]
+            local p = self:New("Point",{color={c.r,c.g,c.b,1},radius=2,expire=expire,position={guid=guid}})
+            playerPoints[guid] = p
+          end
+        end
+      end
+    end
+  end
+
+  local buffPoints = {}
+  function H:BuffPoint(spellId,guid,color,radius)
+    local key = guid.."-"..spellId
+    local p = buffPoints[key]
+    if p then
+      p.remove = true
+    end
+    if color then
+      radius = radius or 8
+      local expire = GetTime() + 60
+      p = self:New("Point",{color=color,radius=radius,expire=expire,position={guid=guid}})
+      buffPoints[key] = p
+    end
+  end
+end
+
+do --NightHold
+  local sering = {}
+  function H:SearingBrand(guid)
+    sering[guid] = GetTime()
+  end
+end
 --http://talkify.net/api/Speak?format=mp3&text=集合分担&refLang=-1&id=d3b36cc4-84c0-473b-a543-8b9e0bd30249&voice=Microsoft%20Huihui%20Desktop&rate=4
 --http://www.bing.com/translator/api/language/Speak?locale=zh-cn&gender=female&media=audio/mp3&text=%E9%9B%86%E5%90%88%E5%88%86%E6%8B%85&rate=4
 function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
@@ -906,12 +989,24 @@ function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
     end
   end
   --Nighthold
-  --204471
-  if spellId == 204471 and event == "SPELL_CAST_START" then  --
-    self:SetRange(20)
-    self:New("Line",{width = 10, color={1,1,0,0.5},expire=GetTime()+4,from={guid=sourceGUID}})
+  do
+    -- if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" or event =="SPELL_AURA_APPLIED_DOSE" then
+    --   -- if spellId == 213166 then
+    --   if spellId == 774 then
+    --     self:BuffPoint(spellId,destGUID,{1,0,0,0.5})
+    --   end
+    -- end
+    -- if event == "SPELL_AURA_REMOVED" then
+    --   if spellId == 774 then
+    --     self:BuffPoint(spellId,destGUID)
+    --   end
+    -- end
   end
-
+  if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" or event =="SPELL_AURA_APPLIED_DOSE" then
+    if spellId == 213166 then
+      self:SearingBrand(destGUID)
+    end
+  end
 
 
 

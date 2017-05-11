@@ -1,0 +1,12 @@
+tag V7.0.0.0
+bbe6f452492bdd1986ac05d1d013f6da272e24e1
+Sean Kelly <home@seank.com>
+2016-10-14 17:03:01 -0700
+
+Release
+
+
+--------------------
+
+Sean Kelly:
+	- Updated interface version

@@ -1,0 +1,71 @@
+**v7.2**
+* Update for 7.1
+
+**v7.1**
+* Fix OmniCC cooldown text not showing on charged spells
+* Add Premonition
+* Add Intercept
+
+**v7.0**
+* Major release, hundreds of spells updated
+* Fix some spells not being detected properly
+
+**v6.13**
+* Fix bug when "Show Unused Icons" was checked
+
+**v6.12**
+* Add Stampede
+
+**v6.11**
+* Add charges to Ice Block
+* Add Shimmer
+* Update defaults to interrupt spells only
+* Remove deprecated spells
+* Fix Spell Lock
+
+**v6.10**
+* Update Priest spells
+
+**v6.9**
+* Update spells for Legion //Thank you to NorktheOrc for submitting the huge list of changes//
+
+**v6.8**
+* Update for Legion
+
+**v6.7**
+* Add Evanesce
+
+**v6.6**
+* Add Disengage
+* Add Vendetta
+
+**v6.5**
+* Add slider to adjust the alignment of the icons
+* Add slider to adjust the maximum icons displayed
+
+**v6.4**
+* Add Chinese zhTW localization
+* Fix OmniBar incorrectly showing in battlegrounds and arenas when unchecked
+* Fix OmniBar not showing in rated battlegrounds when checked
+* Fix As Enemies Appear not working in arena
+
+**v6.3**
+* Fix cooldown count display
+
+**v6.2**
+* Prompt for confirmation before deleting a bar
+* Add positioning tab
+* Add "Uncheck All" and "Check Default Spells" buttons
+* Minor bug fix
+
+**v6.1**
+* Minor bug fix
+
+**v6.0**
+* Major release, upgrading will reset your settings
+* Profile support
+* Multiple bar support
+* Add Ascendance
+* Add Show Names option
+* Add Tranquility
+* Add Fists of Fury

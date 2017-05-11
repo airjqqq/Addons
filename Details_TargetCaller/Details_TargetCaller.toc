@@ -1,0 +1,7 @@
+## Interface: 70200
+## Title: Details Target Caller
+## Notes: Plugin for Details
+## RequiredDeps: Details
+
+enUS.lua
+Details_TargetCaller.lua

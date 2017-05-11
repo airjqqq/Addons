@@ -1,0 +1,43 @@
+changeset:   30:9998f20afc82
+tag:         v1.7.1 release
+user:        Tercio
+date:        Tue Mar 28 19:22:21 2017 -0300
+summary:     - 7.2 ToC Update.
+
+
+changeset:   29:167963833832
+user:        Tercio
+date:        Mon Jan 09 14:10:41 2017 -0200
+summary:     - fix for 'SharedMedia' not found lua error.
+
+
+changeset:   28:f8282b379f1a
+user:        Tercio
+date:        Sun Jan 08 17:46:49 2017 -0200
+summary:     - bars appearance should now use settings from the host window.
+
+
+changeset:   27:ccd1a1ffc7e4
+user:        Tercio
+date:        Thu Dec 29 14:26:58 2016 -0200
+summary:     - when changing an option on details, do an update on the plugin bars.
+
+
+changeset:   26:b0ac6021f486
+user:        Tercio
+date:        Mon Dec 19 13:56:49 2016 -0200
+summary:     - fixed an issue while in party where some debuffs wasn't showing.
+
+
+changeset:   25:c8d6f06131c9
+user:        Tercio
+date:        Fri Dec 09 14:18:09 2016 -0200
+summary:     - added the ability to set a debuff to track by right clicking on any bar.
+
+
+changeset:   24:0e1f34a67a1d
+user:        Tercio
+date:        Mon Nov 28 17:07:23 2016 -0200
+summary:     Added tag v1.7 release for changeset 6d6a7a9a1d72
+
+

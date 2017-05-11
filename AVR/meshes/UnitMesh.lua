@@ -115,6 +115,12 @@ function AVRUnitMesh:SetSpellId(spellId)
 	return self
 end
 
+function AVRUnitMesh:SetText(text)
+	self.text=text
+	self.vertices=nil
+	return self
+end
+
 function AVRUnitMesh:StopFollow()
 	local unit = self.followUnit or self.followPlayer and "player"
 	if unit then

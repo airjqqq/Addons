@@ -1,0 +1,17 @@
+tag 2.0.6
+b53a38f30ff9342375a8d306eb0d377709335243
+Brizag <vvv444@gmail.com>
+2016-10-26 14:02:24 +0300
+
+Releasing v2.0.6 - WoW 7.1.0 support
+
+
+--------------------
+
+Brizag:
+	- Automatically fill in the version in TOC
+	- Change TOC for WoW 7.1.0. Fix error from OnHyperlinkLeave API change.
+	- For now, revert the making of function T local.
+	Yes, it is very bad that we leak T into global scope, but it is used in XML and making it local breaks stuff
+	- Prevent some names from leaking into global scope.
+	Thanks for Vladinator for pointing out.

@@ -11,7 +11,7 @@ local UnitGetIncomingHeals, UnitGetTotalAbsorbs = UnitGetIncomingHeals, UnitGetT
 
 local HealthBar = GladiusEx:NewGladiusExModule("HealthBar", {
 	healthBarAttachTo = "Frame",
-	healthBarHeight = 25,
+	healthBarHeight = 30,
 	healthBarAdjustWidth = true,
 	healthBarWidth = 200,
 	healthBarInverse = false,

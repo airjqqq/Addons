@@ -12,6 +12,7 @@ function F:OnInitialize()
   self:RegisterFilter("ISDEAD",L["Is Dead or Ghost"])
   self:RegisterFilter("HTIME",L["Low Health Time"],{name= {name=L["Percent Threshold"]},greater={},value={}})
   self:RegisterFilter("HEALTH",L["Health"],{unit= {},name= {name=L["Include Types"]},greater={},value={}},{ABS=L["Absolute"]})
+  self:RegisterFilter("HEALTHTOTLE",L["Health Totle"],{unit= {},greater={},value={}})
   self:RegisterFilter("HEALTHABSORB",L["Health Absorb"],{unit= {},greater={},value={}},{ABS=L["Absolute"]})
   self:RegisterFilter("FUTUREHEALTH",L["Health Future"],{
     unit= {},name= {name=L["Time"]},greater={},value={}
@@ -35,6 +36,7 @@ function F:OnInitialize()
     [SPELL_POWER_INSANITY]=L["Insanity"],
     [SPELL_POWER_LUNAR_POWER]=L["Lunar Power"],
     [SPELL_POWER_FURY]=L["Fury"],
+    [SPELL_POWER_ARCANE_CHARGES]=L["Arcane C"],
   })
   self:RegisterFilter("BOSSMANA",L["Boss Mana"],{unit= {},greater={},value={}})
 end
@@ -77,12 +79,9 @@ function F:HTIME(filter)
   if health/max >toCmp then
     return 0
   end
-  local array = Cache:GetHealthArray()
-  for i = #array,1,-1 do
-  -- for i,v in ipairs(array) do
-    local v = array[i]
+  for v in Cache.cache.myhealth:iterator() do
     local health, max, prediction, absorb, healAbsorb = unpack(v)
-    if not health or health/max >toCmp then
+    if health/max >toCmp then
       return t-v.t
     end
   end
@@ -94,23 +93,31 @@ function F:ISDEAD(filter)
   return Cache:Call("UnitIsDeadOrGhost",filter.unit)
 end
 
+function F:HEALTHTOTLE(filter)
+  filter.unit = filter.unit or "target"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+  return max
+end
+
 function F:HEALTH(filter)
   filter.name = filter.name or {"prediction","absorb","healAbsorb"}
   filter.unit = filter.unit or "player"
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
-  if health < 0 then
+  if health and health < 0 then
     health = 2^32+health
   end
-  if max < 0 then
+  if max and max < 0 then
     max = 2^32+max
   end
   if not health then return false end
   if isdead then return false end
   local types = Core:ToKeyTable(filter.name)
   if types.prediction then
-    health = health + prediction
+    health = health + prediction * 2
   end
   if types.absorb then
     health = health + absorb
@@ -159,13 +166,13 @@ function F:GetFutureHealth(guid,time)
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
   if not health then return false end
   if isdead then return false end
-  health = health + prediction - healAbsorb
-  local damage = CombatLogFilter:GetFutureDamagePVE(guid,10,time)
+  health = health + prediction*2 - healAbsorb*2
+  local damage = CombatLogFilter:GetFutureDamagePVE(guid,5,time)
   -- health = damage
   health = health - damage
   return health/max
 end
-
+--
 function F:FUTUREHEALTH(filter)
   filter.unit = filter.unit or "player"
   filter.value = filter.value or 1
@@ -188,18 +195,19 @@ function F:RAIDHEALTHLOST(filter)
     if guid and not checked[guid] then
       checked[guid] = true
       local x,y,z,f,d,s = Cache:GetPosition(guid)
-      if d and d-s-1.5<40 then
+      local exists,harm,help = Cache:GetExists(guid,filter.unit)
+      if d and d-s-1.5<60 and UnitIsPlayer(unit) and help then
         local value
         local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
         if not health or isdead then
           value = 0
         else
           value = 1-(health+prediction-healAbsorb)/max
+          value = math.min(value,maxIgnore)
+          value = math.max(value,0)
+          scanCount = scanCount + 1
+          amount = amount + value
         end
-        value = math.min(value,maxIgnore)
-        value = math.max(value,0)
-        scanCount = scanCount + 1
-        amount = amount + value
       end
     end
   end
@@ -215,7 +223,7 @@ function F:POWER(filter)
   filter.unit = filter.unit or "player"
   local powerType = filter.subtype or Cache:Call("UnitPowerType",filter.unit)
   local power = Cache:Call("UnitPower",filter.unit,powerType)
-  local filterValue = filter.value or 0
+  local filterValue = Core:ParseValue(filter.value or 0)
   if filterValue<0 then
     local max = Cache:Call("UnitPowerMax",filter.unit,powerType)
     power = power - max

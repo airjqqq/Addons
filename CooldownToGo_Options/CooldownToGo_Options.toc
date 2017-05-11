@@ -1,0 +1,19 @@
+## Interface: 70000
+## Title: CooldownToGo Options
+## Author: mitch0
+## Version: v2.0.9
+## Notes: Configuration options for CooldownToGo
+## OptionalDeps: AceGUI-3.0-SharedMediaWidgets
+## Dependencies: CooldownToGo
+## LoadOnDemand: 1
+## X-License: Public Domain
+## X-Curse-Packaged-Version: v2.0.9
+## X-Curse-Project-Name: CooldownToGo
+## X-Curse-Project-ID: cooldown-to-go
+## X-Curse-Repository-ID: wow/cooldown-to-go/mainline
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+localizations\localizations.xml
+Options.lua

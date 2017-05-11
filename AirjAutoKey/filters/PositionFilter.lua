@@ -7,6 +7,21 @@ local color = "7FBFFF"
 local L = setmetatable({},{__index = function(t,k) return k end})
 
 function F:OnInitialize()
+  self:RegisterFilter("AAKFASTMOVE",L["Fast Move"],{
+    name = {},
+    value = {},
+    greater = {},
+  })
+  self:RegisterFilter("AAKMSTUCKED",L["Stucked"],{
+    name = {},
+    value = {},
+    greater = {},
+  })
+  self:RegisterFilter("DISTACETONEAREST",L["To UID"],{
+    name = {},
+    value = {},
+    greater = {},
+  })
   self:RegisterFilter("HANGLE",L["Face Angle(Deg)"],{
     value = {},
     greater = {},
@@ -43,6 +58,20 @@ function F:OnInitialize()
     unit = {name="To Unit"},
     name = {name="From Unit"},
   })
+  self:RegisterFilter("FOLLOWRANGE",L["Follow Range"],{
+    value = {},
+    greater = {},
+  })
+  self:RegisterFilter("NEARESTRANGE",L["Nearest Range"],{
+    value = {},
+    greater = {},
+  })
+  self:RegisterFilter("CENTERRANGE",L["Center Range"],{
+    value = {},
+    greater = {},
+    unit = {name="Center Unit"},
+    name = {name="Edge Unit"},
+  })
   self:RegisterFilter("SRANGE",L["Spell In Range"],{
     unit = {},
     name = {name="Spell ID"},
@@ -55,6 +84,16 @@ function F:OnInitialize()
     unit = {},
     name = {name="Spell ID"},
   })
+  self:RegisterFilter("INCIRCLE",L["InCircle"],{
+    value = {},
+    greater = {},
+    unit = {},
+    name = {name="x|y|z"},
+  })
+  -- self:RegisterFilter("FOLLOWRANGE",L["Follow Range"],{
+  --   value = {},
+  --   greater = {},
+  -- })
 end
 
 function F:RegisterFilter(key,name,keys,subtypes)
@@ -70,6 +109,61 @@ end
 
 local pi = math.pi
 local FAR_AWAY = 1000
+
+function F:AAKFASTMOVE(filter)
+
+  local uid = Core:ToKeyTable(filter.name)
+  if AirjMove:CheckStuckedTime(5)>2 then
+    local lu = AirjMove.lastNearestUid
+    local lg = AirjMove.lastNearestGuid
+    if lu and lg then
+      AirjMove.ignores[lu][lg] = true
+    end
+  end
+  local g,u,d = AirjMove:MoveToNearest(uid,1)
+  if g then
+    AirjMove.isCruise = false
+    AirjHack:Interact(g)
+  end
+  return d
+end
+function F:AAKMSTUCKED(filter)
+
+  return AirjMove:CheckStuckedTime(filter.name[1])
+end
+function F:DISTACETONEAREST(filter)
+  local guids = AirjHack:GetObjects()
+  local uid = Core:ToKeyTable(filter.name or {})
+  local ignore
+  local ignoreName = filter.name[1]
+  if type(ignoreName) == "string" then
+    ignore = _G[ignoreName]
+  end
+	local targetguid=UnitGUID("target")
+	local playerGUID = UnitGUID("player")
+	local minDistance,minDistanceGUID,minDistancePoint
+	for guid,t in pairs(guids) do
+    if not ignore or not ignore[guid] then
+  		local ot,_,_,_,oid = AirjHack:GetGUIDInfo(guid)
+  		if ot == "Creature" or ot == "GameObject" then
+  			if uid and uid[oid] then
+          local mignore = AirjMove.ignores[oid]
+          if not mignore or not mignore[guid] then
+    				local x1,y1,z1,_,distance = AirjCache:GetPosition(guid)
+    				if distance then
+    					if not minDistance or distance<minDistance then
+    						minDistance = distance
+    						minDistanceGUID = guid
+    						minDistancePoint = {x1,y1,z1}
+    					end
+    				end
+          end
+  			end
+      end
+		end
+	end
+  return minDistance
+end
 
 function F:HANGLE(filter)
   filter.unit = filter.unit or "target"
@@ -220,6 +314,40 @@ function F:EDGERANGE(filter)
 	local d = sqrt(dx*dx+dy*dy+dz*dz) - s1 -s2
   return d
 end
+function F:FOLLOWRANGE(filter)
+  local d = AirjMove.targetDistance
+  return d
+end
+function F:NEARESTRANGE(filter)
+  local d = AirjMove.lastNearestDistance
+  local guids = AirjHack:GetObjects()
+  local guid = AirjMove.lastNearestGuid
+  if guids[guid] then
+    if GetTime() - AirjMove.lastNearestTime < 15 then
+      return d
+    end
+  end
+end
+function F:CENTERRANGE(filter)
+  filter.unit = filter.unit or "target"
+  filter.name = filter.name or {"target"}
+  filter.value = filter.value or 8
+  local unit2 = filter.name[1]
+  unit2 = Core:ParseUnit(unit2) or unit2
+
+  local guid1 = Cache:UnitGUID(filter.unit)
+  local x1,y1,z1,_,distance,s1 = Cache:GetPosition(guid1)
+  if not x1 then return FAR_AWAY end
+  if unit2 == "player" then
+    return distance and (distance-s1-1.5) or FAR_AWAY
+  end
+  local guid2 = Cache:UnitGUID(unit2)
+  local x2,y2,z2,_,_,s2 = Cache:GetPosition(guid2)
+  if not x2 then return FAR_AWAY end
+	local dx,dy,dz = x1-x2, y1-y2, z1-z2
+	local d = sqrt(dx*dx+dy*dy+dz*dz) -s2
+  return d
+end
 function F:SRANGE(filter)
   filter.unit = filter.unit or "target"
   local name, rank, icon, castingTime, minRange, maxRange, spellID = Cache:Call("GetSpellInfo",filter.name[1])
@@ -254,3 +382,30 @@ function F:RSRANGE(filter)
   local name, rank, icon, castingTime, minRange, maxRange, spellID = Cach:Call("GetSpellInfo",filter.name)
   return Cache:Call("IsSpellInRange",name,filter.unit) and true or false
 end
+
+function F:INCIRCLE(filter)
+  filter.unit = filter.unit or "target"
+  filter.value = filter.value or 15
+  local x2,y2,z2 = Cache:GetPosition(Cache:PlayerGUID())
+  --AirjCache:GetPosition(AirjCache:PlayerGUID())
+  -- dump({"INCIRCLE",filter})
+  filter.name = filter.name or x2 and {x2,y2,z2}
+  -- local name = {x2,y2,z2}
+  -- x2,y2,z2 = unpack(Core:ToValueTable(filter.name),1,3)
+  -- if not y2 or y2 == "" then
+  --   filter.name = name
+  -- end
+  local guid1 = Cache:UnitGUID(filter.unit)
+  local x1,y1,z1,_,distance = Cache:GetPosition(guid1)
+  if not x1 then return FAR_AWAY end
+  if not x2 or not y2 then return FAR_AWAY end
+	local dx,dy,dz = x1-x2, y1-y2, z1-z2
+	local d = sqrt(dx*dx+dy*dy+dz*dz)
+  return d
+end
+
+-- function F:FOLLOWRANGE(filter)
+--   filter.value = filter.value or 0
+--   local value = AirjMove.targetDistance
+--   return value or false
+-- end

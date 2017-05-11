@@ -21,18 +21,18 @@ local TargetBar = GladiusEx:NewUnitBarModule("TargetBar",
 	fn.merge(defaults, {
 		AttachTo = "Frame",
 		RelativePoint = "BOTTOMLEFT",
-		Anchor = "TOPRIGHT",
+		Anchor = "BOTTOMRIGHT",
 		IconPosition = "LEFT",
-		OffsetX = 64,
-		OffsetY = -2,
+		OffsetX = -5,
+		OffsetY = 0,
 	}),
 	fn.merge(defaults, {
 		AttachTo = "Frame",
 		RelativePoint = "BOTTOMRIGHT",
-		Anchor = "TOPLEFT",
+		Anchor = "BOTTOMLEFT",
 		IconPosition = "LEFT",
-		OffsetX = -64,
-		OffsetY = -2,
+		OffsetX = 5,
+		OffsetY = 0,
 	}))
 
 function TargetBar:GetFrameUnit(unit)

@@ -14,8 +14,9 @@ local drtypes = {"STUN","INCAPACITATE","DISORIENT","SILENCE"}
 function NP:Update ()
   local frames = C_NamePlate.GetNamePlates()
   for _,frame in ipairs(frames) do
-    local unit = frame.namePlateUnitToken
-    local parent = frame.UnitFrame.healthBar
+    -- local unit = frame.namePlateUnitToken
+    local unit = frame.UnitFrame.unit
+    local parent = frame.UnitFrame.healthBar or frame.UnitFrame
     local combat = frame.outofcombat
     if not combat then
       combat = CreateFrame("Frame",nil,parent)
@@ -25,7 +26,7 @@ function NP:Update ()
       -- combat:SetFrameLevel
       local texture = combat:CreateTexture()
       texture:SetAllPoints()
-      texture:SetColorTexture(0,1,0,0.5)
+      texture:SetColorTexture(0,1,0,0.4)
       frame.outofcombat = combat
     end
     if not UnitAffectingCombat(unit) and UnitCanAttack("player",unit) then

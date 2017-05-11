@@ -99,7 +99,18 @@ function Core:ShowUnitMesh(data,spellId,sourceGUID,destGUID,text)
 		end
     m:SetTimer(data.duration or meshduration or 9)
     m:SetColor(unpack(data.color or {}))
-    m:SetColor2(unpack(data.color2 or {}))
+		do
+			local r,g,b,a
+			if data.color2 then
+				r,g,b,a = unpack(data.color2)
+			elseif data.color then
+				r,g,b,a = unpack(data.color)
+				if a then
+					a = math.min(a+0.1,1)
+				end
+			end
+	    m:SetColor2(r,g,b,a)
+		end
     m.updateCallbacks = data.updateCallbacks
 		m.suffix = text
     scene:AddMesh(m,false,false)
@@ -125,7 +136,7 @@ end
 function Core:ShowLinkMesh(data,spellId,sourceGUID,destGUID)
   local scene = AVR:GetTempScene(100)
   if data then
-    local key = spellId.."-"..destGUID.."-link"
+    local key = sourceGUID .. "-" .. spellId.."-"..destGUID.."-link"
     local m = self.activeMeshs[key]
     if not m then
       m=AVRLinkMesh:New(destGUID,data.width,data.alpha)
@@ -146,7 +157,7 @@ end
 
 function Core:HideLinkMesh(data,spellId,sourceGUID,destGUID)
   if data then
-    local key = spellId.."-"..destGUID.."-link"
+    local key = sourceGUID .. "-" .. spellId.."-"..destGUID.."-link"
     local m = self.activeMeshs[key]
     if m then
       m.visible=false
@@ -182,13 +193,18 @@ function Core:GetGUIDInfo(guid)
   return objectType,serverId,instanceId,zone,id,spawn
 end
 
+local colorIndex = 1
+
 function Core:OnObjectCreated(event,guid,type)
+	-- print(guid,type)
   if bit.band(type,0x2)==0 then
     local objectType,serverId,instanceId,zone,cid,spawn = self:GetGUIDInfo(guid)
+		-- self:Print(guid)
     if objectType == "AreaTrigger" then
       local spellId = AirjHack:ObjectInt(guid,0x88)
-      local radius = AirjHack:ObjectFloat(guid,0x90)
-			-- self:Print(spellId,radius)
+      local radius = AirjHack:ObjectFloat(guid,0x94)
+      local duration = AirjHack:ObjectInt(guid,0x78)
+			-- self:Print(GetSpellLink(spellId),spellId,radius,duration)
       local data = self.register.onAreaTriggerCircleIds[spellId]
       if data and not data.radius and radius~=0 then
         data.radius = radius
@@ -201,6 +217,17 @@ function Core:OnObjectCreated(event,guid,type)
     end
     if objectType == "Creature" then
       self:ShowLinkMesh(self.register.onCreatureLinkIds[cid],0,UnitGUID("player"),guid)
+			if cid == 115947 then
+				local color = {bit.band(colorIndex,1)~=0 and 1 or 0,bit.band(colorIndex,2)~=0 and 1 or 0,bit.band(colorIndex,4)~=0 and 1 or 0}
+				colorIndex = colorIndex + 1
+				local data = {
+			    color=color,
+			    color2=color,
+			    radius=1.2,
+					duration = 600,
+				}
+      	self:ShowUnitMesh(data,"bott",nil,guid)
+			end
     end
   end
 end
@@ -261,25 +288,27 @@ function Core:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,so
     self:HideUnitMesh(self.register.onAuraUnitIds[spellId],spellId,sourceGUID,destGUID)
     self:HideLinkMesh(self.register.onAuraLinkIds[spellId],spellId,sourceGUID,destGUID)
   end
-  -- if event == "SPELL_CAST_START" then
-  --   local data = self.register.onBreathIds[spellId]
-  --   if data then
-  --     local key = spellId.."-"..sourceGUID.."-caststart"
-  --     local m = self.activeMeshs[key]
-  --     if not m then
-  --       m=AVRPolygonMesh:New(data.line,data.inalpha,data.outalpha)
-  --     end
-  --     m:SetColor(unpack(data.color or {}))
-  --     m:SetFollowUnit(sourceGUID)
-  --     Core:ScheduleTimer(function()
-  --       m.visible=false
-	-- 			m:Remove()
-  --       self.activeMeshs[key] = nil
-  --     end,data.duration or 8)
-  --     scene:AddMesh(m,false,false)
-  --     self.activeMeshs[key]=m
-  --   end
-  -- end
+  if event == "SPELL_CAST_START" then
+    local data = self.register.onBreathIds[spellId]
+		-- dump(data)
+    if data then
+      local key = spellId.."-"..sourceGUID.."-caststart"
+      local m = self.activeMeshs[key]
+      if not m then
+        m=AVRPolygonMesh:New(data.line,data.inalpha,data.outalpha)
+      end
+      m:SetColor(unpack(data.color or {}))
+      m:SetFollowUnit(sourceGUID)
+      Core:ScheduleTimer(function()
+        m.visible=false
+				m:Remove()
+        self.activeMeshs[key] = nil
+      end,data.duration or 8)
+			local scene = AVR:GetTempScene(100)
+      scene:AddMesh(m,false,false)
+      self.activeMeshs[key]=m
+    end
+  end
 end
 
 

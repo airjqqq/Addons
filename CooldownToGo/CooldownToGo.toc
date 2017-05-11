@@ -1,0 +1,24 @@
+## Interface: 70000
+## Title: CooldownToGo
+## Notes: Displays the remaing cooldown of the action you tried to use
+## Author: mitch0
+## Version: v2.0.9
+## SavedVariables: CooldownToGoDB
+## LoadManagers: AddonLoader
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, LibDualSpec-1.0 Masque
+
+## X-LoadOn-Always: true
+## X-Category: Combat
+## X-License: Public Domain
+## X-RelSite-WoWI: 8601
+## X-Curse-Packaged-Version: v2.0.9
+## X-Curse-Project-Name: CooldownToGo
+## X-Curse-Project-ID: cooldown-to-go
+## X-Curse-Repository-ID: wow/cooldown-to-go/mainline
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+localizations\localizations.xml
+CooldownToGo.lua

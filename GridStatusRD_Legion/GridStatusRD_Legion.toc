@@ -1,0 +1,14 @@
+## Interface: 70200
+## Title: GridStatusRaidDebuff(Legion)
+## Notes: Debuff List for Legion
+## Author: Stassart (Treliss-Sargeras-US)
+## Version: 7.01
+## Grid Author: Pastamancer & Maia
+## Dependencies: GridStatusRaidDebuff
+
+CheckCompat.lua
+BrokenIsles.lua
+EmeraldNightmare.lua
+Nighthold.lua
+TrialofValor.lua
+

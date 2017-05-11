@@ -19,7 +19,8 @@ local arena_units = {
 	["arena2"] = true,
 	["arena3"] = true,
 	["arena4"] = true,
-	["arena5"] = true,
+	-- ["arena5"] = true,
+	["focus"] = true,
 }
 
 local party_units = {
@@ -356,6 +357,7 @@ function GladiusEx:OnEnable()
 	self:RegisterEvent("UNIT_MAXHEALTH", "UNIT_HEALTH")
 	self:RegisterEvent("GROUP_ROSTER_UPDATE")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
+	self:RegisterEvent("PLAYER_FOCUS_CHANGED")
 	self:RegisterEvent("UNIT_PET", "UpdateUnitGUID")
 	self:RegisterEvent("UNIT_PORTRAIT_UPDATE", "UpdateUnitGUID")
 	LGIST.RegisterCallback(self, "GroupInSpecT_Update")
@@ -497,7 +499,9 @@ function GladiusEx:UpdateArenaFrames()
 	self:UpdateAnchor("arena")
 
 	for i = 1, 5 do
-		local unit = "arena" .. i
+		-- local unit = "arena" .. i
+
+		local unit = i == 5 and "focus" or ("arena" .. (i))
 		if numOpps >= i then
 			self:UpdateUnit(unit)
 			self:UpdateUnitState(unit, self.buttons[unit].unit_state == STATE_STEALTH)
@@ -816,6 +820,17 @@ function GladiusEx:CheckUnitSpecialization(unit)
 	end
 end
 
+function GladiusEx:PLAYER_FOCUS_CHANGED()
+	local guid = UnitGUID("focus")
+	if guid then
+		local specID = AirjCache:GetSpecInfo(guid)
+		if specID then
+			GladiusEx:UpdateUnitSpecialization("focus", specID)
+		end
+	end
+	-- body...
+end
+
 function GladiusEx:UpdateUnitSpecialization(unit, specID)
 	local _, class, spec
 
@@ -1065,6 +1080,8 @@ function GladiusEx:GetUnitIndex(unit)
 	local unit_index
 	if unit == "player" or unit == "playerpet" then
 		unit_index = 1
+	elseif unit =="focus" or unit == "focuspet" then
+		unit_index = 5
 	else
 		local utype, n = strmatch(unit, "^(%a+)(%d+)$")
 		if utype == "party" or utype == "partypet" then
@@ -1363,9 +1380,9 @@ function GladiusEx:UpdateAnchor(anchor_type)
 	anchor:SetScale(self.db[anchor_type].frameScale)
 	if (not self.db[anchor_type].x and not self.db[anchor_type].y) or (not self.db[anchor_type].x["anchor_" .. anchor.anchor_type] and not self.db[anchor_type].y["anchor_" .. anchor.anchor_type]) then
 		if anchor.anchor_type == "party" then
-			anchor:SetPoint("CENTER", UIParent, "CENTER", -400, 0)
+			anchor:SetPoint("CENTER", UIParent, "CENTER", -500, 0)
 		else
-			anchor:SetPoint("CENTER", UIParent, "CENTER", 400, 0)
+			anchor:SetPoint("CENTER", UIParent, "CENTER", 500, 0)
 		end
 	else
 		local eff = anchor:GetEffectiveScale()

@@ -1,0 +1,21 @@
+## Interface: 70100
+## Title: OmniBar
+## Notes: Tracks enemy cooldowns
+## Version: v7.2
+## Author: Jordon
+## DefaultState: Enabled
+## SavedVariables: OmniBarDB
+## OptionalDeps: Masque, LibStub, CallbackHandler-1.0, Ace3, LibDualSpec-1.0
+## X-Curse-Packaged-Version: v7.2
+## X-Curse-Project-Name: OmniBar
+## X-Curse-Project-ID: omnibar
+## X-Curse-Repository-ID: wow/omnibar/mainline
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+locale\locale.xml
+OmniBar.xml
+OmniBar.lua
+Options.lua

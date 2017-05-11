@@ -1,0 +1,37 @@
+﻿## Interface: 70000
+## Title: Armory QuickLink
+## Notes: Adds Armory Url creation ("Armory QuickLink") to player popup menus.
+## Author: Driizt of Bronzebeard EU ported to 6.0 by Arkamani | modified/maintained by Kittyrawrz
+## Version: 3.8
+## OptionalDeps: LibRealmInfo
+
+## Title-deDE: Armory Quick Link
+## Notes-deDE: Adds Armory Url creation ("Armory QuickLink") to player popup menus.
+## Title-frFR: Armory Quick Link4
+## Notes-frFR: Adds Armory Url creation ("Armory QuickLink") to player popup menus.
+## Title-ruRU: Armory Quick Link
+## Notes-ruRU: Adds Armory Url creation ("Armory QuickLink") to player popup menus.
+## Title-esES: Armory Quick Link
+## Notes-esES: Adds Armory Url creation ("Armory QuickLink") to player popup menus.
+## Title-ptBR: Link da Armaria
+## Notes-ptBR: Adds Armory Url creation ("Armory QuickLink") to player popup menus.
+## Title-zhTW: 英雄榜快速連結
+## Notes-zhTW: 在玩家的彈出選單中新增英雄榜的連結(\"英雄榜快速連結\")。
+## Title-koKR: 전투정보실
+## Notes-koKR: 플레이어 팝업 메뉴의 전정실 URL 생성을 (\"전투정보실 링크\") 추가 합니다.
+## Title-zhCN: 英雄榜快速链接
+## Notes-zhCN: 在玩家下拉菜单中添加英雄榜链接。
+
+Libs\LibStub.lua
+Libs\LibRealmInfo.lua
+Locales\enUS.lua
+Locales\deDE.lua
+Locales\frFR.lua
+Locales\ruRU.lua
+Locales\esES.lua
+Locales\esMX.lua
+Locales\ptBR.lua
+Locales\zhTW.lua
+Locales\koKR.lua
+Locales\zhCN.lua
+core.lua

@@ -19,7 +19,7 @@ function M:OnEnable()
     local guid = UnitGUID("player")
     local px,py = unpack(data[guid] or {})
     local _,currentZoneType = IsInInstance()
-    if px and IsInRaid() and currentZoneType == "raid" then
+    if px and IsInRaid() and currentZoneType == "raid" and not IsInLFGDungeon() then
       local toSend = string.format("%06d%06d",px*10,py*10)
       for i=1,20 do
         local guid = UnitGUID("raid"..i)

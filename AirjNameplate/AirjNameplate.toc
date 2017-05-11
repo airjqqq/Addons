@@ -1,5 +1,5 @@
 ## Interface: 71000
-## Title: AirjNameplate
+## Title: [Airj's] Nameplate
 ## Version: 1.0
 ## Author: Airj
 ## SavedVariables: AirjNameplateDB

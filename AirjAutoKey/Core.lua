@@ -7,12 +7,14 @@ function Core:OnInitialize()
   self.filterTypes = {}
   self.passedSpell = {}
   db = self:InitializeDB()
+  self.db = db
   self:InitializeParam()
   self:InitializeBasicFilters()
   GUI = self:GetModule("GUI")
 end
 
 function Core:OnEnable()
+  -- do return end
   self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED",self.SelectSuitableRotation,self)
 
 	self:SecureHook("UseAction", function(slot, target, button)
@@ -47,10 +49,38 @@ function Core:OnEnable()
     end
     self:OnChatCommmand(key,value,subString)
   end)
-  if GetCVar("reducedLagTolerance") ~= "1" then
-    SetCVar("reducedLagTolerance", 1)
-    SetCVar("MaxSpellStartRecoveryOffset", 50)
-  end
+
+  self:RegisterChatCommand("aaki", function(str)
+    local ids = {strsplit(" ",str)}
+    local keys
+    for i,v in ipairs(ids) do
+      local id = tonumber(v)
+      if id then
+        keys = keys or {}
+        keys[id] = true
+      end
+    end
+    AirjHack:InteractUID(keys)
+  end)
+  self:RegisterChatCommand("aaks", function(str)
+    local key,value,time = strsplit(" ",str)
+    if value == "nil" then
+      value = nil
+    else
+      value = tonumber(value) or value
+    end
+    time = tonumber(time)
+    if time then
+      self:SetParamTemporary(key,value,time)
+    else
+      self:SetParam(key,value)
+    end
+  end)
+
+  self:RegisterChatCommand("aakr", function(str)
+    local name,unit = strsplit(" ",str)
+    self:ExecuteSpecificSequence(name,unit)
+  end)
   -- starttest
 end
 
@@ -130,6 +160,9 @@ end
 -- param
 do
   local chatCommands = {
+    inv = function(value)
+      Core:SetParam("inv",tonumber(value) or 0.01)
+    end,
     auto = function(value)
       if value == "off" then
         value = 0
@@ -150,11 +183,28 @@ do
       end
       if not time or time == "" then
       else
-        local channel, message  = Core:GetArgs(value, 2)
+        local channel, message  = strsplit(" ",value,2)
+        local function findChannelByName(name)
+          local channels = {GetChannelList()}
+          for i = 1,#channels/2 do
+            local j,n = channels[i*2-1],channels[i*2]
+            if n == name then
+              return j
+            end
+          end
+        end
         local fcn = function()
+          local tc = channel
+          if not tonumber(tc) then
+            local c = findChannelByName(tc)
+            if not c then JoinPermanentChannel(tc,nil,3) end
+            c = findChannelByName(channel)
+            if c then tc = c end
+          end
+          print(tc,message)
           -- Core:Print(value,message,"CHANNEL",nil,tonumber(channel) or channel)
           -- SendChatMessage(message,"CHANNEL",nil,tonumber(channel) or channel)
-          AirjHack:RunMacroText("/"..channel.." "..message)
+          AirjHack:RunMacroText("/"..tc.." "..message)
         end
         Core.worldTimer = Core:ScheduleRepeatingTimer(fcn,tonumber(time) or 60)
         -- fcn()
@@ -195,7 +245,7 @@ do
     end,
     gui = function(value)
       if AirjAutoKey_GUI_anchor then
-        AirjAutoKey_GUI_anchor:SetPoint("BOTTOMRIGHT",UIParent,"BOTTOMRIGHT",0,90)
+        AirjAutoKey_GUI_anchor:SetPoint("BOTTOMLEFT",UIParent,"BOTTOMLEFT",0,0)
       end
     end,
   }
@@ -250,10 +300,12 @@ do
     stopcasting = "/stopcasting",
     stopattack = "/stopattack",
     startattack = "/startattack",
-    petattack = "/petattack",
+    petattack = "/petattack _air_",
     petfollow = "/petfollow",
+    loot = "/run AirjHack:Loot()",
   }
-  local found
+  local found = {}
+  local groupDeep = 1
   local prepassed = {}
 
   function Core:GetAirUnit()
@@ -272,28 +324,78 @@ do
     self.groupUnit = unit
   end
 
+  function Core:FindTemplateFilter(name)
+    local sequenceArray = self.rotationDB.spellArray
+    for i,sequence in ipairs(sequenceArray) do
+      if sequence.spell == "templates" or sequence.note == "templates" then
+        for i,filter in pairs(sequence.filter) do
+          if filter.note == name then
+            return filter
+          end
+        end
+      end
+    end
+  end
+
+  function Core:ExecuteSpecificSequence(name,unit)
+    -- unit = unit or self:GetAirUnit()
+
+    local sequenceArray = self.rotationDB.spellArray
+    for i,sequence in ipairs(sequenceArray) do
+      if sequence.spell == "templates" or sequence.note == "templates" then
+        for i,s in ipairs(sequence) do
+          if s.spell == name or s.note == name then
+            return self:ExecuteSequence(s,unit)
+          end
+        end
+      end
+    end
+    do
+      local sequenceArray = self.rotationDB.spellArray
+      for i,sequence in ipairs(sequenceArray) do
+        if sequence.spell == name or sequence.note == name then
+          return self:ExecuteSequence(sequence,unit)
+        end
+      end
+    end
+  end
+
   function Core:ExecuteGroupSequence(sequenceArray,unit)
+    groupDeep = groupDeep + 1
+    local f
     for i,sequence in ipairs(sequenceArray) do
       self:SetAirUnit(unit)
       self:CheckAndExecuteSequence(sequence)
-      if found then return end
+      if found[groupDeep] then
+        f = true
+        break
+      end
     end
+    found[groupDeep] = nil
+    groupDeep = groupDeep - 1
     -- self:SetAirUnit()
-    if sequenceArray.continue then
-      found = false
+    if f and not sequenceArray.continue then
+      found[groupDeep] = true
+      self:SetAirUnit()
+      return true
     end
   end
 
-  function Core:GetPresetMacro(key)
+  function Core:GetPresetMacro(key,unit)
     return presetMacros[key]
   end
 
-  function Core:ToBasicMacroText(key)
+  function Core:ToBasicMacroText(key,unit)
     if not key or key == "" then return end
     local macros = self.rotationDB.macroArray or {}
     if macros[key] then return macros[key] end
-    if string.sub(key,1,1) == "/" then return key end
-    local pre = self:GetPresetMacro(key)
+    if string.sub(key,1,1) == "/" then
+      key = string.gsub(key,"\\n","\n")
+      -- key = string.gsub(key,"|","\n")
+      -- print(key)
+      return key
+    end
+    local pre = self:GetPresetMacro(key,unit)
     if pre then return pre end
     local name, _, _, _, _, _, spellID  = Cache:Call("GetSpellInfo",key)
     if name then return "/cast "..name, name, spellID end
@@ -304,30 +406,41 @@ do
     if unit then
   		macrotext = string.gsub(macrotext,"/cast ","/cast [@"..unit.."]")
   		macrotext = string.gsub(macrotext,"_air_",unit)
+  		macrotext = string.gsub(macrotext,"_airguid_",UnitGUID(unit) or "nil")
     end
+
     -- self:Print(macrotext)
     local type, data, subType, subData = GetCursorInfo()
     AirjHack:RunMacroText(macrotext)
-    if type == "spell" then
-      if pickUpTimer then
-        self:CancelTimer(pickUpTimer)
-        pickUpTimer = nil
-      end
-      pickUpTimer = self:ScheduleTimer(function() PickupSpell(subData) end,0.2)
-    end
+    -- if type == "spell" then
+    --   if pickUpTimer then
+    --     self:CancelTimer(pickUpTimer)
+    --     pickUpTimer = nil
+    --   end
+    --   pickUpTimer = self:ScheduleTimer(function() PickupSpell(subData) end,0.2)
+    -- end
   end
 
   function Core:ExecuteSequence(sequence,unit)
     self.passedSpell[tostring(sequence)] = unit or true
-    if sequence.group then
-      self:ExecuteGroupSequence(sequence,unit)
+    local m,s,u = strsplit(" ",sequence.spell or "")
+    if m == "runs" then
+      local f = self:ExecuteSpecificSequence(s,u or unit)
+      if f and not sequence.continue then
+        found[groupDeep] = true
+        self:SetAirUnit()
+        return true
+      end
+    elseif sequence.group then
+      return self:ExecuteGroupSequence(sequence,unit)
     else
-      local macroText, spellName, spellId = self:ToBasicMacroText(sequence.spell)
+      local macroText, spellName, spellId = self:ToBasicMacroText(sequence.spell,unit)
       self:ExecuteMacro(macroText,unit)
       self:CachePassedInfo(spellId,unit)
       if not sequence.continue then
-        found = true
+        found[groupDeep] = true
         self:SetAirUnit()
+        return true
       end
     end
   end
@@ -355,6 +468,10 @@ do
     local passed = count <= (filter.value or 0)
     if filter.greater then passed = not passed end
     -- self:Print(passed)
+    if filter.note and strfind(filter.note,"debug") then
+      local str = string.format("%.3f",count)
+      self:Print(AirjHack:GetDebugChatFrame(),filter.note,str)
+    end
     return passed,priority
   end
 
@@ -389,8 +506,30 @@ do
     self:Print(AirjHack:GetDebugChatFrame(),"Register Filter:",data.name)
   end
 
+  function Core:ParseValue(fv)
+    if type(fv) == "string" then
+      local suf = strsub(fv,-1,-1)
+      if suf == "g" then
+        local haste = GetHaste()
+        local gcd = 1.5/(1+haste/100)
+        gcd = max(gcd,0.75)
+        fv = strsub(fv,1,-2)
+        fv = tonumber(fv) or 1
+        fv = fv * gcd
+      elseif suf == "h" then
+        local haste = GetHaste()
+        haste = (1+haste/100)
+        fv = strsub(fv,1,-2)
+        fv = tonumber(fv) or 1
+        fv = fv * haste
+      end
+    end
+    return fv
+  end
+
   function Core:MatchValue(value,filter)
-    local passed = value <= (filter.value or 0)
+    local fv = self:ParseValue(filter.value)
+    local passed = value <= (fv or 0)
     if filter.greater then
       passed = not passed
     end
@@ -416,6 +555,9 @@ do
       priority = priority or 1
       if type(value) ~= "number" then
         value = 1
+      end
+      if filter.value then
+        value = value + filter.value
       end
       if filter.oppo then
         priority = priority / value
@@ -492,7 +634,7 @@ do
     if guid and not checked[guid] then
       checked[guid] = true
       if prepassed[guid]~=nil then return prepassed[guid] end
-      local t = Cache.cache.serverRefused[guid]
+      local t = Cache.cache.serverRefused:get(guid)
       if not t or t.count<2 or (GetTime() - t.t > 0.4) or (GetTime() - t.t > 0.2) and guid == UnitGUID("target") then
         passed = true
         prepassed[guid] = true
@@ -509,7 +651,7 @@ do
     local checked = {}
     local priorityList = {}
     for _,unit in ipairs(unitList) do
-      if self:PreCheckSplitedUnit(unit,checked) then
+      if self:PreCheckSplitedUnit(unit,checked) or sequence.isr then
         self:SetAirUnit(unit)
         local passed,priority = Core:CheckFilterArray(filterArray)
           -- self:Print("SplitAndCheckSequence",passed,unit)
@@ -540,7 +682,7 @@ do
     local notMoving=(Cache:Call("GetUnitSpeed","player") == 0 and not Cache:Call("IsFalling"))
     if notMoving then return true end
     local guid = Cache:UnitGUID("player")
-    local buffs = Cache:GetBuffs(guid,"player",{[108839]=true,[193223]=true,[202461]=true})
+    local buffs = Cache:GetBuffs(guid,"player",{[108839]=true,[193223]=true,[202461]=true,[236431]=true})
     return #buffs > 0
     --
   end
@@ -580,16 +722,22 @@ do
     for i,sequence in ipairs(sequenceArray) do
       self:SetAirUnit()
       self:CheckAndExecuteSequence(sequence)
-      if found then return end
+      if found[groupDeep] then return end
     end
   end
 
   function Core:Scan()
     local t=GetTime()
+    local inv = Core:GetParam("inv") or 0.05
+    self.lastScanTime = self.lastScanTime or t
+    if t - self.lastScanTime < inv then
+      return
+    end
     self.lastScanTime=t
-    -- wipe(self.passedSpell)
+    wipe(self.passedSpell)
     wipe(prepassed)
-    found = false
+    wipe(found)
+    groupDeep = 1
     if self:Barcast() then
       self.needbarcast = nil
     end
@@ -606,6 +754,14 @@ do
     end
   	self.mainTimer = self:ScheduleRepeatingTimer(self.Scan,0.02,self)
   end
+
+  --  Scan
+  --    ScanSequenceArray
+  --      for CheckAndExecuteSequence
+  --        CheckFilterArray
+  --        ExecuteSequence
+  --          ExecuteGroupSequence
+
 end
 
 -- basic filters
@@ -660,7 +816,7 @@ do
     if not airType then return end
     if not knownAirType[airType] then return {airType} end
     if unitListCache[airType] then return unitListCache[airType] end
-    local unitList = {"target","mouseover","player","targettarget","focus","pet","pettarget"};
+    local unitList = {"target","mouseover","player","targettarget","focus","focustarget","pet","pettarget"};
     if airType == "help" or airType == "all" then
       for i = 1,4 do
         tinsert(unitList,"party"..i)
@@ -711,12 +867,14 @@ do
         return
       end
     elseif unit == "lcu" then
-      local data = Cache.cache.castStartTo.lastplayer
+      local data = Cache.cache.castStart:find({sourceGUID=Cache:PlayerGUID()})
       if not data then return end
-      local guid = data.guid
+      local guid = data.destGUID
       return Cache:FindUnitByGUID(guid)
     elseif unit == "bgu" then
       return self:GetGroupUnit()
+    elseif unit == "bgutarget" then
+      return self:GetGroupUnit() and (self:GetGroupUnit().."target")
     else
       return
     end

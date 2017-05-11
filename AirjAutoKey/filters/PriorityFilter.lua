@@ -10,15 +10,49 @@ local CombatLogFilter
 function F:OnInitialize()
   CombatLogFilter = Filter:GetModule("CombatLogFilter")
   self:RegisterFilter("AIRTYPE",L["[P] Other Filter"],{name={}})
-  self:RegisterFilter("AIRSPECIFICUNIT",L["[P] Specific Unit"],{name={},value={}})
-  self:RegisterFilter("AIRRANGE",L["[P] Range (near)"])
-  self:RegisterFilter("AIRLOWHEALTH",L["[P] Health (low)"])
-  self:RegisterFilter("AIRLOWHEALTHFUTURE",L["[P] Health Future (low)"])
+  self:RegisterFilter("AIRSPECIFICUNIT",L["[P] Specific Unit"],{name={}})
+  self:RegisterFilter("AIRRANGE",L["[P] Range (near)"],{value={}})
+  self:RegisterFilter("AIRLOWHEALTH",L["[P] Health (low)"],{value={}})
+  self:RegisterFilter("AIRLOWHEALTHFUTURE",L["[P] Health Future (low)"],{value={}})
   self:RegisterFilter("AIRHIGHHEALTH",L["[P] Health (high)"])
-  self:RegisterFilter("AIRBUFF",L["[P] Buff (short)"],{name={}})
-  self:RegisterFilter("AIRDEBUFF",L["[P] Debuff (short)"],{name={}})
+  self:RegisterFilter("AIRBUFF",L["[P] Buff (short)"],{name={},value={}})
+  self:RegisterFilter("AIRDEBUFF",L["[P] Debuff (short)"],{name={},value={}})
   self:RegisterFilter("AIRDEBUFFORTARGET",L["[P] Debuff or target"],{name={}})
   self:RegisterFilter("AIRFASTTODIE",L["[P] ToDie (fast)"])
+  self:RegisterFilter("AIRAOECOUNT",L["[P] AOE (more)"],{name={}})
+end
+
+local function checkEnemyInRange (radius,time,unit)
+  local t = GetTime()
+  local count = 0
+  local center
+  if unit then
+    local guid = UnitGUID(unit)
+    center = {Cache:GetPosition(guid)}
+    if not center[1] then return 0 end
+  end
+  for guid,data in pairs(Cache.exists) do
+    if data[2] then
+      local isdead = select(6,Cache:GetHealth(guid))
+      if isdead==false then
+        local x,y,z,f,d,s = Cache:GetPosition(guid)
+        if x then
+          if not unit then
+            if d and d-s<radius then
+              count = count + 1
+            end
+          else
+            local dx,dy,dz = x-center[1],y-center[2],z-center[3]
+            local d = sqrt(dx*dx+dy*dy+dz*dz)
+            if d and d-s<radius then
+              count = count + 1
+            end
+          end
+        end
+      end
+    end
+  end
+  return count
 end
 
 function F:RegisterFilter(key,name,keys,subtypes,c)
@@ -51,12 +85,21 @@ function F:AIRSPECIFICUNIT(filter)
   filter.name = filter.name or {"player"}
   local unitKeys = Core:ToKeyTable(filter.name)
   local unit = Core:GetAirUnit()
-  for u,v in pairs(unitKeys) do
-    if Cache:Call("UnitIsUnit",u,unit) then
-      return filter.value
+  local value = 1
+  for key,v in pairs(unitKeys) do
+    local u,m = strsplit(":",key)
+    m = tonumber(m)
+    if m then
+      if Cache:Call("UnitIsUnit",u,unit) then
+        if m < 1 then
+          value = math.min(value,m)
+        else
+          value = math.max(value,m)
+        end
+      end
     end
   end
-  return 1
+  return value
 end
 
 function F:AIRRANGE(filter)
@@ -64,6 +107,7 @@ function F:AIRRANGE(filter)
   local guid = unit and Cache:UnitGUID(unit)
   if not guid then return end
   local x,y,z,f,d,s = Cache:GetPosition(guid)
+  d = d or 0
   return exp(-d)
 end
 
@@ -73,7 +117,14 @@ function F:AIRLOWHEALTH(filter)
   if not guid then return end
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
   if not health then return end
-  local value = (health+absorb+healAbsorb)/max
+  local id, name, description, icon, role, class = Cache:GetSpecInfo(guid)
+  local brewmaster
+  if id == 268 then
+    if health/max > 0.35 then
+      health = math.min(health*2.5,max)
+    end
+  end
+  local value = (health+absorb-healAbsorb*2+prediction*2)/max
   return exp(-value)
 end
 
@@ -93,16 +144,18 @@ function F:AIRBUFF(filter)
   if not guid then return end
   local spells = Core:ToKeyTable(filter.name)
   local buffs = Cache:GetBuffs(guid,filter.unit,spells,true)
-  if #buffs == 0 then return end
-  local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(buffs[1])
-  if not name then return end
-  local value
-  if duration == 0 and expires ==0 then
-    value = 1
-  else
-    value = (expires - GetTime())/100
+  local minValue = 1
+  for i,v in pairs(buffs) do
+    local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
+    local value
+    if duration == 0 and expires ==0 then
+      value = 1
+    else
+      value = (expires - GetTime())/100
+    end
+    minValue = min(minValue,value)
   end
-  return exp(-value)
+  return exp(-minValue)
 end
 
 function F:AIRDEBUFF(filter)
@@ -111,7 +164,6 @@ function F:AIRDEBUFF(filter)
   if not guid then return end
   local spells = Core:ToKeyTable(filter.name)
   local buffs = Cache:GetDebuffs(guid,unit,spells,true)
-  if #buffs == 0 then return end
   local minValue = 1
   for i,v in pairs(buffs) do
     local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
@@ -135,6 +187,9 @@ function F:AIRDEBUFFORTARGET(filter)
   if #buffs == 0 then return end
   local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(buffs[1])
   if not name then
+    if UnitIsUnit(unit,"target") then
+      return 1.2
+    end
     return
   elseif UnitIsUnit(unit,"target") then
     return 0.8
@@ -165,6 +220,13 @@ function F:AIRLOWHEALTHFUTURE(filter)
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
   if not health then return end
   local damage = CombatLogFilter:GetDamageTaken(guid,5)
-  local value = (health+absorb+healAbsorb - damage)/max
+  local value = (health+absorb-healAbsorb*2+prediction*2-damage)/max
   return exp(-value)
+end
+function F:AIRAOECOUNT(filter)
+  local radius,time = unpack(Core:ToValueTable(filter.name),1,2)
+  radius = radius or 8
+  local unit = Core:GetAirUnit()
+  local value = checkEnemyInRange(radius,0,unit)
+  return value
 end

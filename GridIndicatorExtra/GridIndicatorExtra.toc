@@ -1,0 +1,14 @@
+﻿## Interface: 60000
+## Title: GridIndicatorExtra
+## Notes: Additional indicators for Grid
+## Dependencies: Grid
+## Author: Slaren
+## Version: v1.0-beta4
+## X-Curse-Packaged-Version: v1.0-beta4
+## X-Curse-Project-Name: GridIndicatorExtra
+## X-Curse-Project-ID: gridindicatorextra
+## X-Curse-Repository-ID: wow/gridindicatorextra/mainline
+
+Options.lua
+Icons.lua
+Texts.lua

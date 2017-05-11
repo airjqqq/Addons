@@ -1,0 +1,14 @@
+## Interface: 70200
+## Title: Details Time Line (plugin)
+## Notes: Plugin for Details
+## RequiredDeps: Details
+## OptionalDeps: Ace3
+## SavedVariablesPerCharacter: DetailsTimeLineDB
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+enUS.lua
+ptBR.lua
+Details_TimeLine.lua

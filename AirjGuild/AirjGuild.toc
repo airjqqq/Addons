@@ -1,5 +1,5 @@
-## Interface: 70300
-## Title: Airj Guild
+## Interface: 72000
+## Title: [Airj's] Guild Helper
 ## Notes: Airj Guild
 ## Version: 1.0
 ## Author: Airj

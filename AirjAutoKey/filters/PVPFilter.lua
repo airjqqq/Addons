@@ -8,7 +8,9 @@ local L = setmetatable({},{__index = function(t,k) return k end})
 
 function F:OnInitialize()
   -- self:RegisterFilter("PVPDOTATTACK",L["[PVP] Don't Attack"])
+  self:RegisterFilter("RATE",L["PVP Rate"],{name= {},greater= {},value= {}})
   self:RegisterFilter("CANKICKME",L["PVP Kick Me"],{unit= {}})
+  self:RegisterFilter("PVPINTERRUPTED",L["PVP Interrupted"],{unit= {},greater= {},value= {}})
   self:RegisterFilter("DEATHED",L["PVP Deathed"],{unit= {},greater= {},value= {}})
   self:RegisterFilter("PVPBUFF",L["PVP Buff"],{unit= {},name= {},greater= {},value= {}})
   self:RegisterFilter("PVPIMMUNITY",L["PVP Immunity"],{unit= {},name= {},greater= {},value= {}})
@@ -484,30 +486,30 @@ local cooldowns = {
 local kicks = {
 
     --dk
-  [ 47528] = {15,15,250,251,252},
+  [ 47528] = {15,15,3,250,251,252},
   --warrior
-  [  6552] = {2,15,71,72,73}, -- Pummel
+  [  6552] = {2,15,4,71,72,73}, -- Pummel
   -- paly
-  [ 96231] = {2,15,66,70}, -- Rebuke
+  [ 96231] = {2,15,4,66,70}, -- Rebuke
   -- hunter
-	[147362] = {40,24,253,254}, -- Counter Shot
-	[187707] = {2,15,255}, -- Muzzle
+	[147362] = {40,24,3,253,254}, -- Counter Shot
+	[187707] = {2,15,3,255}, -- Muzzle
   -- shaman
-  [ 57994] = {25,12,262,263,264}, -- Wind Shear
+  [ 57994] = {25,12,3,262,263,264}, -- Wind Shear
   --dh
-	[183752] = {15,15,577,581}, -- Consume Magic
+	[183752] = {15,15,3,577,581}, -- Consume Magic
   --druid
-	[106839] = {13,15,103,104}, -- Skull Bash
+	[106839] = {13,15,4,103,104}, -- Skull Bash
   -- monk
-	[116705] = {2,15,268,269}, -- Spear Hand Strike
+	[116705] = {2,15,4,268,269}, -- Spear Hand Strike
   -- rouge
-	[  1766] = {2,15,259,260,261}, -- Kick
+	[  1766] = {2,15,5,259,260,261}, -- Kick
   -- mage
-	[  2139] = {40,24,62,63,64}, -- Counterspell
+	[  2139] = {40,24,6,62,63,64}, -- Counterspell
   -- warlock
-	[ 19647] = {40,24,"417"}, -- Spell Lock (Felhunter)
+	[ 19647] = {40,24,6,"417"}, -- Spell Lock (Felhunter)
   -- [119910] = {40,24,265,266,267}, -- Spell Lock (Comand Demon with Felhunter)
-  [171138] = {40,24,"78215"}, -- Shadow Lock (Doomguard with Grimoire of Supremacy)
+  [171138] = {40,24,6,"78215"}, -- Shadow Lock (Doomguard with Grimoire of Supremacy)
   -- [171140] = {40,24,265,266,267}, -- Shadow Lock (Command Demon with Doomguard)
 	-- [111897] = {40,90,265,266,267}, -- Grimoire: Felhunter
 }
@@ -575,6 +577,9 @@ function F:COMBAT_LOG_EVENT_UNFILTERED (event, t, realEvent, ...)
   local sourceGUID = select(2,...)
   local time = GetTime()
   local spelltype = select(13,...)
+	if realEvent == "SPELL_DISPEL" then
+		-- print(realEvent, select(3,...), select(7,...), spellId and GetSpellLink(spellId))
+	end
   if spelltype == "DEBUFF" then -- DR
     if realEvent == "SPELL_AURA_APPLIED" or realEvent == "SPELL_AURA_REFRESH" then
       for t,d in pairs(drdebuffs) do
@@ -615,17 +620,18 @@ function F:COMBAT_LOG_EVENT_UNFILTERED (event, t, realEvent, ...)
   end
 end
 
+function F:RATE(filter)
+  local index = filter.name[1]
+  if not index then return end
+  local r = GetPersonalRatedInfo(index)
+  return r
+end
 function F:DEATHED(filter)
   filter.unit = filter.unit or "target"
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
-  local to = Cache.cache.castSuccessTo[guid]
-  if not to then return false end
-  to = to[209780]
-  if not to then return false end
-  to = to.last
-  if not to then return false end
-  return GetTime() - to.t
+  local data = Cache.cache.castSuccess:find({sourceGUID=guid,spellId=209780})
+  return data and GetTime() - data.t
 end
 
 function F:PVPKICK(filter)
@@ -645,7 +651,7 @@ function F:PVPKICK(filter)
   local _,_,_,_,distance = Cache:GetPosition(guid)
   for _,data in pairs(kicks) do
     local range,cooldowns = data[1],data[2]
-    local specs = {unpack(data,3)}
+    local specs = {unpack(data,4)}
     if distance<range+3 then
       for _,s in pairs(specs) do
         if s == specId then
@@ -655,6 +661,26 @@ function F:PVPKICK(filter)
     end
   end
   return false
+end
+
+function F:PVPINTERRUPTED(filter)
+  filter.unit = filter.unit or "target"
+  local guid = Cache:UnitGUID(filter.unit)
+  local t = GetTime()
+  for v,k,i in Cache.cache.interrupt:iterator({destGUID=guid}) do
+    if t-v.t>120 then
+      break
+    end
+    local data = kicks[v.spellId]
+    if data then
+      local value = v.t+data[3] - GetTime()
+      if value > 0 then
+        return value
+      else
+        return
+      end
+    end
+  end
 end
 
 function F:CANKICKME(filter)
@@ -911,17 +937,9 @@ function F:PVPBREAKDEBUFF(filter)
       return true
     end
   end
-
-  local spellID = 118
-  -- dump(Cache.cache.casting[#Cache.cache.casting],#Cache.cache.casting)
-  for i = #Cache.cache.casting,1,-1 do
-    local data = Cache.cache.casting[i]
-    if (not guid or data.guid == guid) and (not spellID or data.spellId == spellID) then
-      if GetTime() - data.t < 0.5 then
-        return 8
-      end
-    end
+  local data = Cache.cache.casting:find({guid=guid,spellId=118})
+  if data and GetTime() - data.endTime/1000 < 0.5 then
+    return 8
   end
-
   return false
 end

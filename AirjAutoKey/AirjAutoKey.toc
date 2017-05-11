@@ -1,5 +1,5 @@
 ﻿## Interface: 70300
-## Title: AirjAutoKey Core
+## Title: [Airj's] AutoKey
 ## Version: 2.0
 ## Author: Airj
 ## SavedVariables: AirjAutoKeyDBT

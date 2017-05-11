@@ -1,0 +1,12 @@
+tag v1.0-beta4
+623f938092e0bd121c27ee22491499d0e5b35f48
+slaren <ddevesa@gmail.com>
+2014-10-21 15:16:04 +0200
+
+v1.0-beta4
+
+
+--------------------
+
+slaren:
+	- added option for disabling the icon textures, showing only colors instead

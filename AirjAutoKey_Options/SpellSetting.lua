@@ -124,6 +124,12 @@ local spellConfigWidgets = {
 		desc = "",
 	},
 	{
+		key = "isr",
+		widget = "CheckBox",
+		text = L["Ignore SR"],
+		desc = "",
+	},
+	{
 		key = "heading",
 		widget = "SimpleGroup",
 		text = "",
@@ -466,6 +472,10 @@ function mod:CreateMainConfigGroup()
 	end)
 	group.continue:SetCallback("OnValueChanged",function(widget,event,value)
 		mod:GetCurrentSpell().continue = value or nil
+		self:UpdateSpellTreeGroup()
+	end)
+	group.isr:SetCallback("OnValueChanged",function(widget,event,value)
+		mod:GetCurrentSpell().isr = value or nil
 		self:UpdateSpellTreeGroup()
 	end)
 	group.group:SetCallback("OnValueChanged",function(widget,event,value)
@@ -839,6 +849,7 @@ function mod:CreateMainConfigGroup()
 			end
 		end
 		self:UpdateFilterTreeGroup()
+		-- dump(filter)
 	end)
 
 	group.filter_unittarget:SetCallback("OnClick",function(widget,event,text)
@@ -976,7 +987,7 @@ function mod:UpdateTraceButton(spell)
 	local unit = AirjAutoKey.passedSpell[key]
 	if button then
 		if unit then
-			AirjAutoKey.passedSpell[key] = nil
+			-- AirjAutoKey.passedSpell[key] = nil
 			if unit == true then unit = "PASSED" end
 			button:SetAlpha(1)
 			local text = unit and "["..unit.."]" or ""
@@ -1247,6 +1258,7 @@ function mod:UpdateMainConfigGroup()
 	group.barcast:SetValue(spell.barcast or false)
 	group.anyinraid:SetText(type(spell.anyinraid)=="boolean" and "all" or spell.anyinraid or "")
 	group.continue:SetValue(spell.continue or false)
+	group.isr:SetValue(spell.isr or false)
 	group.group:SetValue(spell.group or false)
 	group.note:SetText(spell.note or "")
 	local spellName = strsplit("_", spell.spell or "")

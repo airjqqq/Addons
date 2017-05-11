@@ -9,27 +9,33 @@ local CombatLogFilter
 
 function F:OnInitialize()
   CombatLogFilter = Filter:GetModule("CombatLogFilter")
-  self:RegisterFilter("UNITEXISTS",L["Exists / Help / Harm"],nil,{
+  self:RegisterFilter("UNITEXISTS",L["Exists"],nil,{
     HELP = L["Help Only"],
     HARM = L["Harm Only"],
     OBSERV = L["Obsorb (value2)"],
   })
   self:RegisterFilter("PVEATTACK",L["PVE Should Attack"])
   self:RegisterFilter("COMBAT",L["Is Combat"])
+  self:RegisterFilter("ISELITE",L["Is Elite"])
   self:RegisterFilter("ISPLAYER",L["Is Player"])
   self:RegisterFilter("ISPLAYERREAL",L["Is Player Real"])
   self:RegisterFilter("ISPLAYERCTRL",L["Is Player Controlled"])
   self:RegisterFilter("ISINRAID",L["Unit In Group"])
+  self:RegisterFilter("ISTAPPED",L["Unit Tapped"])
   self:RegisterFilter("CLASS",L["Class"],{unit= {},name= {name=L["Big Letter"]}})
   self:RegisterFilter("UNITSPEC",L["Spec"],{unit= {},name= {name=L["Number"]}})
   self:RegisterFilter("RAIDTARGET",L["Raid Target"],{unit= {},name= {name=L["number"]}})
   self:RegisterFilter("UNITISTANK",L["Is Tank"])
+  self:RegisterFilter("UNITISCASTER",L["Is Caster"])
   self:RegisterFilter("UNITISMELEE",L["Is Melee"])
   self:RegisterFilter("UNITISHEALER",L["Is Healer"])
   self:RegisterFilter("SPEED",L["Unit Move Speed"],{unit={},greater={},value={}})
+  self:RegisterFilter("TARGETED",L["Unit Targeted"],{unit={},greater={},value={}})
   self:RegisterFilter("UNITISUNIT",L["Unit Is Unit"],{unit= {},name= {name=L["Other Unit (Multi)"]}})
   self:RegisterFilter("UNITNAME",L["Unit Name"],{unit= {},name= {name=L["Names (Multi)"]}})
-  self:RegisterFilter("CASTING",L["Unit Cast or Channel"],{unit= {},name= {name=L["Spell ID (None or Multi)"]},greater={},value={}},{START = L["Start"]})
+  self:RegisterFilter("UNITNAMEFIND",L["Name Find"],{unit= {},name= {name=L["Names (Multi)"]}})
+  self:RegisterFilter("UNITUID",L["Unit UID"],{unit= {},name= {name=L["Uids (Multi)"]}})
+  self:RegisterFilter("CASTING",L["Unit CoC"],{unit= {},name= {name=L["Spell ID (None or Multi)"]},greater={},value={}},{START = L["Start"]})
   self:RegisterFilter("CASTINGCHANNEL",L["Unit Channel"],{unit= {},name= {name=L["Spell ID (None or Multi)"]},greater={},value={}})
   self:RegisterFilter("CASTINGINTERRUPT",L["Unit Cast[I]"],{unit= {},name= {name=L["Spell ID (None or Multi)"]},greater={},value={}})
   self:RegisterFilter("CHANNELINTERRUPT",L["Unit Channel[I]"],{unit= {},name= {name=L["Spell ID (None or Multi)"]},greater={},value={}})
@@ -37,7 +43,7 @@ function F:OnInitialize()
   --{"mana","race","focus","energy","combo point","rune","rune power","soul shards",nil,"holy power",nil,nil,nil,"chi"}
 end
 
-function F:RegisterFilter(key,name,keys,subtypes,c)
+function F:RegisterFilter(key,name,keys,subtypes, c)
   assert(self[key])
   Core:RegisterFilter(key,{
     name = name,
@@ -107,15 +113,29 @@ function F:COMBAT(filter)
   return Cache:Call("UnitAffectingCombat",filter.unit) and true or false
 end
 
+function F:ISELITE(filter)
+  filter.unit = filter.unit or "target"
+  local elites = {
+    elite = true,
+    rare = true,
+    rareelite = true,
+    worldboss = true,
+  }
+  local cf = Cache:Call("UnitClassification",filter.unit)
+  if not cf then return false end
+  return elites[cf] or false
+  -- Cache:Call("UnitIsPlayer",filter.unit) and true or false
+end
 function F:ISPLAYER(filter)
   filter.unit = filter.unit or "target"
-  local _,currentZoneType = IsInInstance()
-	if currentZoneType ~= "pvp" and currentZoneType ~= "arena" then
-    if UnitLevel(filter.unit) <=  UnitLevel("player") and UnitCanAttack("player",filter.unit) then
-	    return true
-    end
-	end
-  -- if IsResting() then return true end
+  -- local _,currentZoneType = IsInInstance()
+	-- if currentZoneType ~= "pvp" and currentZoneType ~= "arena" then
+  --   if UnitLevel(filter.unit) <=  UnitLevel("player") and UnitCanAttack("player",filter.unit) then
+	--     return true
+  --   end
+	-- end
+  if AirjAutoKey.restasplayer and IsResting() then return true end
+  if AirjAutoKey.allplayer then return true end
   return Cache:Call("UnitIsPlayer",filter.unit) and true or false
 end
 function F:ISPLAYERREAL(filter)
@@ -130,7 +150,11 @@ end
 
 function F:ISINRAID(filter)
   filter.unit = filter.unit or "target"
-  return (Cache:Call("UnitInRaid",filter.unit) or Cache:Call("UnitInParty",filter.unit)) and true or false
+  return (Cache:Call("UnitInRaid",filter.unit) or Cache:Call("UnitInParty",filter.unit) or Cache:Call("UnitIsUnit",filter.unit,"player")) and true or false
+end
+function F:ISTAPPED(filter)
+  filter.unit = filter.unit or "target"
+  return Cache:Call("UnitIsTapDenied",filter.unit)
 end
 
 function F:CLASS(filter)
@@ -148,6 +172,7 @@ function F:RAIDTARGET(filter)
   return indexes[index] or false
 end
 
+--/run for i =1,1000 do local c,d = GetSpecializationInfoByID(i) if c then print(c,d) end end
 function F:UNITSPEC(filter)
   filter.unit = filter.unit or "target"
   local guid = Cache:UnitGUID(filter.unit)
@@ -188,8 +213,32 @@ function F:UNITISMELEE(filter)
   local id, name, description, icon, role, class = Cache:GetSpecInfo(guid)
   return melee[id] or false
 end
+local caster = {
+  [62] = true,
+  [63] = true,
+  [64] = true,
+  [65] = true,
+  [102] = true,
+  [105] = true,
+  [256] = true,
+  [257] = true,
+  [258] = true,
+  [262] = true,
+  [265] = true,
+  [266] = true,
+  [267] = true,
+  [270] = true,
+}
+function F:UNITISCASTER(filter)
+  filter.unit = filter.unit or "target"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local id, name, description, icon, role, class = Cache:GetSpecInfo(guid)
+  return caster[id] or false
+end
 
 function F:UNITISHEALER(filter)
+  if AirjAutoKey.allhealer then return true end
   filter.unit = filter.unit or "target"
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
@@ -202,6 +251,12 @@ function F:SPEED(filter)
   filter.unit = filter.unit or "player"
   local speed = Cache:Call("GetUnitSpeed",filter.unit)
   return speed
+end
+function F:TARGETED(filter)
+  filter.unit = filter.unit or "player"
+  local guid = Cache:UnitGUID(filter.unit)
+  local t = Cache.cache.targeted:get(guid)
+  if t then return GetTime() - t.t else return 120 end
 end
 
 function F:UNITISUNIT(filter)
@@ -220,6 +275,30 @@ function F:UNITNAME(filter)
   local names = Core:ToKeyTable(filter.name)
   for name,v in pairs(names) do
     if Cache:Call("UnitName",filter.unit) == name then
+      return true
+    end
+  end
+  return false
+end
+function F:UNITNAMEFIND(filter)
+  local names = Core:ToKeyTable(filter.name)
+  local fname = Cache:Call("UnitName",filter.unit)
+  if not fname then return false end
+  for name,v in pairs(names) do
+    if strfind(fname,name) then
+      return true
+    end
+  end
+  return false
+end
+function F:UNITUID(filter)
+  filter.unit = filter.unit or "target"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local ot,_,_,_,oid = AirjHack:GetGUIDInfo(guid)
+  local names = Core:ToKeyTable(filter.name)
+  for name,v in pairs(names) do
+    if name == oid then
       return true
     end
   end

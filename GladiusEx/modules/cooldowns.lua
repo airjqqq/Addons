@@ -17,14 +17,10 @@ local function GetDefaultSpells()
 	for spellid, spelldata in pairs(CT:GetCooldownsData()) do
 		spelldata = CT:GetCooldownData(spellid)
 		if spelldata.default and spelldata.cooldown then
-			if spelldata.pvp_trinket or spelldata.race then
-				group3[spellid] = true
-			elseif spelldata.interrupt or spelldata.dispel then
-				group4[spellid] = true
-			elseif spelldata.defensive or spelldata.blink or spelldata.sprint then
-				group2[spellid] = true
-			elseif spelldata.offensive or spelldata.cc then
+			if spelldata.pvp_trinket or spelldata.interrupt or spelldata.dispel or spelldata.race or spelldata.offensive or spelldata.cc then
 				group1[spellid] = true
+			elseif pelldata.pvp_trinket or spelldata.race or spelldata.offensive or spelldata.blink then
+				group2[spellid] = true
 			end
 		end
 	end
@@ -38,7 +34,7 @@ local function MakeGroupDb(settings)
 		cooldownsRelativePoint = "BOTTOMLEFT",
 		cooldownsOffsetX = 0,
 		cooldownsOffsetY = 0,
-		cooldownsBackground = { r = 0, g = 0, b = 0, a = 0 },
+		cooldownsBackground = { r = 0, g = 0, b = 0, a = 0.5 },
 		cooldownsGrow = "DOWNRIGHT",
 		cooldownsPaddingX = 0,
 		cooldownsPaddingY = 0,
@@ -47,13 +43,13 @@ local function MakeGroupDb(settings)
 		cooldownsPerColumn = 10,
 		cooldownsMax = 10,
 		cooldownsSize = 20,
-		cooldownsCrop = true,
+		cooldownsCrop = false,
 		cooldownsDetached = false,
 		cooldownsLocked = false,
 		cooldownsGroupByUnit = false,
 		cooldownsTooltips = true,
 		cooldownsSpells = {},
-		cooldownsBorderSize = 5,
+		cooldownsBorderSize = 3,
 		cooldownsBorderAvailAlpha = 0.0,
 		cooldownsBorderUsingAlpha = 1.0,
 		cooldownsBorderCooldownAlpha = 0.0,
@@ -102,12 +98,10 @@ local function MakeGroupDb(settings)
 end
 
 local defaults = {
-	num_groups = 4,
+	num_groups = 2,
 	group_table = {
 		[1] = "group_1",
 		[2] = "group_2",
-		[3] = "group_3",
-		[4] = "group_4",
 	}
 }
 
@@ -115,7 +109,7 @@ local g1_defaults = MakeGroupDb {
 	cooldownsGroupId = 1,
 	cooldownsPerColumn = 5,
 	cooldownsMax = 5,
-	cooldownsSize = 32,
+	cooldownsSize = 30,
 	cooldownsPaddingX = 0,
 	-- cooldownsPaddingY = 2,
 	cooldownsSpacingX = 2,
@@ -127,101 +121,51 @@ local g2_defaults = MakeGroupDb {
 	cooldownsGroupId = 2,
 	cooldownsPerColumn = 5,
 	cooldownsMax = 5,
-	cooldownsSize = 32,
+	cooldownsSize = 30,
 	cooldownsPaddingX = 0,
 	-- cooldownsPaddingY = 2,
 	cooldownsSpacingX = 2,
 	cooldownsSpacingY = 0,
 	cooldownsSpells = GetDefaultSpells()[2],
 }
-local g3_defaults = MakeGroupDb {
-	cooldownsGroupId = 3,
-	cooldownsPerColumn = 1,
-	cooldownsMax = 2,
-	cooldownsSize = 36,
-	cooldownsCrop = true,
-	-- cooldownsTooltips = false,
-	cooldownsSpells = GetDefaultSpells()[3],
-}
-local g4_defaults = MakeGroupDb {
-	cooldownsGroupId = 4,
-	cooldownsPerColumn = 1,
-	cooldownsMax = 2,
-	cooldownsSize = 36,
-	cooldownsCrop = true,
-	-- cooldownsTooltips = false,
-	cooldownsSpells = GetDefaultSpells()[4],
-}
 local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 	fn.merge(defaults, {
 		groups = {
 			["group_1"] = fn.merge(g1_defaults, {
 				cooldownsAttachTo = "Frame",
-				cooldownsAnchor = "TOPRIGHT",
-				cooldownsRelativePoint = "BOTTOMRIGHT",
-				cooldownsGrow = "DOWNLEFT",
-				cooldownsOffsetX = 0,
-				cooldownsOffsetY = -2,
+				cooldownsAnchor = "TOPLEFT",
+				cooldownsRelativePoint = "TOPRIGHT",
+				cooldownsGrow = "DOWNRIGHT",
+				cooldownsOffsetX = 5,
+				cooldownsOffsetY = 0,
 			}),
 			["group_2"] = fn.merge(g2_defaults, {
-				cooldownsAttachTo = "Frame",
-				cooldownsAnchor = "TOPRIGHT",
-				cooldownsRelativePoint = "BOTTOMRIGHT",
-				cooldownsGrow = "DOWNLEFT",
-				cooldownsOffsetX = 0,
-				cooldownsOffsetY = -36,
-			}),
-			["group_3"] = fn.merge(g3_defaults, {
 				cooldownsAttachTo = "Frame",
 				cooldownsAnchor = "TOPLEFT",
 				cooldownsRelativePoint = "TOPRIGHT",
 				cooldownsGrow = "DOWNRIGHT",
 				cooldownsOffsetX = 5,
-				cooldownsOffsetY = 5,
+				cooldownsOffsetY = -30,
 			}),
-			["group_4"] = fn.merge(g4_defaults, {
-				cooldownsAttachTo = "Frame",
-				cooldownsAnchor = "TOPLEFT",
-				cooldownsRelativePoint = "BOTTOMRIGHT",
-				cooldownsGrow = "DOWNRIGHT",
-				cooldownsOffsetX = 5,
-				cooldownsOffsetY = -1,
-			}),
-		},
+		}
 	}),
 	fn.merge(defaults, {
 		groups = {
 			["group_1"] = fn.merge(g1_defaults, {
 				cooldownsAttachTo = "Frame",
-				cooldownsAnchor = "TOPLEFT",
-				cooldownsRelativePoint = "BOTTOMLEFT",
-				cooldownsGrow = "DOWNRIGHT",
-				cooldownsOffsetX = 0,
-				cooldownsOffsetY = -5,
+				cooldownsAnchor = "TOPRIGHT",
+				cooldownsRelativePoint = "TOPLEFT",
+				cooldownsGrow = "DOWNLEFT",
+				cooldownsOffsetX = -5,
+				cooldownsOffsetY = 0,
 			}),
 			["group_2"] = fn.merge(g2_defaults, {
-				cooldownsAttachTo = "Frame",
-				cooldownsAnchor = "TOPLEFT",
-				cooldownsRelativePoint = "BOTTOMLEFT",
-				cooldownsGrow = "DOWNRIGHT",
-				cooldownsOffsetX = 0,
-				cooldownsOffsetY = -40,
-			}),
-			["group_3"] = fn.merge(g3_defaults, {
 				cooldownsAttachTo = "Frame",
 				cooldownsAnchor = "TOPRIGHT",
 				cooldownsRelativePoint = "TOPLEFT",
 				cooldownsGrow = "DOWNLEFT",
 				cooldownsOffsetX = -5,
-				cooldownsOffsetY = 5,
-			}),
-			["group_4"] = fn.merge(g4_defaults, {
-				cooldownsAttachTo = "Frame",
-				cooldownsAnchor = "TOPRIGHT",
-				cooldownsRelativePoint = "BOTTOMLEFT",
-				cooldownsGrow = "DOWNLEFT",
-				cooldownsOffsetX = -5,
-				cooldownsOffsetY = -1,
+				cooldownsOffsetY = -30,
 			}),
 		}
 	}))

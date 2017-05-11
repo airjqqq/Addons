@@ -1,5 +1,5 @@
 ## Interface: 70300
-## Title: AirjMacros
+## Title: [Airj's] Macros
 ## Version: 1.0
 ## Author: Airj
 ## SavedVariables: AirjMacrosDB

@@ -34,11 +34,12 @@ local defaults = {
 	aurasBuffsOnlyMine = false,
 	aurasBuffsSpacingX = 0,
 	aurasBuffsSpacingY = 0,
-	aurasBuffsPerRow = 12,
+	aurasBuffsPerRow = 8,
 	aurasBuffsMaxRows = 2,
 	aurasBuffsSize = 15,
 	aurasBuffsEnlargeMine = false,
 	aurasBuffsEnlargeScale = 1.5,
+	aurasBuffsMinShowScale = 1.5,
 	aurasBuffsOffsetX = -2,
 	aurasBuffsOffsetY = -2,
 	aurasBuffsTooltips = true,
@@ -48,11 +49,12 @@ local defaults = {
 	aurasDebuffsOnlyMine = false,
 	aurasDebuffsSpacingX = 0,
 	aurasDebuffsSpacingY = 0,
-	aurasDebuffsPerRow = 12,
+	aurasDebuffsPerRow = 6,
 	aurasDebuffsMaxRows = 2,
 	aurasDebuffsSize = 15,
 	aurasDebuffsEnlargeMine = true,
 	aurasDebuffsEnlargeScale = 1.5,
+	aurasDebuffsMinShowScale = 1.5,
 	aurasDebuffsOffsetX = 2,
 	aurasDebuffsOffsetY = 2,
 	aurasDebuffsTooltips = true,
@@ -69,6 +71,7 @@ local Auras = GladiusEx:NewGladiusExModule("Auras",
 		aurasBuffsRelativePoint = "TOPRIGHT",
 		aurasBuffsGrow = "DOWNLEFT",
 
+		aurasDebuffsMinShowScale = 1,
 		aurasDebuffsAttachTo = "HealthBar",
 		aurasDebuffsAnchor = "BOTTOMLEFT",
 		aurasDebuffsRelativePoint = "BOTTOMLEFT",
@@ -217,6 +220,7 @@ function Auras:UpdateUnitAuras(event, unit)
 	local aurasBuffsSpacingY
 	local aurasBuffsEnlargeMine
 	local aurasBuffsEnlargeScale
+	local aurasDebuffsMinShowScale
 
 	local function set_aura(index, buff)
 		local aura_frame = auraFrame[icon_index]
@@ -317,11 +321,16 @@ function Auras:UpdateUnitAuras(event, unit)
 				if aurasBuffsEnlargeMine and ((testing and i <= 2) or (not testing and player_units[caster])) then
 					size = max(aurasBuffsEnlargeScale,size)
 				end
-				if not mutlisized[size] then
-					mutlisized[size] = {}
-					tinsert(sizes, size)
+				if spellID == 195901 then
+					size = 1
 				end
-				tinsert(mutlisized[size], i)
+				if size and size >= aurasDebuffsMinShowScale then
+					if not mutlisized[size] then
+						mutlisized[size] = {}
+						tinsert(sizes, size)
+					end
+					tinsert(mutlisized[size], i)
+				end
 			end
 		end
 
@@ -524,6 +533,7 @@ function Auras:UpdateUnitAuras(event, unit)
 		aurasBuffsSpacingY = self.db[unit].aurasBuffsSpacingY
 		aurasBuffsEnlargeMine = self.db[unit].aurasBuffsEnlargeMine
 		aurasBuffsEnlargeScale = self.db[unit].aurasBuffsEnlargeScale
+		aurasDebuffsMinShowScale = self.db[unit].aurasBuffsMinShowScale
 		aurasBuffsOnlyMine = GladiusEx:IsPartyUnit(unit) and self.db[unit].aurasBuffsOnlyMine
 		aurasBuffsOnlyDispellable = GladiusEx:IsArenaUnit(unit) and self.db[unit].aurasBuffsOnlyDispellable
 
@@ -544,6 +554,7 @@ function Auras:UpdateUnitAuras(event, unit)
 		aurasBuffsSpacingY = self.db[unit].aurasDebuffsSpacingY
 		aurasBuffsEnlargeMine = self.db[unit].aurasDebuffsEnlargeMine
 		aurasBuffsEnlargeScale = self.db[unit].aurasDebuffsEnlargeScale
+		aurasDebuffsMinShowScale = self.db[unit].aurasDebuffsMinShowScale
 		aurasBuffsOnlyMine = GladiusEx:IsArenaUnit(unit) and self.db[unit].aurasDebuffsOnlyMine
 		aurasBuffsOnlyDispellable = GladiusEx:IsPartyUnit() and self.db[unit].aurasDebuffsOnlyDispellable
 
@@ -845,6 +856,14 @@ function Auras:GetOptions(unit)
 							disabled = function() return not self.db[unit].aurasBuffsEnlargeMine or not self.db[unit].aurasBuffs or not self:IsUnitEnabled(unit) end,
 							order = 7,
 						},
+						aurasBuffsMinShowScale = {
+							type = "range",
+							name = "aurasBuffsMinShowScale",
+							desc = L["Scale of the enlarged auras"],
+							min = 1, max = 3, bigStep = 0.05, isPercent = true,
+							disabled = function() return not self.db[unit].aurasBuffs or not self:IsUnitEnabled(unit) end,
+							order = 8,
+						},
 						sep = {
 							type = "description",
 							name = "",
@@ -1063,6 +1082,15 @@ function Auras:GetOptions(unit)
 							min = 1, max = 3, bigStep = 0.05, isPercent = true,
 							disabled = function() return not self.db[unit].aurasDebuffsEnlargeMine or not self.db[unit].aurasDebuffs or not self:IsUnitEnabled(unit) end,
 							order = 7,
+						},
+
+						aurasDebuffsMinShowScale = {
+							type = "range",
+							name = "aurasDebuffsMinShowScale",
+							desc = "",
+							min = 1, max = 3, bigStep = 0.05, isPercent = true,
+							disabled = function() return not self.db[unit].aurasDebuffs or not self:IsUnitEnabled(unit) end,
+							order = 7.1,
 						},
 						sep = {
 							type = "description",

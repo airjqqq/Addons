@@ -1,5 +1,5 @@
 ## Interface: 70300
-## Title: AirjCache Core
+## Title: [Airj's] Cache
 ## Version: 2.0
 ## Author: Airj
 ## RequiredDeps: Ace3,AirjHack

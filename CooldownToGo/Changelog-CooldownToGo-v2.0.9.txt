@@ -1,0 +1,14 @@
+------------------------------------------------------------------------
+r189 | mitch0 | 2016-07-31 18:22:05 +0000 (Sun, 31 Jul 2016) | 1 line
+Changed paths:
+   A /tags/v2.0.9 (from /trunk:188)
+
+Tagging as v2.0.9
+------------------------------------------------------------------------
+r188 | mitch0 | 2016-07-31 18:06:38 +0000 (Sun, 31 Jul 2016) | 1 line
+Changed paths:
+   M /trunk/CooldownToGo.toc
+   M /trunk/CooldownToGo_Options/CooldownToGo_Options.toc
+
+toc bump
+------------------------------------------------------------------------

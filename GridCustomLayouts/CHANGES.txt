@@ -1,0 +1,12 @@
+tag a24e3105919ec5f804faf9ff0832980372276ba3 2017.04.20
+Author:	wangbei <wangbei@rd.tuan800.com>
+Date:	Thu Apr 20 13:00:49 2017 +0800
+
+tagging as 2017.04.20
+
+commit e44ae8eece0184edbd9e62830e86b639ee02276d
+Author: wangbei <wangbei@rd.tuan800.com>
+Date:   Thu Apr 20 13:00:38 2017 +0800
+
+    just toc update to 70200
+

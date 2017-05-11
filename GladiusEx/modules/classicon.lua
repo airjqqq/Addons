@@ -23,7 +23,7 @@ local function GetDefaultImportantAuras()
 			if spelldata.immune == "all" then
 				priority = 100
 			elseif spelldata.immune == "spell" or spelldata.immune == "cc" then
-				priority = 95
+				priority = 55
 			else
 				priority = 30
 			end
@@ -33,6 +33,7 @@ local function GetDefaultImportantAuras()
 			elseif spelldata.cc == "stun" then
 				priority = 90
 			elseif spelldata.cc == "silence" then
+				-- print(GetSpellLink(spellid))
 				priority = 70
 			elseif spelldata.cc == "root" then
 				priority = 40
@@ -41,22 +42,28 @@ local function GetDefaultImportantAuras()
 			end
 		elseif type(spelldata.offensive) == "number" then
 			if spelldata.offensive >= 0.2 then
-				prototype = 60 + spelldata.offensive*20
+				priority = 60 + spelldata.offensive*20
 			else
-				prototype = 30 + spelldata.offensive*20
+				priority = 30 + spelldata.offensive*20
 			end
 		elseif type(spelldata.defensive) == "number" then
 			if spelldata.defensive >=0.2 then
-				prototype = 50 + spelldata.defensive*20
+				priority = 50 + spelldata.defensive*20
 			else
-				prototype = 25 + spelldata.defensive*20
+				priority = 25 + spelldata.defensive*20
 			end
 		elseif spelldata.important then
-			prototype = 20
+			priority = 20
 		elseif spelldata.sprint then
-			prototype = 10
+			priority = 10
 		end
-		auraTable[auraid] = prototype
+		if priority> 0 then
+			-- if spellid == 8936 then
+			-- 	print(prototype)
+			-- 	dump(spelldata)
+			-- end
+			auraTable[auraid] = prototype
+		end
 		-- auraTable[GladiusEx:SafeGetSpellName(auraid)] = prototype
 	end
 	return auraTable
@@ -72,6 +79,8 @@ local defaults = {
 	classIconCooldownReverse = true,
 	classIconAuras = GetDefaultImportantAuras()
 }
+
+AIRJTEST = defaults.classIconAuras
 
 local ClassIcon = GladiusEx:NewGladiusExModule("ClassIcon",
 	fn.merge(defaults, {

@@ -706,7 +706,7 @@ function AVRMesh:OnUpdate(threed)
 	self.visible=true
 	if self.followPlayer then
 		self.translateX,self.translateY,self.translateZ=threed.playerPosX,threed.playerPosY,threed.playerPosZ
-	elseif self.followUnit~=nil then
+	elseif self.followUnit then
 		ux,uy,uz,uf=threed:GetUnitPosition(self.followUnit)
 		if ux==0.0 then
 			self.visible=false

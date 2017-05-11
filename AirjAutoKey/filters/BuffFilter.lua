@@ -22,6 +22,7 @@ function F:OnInitialize()
     COUNT = L["Count"],
     START = L["From start"],
     OBSERV = L["Obsorb (value2)"],
+    OBSERV1 = L["Obsorb (value1)"],
   })
   self:RegisterFilter("BUFFSELF",L["Buff (mine)"],nil,{
     COUNT = L["Count"],
@@ -30,15 +31,18 @@ function F:OnInitialize()
   })
   self:RegisterFilter("DEBUFF",L["Debuff"],nil,{
     COUNT = L["Count"],
+    -- DOT = L["Dot"],
     START = L["From start"],
     NUMBER = L["Damage (value2)"],
   })
+
   self:RegisterFilter("DEBUFFSELF",L["Debuff (mine)"],nil,{
     COUNT = L["Count"],
     START = L["From start"],
     NUMBER = L["Damage (value2)"],
   })
   self:RegisterFilter("DTYPE",L["Debuff Dispel Type"])
+  self:RegisterFilter("DEBUFFDOT",L["Dot"],{unit={},greater={},value={}})
   self:RegisterFilter("CANSTEAL",L["Stealable Buff"],{
     value = {},
     greater = {},
@@ -70,6 +74,8 @@ function F:BUFF(filter)
       end
     elseif filter.subtype == "OBSERV" then
       value = value2
+    elseif filter.subtype == "OBSERV1" then
+      value = value1
     else
       if duration == 0 and expires ==0 then
         value = 10
@@ -139,6 +145,19 @@ function F:DEBUFF(filter)
       else
         value = (t-expires+duration)/timeMod
       end
+    elseif filter.subtype == "DOT" then
+      local tooltip = v.tooltip
+      value = 0
+			if tooltip then
+				local t,d,s = tooltip:match("每(%d+)秒.+(%d+)点(.*)伤害")
+        if t and d then
+          t = tonumber(t)
+          d = tonumber(d)
+          if t and d then
+            value = d/t
+          end
+        end
+			end
     elseif filter.subtype == "NUMBER" then
       value = value2
     else
@@ -153,6 +172,30 @@ function F:DEBUFF(filter)
     end
   end
   return false
+end
+
+function F:DEBUFFDOT(filter)
+  filter.unit = filter.unit or "player"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local debuffs = Cache:GetDebuffs(guid,filter.unit)
+  local t = GetTime()
+  local totalDPS = 0
+  for i,v in pairs(debuffs) do
+    local tooltip = v.tooltip
+		if tooltip then
+			local t,d,s = tooltip:match("每(%d+)秒[^%d]+(%d+)点(.*)伤害")
+      -- print(t,d, tooltip)
+      if t and d then
+        t = tonumber(t)
+        d = tonumber(d)
+        if t and d then
+          totalDPS = totalDPS + d/t
+        end
+      end
+		end
+  end
+  return totalDPS
 end
 
 function F:DEBUFFSELF(filter)

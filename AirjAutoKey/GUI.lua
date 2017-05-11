@@ -29,6 +29,12 @@ local ignores = {
 	[196771] = true,
 	[211793] = true,
 	[194279] = true,
+	[198137] = true,
+	[44949] = true,
+	[199667] = true,
+	[182387] = true,
+	[228597] = true,
+	[147193] = true,
 }
 do
   local caststart = {}
@@ -39,7 +45,7 @@ do
       local guid, dontCreate
       if event == "SPELL_CAST_START" then
         caststart[spellId] = true
-        local data = Cache.cache.castSend[spellId] and Cache.cache.castSend[spellId].last
+				local data = Cache.cache.castSend:find({spellId = spellId})
         if data and data.t and localtime-data.t<1 then
           guid = data.guid
         end
@@ -124,7 +130,7 @@ do
     rows[row] = t+duration
   	icon:SetSize(duration*32,32)
     local height = castIcon:GetHeight()
-  	icon:SetPoint("LEFT",castIcon,"RIGHT",0,(row-1)*32-height/4)
+  	icon:SetPoint("RIGHT",castIcon,"RIGHT",32*1.5,(row-1)*32-height/4)
     icon:SetScript("OnEnter",function()
       local link = GetSpellLink(spellId)
       self:Print(link)
@@ -201,6 +207,19 @@ do
 end
 
 local widgets = {
+	{
+		name = L["Move"],
+		update = function(widget)
+			widget:SetValue(GUI.anchor:IsShown())
+		end,
+		onclick = function(widget,value)
+			if value then
+				GUI.anchor:Show()
+			else
+				GUI.anchor:Hide()
+			end
+		end,
+	},
   {
     name = L["Auto"],
     update = function(widget)
@@ -208,17 +227,6 @@ local widgets = {
     end,
     onclick = function(widget,value)
       Core:SetParam("auto",value and 1 or 0)
-    end,
-  },
-  {
-    name = L["Tar"],
-    update = function(widget,data)
-      local target = Core:GetParam("target")
-      widget:SetValue(target > 1)
-    	widget:SetLabel(data.name..": "..target)
-    end,
-    onclick = function(widget,value)
-      Core:SetParam("target",value and 3 or 1)
     end,
   },
   {
@@ -233,27 +241,25 @@ local widgets = {
     end,
   },
   {
-    name = L["Burst"],
-    update = function(widget)
-      widget:SetValue(Core:GetParamNotExpired("burst"))
+    name = L["Tar"],
+    update = function(widget,data)
+      local target = Core:GetParam("target")
+      widget:SetValue(target > 1)
+    	widget:SetLabel(data.name..": "..target)
     end,
     onclick = function(widget,value)
-      Core:SetParamExpire("burst",value and 15 or 0)
+      Core:SetParam("target",value and 3 or 1)
     end,
   },
-  {
-    name = L["Move"],
-    update = function(widget)
-      widget:SetValue(GUI.anchor:IsShown())
-    end,
-    onclick = function(widget,value)
-      if value then
-        GUI.anchor:Show()
-      else
-        GUI.anchor:Hide()
-      end
-    end,
-  },
+  -- {
+  --   name = L["Burst"],
+  --   update = function(widget)
+  --     widget:SetValue(Core:GetParamNotExpired("burst"))
+  --   end,
+  --   onclick = function(widget,value)
+  --     Core:SetParamExpire("burst",value and 15 or 0)
+  --   end,
+  -- },
 }
 function GUI:UpdateOverlay()
 	local burstMask = self.burstMask
@@ -303,13 +309,19 @@ function GUI:Update()
 	if Core.needbarcast and GetTime() - Core.needbarcast < 1 then
 		background:SetColorTexture(0,1,0,0.4)
 	else
-		background:SetColorTexture(0,0,0,0.4)
+		if Core:GetParam("auto") == 0 then
+			background:SetColorTexture(1,0,0,0.6)
+		elseif Core:GetParam("cd") > 60 then
+			background:SetColorTexture(0,0,0,0.4)
+		else
+			background:SetColorTexture(0,0.4,1,0.4)
+		end
 	end
 end
 
 
 function GUI:CreateFrames()
-  local width =440
+  local width =300
 	local anchor = CreateFrame("Frame","AirjAutoKey_GUI_anchor",UIParent)
   do
   	anchor:SetSize(width,20)
@@ -391,12 +403,14 @@ function GUI:CreateFrames()
     local widget = AceGUI:Create("CheckBox")
     data.widget = widget
   	-- widget:SetPoint("TOPLEFT",castIcon,"BOTTOMLEFT",(i-1)*width,0)
-    local x,y = -75,-(i-1)*24
-    if i > 3 then
-      x = 0
-      y = y + 24*3
-    end
-    widget:SetPoint("TOPRIGHT",container,"TOPRIGHT",x,y)
+    -- local x,y = -75,-(i-1)*24
+    -- if i > 3 then
+    --   x = 0
+    --   y = y + 24*3
+    -- end
+
+    local x,y = (i-1)*75, 0
+    widget:SetPoint("TOPLEFT",container,"BOTTOMLEFT",x,y)
   	widget:SetWidth(75)
   	widget:SetHeight(24)
   	widget:SetLabel(data.name)

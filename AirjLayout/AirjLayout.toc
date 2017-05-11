@@ -1,0 +1,8 @@
+﻿## Interface: 70300
+## Title: [Airj's] Layout
+## Version: 2.0
+## Author: Airj
+## SavedVariables: AirjLayoutDB
+## RequiredDeps: Ace3
+
+Core.lua

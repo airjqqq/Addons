@@ -40,22 +40,22 @@ local defaults = {
 		castBarAttachMode = "Widget",
 		castBarOffsetX = 0,
 		castBarOffsetY = 0,
-		castBarWidth = 175,
+		castBarWidth = 150,
 		castBarPosition = "BOTTOM",
-		castBarHeight = 24,
+		castBarHeight = 10,
 		castBarInverse = false,
-		castBarColor = { r = 1, g = 1, b = 0, a = 1 },
-		castBarNotIntColor = { r = 1, g = 0, b = 1, a = 1 },
-		castBarBackgroundColor = { r = 0.2, g = 0.2, b = 0.2, a = 1 },
-		castBarGlobalTexture = true,
+		castBarColor = { r = 1, g = 0.7, b = 0, a = 1 },
+		castBarNotIntColor = { r = 1, g = 0, b = 1, a = 0.4 },
+		castBarBackgroundColor = { r = 1, g = 1, b = 1, a = 1 },
+		castBarGlobalTexture = false,
 		castBarTexture = GladiusEx.default_bar_texture,
 		castIcon = true,
 		castSpark = true,
 		castShieldIcon = true,
 		castIconPosition = "LEFT",
 		castText = true,
-		castTextGlobalFontSize = true,
-		castTextSize = 11,
+		castTextGlobalFontSize = false,
+		castTextSize = 12,
 		castTextColor = { r = 1, g = 1, b = 1, a = 1 },
 		castTextAlign = "CENTER",
 		castTextOffsetX = 2,
@@ -64,9 +64,9 @@ local defaults = {
 		castTimeTextCastTime = false,
 		castTimeTextRemainingTime = true,
 		castTimeTextTotalTime = false,
-		castTimeTextDelay = true,
-		castTimeTextGlobalFontSize = true,
-		castTimeTextSize = 11,
+		castTimeTextDelay = false,
+		castTimeTextGlobalFontSize = false,
+		castTimeTextSize = 16,
 		castTimeTextColor = { r = 1, g = 1, b = 1, a = 1 },
 		castTimeTextAlign = "RIGHT",
 		castTimeTextOffsetX = 0,
@@ -77,9 +77,9 @@ local CastBar = GladiusEx:NewGladiusExModule("CastBar",
 	fn.merge(defaults, {
 		castBarAttachTo = "Frame",
 		castBarRelativePoint = "BOTTOMLEFT",
-		castBarAnchor = "TOPRIGHT",
-		castBarOffsetX = 64,
-		castBarOffsetY = -28,
+		castBarAnchor = "BOTTOMRIGHT",
+		castBarOffsetX = -0,
+		castBarOffsetY = 5,
 
 		castIconPosition = "LEFT",
 		castTextAlign = "CENTER",
@@ -92,9 +92,9 @@ local CastBar = GladiusEx:NewGladiusExModule("CastBar",
 	fn.merge(defaults, {
 		castBarAttachTo = "Frame",
 		castBarRelativePoint = "BOTTOMRIGHT",
-		castBarAnchor = "TOPLEFT",
-		castBarOffsetX = -64,
-		castBarOffsetY = -28,
+		castBarAnchor = "BOTTOMLEFT",
+		castBarOffsetX = 40,
+		castBarOffsetY = 5,
 
 		castIconPosition = "LEFT",
 		castTextAlign = "CENTER",
@@ -215,17 +215,12 @@ end
 function CastBar:SetInterruptible(unit, interruptible)
 	if not self.frame[unit] then return end
 
-	local color = self.db[unit].castBarNotIntColor
-	if interruptible then
-		self.frame[unit]:SetBackdropColor(0,0,0,1)
-	else
-		self.frame[unit]:SetBackdropColor(color.r, color.g, color.b, color.a)
-	end
-
 	if not self.db[unit].castShieldIcon or interruptible then
 		self.frame[unit].icon.shield:Hide()
+		self.frame[unit].backgroundShield:Hide()
 	else
 		self.frame[unit].icon.shield:Show()
+		self.frame[unit].backgroundShield:Show()
 	end
 end
 
@@ -245,7 +240,7 @@ local function CastUpdate(self)
 		local sparkPosition = value / self.maxValue * width
 		self.spark:SetPoint("CENTER", self.bar, "LEFT", sparkPosition, 0)
 
-		self.timeText:SetFormattedText(self.time_text_format, value, self.maxValue - value, self.maxValue, self.delay == 0 and "" or strformat(delay_format, self.delay))
+		-- self.timeText:SetFormattedText(self.time_text_format, value, self.maxValue - value, self.maxValue, self.delay == 0 and "" or strformat(delay_format, self.delay))
 	else
 		self:SetScript("OnUpdate", nil)
 	end
@@ -274,8 +269,6 @@ function CastBar:CastStart(unit, channel)
 		self:Update(unit,spelldata)
 
 		f.icon:SetTexture(icon)
-		f.icon.bg:Show()
-		f.background:Show()
 		f:Show()
 
 		self:SetInterruptible(unit, not notInterruptible)
@@ -295,10 +288,8 @@ function CastBar:CastEnd(frame)
 	frame.timeText:SetText("")
 	frame.castText:SetText("")
 	frame.icon:SetTexture("")
-	frame.icon.bg:Hide()
 	frame.bar:SetValue(0)
 	frame.spark:Hide()
-	frame.background:Hide()
 	frame:Hide()
 	self:SetInterruptible(frame.unit, true)
 end
@@ -310,20 +301,18 @@ function CastBar:CreateBar(unit)
 	-- create bar + text
 	self.frame[unit] = CreateFrame("Frame", "GladiusEx" .. self:GetName() .. unit .. "Parent", button)
 	self.frame[unit].bar = CreateFrame("STATUSBAR", "GladiusEx" .. self:GetName() .. unit .. "Bar", self.frame[unit])
-	self.frame[unit].background = self.frame[unit].bar:CreateTexture("GladiusEx" .. self:GetName() .. unit .. "Background", "BACKGROUND")
-	self.frame[unit].background:SetAllPoints()
-	self.frame[unit].background:Hide()
-	self.frame[unit]:SetBackdrop({ bgFile = [[Interface\ChatFrame\ChatFrameBackground]]})
-	self.frame[unit]:Hide()
-	-- self.frame[unit].castText = self.frame[unit].bar:CreateFontString("GladiusEx" .. self:GetName() .. "CastText" .. unit, "OVERLAY")
-	-- self.frame[unit].timeText = self.frame[unit].bar:CreateFontString("GladiusEx" .. self:GetName() .. "TimeText" .. unit, "OVERLAY")
+
+	self.frame[unit].background = self.frame[unit].bar:CreateTexture("GladiusEx" .. self:GetName() .. unit .. "Background")
+	self.frame[unit].background:SetDrawLayer("BORDER",6)
+
+	self.frame[unit].backgroundShield = self.frame[unit].bar:CreateTexture("GladiusEx" .. self:GetName() .. unit .. "BackgroundShield")
+	self.frame[unit].backgroundShield:SetDrawLayer("BORDER",7)
+
 	self.frame[unit].textsFrame = CreateFrame("Frame", nil, self.frame[unit].bar)
 	self.frame[unit].castText = GladiusEx:CreateSuperFS(self.frame[unit].textsFrame, "OVERLAY")
 	self.frame[unit].timeText = GladiusEx:CreateSuperFS(self.frame[unit].textsFrame, "OVERLAY")
 
 	self.frame[unit].icon = self.frame[unit]:CreateTexture("GladiusEx" .. self:GetName() .. "IconFrame" .. unit, "ARTWORK")
-	self.frame[unit].icon.bg = self.frame[unit]:CreateTexture("GladiusEx" .. self:GetName() .. "IconFrameBackground" .. unit, "BACKGROUND", nil, 1)
-	self.frame[unit].icon.bg:Hide()
 
 	self.frame[unit].icon.shield_frame = CreateFrame("Frame", nil, self.frame[unit])
 	self.frame[unit].icon.shield = self.frame[unit].icon.shield_frame:CreateTexture(nil, "OVERLAY")
@@ -334,6 +323,7 @@ function CastBar:CreateBar(unit)
 	self.frame[unit].spark:SetBlendMode("ADD")
 
 	self.frame[unit].unit = unit
+	self.frame[unit]:Hide()
 end
 
 function CastBar:Update(unit,spelldata)
@@ -342,8 +332,10 @@ function CastBar:Update(unit,spelldata)
 		self:CreateBar(unit)
 	end
 
-	local bar_texture = self.db[unit].castBarGlobalTexture and LSM:Fetch(LSM.MediaType.STATUSBAR, GladiusEx.db.base.globalBarTexture) or LSM:Fetch(LSM.MediaType.STATUSBAR, self.db[unit].castBarTexture)
+	local bar_texture = [[Interface\TargetingFrame\UI-StatusBar]] --self.db[unit].castBarGlobalTexture and LSM:Fetch(LSM.MediaType.STATUSBAR, GladiusEx.db.base.globalBarTexture) or LSM:Fetch(LSM.MediaType.STATUSBAR, self.db[unit].castBarTexture)
 	local height = self:GetAttachSize(unit)
+	local fontsize = self.db[unit].castTextGlobalFontSize and GladiusEx.db.base.globalFontSize or self.db[unit].castTextSize
+
 	-- place widget
 	if self.db[unit].castBarAttachMode == "Widget" then
 		local parent = GladiusEx:GetAttachFrame(unit, self.db[unit].castBarAttachTo)
@@ -352,6 +344,7 @@ function CastBar:Update(unit,spelldata)
 		if spelldata then
 			width = spelldata.width * width
 			height = spelldata.height * height
+			fontsize = fontsize * spelldata.height
 		end
 		self.frame[unit]:ClearAllPoints()
 		self.frame[unit]:SetPoint(self.db[unit].castBarAnchor, parent, self.db[unit].castBarRelativePoint, self.db[unit].castBarOffsetX, self.db[unit].castBarOffsetY)
@@ -365,58 +358,37 @@ function CastBar:Update(unit,spelldata)
 	end
 
 	-- update icon
-	self.frame[unit].icon.bg:ClearAllPoints()
-	self.frame[unit].icon.bg:SetPoint(self.db[unit].castIconPosition, self.frame[unit], self.db[unit].castIconPosition, 0, 0)
-	self.frame[unit].icon.bg:SetSize(height+6, height+6)
-	self.frame[unit].icon.bg:SetColorTexture(0, 0, 0, 1)
-	-- self.frame[unit].icon.bg:SetTexture(bar_texture)
-	-- self.frame[unit].icon.bg:SetVertexColor(self.db[unit].castBarBackgroundColor.r, self.db[unit].castBarBackgroundColor.g,
-		-- self.db[unit].castBarBackgroundColor.b, self.db[unit].castBarBackgroundColor.a)
-
-	self.frame[unit].icon:SetSize(height, height)
+	local width = self.frame[unit].bar:GetWidth()
+	local iconSize = height * 1.6
+	self.frame[unit].icon:SetSize(iconSize, iconSize)
 	self.frame[unit].icon:ClearAllPoints()
-	self.frame[unit].icon:SetPoint("CENTER", self.frame[unit].icon.bg, "CENTER")
-	local n = 5
+	self.frame[unit].icon:SetPoint("RIGHT", self.frame[unit], "LEFT", -width*0.033, 0)
+	local n = 0
 	self.frame[unit].icon:SetTexCoord(n / 64, 1 - n / 64, n / 64, 1 - n / 64)
 
 	if self.db[unit].castIcon then
 		self.frame[unit].icon:Show()
-		-- self.frame[unit].icon.bg:Show()
 	else
 		self.frame[unit].icon:Hide()
-		-- self.frame[unit].icon.bg:Hide()
 	end
 	self.frame[unit].icon:SetTexture(nil)
 
 	-- update not interruptible shield
 	self.frame[unit].icon.shield_frame:SetFrameLevel(70)
-	self.frame[unit].icon.shield:SetSize(height * 64 / 20, height * 64 / 20)
+	self.frame[unit].icon.shield:SetSize(iconSize * 64 / 20, iconSize * 64 / 20)
 	self.frame[unit].icon.shield:SetPoint("CENTER", self.frame[unit].icon, "CENTER")
 	self.frame[unit].icon.shield:Hide()
 
 	-- update bar
 	self.frame[unit].bar:ClearAllPoints()
-	if self.db[unit].castIcon then
-		-- attach to icon
-		if self.db[unit].castIconPosition == "LEFT" then
-			-- self.frame[unit].bar:SetPoint("LEFT", self.frame[unit].icon, "RIGHT")
-			self.frame[unit].bar:SetPoint("LEFT", height + 9, 0)
-			self.frame[unit].bar:SetPoint("RIGHT", -3, 0)
-		else
-			self.frame[unit].bar:SetPoint("LEFT", 3, 0)
-			self.frame[unit].bar:SetPoint("RIGHT", -height - 9, 0)
-			-- self.frame[unit].bar:SetPoint("RIGHT", self.frame[unit].icon, "LEFT")
-		end
-	else
-		-- attach to frame
-		self.frame[unit].bar:SetAllPoints()
-	end
-	self.frame[unit].bar:SetHeight(height-6)
+	self.frame[unit].bar:SetAllPoints()
+	self.frame[unit].bar:SetHeight(height)
 	self.frame[unit].bar:SetMinMaxValues(0, 100)
 	self.frame[unit].bar:SetValue(0)
 	self.frame[unit].bar:SetStatusBarTexture(bar_texture)
 	self.frame[unit].bar:GetStatusBarTexture():SetHorizTile(false)
 	self.frame[unit].bar:GetStatusBarTexture():SetVertTile(false)
+	self.frame[unit].bar:GetStatusBarTexture():SetDrawLayer("BACKGROUND")
 	local color = self.db[unit].castBarColor
 	self.frame[unit].bar:SetStatusBarColor(color.r, color.g, color.b, color.a)
 
@@ -429,16 +401,15 @@ function CastBar:Update(unit,spelldata)
 	self.frame[unit].bar:SetStatusBarColor(color.r, color.g, color.b, color.a)
 	self.frame[unit].spark:SetVertexColor(color.r, color.g, color.b, color.a)
 	-- update cast bar background
+	self.frame[unit].background:SetPoint("TOPLEFT",-width*0.16,height*2)
+	self.frame[unit].background:SetPoint("BOTTOMRIGHT",width*0.16,-height*2)
+	self.frame[unit].background:SetTexture([[Interface\CastingBar\UI-CastingBar-Border-Small]])
+	self.frame[unit].background:SetVertexColor(1,1,1,1)
 
-	-- self.frame[unit]:SetBackdrop({ edgeFile = [[Interface\ChatFrame\ChatFrameBackground]], edgeSize = 3, insets = {left = -3,right = -3,top = -3,bottom = -3}})
-
-	self.frame[unit].background:SetTexture(bar_texture)
-	self.frame[unit].background:SetVertexColor(self.db[unit].castBarBackgroundColor.r, self.db[unit].castBarBackgroundColor.g,
-		self.db[unit].castBarBackgroundColor.b, self.db[unit].castBarBackgroundColor.a)
-
-	-- disable tileing
-	self.frame[unit].background:SetHorizTile(false)
-	self.frame[unit].background:SetVertTile(false)
+	self.frame[unit].backgroundShield:SetPoint("TOPLEFT",-width*0.186,height*2)
+	self.frame[unit].backgroundShield:SetPoint("BOTTOMRIGHT",width*0.12,-height*2)
+	self.frame[unit].backgroundShield:SetTexture([[Interface\CastingBar\UI-CastingBar-Small-Shield]])
+	self.frame[unit].backgroundShield:SetVertexColor(1,1,1,1)
 
 	-- update cast text
 	if self.db[unit].castText then
@@ -447,9 +418,7 @@ function CastBar:Update(unit,spelldata)
 		self.frame[unit].castText:Hide()
 	end
 
-	self.frame[unit].castText:SetFont(LSM:Fetch(LSM.MediaType.FONT, GladiusEx.db.base.globalFont),
-		self.db[unit].castTextGlobalFontSize and GladiusEx.db.base.globalFontSize or self.db[unit].castTextSize,
-		GladiusEx.db.base.globalFontOutline)
+	self.frame[unit].castText:SetFont(LSM:Fetch(LSM.MediaType.FONT, GladiusEx.db.base.globalFont),fontsize,GladiusEx.db.base.globalFontOutline)
 
 	local color = self.db[unit].castTextColor
 	self.frame[unit].castText:SetTextColor(color.r, color.g, color.b, color.a)
@@ -540,6 +509,7 @@ function CastBar:Test(unit)
 		f.endTime = endTime / 1000
 		f.maxValue = f.endTime - f.startTime
 		f.delay = 0.2
+		f:Show()
 
 		f.icon:SetTexture(icon)
 		self:SetInterruptible(unit, not notInterruptible)

@@ -108,6 +108,11 @@ function mod:UnitGUID (unit)
   return fcn("AirjGetObjectGUIDByUnit",unit)
 end
 
+function mod:ObjectGUID4(guid)
+  if not self:HasHacked() then return end
+	return fcn("AirjGetObjectGUID4",guid)
+end
+
 function mod:ObjectInt(guid,offset)
   if not self:HasHacked() then return end
 	return fcn("AirjGetObjectDataInt",guid,offset or 0)
@@ -122,27 +127,31 @@ function mod:UnitHealth(guid)
   return fcn("AirjGetHealth",guid)
 end
 
+function mod:GetPitch()
+	return fcn("AirjGetPitch")
+end
+
 function mod:Position(key)
   if not self:HasHacked() then return end
-  if key == nil then return end
-	local starts = {
-		Player = true,
-		Pet = true,
-		Vehicle = true,
-		Creature = true,
-		GameObject = true,
-		AreaTrigger = true,
-	}
-	local subs = {string.split("-",key)}
-	if not starts[subs[1]] then
-		key = self:UnitGUID(key)
-		if key then
-			subs = {string.split("-",key)}
-			if not starts[subs[1]] then
-				return
-			end
-		end
-	end
+  -- if key == nil then return end
+	-- local starts = {
+	-- 	Player = true,
+	-- 	Pet = true,
+	-- 	Vehicle = true,
+	-- 	Creature = true,
+	-- 	GameObject = true,
+	-- 	AreaTrigger = true,
+	-- }
+	-- local subs = {string.split("-",key)}
+	-- if not starts[subs[1]] then
+	-- 	key = self:UnitGUID(key)
+	-- 	if key then
+	-- 		subs = {string.split("-",key)}
+	-- 		if not starts[subs[1]] then
+	-- 			return
+	-- 		end
+	-- 	end
+	-- end
 
 	if key then
 	  local x,y,z,f,s = fcn("AirjGetObjectPosition",key)
@@ -168,6 +177,33 @@ function mod:TerrainClick(x,y,z)
 	--   end,0.1)
 	-- end
 end
+
+function mod:GreenCast(spell,unit,maxrange,minrange)
+	local spellName = GetSpellInfo(spell)
+	if not spellName then return end
+	local guid = UnitGUID(unit)
+	if not guid then return end
+	local tx,ty,tz = self:Position(guid)
+	local x,y,z = AirjHack:Position(UnitGUID("player"))
+	local dx,dy,dz = tx-x,ty-y,tz-z
+	local d = sqrt(dx*dx+dy*dy+dz*dz)
+	maxrange = maxrange or select(6,GetSpellInfo(spell)) or 35
+	local r = maxrange
+	if d>maxrange-0.5 then
+		x,y,z=x+dx*maxrange/d,y+dy*maxrange/d,z+dz*maxrange/d
+	elseif minrange and d>minrange+0.5 then
+		x,y,z=x+dx*minrange/d,y+dy*minrange/d,z+dz*minrange/d
+	else
+		x,y,z = tx,ty,tz
+	end
+	self:RunMacroText("/cast "..spellName)
+	AirjHack:TerrainClick(x,y,z)
+	self:RunMacroText("/cancelspelltarget")
+end
+function mod:SetFacing(angle)
+  if not self:HasHacked() then return end
+	return fcn("AirjSetFacing",angle)
+end
 function mod:UnitCanAttack(s,d)
   if not self:HasHacked() then return end
 	return fcn("AirjUnitCanAttack",s,d)
@@ -186,9 +222,46 @@ function mod:Focus(guid)
   return fcn("AirjFocusByGUID",guid)
 end
 
+local interacted = {}
 function mod:Interact(guid)
   if not self:HasHacked() then return end
-  return fcn("AirjInteractByGUID",guid)
+	local t = GetTime()
+	if not interacted[guid] or t-interacted[guid]>0.4 then
+		interacted[guid] = t
+  	return fcn("AirjInteractByGUID",guid)
+	end
+end
+---/run AirjHack:InteractUID(94194)
+function mod:InteractUID(uid)
+  if not self:HasHacked() then return end
+	local guids = self:GetObjects()
+	local targetguid=UnitGUID("target")
+	local playerGUID = UnitGUID("player")
+	for guid,t in pairs(guids) do
+		local ot,_,_,_,oid = self:GetGUIDInfo(guid)
+		if ot == "Creature" or ot == "GameObject" then
+		-- print(oid)
+			local interact
+			if not uid and not self:UnitCanAttack(playerGUID,guid) then
+				local x1,y1,z1,_,distance = AirjCache:GetPosition(guid)
+				if distance and distance <= 20 then
+					interact = true
+				end
+			end
+			if uid and uid[oid] then
+				interact = true
+			end
+			if interact then
+				self:Interact(guid)
+				local tg = UnitGUID("target")
+				if targetguid ~= tg then
+					self:RunMacroText("/targetlasttarget")
+				elseif not targetguid then
+					self:RunMacroText("/cleartarget")
+				end
+			end
+		end
+	end
 end
 
 function mod:GetCamera()
@@ -296,8 +369,10 @@ function mod:GetGUIDInfo(guid)
   objectType = guids[1]
   if objectType == "Player" then
     _,serverId,id = unpack(guids)
+		-- id = tonumber(id)
   elseif objectType == "Creature" or objectType == "GameObject" or objectType == "AreaTrigger" then
     objectType,_,serverId,instanceId,zone,id,spawn = unpack(guids)
+		id = tonumber(id)
   end
   return objectType,serverId,instanceId,zone,id,spawn
 end
@@ -308,9 +383,83 @@ function mod:Attack(unit)
 	local guid = UnitGUID(unit)
 	self:RunMacroText("/target "..unit)
 	self:RunMacroText("/startattack")
+	self:RunMacroText("/startattack")
 	if targetguid ~= guid then
 		self:RunMacroText("/targetlasttarget")
 	elseif not targetguid then
 		self:RunMacroText("/cleartarget")
+	end
+	-- self:ScheduleTimer(function()
+	-- end,0.01)
+end
+
+local Cache
+local lastloot
+function mod:Loot()
+	if lastloot and GetTime() - lastloot <0.05 then return end
+	Cache = Cache or AirjCache
+	if not Cache then return end
+	local targetguid=UnitGUID("target")
+	local looted
+	local ct = GetTime()
+	for data in Cache.cache.died:iterator() do
+		local guid = data.guid
+		if data.t and (ct - data.t <15 or not data.looted) and ct - data.t >0.2 then
+			local x1,y1,z1,f1,distance,s = Cache:GetPosition(guid)
+			if distance and (distance <= 5 or distance - s < 2.83) then
+				self:Interact(guid)
+				lastloot = GetTime()
+				looted = true
+				if ct - data.t > 1 then
+					data.looted = true
+				end
+				break
+			end
+		end
+	-- 		local health, max, prediction, absorb, healAbsorb, isdead = self:UnitHealth(guid)
+	-- 		if isdead then
+	-- 			local x1,y1,z1,f1,distance,s = Cache:GetPosition(guid)
+	-- 			if distance and (distance <= 5 or distance - s < 2.83) then
+	-- 				self:Interact(guid)
+	-- 				lastloot = GetTime()
+	-- 				looted = true
+	-- 				if ct - dt > 1 then
+	-- 					data.looted = true
+	-- 				end
+	-- 				break
+	-- 			end
+	-- 		end
+	-- 	end
+	end
+	if looted then
+		if targetguid and targetguid ~= UnitGUID("target") then
+			self:RunMacroText("/targetlasttarget")
+		elseif not targetguid then
+			self:RunMacroText("/cleartarget")
+		end
+	end
+end
+
+function mod:Quest()
+	Cache = Cache or AirjCache
+	if not Cache then return end
+	local guids = self:GetObjects()
+	local targetguid=UnitGUID("target")
+	for guid,t in pairs(guids) do
+		local ot,_,_,_,oid = self:GetGUIDInfo(guid)
+		if ot == "Creature" then
+			local canattack = self:UnitCanAttack(Cache:PlayerGUID(),guid)
+			if not canattack then
+				local x1,y1,z1,_,distance = Cache:GetPosition(guid)
+				if distance and distance <= 5 then
+					self:Interact(guid)
+					if targetguid ~= guid then
+						self:RunMacroText("/targetlasttarget")
+					elseif not targetguid then
+						self:RunMacroText("/cleartarget")
+					end
+				end
+			end
+		end
 	end
 end

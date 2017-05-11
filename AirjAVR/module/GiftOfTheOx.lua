@@ -1,7 +1,8 @@
 local Core =  LibStub("AceAddon-3.0"):GetAddon("AirjAVR")
 local mod = Core:NewModule("GiftOfTheOx")
 
-function mod:OnInitialize()
+function mod:OnEnable()
+  if select(2,UnitClass("player")) ~= "MONK" then return end
   local data = {
     color={0.0,0.7,0,0.2},
     color2={0.0,0.9,0,0.3},

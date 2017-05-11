@@ -1,0 +1,36 @@
+## Interface: 70100
+## Title: Cheatsheet
+## Notes: Cheaty Spellbook
+## SavedVariables: cheatsheetDB
+## Author: maliciousplant
+## Version: 1.2
+## DefaultState: enabled
+
+---------------------------------------------------------------------------------------------
+--Libraries
+---------------------------------------------------------------------------------------------
+
+Libs\LibDBIcon-1.0\LibStub\LibStub.lua
+Libs\LibDBIcon-1.0\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibDBIcon-1.0\LibDataBroker-1.1\LibDataBroker-1.1.lua
+Libs\LibDBIcon-1.0\LibDBIcon-1.0\LibDBIcon-1.0.lua
+
+---------------------------------------------------------------------------------------------
+--Main Lua files
+---------------------------------------------------------------------------------------------
+
+spell_lib_mage.lua
+spell_lib_paladin.lua
+spell_lib_warrior.lua
+spell_lib_druid.lua
+spell_lib_dknight.lua
+spell_lib_hunter.lua
+spell_lib_priest.lua
+spell_lib_rogue.lua
+spell_lib_shaman.lua
+spell_lib_warlock.lua
+spell_lib_monk.lua
+spell_lib_dhunter.lua
+spell_lib_compiled.lua
+spell_lib_artifact_ranks.lua
+core.lua

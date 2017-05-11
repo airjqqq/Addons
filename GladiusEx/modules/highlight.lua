@@ -9,13 +9,13 @@ local GetRealNumRaidMembers, GetPartyAssignment, GetRaidTargetIndex = GetRealNum
 local UnitGUID = UnitGUID
 
 local Highlight = GladiusEx:NewGladiusExModule("Highlight", {
-	highlightBorderWidth = 5,
+	highlightBorderWidth = 3,
 
 	highlightHover = true,
 	highlightHoverColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 },
 
 	highlightTarget = true,
-	highlightTargetColor = { r = 1, g = 1, b = 0, a = 1 },
+	highlightTargetColor = { r = 1, g = 1, b = 0.8, a = 1 },
 	highlightTargetPriority = 10,
 
 	highlightFocus = true,

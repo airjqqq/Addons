@@ -10,14 +10,14 @@ function mod:OnInitialize()
 	local default =
 	{
 		profile = {
-			width = 800,
+			width = 850,
 			height = 1000,
 		}
 	}
 	self.db = LibStub("AceDB-3.0"):New("AirjAutoKey_OptionsDB",default,true)
 	local mainFrame = AceGUI:Create("Frame")
 	mainFrame:SetTitle("AirjAutoKey选项")
-	mainFrame:SetWidth(820)
+	mainFrame:SetWidth(850)
 	mainFrame:SetHeight(750)
 
 	mainFrame:Hide()
@@ -174,6 +174,7 @@ function mod:OnCommReceived(prefix,data,channel,sender)
 			local data = group.data or {}
 			self:RotationSelect()
 			local child = self.modChildren["RotationSelect"]
+			child.currentRotationIndex = child.currentRotationIndex + 1
 			child:NewRotation(data)
 			group:Hide()
 		end)

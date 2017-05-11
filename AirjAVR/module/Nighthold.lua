@@ -73,6 +73,54 @@ function mod:OnInitialize()
   }
   Core:RegisterAuraUnit(218809,data)
   data = {
+    color={0,1,0,0.2},
+    radius=5,
+  }
+  Core:RegisterAuraUnit(218304,data)
+  data = {
+    width = 0.2,
+    alpha = 0.3,
+    classColor = true,
+  }
+  Core:RegisterAuraLink(218342,data)
+
+
+
+  -- data = {
+  --   color={1,0,1,0.3},
+  --   radius=5,
+  -- }
+  -- Core:RegisterAuraUnit(206388,data)
+
+  data = {
+    color={0,1,1,0.3},
+    radius=8,
+  }
+  Core:RegisterAuraUnit(206936,data)
+
+  data = {
+    color={1,0,0,0.3},
+    radius=3,
+  }
+  Core:RegisterAuraUnit(205445,data)
+  data = {
+    color={0,1,0,0.3},
+    radius=3,
+  }
+  Core:RegisterAuraUnit(216345,data)
+  data = {
+    color={1,1,0,0.3},
+    radius=3,
+  }
+  Core:RegisterAuraUnit(205429,data)
+  data = {
+    color={1,0,1,0.3},
+    radius=5,
+  }
+  Core:RegisterAuraUnit(205649,data)
+
+
+  data = {
     color={1,0.4,0,0.3},
     color2={1,1,0,0.1},
     radius=8,
@@ -84,6 +132,13 @@ function mod:OnInitialize()
     radius=5,
   }
   Core:RegisterAuraUnit(209973,data)
+  data = {
+    color={1,1,0,0.3},
+    color2={1,0,0,0.1},
+    radius=2,
+  }
+  Core:RegisterAuraUnit(221606,data)
+  Core:RegisterAuraUnit(221603,data)
   -- data = {
   --   color={1,0.4,0,0.2},
   --   color2={1,1,0,0.3},
@@ -98,7 +153,36 @@ function mod:OnInitialize()
   -- Core:RegisterAuraUnit(212794,data)
 
   --High
+  -- M+
+  -- data = {
+  --   color={0.8,0,0,0.2},
+  --   color2={1,0.5,0,0.3},
+  --   radius=3,
+  --   duration=3,
+  -- }
+  -- Core:RegisterAreaTriggerCircle(124503,data)
 
+  data = {
+    width = 0.5,
+    alpha = 0.7,
+    -- classColor = true,
+    color={0.8,0,0,0.6},
+  }
+  Core:RegisterAuraLink(234425,data)
+  data = {
+    color={0.4,0.7,0,0.2},
+    color2={0.7,0.0,0,0.5},
+    line={{-3,0,0},{3,0,0},{5,60,0},{-5,60,0}},
+    duration=2,
+  }
+  Core:RegisterBreath(234631,data) --Infested Breath
+  data = {
+    color={0.4,0.7,0,0.2},
+    color2={0.7,0.0,0,0.5},
+    line={{-2,0,0},{2,0,0},{3,20,0},{-3,20,0}},
+    duration=1,
+  }
+  Core:RegisterBreath(236537,data) --Infested Breath
 end
 
 function mod:OnEnable()
@@ -108,8 +192,25 @@ function mod:OnEnable()
   self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end
 
+
+do
+  local index = 1
+  function mod:NewSearing(guid)
+    local unit = Cache:FindUnitByGUID(guid)
+    SetRaidTarget(unit,index)
+    index = index + 1
+    if index > 6 then index = 1 end
+  end
+end
+
 function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
 
+  -- if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" or event =="SPELL_AURA_APPLIED_DOSE" then
+  --   if spellId == 213166 then
+  --   -- if spellId == 774 then
+  --     self:NewSearing(destGUID)
+  --   end
+  -- end
 end
 
 function mod:UNIT_SPELLCAST_START(event,unitId,spell,rank,spellGUID)
