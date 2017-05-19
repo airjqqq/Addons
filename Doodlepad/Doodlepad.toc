@@ -1,0 +1,18 @@
+## Interface: 50400
+## X-Max-Interface: 50400
+## X-Min-Interface: 30000
+## X-Compatible-With: 40000
+## Title: Doodlepad |cffff8816[rev. 74]|r
+## Notes: It's a doodle pad for doodling with doodles.
+## Author: Humbedooh
+## OptionalDeps:  LibMouseGestures-1.0
+## SavedVariables: Doodleboard
+#@no-lib-strip@
+## X-Curse-Packaged-Version: r75-release
+## X-Curse-Project-Name: Doodlepad
+## X-Curse-Project-ID: doodlepad
+## X-Curse-Repository-ID: wow/doodlepad/mainline
+embeds.xml
+#@end-no-lib-strip@
+# core files
+Doodle.lua

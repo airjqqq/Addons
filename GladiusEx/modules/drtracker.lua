@@ -15,7 +15,7 @@ local defaults = {
 	drTrackerSize = 40,
 	drTrackerCrop = true,
 	drTrackerOffsetX = 0,
-	drTrackerOffsetY = 0,
+	drTrackerOffsetY = -5,
 	drTrackerFrameLevel = 8,
 	drTrackerGloss = false,
 	drTrackerGlossColor = { r = 1, g = 1, b = 1, a = 1 },

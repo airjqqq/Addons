@@ -1132,10 +1132,10 @@ function GladiusEx:UpdateUnitPosition(unit)
 		if self.db[unit].growDirection == "UP" then
 			button:SetPoint("BOTTOMLEFT", anchor, "TOPLEFT", abs(left), margin_y + abs(bottom))
 		elseif self.db[unit].growDirection == "DOWN" then
-			button:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", abs(left), -margin_y - abs(top))
+			button:SetPoint("TOP", anchor, "BOTTOM", (abs(left) - abs(right))/2, -margin_y - abs(top))
 		elseif self.db[unit].growDirection == "VCENTER" then
 			local offset = (real_height * (num_frames - 1) + self.db[unit].margin * (num_frames - 1)) / 2
-			button:SetPoint("LEFT", anchor, "LEFT", (abs(left) - abs(right))/2, offset - margin_y + abs(bottom) / 2 - abs(top) / 2)
+			button:SetPoint("CENTER", anchor, "CENTER", (abs(left) - abs(right))/2, offset - margin_y + abs(bottom) / 2 - abs(top) / 2)
 		elseif self.db[unit].growDirection == "LEFT" then
 			button:SetPoint("TOPRIGHT", anchor, "BOTTOMRIGHT", -margin_x - abs(right), -abs(top))
 		elseif self.db[unit].growDirection == "RIGHT" then
@@ -1380,9 +1380,9 @@ function GladiusEx:UpdateAnchor(anchor_type)
 	anchor:SetScale(self.db[anchor_type].frameScale)
 	if (not self.db[anchor_type].x and not self.db[anchor_type].y) or (not self.db[anchor_type].x["anchor_" .. anchor.anchor_type] and not self.db[anchor_type].y["anchor_" .. anchor.anchor_type]) then
 		if anchor.anchor_type == "party" then
-			anchor:SetPoint("CENTER", UIParent, "CENTER", -500, 0)
+			anchor:SetPoint("CENTER", UIParent, "CENTER", -700, 0)
 		else
-			anchor:SetPoint("CENTER", UIParent, "CENTER", 500, 0)
+			anchor:SetPoint("CENTER", UIParent, "CENTER", 700, 0)
 		end
 	else
 		local eff = anchor:GetEffectiveScale()
@@ -1455,7 +1455,7 @@ function GladiusEx:UpdateBackground(anchor_type)
 	elseif self.db[anchor_type].growDirection == "DOWN" then
 		background:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", -self.db[anchor_type].backgroundPadding, self.db[anchor_type].backgroundPadding)
 	elseif self.db[anchor_type].growDirection == "VCENTER" then
-		background:SetPoint("LEFT", anchor, "LEFT", -self.db[anchor_type].backgroundPadding, 0)
+		background:SetPoint("CENTER", anchor, "CENTER", 0, 0) ---self.db[anchor_type].backgroundPadding
 	elseif self.db[anchor_type].growDirection == "LEFT" then
 		background:SetPoint("TOPRIGHT", anchor, "BOTTOMRIGHT", self.db[anchor_type].backgroundPadding, self.db[anchor_type].backgroundPadding)
 	elseif self.db[anchor_type].growDirection == "RIGHT" then

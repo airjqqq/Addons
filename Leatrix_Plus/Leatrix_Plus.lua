@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------
--- 	Leatrix Plus 7.2.02 (19th April 2017, www.leatrix.com)
+-- 	Leatrix Plus 7.2.04 (12th May 2017, www.leatrix.com)
 ----------------------------------------------------------------------
 
 --	01:Functions	20:Live			50:Player		72:Profile		
@@ -20,7 +20,7 @@
 	local void
 
 --	Version
-	LeaPlusLC["AddonVer"] = "7.2.02"
+	LeaPlusLC["AddonVer"] = "7.2.04"
 
 ----------------------------------------------------------------------
 -- 	Locale
@@ -618,24 +618,6 @@
 		--[[zhTW]] "勾選後，如果小隊隊長是你的好友或公會成員，其地城搜尋器的加入請求會被自動接受。\n\n這個選項需要你在地城搜尋器中選擇一個職責。",
 		--[[ruRU]] "",
 		--[[koKR]] "파티장이 친구,길드원인 경우 던전대기열 요청을 자동 허용. 사용시 던전입장은 자동 되지 않습니다.",
-		x)
-
-		----------------------------------------------------------------------
-		-- Group from premades
-		----------------------------------------------------------------------
-
-		Ln("Group from premades",
-		--[[zhCN]] "预创建队伍",
-		--[[zhTW]] "預組隊伍",
-		--[[ruRU]] "Пригл. в заранее собр. группу",
-		--[[koKR]] "예약된 그룹",
-		x)
-
-		Ln("If checked, premade group invitations (for premade groups that you are signed up for) will be automatically accepted.",
-		--[[zhCN]] "勾选后，你所申请的预创建队伍的邀请会被自动接受。",
-		--[[zhTW]] "勾選後，你所申請之預組隊伍的邀請會被自動接受。",
-		--[[ruRU]] "Если флажок установлен, запросы от заранее собранной группы будут автоматически приняты.",
-		--[[koKR]] "사전 일정 그룹 초대장 자동으로 허용.",
 		x)
 
 		----------------------------------------------------------------------
@@ -3878,18 +3860,6 @@
 	function LeaPlusLC:Live()
 
 		----------------------------------------------------------------------
-		--	Group from premades
-		----------------------------------------------------------------------
-
-		if LeaPlusLC["AcceptPremades"] == "On" then
-			LFGListInviteDialog.AcceptButton:SetScript('OnShow', function() 
-				LFGListInviteDialog.AcceptButton:Click()
-			end)
-		else
-			LFGListInviteDialog.AcceptButton:SetScript('OnShow', nil)
-		end
-
-		----------------------------------------------------------------------
 		--	Automatically accept Dungeon Finder queue requests
 		----------------------------------------------------------------------
 
@@ -4616,18 +4586,17 @@
 					-- Accept quest
 					if QuestGetAutoAccept() then
 						-- Quest has already been accepted by Wow so close the quest detail window
-						C_Timer.After(0.001, CloseQuest)
+						CloseQuest()
 					else
-						-- Quest has not been accepted by Wow so accept
-						C_Timer.After(0.001, function()
-							AcceptQuest()
-						end)
+						-- Quest has not been accepted by Wow so accept it
+						AcceptQuest()
+						HideUIPanel(QuestFrame)
 					end
 				end
 
 				-- Accept quests which require confirmation (such as sharing escort quests)
 				if event == "QUEST_ACCEPT_CONFIRM" then
-					C_Timer.After(0.001, ConfirmAcceptQuest) 
+					ConfirmAcceptQuest() 
 					StaticPopup_Hide("QUEST_ACCEPT")
 				end
 
@@ -4640,7 +4609,7 @@
 					-- Don't complete quests for blocked NPCs
 					if isNpcBlocked("Complete") then return end
 					-- Complete quest
-					C_Timer.After(0.001, CompleteQuest)
+					CompleteQuest()
 				end
 
 				-- Turn in completed quests if only one reward item is being offered
@@ -4649,7 +4618,7 @@
 					if isNpcBlocked("Complete") then return end
 					-- Complete quest
 					if GetNumQuestChoices() <= 1 then
-						C_Timer.After(0.001, function() GetQuestReward(GetNumQuestChoices()) end)
+						GetQuestReward(GetNumQuestChoices())
 					end
 				end
 
@@ -4670,57 +4639,44 @@
 						-- Don't select quests for blocked NPCs
 						if isNpcBlocked("Select") then return end
 
-						-- Select available quests
+						-- Select quests
 						if event == "QUEST_GREETING" then
 							-- Quest greeting
-							local availableCount = GetNumAvailableQuests() or 0
+							local availableCount = GetNumAvailableQuests() + GetNumActiveQuests()
 							if availableCount >= 1 then
 								for i = 1, availableCount do
-									local isTrivial, frequency, isRepeatable, isLegendary, isIgnored = GetAvailableQuestInfo(i)
-									if not isIgnored then
-										C_Timer.After(0.001, function() SelectAvailableQuest(i) end)
+									if _G["QuestTitleButton" .. i].isActive == 0 then
+										-- Select available quests
+										SelectAvailableQuest(_G["QuestTitleButton" .. i]:GetID())
+									else
+										-- Select completed quests
+										local void, isComplete = GetActiveTitle(i)
+										if isComplete then
+											SelectActiveQuest(_G["QuestTitleButton" .. i]:GetID())
+										end
 									end
 								end
 							end
 						else
 							-- Gossip frame
-							local availableCount = GetNumGossipAvailableQuests() or 0
+							local availableCount = GetNumGossipAvailableQuests() + GetNumGossipActiveQuests()
 							if availableCount >= 1 then
 								for i = 1, availableCount do
-									local name, level, isTrivial, frequency, isRepeatable, isLegendary, isIgnored = select(i * 7 - 6, GetGossipAvailableQuests())
-									if not isIgnored then
-										C_Timer.After(0.001, function() SelectGossipAvailableQuest(i) end)
+									if _G["GossipTitleButton" .. i].type == "Available" then
+										-- Select available quests
+										SelectGossipAvailableQuest(i)
+									else
+										-- Select completed quests
+										local isComplete = select(i * 6 - 5 + 3, GetGossipActiveQuests()) -- 4th argument of 6 argument line
+										if isComplete then
+											if _G["GossipTitleButton" .. i].type == "Active" then
+												SelectGossipActiveQuest(_G["GossipTitleButton" .. i]:GetID())
+											end
+										end
 									end
 								end
 							end
 						end
-
-						-- Select completed quests
-						if event == "QUEST_GREETING" then
-							-- Quest greeting
-							local activeCount = GetNumActiveQuests() or 0
-							if activeCount >= 1 then
-								for i = 1, activeCount do
-									local void, isComplete = GetActiveTitle(i)
-									if isComplete then
-										C_Timer.After(0.001, function() SelectActiveQuest(i) end)
-									end
-								end
-							end
-						else
-							-- Gossip frame
-							local activeCount = GetNumGossipActiveQuests() or 0
-							if activeCount >= 1 then
-								for i = 1, activeCount do
-									local isComplete = select(i * 6 - 5 + 3, GetGossipActiveQuests()) -- 4th argument of 6 argument line
-									local isIgnored = select(i * 6 - 5 + 5, GetGossipActiveQuests()) -- 6th argument of 6 argument line
-									if isComplete and not isIgnored then
-										C_Timer.After(0.001, function() SelectGossipActiveQuest(i) end)
-									end
-								end
-							end		
-						end
-
 					end
 				end
 
@@ -10445,7 +10401,6 @@
 
 				LeaPlusLC:LoadVarChk("AcceptPartyFriends", "Off")			-- Party from friends
 				LeaPlusLC:LoadVarChk("AutoConfirmRole", "Off")				-- Queue from friends
-				LeaPlusLC:LoadVarChk("AcceptPremades", "Off")				-- Group from premades
 				LeaPlusLC:LoadVarChk("InviteFromWhisper", "Off")			-- Invite from whispers
 				LeaPlusLC["InvKey"]	= LeaPlusDB["InvKey"] or "plus"
 
@@ -10666,7 +10621,6 @@
 
 			LeaPlusDB["AcceptPartyFriends"]		= LeaPlusLC["AcceptPartyFriends"]
 			LeaPlusDB["AutoConfirmRole"]		= LeaPlusLC["AutoConfirmRole"]
-			LeaPlusDB["AcceptPremades"]			= LeaPlusLC["AcceptPremades"]
 			LeaPlusDB["InviteFromWhisper"]		= LeaPlusLC["InviteFromWhisper"]
 			LeaPlusDB["InvKey"]					= LeaPlusLC["InvKey"]
 
@@ -11833,7 +11787,6 @@
 				LeaPlusDB["NoFriendRequests"] = "Off"			-- Block friend requests			
 				LeaPlusDB["AcceptPartyFriends"] = "On"			-- Party from friends
 				LeaPlusDB["AutoConfirmRole"] = "On"				-- Queue from friends
-				LeaPlusDB["AcceptPremades"] = "On"				-- Group from premades
 				LeaPlusDB["InviteFromWhisper"] = "On"			-- Invite from whispers
 
 				-- Chat
@@ -12232,8 +12185,7 @@
 	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Groups"					, 	340, -72);
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "AcceptPartyFriends"		, 	"Party from friends"			, 	340, -92, 	false,	"If checked, party invitations from friends or guild members will be automatically accepted unless you are queued in Dungeon Finder.")
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "AutoConfirmRole"			, 	"Queue from friends"			,	340, -112, 	false,	"If checked, requests initiated by your party leader to join the Dungeon Finder queue will be automatically accepted if the party leader is in your friends list or guild.\n\nThis option requires that you have selected a role for your character in the Dungeon Finder window.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "AcceptPremades"			,   "Group from premades"			,	340, -132,	false,	"If checked, premade group invitations (for premade groups that you are signed up for) will be automatically accepted.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "InviteFromWhisper"			,   "Invite from whispers"			,	340, -152,	false,	"If checked, a group invite will be automatically sent to anyone who whispers a designated keyword to you.\n\nYou need to be either ungrouped or party leader in your own group for this to work.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "InviteFromWhisper"			,   "Invite from whispers"			,	340, -132,	false,	"If checked, a group invite will be automatically sent to anyone who whispers a designated keyword to you.\n\nYou need to be either ungrouped or party leader in your own group for this to work.")
 
  	LeaPlusLC:CfgBtn("InvWhisperBtn", LeaPlusCB["InviteFromWhisper"], "Click to configure the settings for this option.")
 

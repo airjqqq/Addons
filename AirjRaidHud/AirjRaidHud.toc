@@ -1,4 +1,4 @@
-## Interface: 71000
+## Interface: 70200
 ## Title: [Airj's] RaidHud
 ## Version: 1.0
 ## Author: Airj
@@ -7,3 +7,5 @@
 
 #embeds.xml
 AirjRaidHud.lua
+
+raids/NightHold.lua

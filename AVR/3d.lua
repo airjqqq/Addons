@@ -1151,11 +1151,11 @@ function T:ClipToProj(v1,v2) -- v1[5]<self.projDist<=v2[5]
 end
 
 function T:Draw3DTriangle(v1,v2,v3,a,r,g,b)
-	local z1,z2,z3=v1[5],v2[5],v3[5]
-	local d=self.projDist
 
 
 ---[[
+	local z1,z2,z3=v1[5],v2[5],v3[5]
+	local d=self.projDist
 	-- clip to projection plane if needed
 	if z1<d then
 		if z2<d then

@@ -1,7 +1,7 @@
-changeset:   16:54e2fdee84b2
-tag:         tip
+changeset:   17:5e1b4adacc95
+tag:         a1.2.2-alpha
 user:        Tercio
-date:        Tue Mar 28 19:23:11 2017 -0300
-summary:     Added tag v1.2.1-release for changeset 485c0274d9d8
+date:        Mon May 08 17:00:13 2017 -0300
+summary:     - localization is now handled on curseforge.
 
 

@@ -62,6 +62,12 @@ function F:OnInitialize()
     name = {name="Spell ID, blank as anyspell"},
     unit = {name="Unit, blank as anybody"},
   })
+  self:RegisterFilter("SINCECASTINGOTHERS",L["Other's Casting"],{
+    value = {},
+    greater = {},
+    name = {name="Spell ID, blank as anyspell"},
+    unit = {name=""},
+  })
   self:RegisterFilter("CASTSUCCESSED",L["Cast Success"],{
     value = {},
     greater = {},
@@ -288,6 +294,17 @@ function F:SINCECASTING(filter)
     if not guid then return false end
   end
   local data = Cache.cache.casting:find({spellId=spellId,guid=guid})
+  if not data then return 120 end
+  return GetTime() - data.endTime/1000
+end
+function F:SINCECASTINGOTHERS(filter)
+  filter.unit = filter.unit or "target"
+  local guid
+  if filter.unit then
+    guid = Cache:UnitGUID(filter.unit)
+    if not guid then return false end
+  end
+  local data = Cache.cache.castingOthers:find({spellId=filter.name,guid=guid})
   if not data then return 120 end
   return GetTime() - data.endTime/1000
 end

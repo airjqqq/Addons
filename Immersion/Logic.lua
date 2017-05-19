@@ -6,9 +6,9 @@ local frame, GetTime = L.frame, GetTime
 -- Event handler
 ----------------------------------
 function NPC:OnEvent(event, ...)
-	self:ResetElements()
+	self:ResetElements(event)
 	if self[event] then
-		if event:match('QUEST') then
+		if event ~= 'QUEST_ACCEPTED' and event:match('QUEST') then
 			CloseGossip()
 		end
 		event = self[event](self, ...) or event
@@ -17,21 +17,31 @@ function NPC:OnEvent(event, ...)
 	self.lastEvent = event
 	self.timeStamp = GetTime()
 	self:UpdateItems()
+	return event
 end
 
 ----------------------------------
 -- Events
 ----------------------------------
 function NPC:GOSSIP_SHOW(...)
+	self:UpdateTalkingHead(GetUnitName('npc'), GetGossipText(), 'GossipGossip')
 	if self:IsGossipAvailable() then
 		self:PlayIntro('GOSSIP_SHOW')
-		self:UpdateTalkingHead(GetUnitName('npc'), GetGossipText(), 'GossipGossip')
 	end
 end
 
 function NPC:GOSSIP_CLOSED(...)
 	CloseGossip()
 	self:PlayOutro()
+	if self:IsGossipOnTheFly() and self.lastEvent == 'GOSSIP_SHOW' then
+		return self:OnEvent('GOSSIP_ONTHEFLY')
+	end
+end
+
+function NPC:GOSSIP_ONTHEFLY(...)
+	self.TalkBox:SetExtraOffset(0)
+	self:PlayIntro('GOSSIP_ONTHEFLY', true)
+	return 'GOSSIP_ONTHEFLY'
 end
 
 function NPC:QUEST_GREETING(...)
@@ -60,16 +70,19 @@ function NPC:QUEST_COMPLETE(...)
 	self:AddQuestInfo('QUEST_REWARD')
 end
 
+function NPC:QUEST_ACCEPTED(...)
+	if self:IsGossipOnTheFly() then
+		return self:OnEvent('GOSSIP_ONTHEFLY')
+	end
+end
+
 function NPC:QUEST_FINISHED(...)
 	CloseQuest()
 	self:PlayOutro()
 end
 
 function NPC:QUEST_DETAIL(...)
-	local questStartItemID = ...
-	if ( QuestIsFromAdventureMap() ) or
-		( QuestGetAutoAccept() and QuestIsFromAreaTrigger()) or
-		(questStartItemID ~= nil and questStartItemID ~= 0) then
+	if self:IsQuestAutoAccept(...) then
 		self:PlayOutro()
 		return
 	end
@@ -87,6 +100,49 @@ function NPC:QUEST_ITEM_UPDATE()
 		self[questEvent](self)
 		return questEvent
 	end
+end
+
+function NPC:ITEM_TEXT_BEGIN()
+	local title = ItemTextGetItem()
+	local creator = ItemTextGetCreator()
+	if creator then
+		title = title .. ' (' .. FROM .. ' ' .. creator .. ')'
+	end
+	DoEmote('read')
+	self:RegisterEvent('PLAYER_STARTED_MOVING')
+	self:PlayIntro('ITEM_TEXT_BEGIN')
+	self:UpdateTalkingHead(title, '', 'TrainerGossip', 'player')
+	-- add book model? (75431)
+end
+
+function NPC:ITEM_TEXT_READY()
+	-- special case: pages need to be concatened together before displaying them.
+	-- each new page re-triggers this event, so keep changing page until we run out.
+	self.itemText = (self.itemText or '') .. '\n' .. (ItemTextGetText() or '')
+	if ItemTextHasNextPage() then
+		ItemTextNextPage()
+		return
+	end
+	-- set text directly instead of updating talking head
+	self.TalkBox.TextFrame.Text:SetText(self.itemText)
+end
+
+
+function NPC:ITEM_TEXT_CLOSED()
+	local time = GetTime()
+	if not self.readEmoteCancelled and ( self.lastTextClosed ~= time ) then
+		DoEmote('read')
+	end
+	self.lastTextClosed = time
+	self.readEmoteCancelled = nil
+	self.itemText = nil
+	self:UnregisterEvent('PLAYER_STARTED_MOVING')
+	self:PlayOutro()
+end
+
+function NPC:PLAYER_STARTED_MOVING()
+	self.readEmoteCancelled = true
+	return 'ITEM_TEXT_READY'
 end
 
 ----------------------------------
@@ -126,6 +182,12 @@ function NPC:IsGossipAvailable()
 	return true
 end
 
+function NPC:IsQuestAutoAccept(...)
+	return ( QuestIsFromAdventureMap() ) or
+		( QuestGetAutoAccept() and QuestIsFromAreaTrigger() ) or
+		( questStartItemID ~= nil and questStartItemID ~= 0 )
+end
+
 function NPC:SelectBestOption()
 	local titles = self.TitleButtons.Buttons
 	local numActive = self.TitleButtons.numActive
@@ -144,7 +206,23 @@ function NPC:SelectBestOption()
 	end
 end
 
-function NPC:ResetElements()
+function NPC:GetRemainingSpeechTime()
+	return self.TalkBox.TextFrame.Text:GetTimeRemaining()
+end
+
+function NPC:IsGossipOnTheFly()
+	return -- no idea whether this works properly.
+		L('onthefly') and 
+		( self:GetRemainingSpeechTime() > 0 ) and
+		self.lastEvent ~= 'QUEST_DETAIL' and
+		not self:IsQuestAutoAccept()
+end
+
+function NPC:ResetElements(event)
+	if event == 'QUEST_ACCEPTED' then
+		return -- do not reset elements on this event,
+		--------- because it fires on auto-accepted quests.
+	end
 	self.Inspector:Hide()
 	local elements = self.TalkBox.Elements
 	for _, frame in pairs(elements.Active) do
@@ -156,14 +234,16 @@ function NPC:ResetElements()
 	elements.Progress:Hide()
 end
 
-function NPC:UpdateTalkingHead(title, text, npcType)
-	local unit
-	if ( UnitExists('questnpc') and not UnitIsUnit('questnpc', 'player') and not UnitIsDead('questnpc') ) then
-		unit = 'questnpc'
-	elseif ( UnitExists('npc') and not UnitIsUnit('npc', 'player') and not UnitIsDead('npc') ) then
-		unit = 'npc'
-	else
-		unit = npcType
+function NPC:UpdateTalkingHead(title, text, npcType, explicitUnit)
+	local unit = explicitUnit
+	if not unit then
+		if ( UnitExists('questnpc') and not UnitIsUnit('questnpc', 'player') and not UnitIsDead('questnpc') ) then
+			unit = 'questnpc'
+		elseif ( UnitExists('npc') and not UnitIsUnit('npc', 'player') and not UnitIsDead('npc') ) then
+			unit = 'npc'
+		else
+			unit = npcType
+		end
 	end
 	local talkBox = self.TalkBox
 	talkBox:SetExtraOffset(0)
@@ -268,11 +348,6 @@ function NPC:ShowItems()
 end
 
 function NPC:UpdateItems()
-	local items, numItems = self:GetItems()
-	self.hasItems = numItems > 0
-end
-
-function NPC:GetItems()
 	local items = self.Inspector.Items
 	wipe(items)
 	for _, item in pairs(self.TalkBox.Elements.Content.RewardsFrame.Buttons) do
@@ -285,21 +360,22 @@ function NPC:GetItems()
 			items[#items + 1] = item
 		end
 	end
+	self.hasItems = #items > 0
 	return items, #items
 end
 
 ----------------------------------
 -- Animation players
 ----------------------------------
-function NPC:PlayIntro(event)
+function NPC:PlayIntro(event, ignoreFrameFade)
 	local isShown = self:IsVisible()
 	self:Show()
 	if IsOptionFrameOpen() then
 		self:ForceClose()
 	else
 		self:EnableKeyboard(true)
+		self:FadeIn(nil, isShown, ignoreFrameFade)
 		local box = self.TalkBox
-		self:FadeIn(nil, isShown)
 		local point = L('boxpoint')
 		local x, y = L('boxoffsetX'), L('boxoffsetY')
 		box:ClearAllPoints()
@@ -319,6 +395,7 @@ end
 function NPC:ForceClose()
 	CloseGossip()
 	CloseQuest()
+	CloseItemText()
 	self:PlayOutro()
 end
 
@@ -339,8 +416,10 @@ local inputs = {
 			SelectGossipOption(1)
 		elseif (self.lastEvent == 'GOSSIP_SHOW' or self.lastEvent == 'QUEST_GREETING') and numActive > 1 then
 			self:SelectBestOption()
+		elseif (self.lastEvent == 'GOSSIP_ONTHEFLY') then
+			self:FadeOut(0.5, true)
 		else
-			self.TalkBox:Click(L('flipshortcuts') and 'RightButton' or 'LeftButton')
+			self.TalkBox:OnLeftClick()
 		end
 	end,
 	reset = function(self)
@@ -436,10 +515,12 @@ end
 
 function TalkBox:OnEnter()
 	-- Highlight the button when it can be clicked
-	if 	( ( self.lastEvent == 'QUEST_COMPLETE' ) and
+	if 	L('immersivemode') or ( ( ( self.lastEvent == 'QUEST_COMPLETE' ) and
 		not (self.Elements.itemChoice == 0 and GetNumQuestChoices() > 1) ) or
+		( self.lastEvent == 'QUEST_ACCEPTED' ) or
 		( self.lastEvent == 'QUEST_DETAIL' ) or
-		( self.lastEvent ~= 'GOSSIP_SHOW' and IsQuestCompletable() ) then
+		( self.lastEvent == 'ITEM_TEXT_READY' ) or
+		( self.lastEvent ~= 'GOSSIP_SHOW' and IsQuestCompletable() ) ) then
 		L.UIFrameFadeIn(self.Hilite, 0.15, self.Hilite:GetAlpha(), 1)
 	end
 end
@@ -448,20 +529,41 @@ function TalkBox:OnLeave()
 	L.UIFrameFadeOut(self.Hilite, 0.15, self.Hilite:GetAlpha(), 0)
 end
 
+function TalkBox:OnLeftClick()
+	-- Complete quest
+	if self.lastEvent == 'QUEST_COMPLETE' then
+		self.Elements:CompleteQuest()
+	-- Accept quest
+	elseif self.lastEvent == 'QUEST_DETAIL' or self.lastEvent == 'QUEST_ACCEPTED' then
+		self.Elements:AcceptQuest()
+	elseif self.lastEvent == 'ITEM_TEXT_READY' then
+		local text = self.TextFrame.Text
+		if text:GetNumRemaining() > 1 and text:IsSequence() then
+			text:ForceNext()
+		else
+			CloseItemText()
+		end
+	elseif self.lastEvent == 'GOSSIP_ONTHEFLY' then
+		ImmersionFrame:FadeOut(0.5, true)
+	-- Progress quest to completion
+	elseif self.lastEvent == 'QUEST_PROGRESS' then
+		if IsQuestCompletable() then
+			CompleteQuest()
+		else
+			ImmersionFrame:ForceClose()
+		end
+	end
+end
+
 function TalkBox:OnClick(button)
 	if L('flipshortcuts') then
 		button = button == 'LeftButton' and 'RightButton' or 'LeftButton'
 	end
 	if button == 'LeftButton' then
-		-- Complete quest
-		if self.lastEvent == 'QUEST_COMPLETE' then
-			self.Elements:CompleteQuest()
-		-- Accept quest
-		elseif self.lastEvent == 'QUEST_DETAIL' then
-			self.Elements:AcceptQuest()
-		-- Progress quest to completion
-		elseif IsQuestCompletable() then
-			CompleteQuest()
+		if L('immersivemode') then
+			inputs.accept(ImmersionFrame)
+		else
+			self:OnLeftClick()
 		end
 	elseif button == 'RightButton' then
 		local text = self.TextFrame.Text

@@ -15,6 +15,7 @@ function F:OnInitialize()
     OBSERV = L["Obsorb (value2)"],
   })
   self:RegisterFilter("PVEATTACK",L["PVE Should Attack"])
+  self:RegisterFilter("PARAMUNIT",L["Param Unit"],{unit={},name={}})
   self:RegisterFilter("COMBAT",L["Is Combat"])
   self:RegisterFilter("ISELITE",L["Is Elite"])
   self:RegisterFilter("ISPLAYER",L["Is Player"])
@@ -111,6 +112,13 @@ function F:COMBAT(filter)
   if IsResting() and not UnitIsPlayer(filter.unit) then return true end
   if UnitExists("boss1") then return true end
   return Cache:Call("UnitAffectingCombat",filter.unit) and true or false
+end
+function F:PARAMUNIT(filter)
+  for _,v in pairs(filter.name) do
+    if Core:GetParam(v) and Core:GetParam(v)==UnitGUID(filter.unit) then
+      return true
+    end
+  end
 end
 
 function F:ISELITE(filter)

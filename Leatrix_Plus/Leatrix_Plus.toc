@@ -1,6 +1,6 @@
 ## Interface: 70200
 ## Title: Leatrix Plus
-## Version: 7.2.02
+## Version: 7.2.04
 ## Author: Leatrix
 ## Notes: Quality of life addon.
 ## SavedVariables: LeaPlusDB

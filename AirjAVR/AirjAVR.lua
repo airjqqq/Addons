@@ -2,7 +2,7 @@ local Core = LibStub("AceAddon-3.0"):NewAddon("AirjAVR", "AceConsole-3.0", "AceT
 AirjAVR = Core
 Core.debug = true
 local Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
-
+local db
 function Core:OnInitialize()
 
 	self.register = setmetatable({},{
@@ -23,6 +23,16 @@ function Core:OnInitialize()
 end
 
 function Core:OnEnable()
+
+	self.objectHistory = AirjUtil:NewFIFO(1000)
+	AirjAVRDB = AirjAVRDB or {}
+	db = AirjAVRDB
+	if db.history then
+		for i,v in ipairs(db.history) do
+			self.objectHistory:push(v)
+		end
+	end
+	
   self:RegisterMessage("AIRJ_HACK_OBJECT_CREATED",self.OnObjectCreated,self)
   self:RegisterMessage("AIRJ_HACK_OBJECT_DESTROYED",self.OnObjectDestroyed,self)
   self:RegisterEvent("MODIFIER_STATE_CHANGED",self.OnModifierStateChanged,self)
@@ -33,6 +43,10 @@ function Core:OnDisable()
   self:UnregisterMessage("AIRJ_HACK_OBJECT_CREATED")
   self:UnregisterMessage("AIRJ_HACK_OBJECT_DESTROYED")
   self:UnregisterEvent("MODIFIER_STATE_CHANGED")
+	db.history = {}
+	for v,k,i in self.objectHistory:iterator() do
+		db.history[i] = v
+	end
 end
 
 
@@ -199,36 +213,35 @@ function Core:OnObjectCreated(event,guid,type)
 	-- print(guid,type)
   if bit.band(type,0x2)==0 then
     local objectType,serverId,instanceId,zone,cid,spawn = self:GetGUIDInfo(guid)
+		local history = {}
+		history.guid = guid
 		-- self:Print(guid)
     if objectType == "AreaTrigger" then
       local spellId = AirjHack:ObjectInt(guid,0x88)
       local radius = AirjHack:ObjectFloat(guid,0x94)
       local duration = AirjHack:ObjectInt(guid,0x78)
-			-- self:Print(GetSpellLink(spellId),spellId,radius,duration)
       local data = self.register.onAreaTriggerCircleIds[spellId]
       if data and not data.radius and radius~=0 then
         data.radius = radius
       end
       self:ShowUnitMesh(data,spellId,nil,guid)
-	    -- if self.debug or true then
-      --   local link = GetSpellLink(spellId)
-      --   self:Print(AirjHack:GetDebugChatFrame(),guid,link,AirjHack:ObjectFloat(guid,0x90))
-			-- end
+			history.spellId = spellId
+			history.radius = radius
+			history.duration = duration
     end
-    if objectType == "Creature" then
-      self:ShowLinkMesh(self.register.onCreatureLinkIds[cid],0,UnitGUID("player"),guid)
-			if cid == 115947 then
-				local color = {bit.band(colorIndex,1)~=0 and 1 or 0,bit.band(colorIndex,2)~=0 and 1 or 0,bit.band(colorIndex,4)~=0 and 1 or 0}
-				colorIndex = colorIndex + 1
-				local data = {
-			    color=color,
-			    color2=color,
-			    radius=1.2,
-					duration = 600,
-				}
-      	self:ShowUnitMesh(data,"bott",nil,guid)
+    if objectType == "Creature" or objectType == "GameObject" or objectType == "Vehicle" then
+			local data = self.register.onCreatureLinkIds[cid]
+			if data then
+				local destUnit = data.destUnit or "player"
+				local destuid = UnitGUID(destUnit)
+				if guid then
+      		self:ShowLinkMesh(data,0,guid,destuid)
+				end
 			end
     end
+		local position = {AirjHack:Position(guid)}
+		history.position = position
+		self.objectHistory:push(history)
   end
 end
 

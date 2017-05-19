@@ -798,6 +798,10 @@ L["STRING_OPTIONS_PERFORMANCE_BG15"] = "Campo de batalha 15"
 L["STRING_OPTIONS_PERFORMANCE_BG40"] = "Campo de batalha 40"
 L["STRING_OPTIONS_PERFORMANCE_DUNGEON"] = "Masmorra"
 L["STRING_OPTIONS_PERFORMANCE_ENABLE_DESC"] = "Se habilitado, essas configurações serão aplicadas quando sua raide for compatível com o tipo de raide selecionado."
+--Translation missing 
+-- L["STRING_OPTIONS_PERFORMANCE_ERASEWORLD"] = ""
+--Translation missing 
+-- L["STRING_OPTIONS_PERFORMANCE_ERASEWORLD_DESC"] = ""
 L["STRING_OPTIONS_PERFORMANCE_MYTHIC"] = "Mítico"
 L["STRING_OPTIONS_PERFORMANCE_PROFILE_LOAD"] = "Perfil de desempenho alterado: "
 L["STRING_OPTIONS_PERFORMANCE_RAID15"] = "Raide 10-15"
@@ -1297,6 +1301,8 @@ L["STRING_OPTIONSMENU_ROWSETTINGS"] = "Barras: Configurações"
 L["STRING_OPTIONSMENU_ROWTEXTS"] = "Barras: Textos"
 L["STRING_OPTIONSMENU_SKIN"] = "Seletor de Skin"
 L["STRING_OPTIONSMENU_SPELLS"] = "Customização de Magia"
+--Translation missing 
+-- L["STRING_OPTIONSMENU_SPELLS_CONSOLIDATE"] = ""
 L["STRING_OPTIONSMENU_TITLETEXT"] = "Barra de Título: Texto"
 L["STRING_OPTIONSMENU_TOOLTIP"] = "Tooltips"
 L["STRING_OPTIONSMENU_WALLPAPER"] = "Janela: Papel de Parede"
@@ -1468,6 +1474,8 @@ L["STRING_TOTAL"] = "Total"
 L["STRING_TRANSLATE_LANGUAGE"] = "Ajude a traduzir o Details!"
 L["STRING_TUTORIAL_FULLY_DELETE_WINDOW"] = [=[Você fechou uma janela e pode reabri-la quando quiser.
 Para deleta-la por completo, vá nas opções -> Janela: Geral -> Deletar.]=]
+--Translation missing 
+-- L["STRING_TUTORIAL_OVERALL1"] = ""
 L["STRING_UNKNOW"] = "Desconhecido"
 L["STRING_UNKNOWSPELL"] = "Magia Desconhecida"
 L["STRING_UNLOCK"] = [=[Separe as janelas
@@ -1564,6 +1572,7 @@ L["STRING_WIPE_ERROR1"] = "um wipe já foi chamado."
 L["STRING_WIPE_ERROR2"] = "não estamos em um chefe de raide."
 L["STRING_WIPE_ERROR3"] = "não foi possível finalizar o encontro."
 L["STRING_YES"] = "Sim"
+
 
 
 

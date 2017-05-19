@@ -162,12 +162,13 @@ function F:STAGGER(filter)
 end
 
 
-function F:GetFutureHealth(guid,time)
+function F:GetFutureHealth(guid,unit,time)
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
-  if not health then return false end
-  if isdead then return false end
+  if not health then return end
+  if isdead then return end
   health = health + prediction*2 - healAbsorb*2
-  local damage = CombatLogFilter:GetFutureDamagePVE(guid,5,time)
+  local BuffFilter = Filter:GetModule("BuffFilter")
+  local damage = BuffFilter:GetDotDamageFurture(guid,unit,time)
   -- health = damage
   health = health - damage
   return health/max
@@ -180,7 +181,7 @@ function F:FUTUREHEALTH(filter)
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local time = unpack(Core:ToValueTable(filter.name),1,1)
-  return F:GetFutureHealth(guid,time)
+  return F:GetFutureHealth(guid,filter.unit,time)
 end
 
 function F:RAIDHEALTHLOST(filter)

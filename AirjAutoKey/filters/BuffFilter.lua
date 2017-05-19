@@ -43,6 +43,7 @@ function F:OnInitialize()
   })
   self:RegisterFilter("DTYPE",L["Debuff Dispel Type"])
   self:RegisterFilter("DEBUFFDOT",L["Dot"],{unit={},greater={},value={}})
+  self:RegisterFilter("DEBUFFDOTTOTAL",L["Dot A"],{name = {},unit={},greater={},value={}})
   self:RegisterFilter("CANSTEAL",L["Stealable Buff"],{
     value = {},
     greater = {},
@@ -174,17 +175,42 @@ function F:DEBUFF(filter)
   return false
 end
 
-function F:DEBUFFDOT(filter)
-  filter.unit = filter.unit or "player"
-  local guid = Cache:UnitGUID(filter.unit)
-  if not guid then return false end
-  local debuffs = Cache:GetDebuffs(guid,filter.unit)
-  local t = GetTime()
+function F:GetDotDamageFurture(guid,unit,time)
+  local now = GetTime()
+  local debuffs = Cache:GetDebuffs(guid,unit)
+  local totalDamage = 0
+  for i,v in pairs(debuffs) do
+    local tooltip = v.tooltip
+    if tooltip then
+      local t,d,s = tooltip:match("每(%d+)秒[^%d]+(%d+)点(.*)伤害")
+      -- print(t,d, tooltip)
+      if t and d then
+        t = tonumber(t)
+        d = tonumber(d)
+        if t and d then
+
+          local expire = v[7]
+          local duration
+          if expire > now + time then
+            duration = time
+          else
+            duration = expire - now
+          end
+          totalDamage = totalDamage + d/t*duration
+        end
+      end
+    end
+  end
+  return totalDamage
+end
+
+function F:GetDotDamagePerSecond(guid,unit)
+  local debuffs = Cache:GetDebuffs(guid,unit)
   local totalDPS = 0
   for i,v in pairs(debuffs) do
     local tooltip = v.tooltip
-		if tooltip then
-			local t,d,s = tooltip:match("每(%d+)秒[^%d]+(%d+)点(.*)伤害")
+    if tooltip then
+      local t,d,s = tooltip:match("每(%d+)秒[^%d]+(%d+)点(.*)伤害")
       -- print(t,d, tooltip)
       if t and d then
         t = tonumber(t)
@@ -193,9 +219,24 @@ function F:DEBUFFDOT(filter)
           totalDPS = totalDPS + d/t
         end
       end
-		end
+    end
   end
   return totalDPS
+end
+
+function F:DEBUFFDOT(filter)
+  filter.unit = filter.unit or "player"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  return F:GetDotDamagePerSecond(guid,filter.unit)
+end
+
+function F:DEBUFFDOTTOTAL(filter)
+  filter.name = filter.name or {5}
+  filter.unit = filter.unit or "player"
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  return F:GetDotDamageFurture(guid,filter.unit,filter.name[1])
 end
 
 function F:DEBUFFSELF(filter)

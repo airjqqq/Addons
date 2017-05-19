@@ -522,13 +522,36 @@ do
         fv = strsub(fv,1,-2)
         fv = tonumber(fv) or 1
         fv = fv * haste
+      elseif suf == "r" then
+        local unit = self:GetAirUnit() or "target"
+        local guid = UnitGUID(unit)
+        local range
+        if guid then
+          range = select(5,Cache:GetPosition(guid))
+        end
+        if not range then range = 5 end
+        fv = strsub(fv,1,-2)
+        fv = tonumber(fv) or 1
+        fv = fv * range
+      else
+        fv = tonumber(fv) or 0
       end
     end
     return fv
   end
 
   function Core:MatchValue(value,filter)
-    local fv = self:ParseValue(filter.value)
+    local fv
+    if type(filter.value) == "string" then
+      local fvs = {strsplit(",",filter.value)}
+      local total = 0
+      for k,v in pairs(fvs) do
+        total = total + self:ParseValue(v)
+      end
+      fv = total
+    else
+      fv = filter.value
+    end
     local passed = value <= (fv or 0)
     if filter.greater then
       passed = not passed

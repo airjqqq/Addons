@@ -822,6 +822,8 @@ do
 		changed = true
 	end
 	local spells = {}
+	Cache.testspells = spells
+	Cache.testspells1 = {}
 	local knows = {}
 	function Cache:ScanAllSpell(t)
 		wipe(spells)
@@ -842,9 +844,15 @@ do
 				spells[spellID] = data
 				knows[spellID] = true
 				if offId then
+					local data = {
+						charge = {GetSpellCharges(offId)},
+						cooldown = {GetSpellCooldown(offId)},
+						usable = {IsUsableSpell(offId)},
+					}
 					spells[offId] = data
 					knows[offId] = true
 				end
+				Cache.testspells1[spellID] = data
 			end
 		end
 
@@ -929,7 +937,7 @@ do
 		return self.cache.gcd.duration,self.cache.gcd.start
 	end
 
-	function Cache:ScanCasting(t,guids,unit)
+	function Cache:ScanCasting(t,guids,units)
 		local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo("player")
 		local data = self.cache.castStart:find({sourceGUID=self:PlayerGUID()})
 		local cache = {t=t}
@@ -946,6 +954,21 @@ do
 			local lastData = self.cache.casting:geti()
 			if not lastData or lastData.endTime ~= endTime or lastData.spellName ~= spellName then
 				self.cache.casting:push(cache)
+			end
+		end
+		for i,unit in pairs(units) do
+			local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unit)
+			if name then
+				if endTime and endTime/1000-t<0.3 then
+					local cache = {t=t}
+					cache.spellName = name
+					cache.endTime = endTime
+					cache.guid = UnitGUID(unit)
+					local lastData = self.cache.castingOthers:geti()
+					if not lastData or lastData.endTime ~= endTime or lastData.spellName ~= spellName then
+						self.cache.castingOthers:push(cache)
+					end
+				end
 			end
 		end
 	end

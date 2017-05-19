@@ -40,14 +40,14 @@ local group_defaults = {
 	oorAlpha = 0.7,
 	stealthAlpha = 0.7,
 	deadAlpha = 1,
-	backgroundColor = { r = 0, g = 0, b = 0, a = 0 },
+	backgroundColor = { r = 0, g = 0, b = 0, a = 0.2 },
 	backgroundPadding = 2,
 	margin = 2,
-	barWidth = 120,
-	barsHeight = 60,
+	barWidth = 150,
+	barsHeight = 80,
 	frameScale = 1,
 	borderSize = 2,
-	modMargin = 2,
+	modMargin = 0,
 	backdropColor = { r = 0, g = 0, b = 0, a = 0.8 },
 }
 

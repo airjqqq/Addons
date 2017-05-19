@@ -52,36 +52,35 @@ function BagToggle:OnClick(button)
 		if Addon.Cache:GetPlayerGuild(self:GetPlayer()) then
 			addLine('guild', GUILD_BANK, ADDON .. '_GuildBank')
 		end
-		
+
 		if #menu > 1 then
 			EasyMenu(menu, Dropdown, self, 0, 0, 'MENU')
 		else
 			self:OpenFrame(self:GetFrameID() == 'inventory' and 'bank' or 'inventory')
 		end
+
+		self:Update()
 	end
 end
 
 function BagToggle:OnEnter()
-	if self:GetRight() > (GetScreenWidth() / 2) then
-		GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
-	else
-		GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
-	end
-
-	GameTooltip:SetText(L.TipBags)
+	GameTooltip:SetOwner(self, self:GetRight() > (GetScreenWidth() / 2) and 'ANCHOR_LEFT' or 'ANCHOR_RIGHT')
+	GameTooltip:SetText(BAGSLOTTEXT)
 
 	if self:IsBagFrameShown() then
 		GameTooltip:AddLine(L.TipHideBags, 1,1,1)
 	else
 		GameTooltip:AddLine(L.TipShowBags, 1,1,1)
 	end
-	
+
 	GameTooltip:AddLine(L.TipFrameToggle, 1,1,1)
 	GameTooltip:Show()
 end
 
 function BagToggle:OnLeave()
-	GameTooltip:Hide()
+	if GameTooltip:IsOwned(self) then
+		GameTooltip:Hide()
+	end
 end
 
 

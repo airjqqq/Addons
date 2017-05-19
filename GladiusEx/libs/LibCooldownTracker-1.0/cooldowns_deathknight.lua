@@ -46,7 +46,7 @@ local data = {
   [108194] = { default = false, cooldown = 45, class = "DEATHKNIGHT", specID = { 252 }, cc = "stun", duration = 5 }, -- Asphyxiate (Unholy)
   [ 42650] = { default = false, cooldown = 600, class = "DEATHKNIGHT", specID = { 252 } }, -- Army of the Dead
   [ 63560] = { default = false, cooldown = 60, class = "DEATHKNIGHT", specID = { 252 } }, -- Dark Transformation
-  [ 49206] = { default = false, cooldown = 180, class = "DEATHKNIGHT", specID = { 252 } }, -- Summon Gargoyle
+  [ 49206] = { default = true, cooldown = 180, class = "DEATHKNIGHT", specID = { 252 } }, -- Summon Gargoyle
   [207349] = { parent = 49206 }, -- Dark Arbiter
   [ 43265] = { default = false, cooldown = 30, class = "DEATHKNIGHT", specID = { 252 } }, -- Death and Decay
   [152280] = { parent = 43265 }, -- Defile

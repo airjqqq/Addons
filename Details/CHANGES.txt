@@ -1,7 +1,7 @@
-changeset:   600:1c57c3582694
-tag:         v7.2.0.3474.116-release
+changeset:   624:4be72351c8a1
+tag:         v7.2.0.3673.118
 user:        Tercio
-date:        Thu Apr 20 14:12:01 2017 -0300
-summary:     - Plugin: Raid Check > added some food buffs which wasn't being tracked.
+date:        Tue May 09 13:52:54 2017 -0300
+summary:     - more fixes to #187 ticket.
 
 

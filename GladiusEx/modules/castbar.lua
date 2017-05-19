@@ -39,8 +39,8 @@ local castspells = GetDefaultCastsSpells()
 local defaults = {
 		castBarAttachMode = "Widget",
 		castBarOffsetX = 0,
-		castBarOffsetY = 0,
-		castBarWidth = 150,
+		castBarOffsetY = 5,
+		castBarWidth = 10*18,
 		castBarPosition = "BOTTOM",
 		castBarHeight = 10,
 		castBarInverse = false,
@@ -78,8 +78,8 @@ local CastBar = GladiusEx:NewGladiusExModule("CastBar",
 		castBarAttachTo = "Frame",
 		castBarRelativePoint = "BOTTOMLEFT",
 		castBarAnchor = "BOTTOMRIGHT",
-		castBarOffsetX = -0,
-		castBarOffsetY = 5,
+		castBarOffsetX = -10,
+		castBarOffsetY = 10,
 
 		castIconPosition = "LEFT",
 		castTextAlign = "CENTER",
@@ -93,8 +93,8 @@ local CastBar = GladiusEx:NewGladiusExModule("CastBar",
 		castBarAttachTo = "Frame",
 		castBarRelativePoint = "BOTTOMRIGHT",
 		castBarAnchor = "BOTTOMLEFT",
-		castBarOffsetX = 40,
-		castBarOffsetY = 5,
+		castBarOffsetX = 10,
+		castBarOffsetY = 10,
 
 		castIconPosition = "LEFT",
 		castTextAlign = "CENTER",
@@ -216,10 +216,10 @@ function CastBar:SetInterruptible(unit, interruptible)
 	if not self.frame[unit] then return end
 
 	if not self.db[unit].castShieldIcon or interruptible then
-		self.frame[unit].icon.shield:Hide()
+		-- self.frame[unit].icon.shield:Hide()
 		self.frame[unit].backgroundShield:Hide()
 	else
-		self.frame[unit].icon.shield:Show()
+		-- self.frame[unit].icon.shield:Show()
 		self.frame[unit].backgroundShield:Show()
 	end
 end
@@ -314,9 +314,9 @@ function CastBar:CreateBar(unit)
 
 	self.frame[unit].icon = self.frame[unit]:CreateTexture("GladiusEx" .. self:GetName() .. "IconFrame" .. unit, "ARTWORK")
 
-	self.frame[unit].icon.shield_frame = CreateFrame("Frame", nil, self.frame[unit])
-	self.frame[unit].icon.shield = self.frame[unit].icon.shield_frame:CreateTexture(nil, "OVERLAY")
-	self.frame[unit].icon.shield:SetTexture([[Interface\AddOns\GladiusEx\media\shield]])
+	-- self.frame[unit].icon.shield_frame = CreateFrame("Frame", nil, self.frame[unit])
+	-- self.frame[unit].icon.shield = self.frame[unit].icon.shield_frame:CreateTexture(nil, "OVERLAY")
+	-- self.frame[unit].icon.shield:SetTexture([[Interface\AddOns\GladiusEx\media\shield]])
 
 	self.frame[unit].spark = self.frame[unit].bar:CreateTexture(nil, "OVERLAY")
 	self.frame[unit].spark:SetTexture([[Interface\AddOns\GladiusEx\media\spark]])
@@ -358,11 +358,12 @@ function CastBar:Update(unit,spelldata)
 	end
 
 	-- update icon
-	local width = self.frame[unit].bar:GetWidth()
+	local width = self.frame[unit]:GetWidth()*5/6
+
 	local iconSize = height * 1.6
-	self.frame[unit].icon:SetSize(iconSize, iconSize)
 	self.frame[unit].icon:ClearAllPoints()
-	self.frame[unit].icon:SetPoint("RIGHT", self.frame[unit], "LEFT", -width*0.033, 0)
+	self.frame[unit].icon:SetSize(iconSize, iconSize)
+	self.frame[unit].icon:SetPoint("LEFT", self.frame[unit], "LEFT", width*0.03, 0)
 	local n = 0
 	self.frame[unit].icon:SetTexCoord(n / 64, 1 - n / 64, n / 64, 1 - n / 64)
 
@@ -374,14 +375,15 @@ function CastBar:Update(unit,spelldata)
 	self.frame[unit].icon:SetTexture(nil)
 
 	-- update not interruptible shield
-	self.frame[unit].icon.shield_frame:SetFrameLevel(70)
-	self.frame[unit].icon.shield:SetSize(iconSize * 64 / 20, iconSize * 64 / 20)
-	self.frame[unit].icon.shield:SetPoint("CENTER", self.frame[unit].icon, "CENTER")
-	self.frame[unit].icon.shield:Hide()
+	-- self.frame[unit].icon.shield_frame:SetFrameLevel(70)
+	-- self.frame[unit].icon.shield:SetSize(iconSize * 64 / 20, iconSize * 64 / 20)
+	-- self.frame[unit].icon.shield:SetPoint("CENTER", self.frame[unit].icon, "CENTER")
+	-- self.frame[unit].icon.shield:Hide()
 
 	-- update bar
 	self.frame[unit].bar:ClearAllPoints()
-	self.frame[unit].bar:SetAllPoints()
+	self.frame[unit].bar:SetPoint("TOPLEFT",width*0.17,0)
+	self.frame[unit].bar:SetPoint("BOTTOMRIGHT",-0.03,0)
 	self.frame[unit].bar:SetHeight(height)
 	self.frame[unit].bar:SetMinMaxValues(0, 100)
 	self.frame[unit].bar:SetValue(0)
@@ -401,9 +403,10 @@ function CastBar:Update(unit,spelldata)
 	self.frame[unit].bar:SetStatusBarColor(color.r, color.g, color.b, color.a)
 	self.frame[unit].spark:SetVertexColor(color.r, color.g, color.b, color.a)
 	-- update cast bar background
+	self.frame[unit].background:ClearAllPoints()
+	self.frame[unit].background:SetTexture([[Interface\CastingBar\UI-CastingBar-Border-Small]])
 	self.frame[unit].background:SetPoint("TOPLEFT",-width*0.16,height*2)
 	self.frame[unit].background:SetPoint("BOTTOMRIGHT",width*0.16,-height*2)
-	self.frame[unit].background:SetTexture([[Interface\CastingBar\UI-CastingBar-Border-Small]])
 	self.frame[unit].background:SetVertexColor(1,1,1,1)
 
 	self.frame[unit].backgroundShield:SetPoint("TOPLEFT",-width*0.186,height*2)
@@ -497,22 +500,25 @@ end
 
 function CastBar:Test(unit)
 	local f = self.frame[unit]
-
 	if GladiusEx.testing[unit].powerType == 0 then
 		local spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, notInterruptible = L["Example Spell Name"], "", "", GetSpellTexture(1),
 			GetTime() * 1000 - 1000, GetTime() * 1000 + 1500, false, 0, false
 
 		f.spellName = spell
-		f.isChanneling = false
-		f.isCasting = true
+		f.isChanneling = channel
+		f.isCasting = not channel
 		f.startTime = startTime / 1000
 		f.endTime = endTime / 1000
 		f.maxValue = f.endTime - f.startTime
-		f.delay = 0.2
-		f:Show()
+		f.delay = 0
+		local spelldata = castspells[spell]
+		self:Update(unit,spelldata)
 
 		f.icon:SetTexture(icon)
+		f:Show()
+
 		self:SetInterruptible(unit, not notInterruptible)
+
 		f.bar:SetMinMaxValues(0, f.maxValue)
 
 		if self.db[unit].castSpark then f.spark:Show() end

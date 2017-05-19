@@ -3,7 +3,7 @@ local data = {
 
   [109132] = { default = false, cooldown = 20, class = "MONK", charges = 2, blink = true }, -- Roll
   [115008] = { parent = 109132, talent = {109132,116841} }, -- Chi Torpedo
-  [115078] = { default = true, cooldown = 15, class = "MONK", cc = "incapacitate", duration = 4 }, -- Paralysis
+  [115078] = { default = false, cooldown = 15, class = "MONK", cc = "incapacitate", duration = 4 }, -- Paralysis
   [116841] = { default = false, cooldown = 30, class = "MONK", sprint = true }, -- Tiger's Lust
   [116844] = { default = false, cooldown = 45, class = "MONK", talent = {119381}, defensive = 0.4, duration = 8}, -- Ring of Peace
   -- [119381] = { default = false, cooldown = 45, class = "MONK", replaces = {116844}, cc = "stun", duration = 5 }, -- Leg Sweep

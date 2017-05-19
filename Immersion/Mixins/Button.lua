@@ -26,6 +26,16 @@ function Button:OnShow()
 	end)
 end
 
+function Button:OnDragStart(button)
+	if not L('titlelock') then
+		self.Container:StartMoving()
+	end
+end
+
+function Button:OnDragStop()
+	self.Container:StopMoving()
+end
+
 function Button:OnHide()
 	self:SetAlpha(0)
 end
@@ -97,6 +107,7 @@ function Button:Init(id)
 	----------------------------------
 	self.Counter:SetText(id < 10 and id or '')
 	----------------------------------
+	self:RegisterForDrag('LeftButton', 'RightButton')
 	self:OnShow()
 	----------------------------------
 	self.Init = nil

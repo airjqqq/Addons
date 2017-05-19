@@ -187,6 +187,7 @@ function M:MoveTimer()
 			self:ClearMoveFacing()
 			self:ClearGoToTemplate()
 		end
+		movinglast = 0
 		return
 	end
 	-- if jumped and GetTime() - jumped < 1 then
@@ -596,18 +597,7 @@ function M:MoveToNearest(uid,parachute,ignore)
 		end
 	end
 	if minDistanceGUID then
-		if parachute and (IsFlying() or IsSwimming() or IsFlyableArea() and IsMounted()) then
-			local pd = {self:GetPlayPosition()}
-			if self:GetDistance(minDistancePoint,{pd[1],pd[2],minDistancePoint[3]}) < 5 then
-				self:SetMoveTarget("point",minDistancePoint)
-			elseif pd[3] < minDistancePoint[3] + 20 then
-				self:SetMoveTarget("point",{pd[1],pd[2],minDistancePoint[3] + 30})
-			else
-				self:SetMoveTarget("point",{minDistancePoint[1],minDistancePoint[2],pd[3]})
-			end
-		else
-			self:SetMoveTarget("point",minDistancePoint)
-		end
+		self:MoveTo(minDistancePoint,parachute)
 		self.lastNearestGuid = minDistanceGUID
 		self.lastNearestUid = minDistanceUID
 		self.lastNearestDistance = minDistance
@@ -616,6 +606,25 @@ function M:MoveToNearest(uid,parachute,ignore)
 		return minDistanceGUID,minDistanceUID,minDistance
 	end
 end
+
+function M:MoveTo(point,parachute)
+	if parachute and (IsFlying() or IsSwimming() or IsFlyableArea() and IsMounted()) then
+		local pd = {self:GetPlayPosition()}
+		if type(parachute) ~= "number" then
+			parachute = point[3] + 20
+		end
+		if self:GetDistance(point,{pd[1],pd[2],point[3]}) < 5 then
+			self:SetMoveTarget("point",point)
+		elseif pd[3] < parachute then
+			self:SetMoveTarget("point",{pd[1],pd[2],parachute + 5})
+		else
+			self:SetMoveTarget("point",{point[1],point[2],pd[3]})
+		end
+	else
+		self:SetMoveTarget("point",point)
+	end
+end
+
 local defaultDB = {
 	["bwd"] = {
 	{

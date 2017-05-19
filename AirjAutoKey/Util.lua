@@ -73,6 +73,18 @@ AirjUtil.FIFO = {
 				local match = true
 				for k,v in pairs(key) do
 					if dv[k] == v or v=="nil" and dv[k] == nil then
+					elseif type(v) == "table" then
+						local vmatch
+						for i,vv in ipairs(v) do
+							if dv[k] == vv or vv == "nil" and dv[k] == nil then
+								vmatch = true
+								break
+							end
+						end
+						if not vmatch then
+							match = false
+							break
+						end
 					else
 						match = false
 						break

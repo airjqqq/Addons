@@ -22,8 +22,13 @@ function L.GetDefaultConfig()
 	return t
 end
 
-function L.Get(val)
-	return ( L.cfg and L.cfg[val] or L.defaults[val] )
+function L.Get(key)
+	return ( L.cfg and L.cfg[key] or L.defaults[key] )
+end
+
+function L.Set(key, val)
+	L.cfg = L.cfg or {}
+	L.cfg[key] = val
 end
 
 function L.GetFromSV(tbl)
@@ -38,7 +43,7 @@ end
 
 
 setmetatable(L, {
-	__call = function(self, input)
+	__call = function(self, input, newValue)
 		return L.Get(input) or self[input]
 	end,
 })
@@ -56,6 +61,7 @@ L.defaults = {
 
 	titlescale = 1,
 	titleoffset = 500,
+	titleoffsetY = 0,
 
 	boxscale = 1,
 	boxoffsetX = 0,
@@ -105,9 +111,14 @@ L.options = {
 			args = {
 				text = {
 					type = 'group',
-					name = LOCALE_TEXT_LABEL,
+					name = L['Behavior'],
 					inline = true,
 					args = {
+						mouseheader = {
+							type = 'header',
+							name = TEXT_LABEL,
+							order = 0,
+						},
 						delaydivisor = {
 						type = 'range',
 						name = 'Text speed',
@@ -132,6 +143,37 @@ L.options = {
 							order = 2,
 							get = L.GetFromSV,
 							set = function(_, val) L.cfg.disableprogression = val end,
+						},
+						onthefly = {
+							type = 'toggle',
+							name = L["On the fly"],
+							desc = L["The quest/gossip text doesn't vanish when you stop interacting with the NPC or when accepting a new quest. Instead, it vanishes at the end of the text sequence. This allows you to maintain your immersive experience when speed leveling."],
+							order = 3,
+							get = L.GetFromSV,
+							set = function(_, val) L.cfg.onthefly = val end,
+						},
+						mouseheader = {
+							type = 'header',
+							name = MOUSE_LABEL,
+							order = 4,
+						},
+						flipshortcuts = {
+							type = 'toggle',
+							name = L['Flip mouse functions'],
+							desc = L.GetListString(
+								L['Left click is used to handle text.'], 
+								L['Right click is used to accept/hand in quests.']),
+							order = 5,
+							get = L.GetFromSV,
+							set = function(_, val) L.cfg.flipshortcuts = val end,
+						},
+						immersivemode = {
+							type = 'toggle',
+							name = L['Immersive mode'],
+							desc = L['Use your primary mouse button to read through text, accept/turn in quests and select the best available gossip option.'],
+							order = 6,
+							get = L.GetFromSV,
+							set = function(_, val) L.cfg.immersivemode = val end,
 						},
 					},
 				},
@@ -168,7 +210,7 @@ L.options = {
 							get = L.GetFromSV,
 							set = function(_, val) 
 								L.cfg.hidetracker = val 
-								L.ToggleIgnoreFrame(ObjectiveTrackerFrame, not val) 
+								L.ToggleIgnoreFrame(ObjectiveTrackerFrame, not val)
 							end,
 						},
 					},
@@ -227,17 +269,6 @@ L.options = {
 					set = function(_, val) L.cfg.enablenumbers = val end,
 					order = 5,
 				},
-				flipshortcuts = {
-					type = 'toggle',
-					name = L['Flip mouse functions'],
-					desc = L.GetListString(
-						L['Left click is used to handle text.'], 
-						L['Right click is used to accept/hand in quests.']),
-					order = 2,
-					get = L.GetFromSV,
-					set = function(_, val) L.cfg.flipshortcuts = val end,
-					order = 6,
-				},
 			},
 		},
 		display = {
@@ -289,30 +320,33 @@ L.options = {
 					name = QUESTS_LABEL .. ' / ' .. GOSSIP_OPTIONS,
 					inline = true,
 					args = {
+						gossipatcursor = {
+							type = 'toggle',
+							name = L['Show at mouse location'],
+							order = 2,
+							get = L.GetFromSV,
+							set = function(_, val) L.cfg.gossipatcursor = val end,
+							order = 0,
+						},
+						titlelock = {
+							type = 'toggle',
+							name = LOCK,
+							order = 2,
+							get = L.GetFromSV,
+							set = function(_, val) L.cfg.titlelock = val end,
+							order = 1,
+						},
 						titlescale = {
 							type = 'range',
 							name = 'Scale',
 							min = 0.5,
 							max = 1.5,
 							step = 0.1,
-							order = 0,
+							order = 2,
 							get = L.GetFromDefaultOrSV,
 							set = function(self, val) 
 								L.cfg.titlescale = val
 								L.frame.TitleButtons:SetScale(val)
-							end,
-						},
-						titleoffset = {
-							type = 'range',
-							name = L['Offset from center'],
-							min = -10,
-							max = 10,
-							step = 1,
-							order = 1,
-							get = function() return ( L('titleoffset') ) / 100 end,
-							set = function(self, val)
-								L.cfg.titleoffset = val * 100
-								L.frame.TitleButtons:SetPoint('CENTER', UIParent, 'CENTER', val * 100, 0)
 							end,
 						},
 					},
@@ -341,7 +375,7 @@ L.options = {
 							order = 4,
 							min = -600,
 							max = 600,
-							step = 50,
+							step = 10,
 							get = L.GetFromDefaultOrSV,
 							set = function(_, val) local b = L.frame.TalkBox
 								L.cfg.boxoffsetY = val
@@ -355,7 +389,7 @@ L.options = {
 							order = 3,
 							min = -600,
 							max = 600,
-							step = 50,
+							step = 10,
 							get = L.GetFromDefaultOrSV,
 							set = function(_, val) local b = L.frame.TalkBox
 								L.cfg.boxoffsetX = val

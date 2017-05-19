@@ -108,6 +108,8 @@ local buffs = {
       17, -- Power Word: Shield
 			 152118, -- Clarity of Will
     },
+    [213610] = "ICONTROL",
+    [213602] = "IPDAMAGE IPDEBUFF IMDAMAGE IMDEBUFF",
     [ 47585] = "ISLOW IROOT", -- Dispersion
     IMPORTANT = {
 			10060, -- Power Infusion
@@ -240,10 +242,10 @@ local debuffs = {
 				1330, -- Grose
     },
 		DISORIENT = {
-			213691, -- Scatter Shot (disorient) (PvP)
 			224729, -- Bursting Shot (disorient)
 		},
 		INCAPACITATE = {
+			213691, -- Scatter Shot (disorient) (PvP)
 			  3355, -- Freezing Trap (incapacitate)
 			 19386, -- Wyvern Sting (incapacitate)
 			209790, -- Freezing Arrow (incapacitate) (PvP)
@@ -618,6 +620,16 @@ function F:COMBAT_LOG_EVENT_UNFILTERED (event, t, realEvent, ...)
       kicked[sourceGUID] = GetTime()+cooldowns
     end
   end
+
+
+  -- --test
+  -- if realEvent == "SPELL_CAST_SUCCESS" and spellId == 187650 then
+  --   print("cast",GetTime())
+  -- end
+  -- if realEvent == "SPELL_AURA_APPLIED" and spellId == 3355 then
+  --   print("aura",GetTime())
+  -- end
+
 end
 
 function F:RATE(filter)
@@ -912,7 +924,7 @@ function F:PVPBREAKDEBUFF(filter)
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
-  if health and health/max < 0.4 then
+  if health and health/max < 0.35 then
     return false
   end
   local types = Core:ToKeyTable({"DISORIENT","INCAPACITATE"})

@@ -84,15 +84,15 @@ L["Stuns (short)"] = "Etourdissements (courts)"
 L["Taunts"] = "Provocations"
 
 elseif locale == "itIT" then
-	
+
 elseif locale == "koKR" then
-	
+
 elseif locale == "ptBR" then
-	
+
 elseif locale == "ruRU" then
-	
+
 elseif locale == "zhCN" then
-	
+
 elseif locale == "zhTW" then
 	L["Cyclone"] = "颶風術"
 L["Disarms"] = "繳械"
@@ -181,6 +181,7 @@ local spellsAndProvidersByCategory = {
 		[  3355] = 187650, -- Freezing Trap
 		[ 19386] = true, -- Wyvern Sting
 		[209790] = true, -- Freezing Arrow
+		[213691] = true, -- Scatter Shot
 		-- Mage
 		[   118] = true, -- Polymorph
 		[ 28272] = true, -- Polymorph (pig)
@@ -256,7 +257,6 @@ local spellsAndProvidersByCategory = {
 		-- Druid
 		[ 33786] = true, -- Cyclone
 		-- Hunter
-		[213691] = true, -- Scatter Shot
 		[186387] = true, -- Bursting Shot
 		-- Mage
 		[ 31661] = true, -- Dragon's Breath
@@ -377,7 +377,7 @@ local spellsAndProvidersByCategory = {
 		[  6360] = true, -- Whiplash
 		[115770] = true, -- Fellash
 	},
-} 
+}
 
 -- Map deprecatedCategories to the new ones
 local deprecatedCategories = {

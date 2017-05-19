@@ -121,6 +121,7 @@ end
 function ItemSlot:OnShow()
 	self:RegisterFrameMessage('FOCUS_BAG', 'UpdateFocus')
 	self:RegisterMessage('SEARCH_CHANGED', 'UpdateSearch')
+	self:RegisterMessage('SEARCH_TOGGLED', 'UpdateSearch')
 	self:RegisterMessage('FLASH_ITEM', 'OnItemFlashed')
 	self:Update()
 end
@@ -393,7 +394,7 @@ end
 --[[ Searches ]]--
 
 function ItemSlot:UpdateSearch()
-	local search = Addon.search or ''
+	local search = Addon.canSearch and Addon.search or ''
 	local matches = search == '' or ItemSearch:Matches(self:GetItem(), search)
 
 	if matches then
@@ -483,12 +484,12 @@ function ItemSlot:IsUpgrade()
 	return IsContainerItemAnUpgrade(self:GetBag(), self:GetID())
 end
 
-function ItemSlot:GetInfo()
-	return Addon.Cache:GetItemInfo(self:GetPlayer(), self:GetBag(), self:GetID())
-end
-
 function ItemSlot:IsSlot(bag, slot)
 	return self:GetBag() == bag and self:GetID() == slot
+end
+
+function ItemSlot:GetInfo()
+	return self:GetFrame():GetItemInfo(self:GetBag(), self:GetID())
 end
 
 function ItemSlot:GetBagType()

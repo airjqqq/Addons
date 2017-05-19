@@ -991,6 +991,126 @@
 		[152118] = true, --Clarity of Will
 	}
 	
+	function parser:heal_denied (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellidAbsorb, spellnameAbsorb, spellschoolAbsorb, serialHealer, nameHealer, flagsHealer, flags2Healer, spellidHeal, spellnameHeal, typeHeal, amountDenied)
+	
+	--	print (who_name, alvo_name, nameHealer, spellidHeal, spellnameHeal, typeHeal, amountDenied)
+	
+		if (not _in_combat) then
+			return
+		end
+	
+		--> check invalid serial against pets
+		if (who_serial == "") then
+			if (who_flags and _bit_band (who_flags, OBJECT_TYPE_PETS) ~= 0) then --> � um pet
+				return
+			end
+		end
+
+		--> no name, use spellname
+		if (not who_name) then
+			who_name = "[*] "..spellname
+		end
+		
+		--> no target, just ignore
+		if (not alvo_name) then
+			return
+		end
+		
+		--> if no spellid
+		if (not spellidAbsorb) then
+			spellidAbsorb = 1
+			spellnameAbsorb = "unknown"
+			spellschoolAbsorb = 1
+		end
+		
+		if (is_using_spellId_override) then
+			spellidAbsorb = override_spellId [spellidAbsorb] or spellidAbsorb
+			spellidHeal = override_spellId [spellidHeal] or spellidHeal
+		end
+		
+	------------------------------------------------------------------------------------------------
+	--> get actors
+
+		local este_jogador, meu_dono = healing_cache [who_name]
+		if (not este_jogador) then --> pode ser um desconhecido ou um pet
+			este_jogador, meu_dono, who_name = _current_heal_container:PegarCombatente (who_serial, who_name, who_flags, true)
+			if (not meu_dono and who_flags) then --> se n�o for um pet, adicionar no cache
+				healing_cache [who_name] = este_jogador
+			end
+		end
+
+		local jogador_alvo, alvo_dono = healing_cache [alvo_name]
+		if (not jogador_alvo) then
+			jogador_alvo, alvo_dono, alvo_name = _current_heal_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
+			if (not alvo_dono and alvo_flags) then
+				healing_cache [alvo_name] = jogador_alvo
+			end
+		end
+		
+		este_jogador.last_event = _tempo
+
+		------------------------------------------------
+		
+		este_jogador.totaldenied = este_jogador.totaldenied + amountDenied
+
+		--> actor spells table
+		local spell = este_jogador.spells._ActorTable [spellidAbsorb]
+		if (not spell) then
+			spell = este_jogador.spells:PegaHabilidade (spellidAbsorb, true, token)
+			if (_current_combat.is_boss and who_flags and _bit_band (who_flags, OBJECT_TYPE_ENEMY) ~= 0) then
+				_detalhes.spell_school_cache [spellnameAbsorb] = spellschoolAbsorb or 1
+			end
+		end
+		
+		--return spell:Add (alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, absorbed, critical, overhealing)
+		return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, amountDenied, spellidHeal, token, nameHealer, overhealing)
+		
+		
+	--print ("|token:", token, "|time:", time, "|whoserial:", who_serial, "|whoname:", who_name, "|whoflags:", who_flags, "|alvoserial:", alvo_serial, "|alvoname:", alvo_name, "|alvoflags", alvo_flags, "|alvoflags2:", alvo_flags2, "|spellidAbsorb:", spellidAbsorb, "|spellnameABsorb", spellnameAbsorb, "|spellschoolAbsorb", spellschoolAbsorb, "|serialhealer:", serialHealer, "|nameHealer:", nameHealer, "|flagsHealer:", flagsHealer, "|flagsHealer2:", flags2Healer, "|spellidHeal:", spellidHeal, "|spellnameHeal:", spellnameHeal, "|typeHeal:", typeHeal, "|amountDenied:", amountDenied)
+		
+		
+	--[[
+		1 toekn SPELL_HEAL_ABSORBED 
+		2 time 1493837437.157 
+		3 who serial Player-3209-0514A56A 
+		4 who name Bombad�o 
+		5 who flags 1297 
+		6 alvo serial Player-3209-0514A56A 
+		7 alvo name Bombad�o 
+		8 alvo flags 1297
+		9 alvo flags2 0
+		10 spellid 116888 
+		11 spellname Shroud of Purgatory 
+		12 school 12
+		
+		13 GUID - Player-3209-0514A56A 
+		14 PLAYERNAME - Bombad�o 
+		15 FLAGS 1297
+		16 FLAGS2 0
+		17 SPELLID 116888
+		18 SPELLNAME Healing Potion 
+		19 ? 1
+		20 ? 2677
+		primeiro actor � o quem comandou o absorb
+		o segundo � a vitima seguido da magia que o primeiro actor usou pra o absorb
+		o terceiro � a vitima com a magia que ela usou e foi absorvida
+		5/3 11:54:58.346  SPELL_HEAL_ABSORBED,
+		Player-3209-051429E9,"Mephisstoo-Azralon",0x10548,0x0,Player-3209-05144527,"Keyspell-Azralon",0x511,0x0,223929,"Necrotic Wound",0x28,Player-3209-05144527,"Keyspell-Azralon",0x511,0x0,188016,"Ancient Healing Potion",0x1,254466		
+		
+		--heal pot spellID: 28495 - heal 2841
+
+		1 SPELL_HEAL_ABSORBED 2 1493837944.856 3 Player-3209-0514A56A 4 Bombad�o 5 1297 6 Player-3209-0514A56A 7 Bombad�o 8 1297 9 0 10 116888 11 Shroud of Purgatory 12 32 13 Player-3209-0514A56A 14 Bombad�o 15 1297 16 0 17 116888 18 Healing Potion 19 1 20 1860 21 nil 22 nil 23 nil 24 nil 25 nil 26 nil 27 nil	
+	
+		1 SPELL_HEAL_ABSORBED 2 1493839447.257 3 Player-3209-0514A56A 4 Bombad�o 5 1297 6 Player-3209-0514A56A 7 Bombad�o 8 1297 9 0 10 nil 11 nil 12 nil 13 Player-3209-05DE3E42 14 Yakumile 15 1298 16 0 17 116888 18 Holy Word: Serenity 19 2 20 2690 21 nil 22 nil 		
+
+		1 SPELL_HEAL_ABSORBED 2 1493840761.019 3 Player-3209-0514A56A 4 Bombad�o 5 1297 6 Player-3209-0514A56A 7 Bombad�o 8 1297 9 0 10 nil 11 nil 12 nil 13 Player-57-06AB4689 14 Yakumile 15 1298 16 0 17 116888 18 Circle of Healing 19 2 20 673 21 nil 22 nil 23 nil 24 nil 25 nil 26 nil 27 nil
+		
+oken: SPELL_HEAL_ABSORBED ime: 1493841853.862 |whoserial: Player-3209-0514A56A |whoname: Bombad�o |whoflags: 1297 |alvoserial: Player-3209-0514A56A |alvoname: Bombad�o |alvoflags 1297 |alvoflags2: 0 |spellidAbsorb: 116888 |spellnameABsorb Shroud of Purgatory |spellschoolAbsorb 32 |serialhealer: Player-3209-0514A56A 
+ameHealer: Bombad�o |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |spellnameHeal: Healing Potion ypeHeal: 1 |amountDenied: 870		
+		
+--]]	
+	end
+	
 	function parser:heal_absorb (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount)
 		
 		--[[statistics]]-- _detalhes.statistics.absorbs_calls = _detalhes.statistics.absorbs_calls + 1
@@ -2000,25 +2120,27 @@
 	--> ENERGY	serach key: ~energy												|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
---SPELL_POWER_MANA = 0;
---SPELL_POWER_RAGE = 1;
-SPELL_POWER_FOCUS = 2;
---SPELL_POWER_ENERGY = 3;
---SPELL_POWER_COMBO_POINTS = 4;
---SPELL_POWER_RUNES = 5;
---SPELL_POWER_RUNIC_POWER = 6;
---SPELL_POWER_SOUL_SHARDS = 7;
---SPELL_POWER_LUNAR_POWER = 8;
---SPELL_POWER_HOLY_POWER = 9;
-SPELL_POWER_ALTERNATE_POWER = 10;
---SPELL_POWER_MAELSTROM = 11;
---SPELL_POWER_CHI = 12;
---SPELL_POWER_INSANITY = 13;
-SPELL_POWER_OBSOLETE = 14;
-SPELL_POWER_OBSOLETE2 = 15;
---SPELL_POWER_ARCANE_CHARGES = 16;
---SPELL_POWER_FURY = 17;
---SPELL_POWER_PAIN = 18;
+local PowerEnum = Enum and Enum.PowerType
+
+local SPELL_POWER_MANA = SPELL_POWER_MANA or (PowerEnum and PowerEnum.Mana) or 0
+local SPELL_POWER_RAGE = SPELL_POWER_RAGE or (PowerEnum and PowerEnum.Rage) or 1
+local SPELL_POWER_FOCUS = SPELL_POWER_FOCUS or (PowerEnum and PowerEnum.Focus) or 2
+local SPELL_POWER_ENERGY = SPELL_POWER_ENERGY or (PowerEnum and PowerEnum.Energy) or 3
+local SPELL_POWER_COMBO_POINTS2 = SPELL_POWER_COMBO_POINTS or (PowerEnum and PowerEnum.ComboPoints) or 4
+local SPELL_POWER_RUNES = SPELL_POWER_RUNES or (PowerEnum and PowerEnum.Runes) or 5
+local SPELL_POWER_RUNIC_POWER = SPELL_POWER_RUNIC_POWER or (PowerEnum and PowerEnum.RunicPower) or 6
+local SPELL_POWER_SOUL_SHARDS = SPELL_POWER_SOUL_SHARDS or (PowerEnum and PowerEnum.SoulShards) or 7
+local SPELL_POWER_LUNAR_POWER = SPELL_POWER_LUNAR_POWER or (PowerEnum and PowerEnum.LunarPower) or 8
+local SPELL_POWER_HOLY_POWER = SPELL_POWER_HOLY_POWER  or (PowerEnum and PowerEnum.HolyPower) or 9
+local SPELL_POWER_ALTERNATE_POWER = SPELL_POWER_ALTERNATE_POWER or (PowerEnum and PowerEnum.Alternate) or 10
+local SPELL_POWER_MAELSTROM = SPELL_POWER_MAELSTROM or (PowerEnum and PowerEnum.Maelstrom) or 11
+local SPELL_POWER_CHI = SPELL_POWER_CHI or (PowerEnum and PowerEnum.Chi) or 12
+local SPELL_POWER_INSANITY = SPELL_POWER_INSANITY or (PowerEnum and PowerEnum.Insanity) or 13
+local SPELL_POWER_OBSOLETE = SPELL_POWER_OBSOLETE or (PowerEnum and PowerEnum.Obsolete) or 14
+local SPELL_POWER_OBSOLETE2 = SPELL_POWER_OBSOLETE2 or (PowerEnum and PowerEnum.Obsolete2) or 15
+local SPELL_POWER_ARCANE_CHARGES = SPELL_POWER_ARCANE_CHARGES or (PowerEnum and PowerEnum.ArcaneCharges) or 16
+local SPELL_POWER_FURY = SPELL_POWER_FURY or (PowerEnum and PowerEnum.Fury) or 17
+local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 18
 
 	local energy_types = {
 		[SPELL_POWER_MANA] = true,
@@ -2033,16 +2155,16 @@ SPELL_POWER_OBSOLETE2 = 15;
 		[SPELL_POWER_HOLY_POWER] = true, --paladins
 		[SPELL_POWER_LUNAR_POWER] = true, --balance druids
 		[SPELL_POWER_SOUL_SHARDS] = true, --warlock affliction
-		[SPELL_POWER_COMBO_POINTS] = true, --combo points
+		[SPELL_POWER_COMBO_POINTS2] = true, --combo points
 		[SPELL_POWER_MAELSTROM] = true, --shamans
-		[SPELL_POWER_PAIN] = true, --demonhuinter
+		[SPELL_POWER_PAIN] = true, --demonhunter tank
 		[SPELL_POWER_RUNES] = true, --dk
 		[SPELL_POWER_ARCANE_CHARGES] = true, --mage
-		[SPELL_POWER_FURY] = true, --warrior
+		[SPELL_POWER_FURY] = true, --warrior demonhunter dps
 	}
 	
 	local resource_power_type = {
-		[SPELL_POWER_COMBO_POINTS] = SPELL_POWER_ENERGY, --combo points
+		[SPELL_POWER_COMBO_POINTS2] = SPELL_POWER_ENERGY, --combo points
 		[SPELL_POWER_SOUL_SHARDS] = SPELL_POWER_MANA, --warlock
 		[SPELL_POWER_LUNAR_POWER] = SPELL_POWER_MANA, --druid
 		[SPELL_POWER_HOLY_POWER] = SPELL_POWER_MANA, --paladin
@@ -2052,11 +2174,11 @@ SPELL_POWER_OBSOLETE2 = 15;
 		[SPELL_POWER_PAIN] = SPELL_POWER_ENERGY, --demonhuinter
 		[SPELL_POWER_RUNES] = SPELL_POWER_RUNIC_POWER, --dk
 		[SPELL_POWER_ARCANE_CHARGES] = SPELL_POWER_MANA, --mage
-		[SPELL_POWER_FURY] = SPELL_POWER_RAGE, --warrioor
+		[SPELL_POWER_FURY] = SPELL_POWER_RAGE, --warrior
 	}
 	
 	_detalhes.resource_strings = {
-		[SPELL_POWER_COMBO_POINTS] = "Combo Point",
+		[SPELL_POWER_COMBO_POINTS2] = "Combo Point",
 		[SPELL_POWER_SOUL_SHARDS] = "Soul Shard",
 		[SPELL_POWER_LUNAR_POWER] = "Lunar Power",
 		[SPELL_POWER_HOLY_POWER] = "Holy Power",
@@ -2070,7 +2192,7 @@ SPELL_POWER_OBSOLETE2 = 15;
 	}
 	
 	_detalhes.resource_icons = {
-		[SPELL_POWER_COMBO_POINTS] = {file = [[Interface\PLAYERFRAME\ClassOverlayComboPoints]], coords = {58/128, 74/128, 25/64, 39/64}},
+		[SPELL_POWER_COMBO_POINTS2] = {file = [[Interface\PLAYERFRAME\ClassOverlayComboPoints]], coords = {58/128, 74/128, 25/64, 39/64}},
 		[SPELL_POWER_SOUL_SHARDS] = {file = [[Interface\PLAYERFRAME\UI-WARLOCKSHARD]], coords = {3/64, 17/64, 2/128, 16/128}},
 		[SPELL_POWER_LUNAR_POWER] = {file = [[Interface\PLAYERFRAME\DruidEclipse]], coords = {117/256, 140/256, 83/128, 115/128}},
 		[SPELL_POWER_HOLY_POWER] = {file = [[Interface\PLAYERFRAME\PALADINPOWERTEXTURES]], coords = {75/256, 94/256, 87/128, 100/128}},
@@ -2082,12 +2204,62 @@ SPELL_POWER_OBSOLETE2 = 15;
 		[SPELL_POWER_ARCANE_CHARGES] = {file = [[Interface\PLAYERFRAME\MageArcaneCharges]], coords = {68/256, 90/256, 68/128, 91/128}},
 		[SPELL_POWER_FURY] = {file = [[Interface\PLAYERFRAME\UI-PlayerFrame-Deathknight-Blood-On]], coords = {0, 1, 0, 1}},
 	}
+	
+	local AlternatePowerEnableFrame = CreateFrame ("frame")
+	local AlternatePowerMonitorFrame = CreateFrame ("frame")
+	
+	AlternatePowerEnableFrame:RegisterEvent ("UNIT_POWER_BAR_SHOW")
+	--AlternatePowerEnableFrame:RegisterEvent ("UNIT_POWER_BAR_HIDE")
+	AlternatePowerEnableFrame:RegisterEvent ("ENCOUNTER_END")
+	--AlternatePowerEnableFrame:RegisterEvent ("PLAYER_REGEN_ENABLED")
+	AlternatePowerEnableFrame.IsRunning = false
+	
+	AlternatePowerEnableFrame:SetScript ("OnEvent", function (self, event)
+		if (event == "UNIT_POWER_BAR_SHOW") then
+			AlternatePowerMonitorFrame:RegisterEvent ("UNIT_POWER")
+			AlternatePowerEnableFrame.IsRunning = true
+		elseif (AlternatePowerEnableFrame.IsRunning and (event == "ENCOUNTER_END" or event == "PLAYER_REGEN_ENABLED")) then -- and not InCombatLockdown()
+			AlternatePowerMonitorFrame:UnregisterEvent ("UNIT_POWER")
+			AlternatePowerEnableFrame.IsRunning = false
+		end
+	end)
+
+	AlternatePowerMonitorFrame:SetScript ("OnEvent", function (self, event, unitID, powerType)
+		if (powerType == "ALTERNATE") then
+			local actorName = _detalhes:GetCLName (unitID)
+			if (actorName) then
+				local power = _current_combat.alternate_power [actorName]
+				if (not power) then
+					power = _current_combat:CreateAlternatePowerTable (actorName)
+				end
+				local currentPower = UnitPower (unitID, 10)
+				if (currentPower and currentPower > power.last) then
+					local addPower = currentPower - power.last
+					power.total = power.total + addPower
+
+					--> main actor
+					local este_jogador = energy_cache [actorName]
+					if (not este_jogador) then --> pode ser um desconhecido ou um pet
+						este_jogador, meu_dono, actorName = _current_energy_container:PegarCombatente (UnitGUID (unitID), actorName, 0x514, true)
+						energy_cache [actorName] = este_jogador
+					end
+					este_jogador.alternatepower = este_jogador.alternatepower + addPower
+					
+					_current_energy_container.need_refresh = true
+				end
+				
+				power.last = currentPower or 0
+			end
+		end
+	end)
 
 	function parser:energize (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, powertype, p6, p7)
-
+	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 
+		--print (who_name, alvo_name, spellid, spellname, spelltype, amount, powertype)
+	
 		if (not who_name) then
 			who_name = "[*] "..spellname
 		elseif (not alvo_name) then
@@ -2111,6 +2283,12 @@ SPELL_POWER_OBSOLETE2 = 15;
 		--[[statistics]]-- _detalhes.statistics.energy_calls = _detalhes.statistics.energy_calls + 1
 
 		_current_energy_container.need_refresh = true
+
+--print (who_name, spellid, spellname, spelltype, amount, powertype, p6, p7) powertype = 0 p6 = 17
+--4/27 13:45:54.903  SPELL_ENERGIZE,
+--Player-3208-0A085522,"Licelystiri-Nemesis",0x511,0x0,
+--Player-3208-0A085522,"Licelystiri-Nemesis",0x511,0x0,
+--162243,"Demon's Bite",0x1,Player-3208-0A085522,0000000000000000,233158,242700,3555,662,17,70,100,0,1030.46,3134.93,660,28,0,17,100		
 		
 	------------------------------------------------------------------------------------------------
 	--> get actors
@@ -2126,6 +2304,10 @@ SPELL_POWER_OBSOLETE2 = 15;
 			if (not meu_dono) then --> se n�o for um pet, adicionar no cache
 				energy_cache [who_name] = este_jogador
 			end
+		end
+		
+		if (not este_jogador.powertype) then
+			este_jogador.powertype = powertype
 		end
 		
 		--> target
@@ -3166,6 +3348,7 @@ SPELL_POWER_OBSOLETE2 = 15;
 		elseif (capture_type == "heal") then
 			token_list ["SPELL_HEAL"] = nil
 			token_list ["SPELL_PERIODIC_HEAL"] = nil
+			token_list ["SPELL_HEAL_ABSORBED"] = nil
 			token_list ["SPELL_ABSORBED"] = nil
 			_recording_healing = false
 		
@@ -3231,6 +3414,7 @@ SPELL_POWER_OBSOLETE2 = 15;
 		elseif (capture_type == "heal") then
 			token_list ["SPELL_HEAL"] = parser.heal
 			token_list ["SPELL_PERIODIC_HEAL"] = parser.heal
+			token_list ["SPELL_HEAL_ABSORBED"] = parser.heal_denied
 			token_list ["SPELL_ABSORBED"] = parser.heal_absorb
 			_recording_healing = true
 
@@ -3276,6 +3460,7 @@ SPELL_POWER_OBSOLETE2 = 15;
 		["environment"] = parser.environment,
 		["heal"] = parser.heal,
 		["heal_absorb"] = parser.heal_absorb,
+		["heal_denied"] = parser.heal_denied,
 		["buff"] = parser.buff,
 		["unbuff"] = parser.unbuff,
 		["buff_refresh"] = parser.buff_refresh,
@@ -3320,6 +3505,7 @@ SPELL_POWER_OBSOLETE2 = 15;
 
 		["SPELL_HEAL"] = "heal",
 		["SPELL_PERIODIC_HEAL"] = "heal",
+		["SPELL_HEAL_ABSORBED"] = "heal_denied",
 		["SPELL_ABSORBED"] = "heal_absorb",
 
 		["SPELL_AURA_APPLIED"] = "buff",

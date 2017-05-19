@@ -2,8 +2,8 @@ local data = {
 	-- Mage
 
   [    66] = { default = false, cooldown = 300, class = "MAGE", defensive = 0.1, duration = 20 }, -- Invisibility
-  [  1953] = { default = true, cooldown = 15, class = "MAGE", blink = true, talent = {1953} }, -- Blink
-  [212653] = { default = true, cooldown = 15, class = "MAGE", blink = true, replaces = {1953} }, -- Shimmer
+  [  1953] = { default = false, cooldown = 15, class = "MAGE", blink = true, talent = {1953} }, -- Blink
+  [212653] = { default = false, cooldown = 15, class = "MAGE", charges = 2, blink = true, replaces = {1953} }, -- Shimmer
   [  2139] = { default = true, cooldown = 24, class = "MAGE", interrupt = true }, -- Counterspell
   [ 11426] = { default = false, cooldown = 25, class = "MAGE", defensive = 0.1, duration = 60, dispellable = true }, -- Ice Barrier
   [ 45438] = { default = true, cooldown = 240, class = "MAGE", defensive = 1, duration = 10, immune = "all" }, -- Ice Block
@@ -27,7 +27,7 @@ local data = {
   [198111] = { default = false, cooldown = 45, class = "MAGE", duration = 6, dispellable = true, defensive = 0.5}, -- Temporal Shield
   -- Arcane TBD
 
-  [ 12042] = { default = false, cooldown = 90, class = "MAGE", specID = { 62 }, offensive = 0.3, duration = 10, dispellable = true }, -- Arcane Power
+  [ 12042] = { default = true, cooldown = 90, class = "MAGE", specID = { 62 }, offensive = 0.3, duration = 10, dispellable = true }, -- Arcane Power
   [ 12051] = { default = false, cooldown = 90, class = "MAGE", specID = { 62 }, offensive = 0.1, duration = 6 }, -- Evocation
   [153626] = { default = false, cooldown = 20, class = "MAGE", specID = { 62 } }, -- Arcane Orb
   [157980] = { default = false, cooldown = 25, class = "MAGE", specID = { 62 } }, -- Supernova

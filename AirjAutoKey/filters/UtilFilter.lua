@@ -12,7 +12,7 @@ function F:OnInitialize()
   local blue = "3F7FBF"
   self:RegisterFilter("AUTOON",L["auto ~= 0"],{},nil,blue)
   self:RegisterFilter("LUASTRING",L["Lua"],{unit={},name={name="lua string"},greater={},value={}},nil,blue)
-  self:RegisterFilter("TEMPLATE",L["Template"],{unit={},name={name="Template name"},greater={},value={}},nil,blue)
+  self:RegisterFilter("TEMPLATE",L["Template"],{name={name="Template name"}},nil,blue)
   self:RegisterFilter("INWORLD",L["In World"],{},nil,blue)
   self:RegisterFilter("ISFRAMESHOW",L["Frame Shown"],{name={}},nil,blue)
   self:RegisterFilter("PARAMVALUE",L["Check Param"],{name={}},nil,blue)

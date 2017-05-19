@@ -12,9 +12,9 @@ local data = {
   [ 57994] = { default = true, cooldown = 12, class = "SHAMAN", interrupt = true }, -- Wind Shear
   [108271] = { default = true, cooldown = 90, class = "SHAMAN", defensive = 0.4, duration = 8 }, -- Astral Shift
   [210918] = { default = false, cooldown = 45, class = "SHAMAN", defensive = 0.5, duration = 15, immune = "melee", talent = {108271} }, -- Ethereal Form
-  [114049] = { default = false, cooldown = 180, class = "SHAMAN", offensive = 1, talent = {}, duration = 15 }, -- Ascendance
-  [114050] = { parent = 114049 }, -- Ascendance (Elemental)
-  [114051] = { parent = 114049 }, -- Ascendance (Enhancement)
+  [114049] = { default = true, cooldown = 180, class = "SHAMAN", offensive = 1, talent = {}, duration = 15 }, -- Ascendance
+  [114050] = { default = false, cooldown = 180, class = "SHAMAN", offensive = 1, talent = {}, duration = 15 }, -- Ascendance
+  [114051] = { default = false, cooldown = 180, class = "SHAMAN", offensive = 1, talent = {}, duration = 15 }, -- Ascendance
   [192058] = { default = true, cooldown = 45, class = "SHAMAN", cc = "stun", talent = {196932,51485}, aura = {118905}, duration = 5 }, -- Lightning Surge Totem
   [ 51485] = { default = false, cooldown = 30, class = "SHAMAN", cc = "root", replaces = {196932,192058}, duration = 5, aura = {64695} }, -- Earthgrab Totem
   [196932] = { default = false, cooldown = 30, class = "SHAMAN",cc = "incapacitate", duration = 5, talent = {192058,51485,51514,211004,211010,210873,211015}, cooldown = 30 }, -- Voodoo Totem
@@ -26,7 +26,7 @@ local data = {
 
   -- Elemental
 
-  [ 51490] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 262 }, defensive = true }, -- Thunderstorm
+  [ 51490] = { default = true, cooldown = 45, class = "SHAMAN", specID = { 262 }, defensive = true }, -- Thunderstorm
   [108281] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 262, 264 }, talent = {}, defensive = 0.1, duration = 10 }, -- Ancestral Guidance
   [ 16166] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 262 }, offensive = 0.2, duration = 20, talent = {} }, -- Elemental Mastery
   [192063] = { default = false, cooldown = 15, class = "SHAMAN", specID = { 262, 264 },blink = true }, -- Gust of Wind
@@ -35,7 +35,7 @@ local data = {
   [192249] = { parent = 198067, talent = {198067} }, -- Storm Elemental
   -- [198103] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 262 } }, -- Earth Elemental
   [204437] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 262 }, talent = {} }, -- Lightning Lasso
-  [205495] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 262 }, offensive = 0.5, cast = 1.5, duration = 15 }, -- Stormkeeper
+  [205495] = { default = true, cooldown = 60, class = "SHAMAN", specID = { 262 }, offensive = 0.5, cast = 1.5, duration = 15 }, -- Stormkeeper
   [210714] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 262 }, offensive = 0.5, cast = 2, duration = 15 }, -- Icefury
   [ 51886] = { default = false, cooldown = 8, class = "SHAMAN", specID = {262,263}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
   [ 77505] = { default = false, class = "SHAMAN", specID = {262}, cc = "stun", duration = 1.5 },  -- Earthquake
@@ -49,13 +49,13 @@ local data = {
   [204366] = { default = false, cooldown = 45, class = "SHAMAN", specID = { 263 }, offensive = 0.2, duration = 10, talent = {} }, -- Thundercharge
   [204945] = { default = true, cooldown = 60, class = "SHAMAN", specID = { 263 }, offensive = 0.5, duration = 6 }, -- Doom Winds
   [  2825] = { default = true, cooldown = 60, class = "SHAMAN", specID = { 263 }, offensive = 0.3, duration = 10, dispellable = true }, -- Bloodlust
-  [ 32182] = { parent = 2825 }, -- Heroism
+  [ 32182] = { parent = 2825, talent = {2825} }, -- Heroism
 
   -- Restoration
 
   -- [5394] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 264 }, charges = 30 }, -- Healing Stream Totem
   [ 79206] = { default = false, cooldown = 120, class = "SHAMAN", specID = { 264 }, dispellable = true, sprint = true, duration=15 }, -- Spiritwalker's Grace
-  [ 98008] = { default = false, cooldown = 180, class = "SHAMAN", specID = { 264 }, defensive = 0.5, duration = 6 }, -- Spirit Link Totem
+  [ 98008] = { default = true, cooldown = 180, class = "SHAMAN", specID = { 264 }, defensive = 0.5, duration = 6 }, -- Spirit Link Totem
   [204293] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 264 }, defensive = 0.5, talent = {98008}, duration = 20 }, -- Spirit Link
   [108280] = { default = false, cooldown = 180, class = "SHAMAN", specID = { 264 }, offensive = 0.2, duration = 6 }, -- Healing Tide Totem
   [157153] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 264 }, defensive = 0.1, talent = {} }, -- Cloudburst Totem

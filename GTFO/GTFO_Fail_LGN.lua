@@ -371,6 +371,22 @@ GTFO.SpellID["239164"] = {
   sound = 3;
 };
 
+GTFO.SpellID["199036"] = {
+  --desc = "Fel Meteor";
+  sound = 3;
+};
+
+GTFO.SpellID["223425"] = {
+  --desc = "Chaotic Felburst (Felbringer Xar'thok)";
+  sound = 3;
+};
+
+GTFO.SpellID["234686"] = {
+  --desc = "Dark Wave (Wrath-Lord Akrazar)";
+  applicationOnly = true;
+  sound = 3;
+};
+
 -- **********
 -- * Mardum *
 -- **********
@@ -1680,3 +1696,106 @@ GTFO.SpellID["243152"] = {
   sound = 3;
   test = true;
 };
+
+-- ********************
+-- * Tomb of Sargeras *
+-- ********************
+
+GTFO.SpellID["242909"] = {
+  --desc = "Massive Eruption (Infernal Chaosbringer)";
+  sound = 3;
+};
+
+GTFO.SpellID["234264"] = {
+  --desc = "Melted Armor (Goroth)";
+  applicationOnly = true;
+  sound = 3;
+  negatingDebuffSpellID = 231363; -- Burning Armor
+};
+
+GTFO.SpellID["233283"] = {
+  --desc = "Shattering Nova (Goroth)";
+  sound = 3;
+  test = true;
+};
+
+GTFO.SpellID["233062"] = {
+  --desc = "Infernal Burning (Goroth)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["241312"] = {
+  --desc = "Lob Lightning (Razorjaw Acolyte)";
+  sound = 3;
+};
+
+GTFO.SpellID["241179"] = {
+  --desc = "Grand Cleave (Tidescale Legionnaire)";
+  sound = 3;
+  tankSound = 0;
+};
+
+GTFO.SpellID["240169"] = {
+  --desc = "Electric Shock (Undersea Custodian)";
+  sound = 3;
+};
+
+GTFO.SpellID["230362"] = {
+  --desc = "Thundering Shock (Mistress Sassz'ine)";
+  sound = 3;
+  test = true; -- Negate if the player has a murloc on them
+};
+
+GTFO.SpellID["232732"] = {
+  --desc = "Slicing Tornado (Mistress Sassz'ine)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["232754"] = {
+  --desc = "Hydra Acid (Mistress Sassz'ine)";
+  applicationOnly = true;
+  sound = 3;
+  minimumStacks = 1;
+};
+
+GTFO.SpellID["232827"] = {
+  --desc = "Crashing Wave (Mistress Sassz'ine)";
+  sound = 3;
+};
+
+GTFO.SpellID["232885"] = {
+  --desc = "Devour Whole (Mistress Sassz'ine)";
+  sound = 3;
+};
+
+GTFO.SpellID["236011"] = {
+  --desc = "Tormented Cries (Engine of Souls)";
+  sound = 3;
+  affirmingDebuffSpellID = 209166; -- Tormented Cries  
+  test = true;
+};
+
+GTFO.SpellID["233426"] = {
+  --desc = "Scythe Sweep (Atrigan)";
+  sound = 3;
+  tankSound = 0;
+};
+
+GTFO.SpellID["241173"] = {
+  --desc = "Umbra Cleave (Umbral Guard)";
+  sound = 3;
+	tankSound = 0;
+};
+
+GTFO.SpellID["236480"] = {
+  --desc = "Glaive Storm (Sisters of the Moon)";
+  sound = 3;
+};
+
+GTFO.SpellID["239810"] = {
+  --desc = "Sever Soul (Eternal Soulguard)";
+  sound = 3;
+};
+

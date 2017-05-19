@@ -1,13 +1,7 @@
-changeset:   54:fd690cca2977
-tag:         v53-release
+changeset:   56:79225c1d61ab
+tag:         a56-alpha
 user:        Tercio
-date:        Tue Mar 28 19:21:28 2017 -0300
-summary:     - 7.2 ToC Update.
-
-
-changeset:   53:f98698ff2c23
-user:        Tercio
-date:        Wed Mar 01 10:41:22 2017 -0300
-summary:     Added tag v52-release for changeset 84f0c80448c5
+date:        Mon May 08 17:01:16 2017 -0300
+summary:     - localization is now handled on curseforge.
 
 

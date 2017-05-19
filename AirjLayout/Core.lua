@@ -1,4 +1,4 @@
-local Core = LibStub("AceAddon-3.0"):NewAddon("AirjLayout", "AceConsole-3.0")
+local Core = LibStub("AceAddon-3.0"):NewAddon("AirjLayout", "AceConsole-3.0","AceTimer-3.0")
 
 function Core:OnInitialize()
 
@@ -7,7 +7,10 @@ function Core:OnInitialize()
         setLTPDB()
         ReloadUI()
       else
+        self:SetCVars()
+        self:SetBinding()
         self:SetLayout()
+        self:SetMiniMapButtons()
       end
       -- action bars
     -- MultiBarRight:ClearAllPoints()
@@ -15,6 +18,150 @@ function Core:OnInitialize()
   end)
 end
 
+
+
+function Core:OnEnable()
+  self:SetLayout()
+  self:SetCVars()
+  self:SetBinding()
+  self:ScheduleTimer(function()
+    if not InCombatLockdown() then
+      self:SetLayout()
+      self:SetMiniMapButtons()
+    end
+  end,5)
+end
+
+function Core:OnDisable()
+end
+
+function Core:SetBinding()
+  -- key binding
+  SetBinding("BUTTON3","STARTAUTORUN")
+  for i = 1,12 do
+    if i<6 then
+      SetBinding("ALT-"..i,"ACTIONBUTTON"..i)
+    end
+  end
+  SetBinding("Y","EXTRAACTIONBUTTON1")
+  function clearBinding (name)
+    local key1, key2 = GetBindingKey(name)
+    if key1 then
+      SetBinding(key1)
+    end
+    if key2 then
+      SetBinding(key2)
+    end
+  end
+  for i = 1,12 do
+    clearBinding("SHAPESHIFTBUTTON"..i)
+    clearBinding("BONUSACTIONBUTTON"..i)
+    for j = 1, 4 do
+      clearBinding("MULTIACTIONBAR"..j.."BUTTON"..i)
+    end
+  end
+
+  for i = 1,6 do
+    clearBinding("ACTIONPAGE"..i)
+  end
+  SetBinding("ALT-V","NAMEPLATES")
+  SetBinding("CTRL-V","FRIENDNAMEPLATES")
+  SetBinding("CTRL-ALT-V","ALLNAMEPLATES")
+
+  SetBinding("CTRL-B","TOGGLECHARACTER0")
+  SetBinding("SHIFT-B","OPENALLBAGS")
+
+  SetBinding("A","STRAFELEFT")
+  SetBinding("D","STRAFERIGHT")
+end
+
+function Core:SetCVars()
+
+  if GetCVar("SpellQueueWindow") == "400" then
+    SetCVar("SpellQueueWindow", 50)
+  end
+
+  SetCVar("autoLootDefault", 1)
+
+  SetCVar("synchronizeConfig", 0)
+  SetCVar("synchronizeSettings", 0)
+  SetCVar("synchronizeChatFrames", 0)
+  SetCVar("synchronizeBindings", 0)
+  SetCVar("synchronizeMacros", 0)
+
+  SetCVar("useUiScale",1)
+  SetCVar("uiScale",0.6)
+  -- nameplate
+  SetCVar("nameplateLargerScale",1)
+  SetCVar("nameplatePersonalShowAlways",1)
+  SetCVar("nameplateShowAll",1)
+  SetCVar("nameplateShowEnemyGuardians",1)
+  SetCVar("nameplateShowEnemyMinions",1)
+  SetCVar("nameplateShowEnemyMinus",1)
+  SetCVar("nameplateShowEnemyPets",1)
+  SetCVar("nameplateShowEnemyTotems",1)
+
+
+  SetCVar("NamePlateHorizontalScale",1.4)
+  SetCVar("NamePlateVerticalScale",2.7)
+
+
+  NamePlateDriverFrame:UpdateNamePlateOptions()
+end
+
+function Core:SetMiniMapButtons()
+  local shows = {
+    Cheatsheet = true,
+  }
+  local LibDBIcon = LibStub("LibDBIcon-1.0", true)
+  if LibDBIcon then
+    for name,data in pairs(LibDBIcon.objects) do
+      if not shows[name] then
+        self:Print("Hide minimap "..name)
+        LibDBIcon:Hide(name)
+      end
+    end
+  end
+end
+function Core:SetLayout()
+  --frames
+  FocusFrame:ClearAllPoints()
+  FocusFrame:SetPoint("CENTER",-350,200)
+
+	FCF_SetLocked(ChatFrame1, false);
+  ChatFrame1:SetSize(450,150)
+  ChatFrame1:ClearAllPoints()
+  ChatFrame1:SetPoint("BOTTOMLEFT",UIParent,"BOTTOMLEFT",0,0)
+  FCF_SetChatWindowFontSize(nil, ChatFrame1, 14)
+  FCF_SetLocked(ChatFrame1, true);
+
+  if DetailsBaseFrame1 then
+    DetailsBaseFrame1:SetSize(250,100)
+    DetailsBaseFrame1:ClearAllPoints()
+    DetailsBaseFrame1:SetPoint("BOTTOMRIGHT",UIParent,"BOTTOMRIGHT",0,0)
+  end
+  if DetailsBaseFrame2 then
+    DetailsBaseFrame2:SetSize(250,100)
+    DetailsBaseFrame2:ClearAllPoints()
+    DetailsBaseFrame2:SetPoint("BOTTOMRIGHT",UIParent,"BOTTOMRIGHT",-250,0)
+  end
+  if ExRT_MarksBar_WorldMarkers_Kind2_1 then
+    local ExRTWorldMarker = ExRT_MarksBar_WorldMarkers_Kind2_1:GetParent()
+    ExRTWorldMarker:ClearAllPoints()
+    ExRTWorldMarker:SetPoint("TOP",UIParent,"TOP")
+  end
+
+
+
+  if AirjAutoKey_GUI_anchor then
+    AirjAutoKey_GUI_anchor:SetPoint("CENTER",UIParent,"CENTER",0,-240)
+  end
+
+
+
+
+
+end
 
 local leaPlusDB = {
 	["HotkeyMenu"] = 1,
@@ -176,70 +323,7 @@ local leaPlusDB = {
 	["HideMinimapTime"] = "Off",
 }
 
-
-
-function Core:OnEnable()
-  self:SetLayout()
-end
-
-function Core:OnDisable()
-end
-
 function setLTPDB()
   LeaPlusDB = leaPlusDB
   SlashCmdList["Leatrix_Plus"]("nosave")
-end
-
-function Core:SetLayout()
-  SetCVar("useUiScale",1)
-  SetCVar("uiScale",0.85)
-  -- nameplate
-  SetCVar("nameplateLargerScale",1)
-  SetCVar("nameplatePersonalShowAlways",1)
-  SetCVar("nameplateShowAll",1)
-  SetCVar("nameplateShowEnemyGuardians",1)
-  SetCVar("nameplateShowEnemyMinions",1)
-  SetCVar("nameplateShowEnemyMinus",0)
-  SetCVar("nameplateShowEnemyPets",1)
-  SetCVar("nameplateShowEnemyTotems",1)
-  --minimap
-  local shows = {
-    Cheatsheet = true,
-  }
-  local LibDBIcon = LibStub("LibDBIcon-1.0", true)
-  for name,data in pairs(LibDBIcon.objects) do
-    if not shows[name] then
-      self:Print("Hide minimap "..name)
-      LibDBIcon:Hide(name)
-    end
-  end
-  --frames
-  ChatFrame1:SetSize(450,150)
-  ChatFrame1:ClearAllPoints()
-  ChatFrame1:SetPoint("BOTTOMLEFT",UIParent,"BOTTOMLEFT",0,130)
-  FCF_SetChatWindowFontSize(nil, ChatFrame1, 14)
-
-  DetailsBaseFrame1:SetSize(250,100)
-  DetailsBaseFrame1:ClearAllPoints()
-  DetailsBaseFrame1:SetPoint("BOTTOMLEFT",UIParent,"BOTTOMLEFT",0,0)
-
-  DetailsBaseFrame2:SetSize(250,100)
-  DetailsBaseFrame2:ClearAllPoints()
-  DetailsBaseFrame2:SetPoint("BOTTOMRIGHT",UIParent,"BOTTOMRIGHT",0,0)
-
-  local ExRTWorldMarker = ExRT_MarksBar_WorldMarkers_Kind2_1:GetParent()
-  ExRTWorldMarker:ClearAllPoints()
-  ExRTWorldMarker:SetPoint("TOPLEFT",UIParent,"TOPLEFT")
-
-
-
-  if AirjAutoKey_GUI_anchor then
-    AirjAutoKey_GUI_anchor:SetPoint("CENTER",UIParent,"CENTER",0,-180)
-  end
-
-
-  if GetCVar("SpellQueueWindow") == "400" then
-    SetCVar("SpellQueueWindow", 50)
-  end
-
 end

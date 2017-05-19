@@ -46,12 +46,12 @@ local data = {
   [ 30283] = { default = true, cooldown = 30, class = "WARLOCK", specID = { 266, 267 }, cc = "stun", duration = 4, cast = 1.5, talent = {48018,6789} }, -- Shadowfury
   [ 89751] = { default = false, cooldown = 45, class = "WARLOCK", specID = { 266 }, offensive = 0.1, duration = 6 }, -- Felstorm
   [115831] = { parent = 89751 }, -- Wrathstorm
-  [ 89766] = { default = false, cooldown = 30, class = "WARLOCK", specID = { 266 }, cc= "stun", duration = 4 }, -- Axe Toss
+  [ 89766] = { default = true, cooldown = 30, class = "WARLOCK", specID = { 266 }, cc= "stun", duration = 4 }, -- Axe Toss
   [201996] = { default = false, cooldown = 90, class = "WARLOCK", specID = { 266 } }, -- Call Observer
   [205180] = { default = false, cooldown = 24, class = "WARLOCK", specID = { 266 } }, -- Summon Darkglare
   [205181] = { default = false, cooldown = 14, class = "WARLOCK", specID = { 266 }, charges = 2 }, -- Shadowflame
   [211714] = { default = false, cooldown = 45, class = "WARLOCK", specID = { 266 } }, -- Thal'kiel's Consumption
-  [212459] = { default = false, cooldown = 90, class = "WARLOCK", specID = { 266 } }, -- Call Fel Lord
+  [212459] = { default = true, cooldown = 90, class = "WARLOCK", specID = { 266 } }, -- Call Fel Lord
   [212623] = { default = false, cooldown = 15, class = "WARLOCK", specID = { 266 } }, -- Singe Magic
 
   --  Destruction TBD

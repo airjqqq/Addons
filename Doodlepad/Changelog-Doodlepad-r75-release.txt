@@ -1,0 +1,37 @@
+------------------------------------------------------------------------
+r75 | humbedooh | 2013-11-14 16:27:24 +0000 (Thu, 14 Nov 2013) | 1 line
+Changed paths:
+   A /tags/r75-release (from /trunk:74)
+
+Tagging as r75-release to fix LibSpreadsheet issues
+------------------------------------------------------------------------
+r74 | dridzt | 2013-11-05 15:05:25 +0000 (Tue, 05 Nov 2013) | 1 line
+Changed paths:
+   M /trunk/Doodle.lua
+
+- Missed the send menu for instance chat
+------------------------------------------------------------------------
+r73 | dridzt | 2013-11-05 14:05:52 +0000 (Tue, 05 Nov 2013) | 1 line
+Changed paths:
+   M /trunk/Doodle.lua
+
+- Fix some relics from the past. "BATTLEGROUND" -> "INSTANCE_CHAT", UnitIsPartyLeader() -> UnitIsGroupLeader()
+------------------------------------------------------------------------
+r72 | humbedooh | 2013-11-05 10:17:40 +0000 (Tue, 05 Nov 2013) | 1 line
+Changed paths:
+   M /trunk/Doodle.lua
+
+Add new overlay maps: Mogu'Shan Vaults, Heart of Fear, Terrace of Endless Spring, Siege of Orgrimmar, Throne of Thunder
+------------------------------------------------------------------------
+r71 | humbedooh | 2013-11-05 09:50:31 +0000 (Tue, 05 Nov 2013) | 1 line
+Changed paths:
+   M /trunk/Doodlepad.toc
+
+Update TOC
+------------------------------------------------------------------------
+r70 | Humbedooh | 2012-08-30 10:38:40 +0000 (Thu, 30 Aug 2012) | 1 line
+Changed paths:
+   M /trunk/Doodlepad.toc
+
+TOC update
+------------------------------------------------------------------------

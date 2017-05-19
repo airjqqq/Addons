@@ -8,7 +8,7 @@ local data = {
 	  [  1022] = { default = true, cooldown = 300, class = "PALADIN", charges = 2, defensive = 0.5, dispellable = true, duration = 10 }, -- Blessing of Protection
 	  [  1044] = { default = false, cooldown = 25, class = "PALADIN", charges = 2, sprint = true, dispellable = true, duration = 8 }, -- Blessing of Freedom
 	  [ 20066] = { default = true, cooldown = 15, class = "PALADIN", cc=true, talent = {115750}, cast = 1.7 }, -- Repentance
-	  [115750] = { default = false, cooldown = 90, class = "PALADIN", cc = true, talent = {20066}, aura = {105421} }, -- Blinding Light
+	  [115750] = { default = true, cooldown = 90, class = "PALADIN", cc = true, talent = {20066}, aura = {105421} }, -- Blinding Light
 
 	  -- Holy
 

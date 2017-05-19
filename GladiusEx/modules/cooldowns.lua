@@ -17,9 +17,9 @@ local function GetDefaultSpells()
 	for spellid, spelldata in pairs(CT:GetCooldownsData()) do
 		spelldata = CT:GetCooldownData(spellid)
 		if spelldata.default and spelldata.cooldown then
-			if spelldata.pvp_trinket or spelldata.interrupt or spelldata.dispel or spelldata.race or spelldata.offensive or spelldata.cc then
+			if spelldata.interrupt or spelldata.dispel or spelldata.offensive or spelldata.cc then
 				group1[spellid] = true
-			elseif pelldata.pvp_trinket or spelldata.race or spelldata.offensive or spelldata.blink then
+			elseif spelldata.pvp_trinket or spelldata.race or spelldata.defensive or spelldata.blink then
 				group2[spellid] = true
 			end
 		end
@@ -34,7 +34,6 @@ local function MakeGroupDb(settings)
 		cooldownsRelativePoint = "BOTTOMLEFT",
 		cooldownsOffsetX = 0,
 		cooldownsOffsetY = 0,
-		cooldownsBackground = { r = 0, g = 0, b = 0, a = 0.5 },
 		cooldownsGrow = "DOWNRIGHT",
 		cooldownsPaddingX = 0,
 		cooldownsPaddingY = 0,
@@ -107,26 +106,28 @@ local defaults = {
 
 local g1_defaults = MakeGroupDb {
 	cooldownsGroupId = 1,
-	cooldownsPerColumn = 5,
-	cooldownsMax = 5,
-	cooldownsSize = 30,
+	cooldownsPerColumn = 4,
+	cooldownsMax = 4,
+	cooldownsSize = 40,
 	cooldownsPaddingX = 0,
 	-- cooldownsPaddingY = 2,
 	cooldownsSpacingX = 2,
 	cooldownsSpacingY = 0,
 	cooldownsSpells = GetDefaultSpells()[1],
+	cooldownsBackground = { r = 0, g = 0, b = 0, a = 0.3 },
 }
 
 local g2_defaults = MakeGroupDb {
 	cooldownsGroupId = 2,
-	cooldownsPerColumn = 5,
-	cooldownsMax = 5,
-	cooldownsSize = 30,
+	cooldownsPerColumn = 4,
+	cooldownsMax = 4,
+	cooldownsSize = 40,
 	cooldownsPaddingX = 0,
 	-- cooldownsPaddingY = 2,
 	cooldownsSpacingX = 2,
 	cooldownsSpacingY = 0,
 	cooldownsSpells = GetDefaultSpells()[2],
+	cooldownsBackground = { r = 0, g = 0, b = 0, a = 0.3 },
 }
 local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 	fn.merge(defaults, {
@@ -137,7 +138,7 @@ local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 				cooldownsRelativePoint = "TOPRIGHT",
 				cooldownsGrow = "DOWNRIGHT",
 				cooldownsOffsetX = 5,
-				cooldownsOffsetY = 0,
+				cooldownsOffsetY = -2,
 			}),
 			["group_2"] = fn.merge(g2_defaults, {
 				cooldownsAttachTo = "Frame",
@@ -145,7 +146,7 @@ local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 				cooldownsRelativePoint = "TOPRIGHT",
 				cooldownsGrow = "DOWNRIGHT",
 				cooldownsOffsetX = 5,
-				cooldownsOffsetY = -30,
+				cooldownsOffsetY = -42,
 			}),
 		}
 	}),
@@ -157,7 +158,7 @@ local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 				cooldownsRelativePoint = "TOPLEFT",
 				cooldownsGrow = "DOWNLEFT",
 				cooldownsOffsetX = -5,
-				cooldownsOffsetY = 0,
+				cooldownsOffsetY = -2,
 			}),
 			["group_2"] = fn.merge(g2_defaults, {
 				cooldownsAttachTo = "Frame",
@@ -165,7 +166,7 @@ local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
 				cooldownsRelativePoint = "TOPLEFT",
 				cooldownsGrow = "DOWNLEFT",
 				cooldownsOffsetX = -5,
-				cooldownsOffsetY = -30,
+				cooldownsOffsetY = -42,
 			}),
 		}
 	}))

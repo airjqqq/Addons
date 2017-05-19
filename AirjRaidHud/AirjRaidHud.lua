@@ -18,12 +18,12 @@ function H:OnInitialize()
   self.pointcache = {}
   self.linecache = {}
   self.dbmtimers = {}
+  self.showLayers = {}
 end
 
 function H:OnEnable()
   self.range = 45
   H:RegisterComm("AIRJRH_COMM")
-  self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
   if self.db.autohide == nil then
     self.db.autohide = true
   end
@@ -98,30 +98,7 @@ function H:OnEnable()
     -- self:New("Line",{from={x=-518.5,y=2428.7},to={x=-528.5,y=2428.7}})
     -- self:New("Point",{expire=GetTime()+10,position={x=-528.5,y=2428.7}})
   end)
-  self:ScheduleRepeatingTimer(function()
-    if AirjHack and AirjHack:HasHacked() then
-      do
-        local guid = UnitGUID("player")
-        local x,y,_,f = AirjHack:Position(guid)
-        self.position[guid] = {x,y,f}
-      end
-      for i=1,20 do
-        local guid = UnitGUID("raid"..i)
-        if guid then
-          local x,y,_,f = AirjHack:Position(guid)
-          self.position[guid] = {x,y,f}
-        end
-      end
-      for i=1,4 do
-        local guid = UnitGUID("boss"..i)
-        if guid then
-          local x,y,_,f = AirjHack:Position(guid)
-          self.position[guid] = {x,y,f}
-        end
-      end
-    end
-    self:UpdateMainFrame()
-  end,0.02)
+
 
   if self.db.disable then
     H:GetMainFrame():Hide()
@@ -158,35 +135,39 @@ end
 function H:OnCommReceived(prefix,data,channel,sender)
   if prefix == "AIRJRH_COMM" then
 
-    if AirjHack and AirjHack:HasHacked() then
-    else
-      local pxs = strsub(data,1,6)
-      local pys = strsub(data,7,12)
-      local px,py = tonumber(pxs),tonumber(pys)
-      if px then
-        px = px/10
-        py = py/10
+    -- self:Print("Received")
+    -- if AirjHack and AirjHack:HasHacked() then
+    -- else
+    -- end
 
-        local s = 13
-        -- print(px,py)
-        while s<strlen(data) do
-          local i,x,y,f = deser(strsub(data,s,s+3))
-          if i then
-            x = x+px
-            y = y+py
-            s=s+4
-            local guid
-            if i>40 then
-              guid = UnitGUID("boss"..(i-40))
-            else
-              guid = UnitGUID("raid"..i) --may sync
-            end
-            self.position[guid] = {x,y,f}
+    local pxs = strsub(data,1,6)
+    local pys = strsub(data,7,12)
+    local px,py = tonumber(pxs),tonumber(pys)
+    if px then
+      px = px/10
+      py = py/10
+
+      local s = 13
+      -- print(px,py)
+      while s<strlen(data) do
+        local i,x,y,f = deser(strsub(data,s,s+3))
+        if i then
+          x = x+px
+          y = y+py
+          s=s+4
+          local guid
+          if i>40 then
+            guid = UnitGUID("boss"..(i-40))
+          elseif i > 50 then
+            guid = UnitGUID("ex"..(i-50))
+          else
+            guid = UnitGUID("raid"..i) --may sync
           end
+          self.position[guid] = {x,y,f}
         end
       end
-      self:UpdateMainFrame()
     end
+    self:UpdateMainFrame()
   end
 end
 
@@ -281,8 +262,14 @@ function H:UpdateMainFrame()
         end
       else
         if t then
-          self["Update"..t](self,activity)
-          show = true
+          if self:IsLayerShown(activity.layer) then
+            self["Update"..t](self,activity)
+            show = true
+          else
+            for k,v in pairs(activity.texture) do
+              v:Hide()
+            end
+          end
         end
       end
     end
@@ -307,6 +294,45 @@ function H:UpdateMainFrame()
   end
 end
 
+function H:IsLayerShown(layer)
+  return self.showLayers[layer] and self.showLayers[layer]>GetTime() and true or false
+end
+
+local layerReason = {}
+
+function H:ShowLayer(reason,layer,expire)
+  expire = expire or GetTime()+600
+  if reason then
+    layerReason[layer] = layerReason[layer] or {}
+    layerReason[layer][reason] = expire
+  end
+  if self.showLayers[layer] then
+    expire = math.max(self.showLayers[layer],expire)
+  end
+  self.showLayers[layer] = expire
+end
+
+function H:HideLayer(reason,layer)
+  if self.showLayers[layer] then
+    local expire
+    if reason then
+      if layerReason[layer] then
+        layerReason[layer][reason] = nil
+        for k,v in pairs(layerReason[layer]) do
+          if not expire or v>expire then
+            expire = v
+          end
+        end
+      end
+    end
+    if not expire then
+      self.showLayers[layer] = nil
+      layerReason[layer] = nil
+    else
+      self.showLayers[layer] = expire
+    end
+  end
+end
 
 do --util
   function H:DeepCopy(table)
@@ -336,6 +362,14 @@ do --util
     end
     if not x then return end
     return x,y,f
+  end
+
+  function H:GetDistance(guid1,guid2)
+    local x1,y1 = unpack(self.position[guid1] or {})
+    local x2,y2 = unpack(self.position[guid2] or {})
+    if x1 and x2 then
+      return sqrt((x1-x2)^2 + (y1-y2)^2)
+    end
   end
 
   function H:Freeze (data)
@@ -375,6 +409,10 @@ function H:New(t,data)
   if self["New"..t] then
     local a = self["New"..t](self,data)
     a.expire = data.expire
+    a.layer = data.layer or 0
+    for k,v in pairs(a.texture) do
+      v:SetDrawLayer("ARTWORK",a.layer-8)
+    end
     tinsert(self.activities,a)
     return a
   end
@@ -506,218 +544,15 @@ do --line
   end
 end
 
-do -- odyn
-  local markerindex = {2,3,6,5,1}
-  local cx,cy,cz = -528.5,2428.7,749
-  local r = 32
-  local left = {
-    {-552.2,2497.5},
-    {-533.5,2480.0},
-    {-549.2,2458.5},
-    {-574.3,2447.7},
-    {-573.0,2473.1},
-  }
-  local right = {}
-  for i,v in pairs(left) do
-    local x,y = v[1],v[2]
-    local j = i
-    if j >1 then j = 7-i end
-    x = cx*2-x
-    right[j] = {x,y}
-  end
-  local center = {}
-  local center2 = {}
-  local a = math.pi/2.5
-  for i=1,5 do
-    local b = math.pi/2 - a*(i-1)
-    center[i] = {cx+22*math.cos(b),cy+22*math.sin(b)}
-    center2[i] = {cx+33*math.cos(b),cy+33*math.sin(b)}
-  end
-  local markercolor = {
-    {0,1,0,0.8},
-    {1,0,0.8,0.8},
-    {1,0.5,0,0.8},
-    {1,1,0,0.8},
-    {0,0.7,1,0.8},
-  }
-  local sounds = {
-    "frontcenter",
-    "frontright",
-    "backright",
-    "backleft",
-    "frontleft",
-    -- "Interface\\AddOns\\DBM-VPYike\\frontcenter.ogg",
-    -- "Interface\\AddOns\\DBM-VPYike\\frontright.ogg",
-    -- "Interface\\AddOns\\DBM-VPYike\\backright.ogg",
-    -- "Interface\\AddOns\\DBM-VPYike\\backleft.ogg",
-    -- "Interface\\AddOns\\DBM-VPYike\\frontleft.ogg",
-  }
-  function H:OdynP3(index)
-    local guid = UnitGUID("player")
-    local position = self.position[guid]
-    if position then
-      local x,y = unpack(position)
-      if x then
-        -- print(x,y)
-        local tx,ty
-        if self:Distance(x,y,cx,cy)<r then
-          tx,ty = unpack(center[index])
-        elseif x<cx then
-          tx,ty = unpack(left[index])
-        else
-          tx,ty = unpack(right[index])
-        end
-        local color = markercolor[index]
-        local expire=GetTime()+10
-        local a = self:New("Line",{color=color,expire=expire,from={unit="player"},to={x=tx,y=ty}})
-        self:New("Point",{color=color,expire=expire,position={x=tx,y=ty}})
-        self:SetBar(expire)
-        local function play()
-          local px,py = unpack(self.playerPosition)
-          if a and a.type and self:Distance(px,py,tx,ty)>10 and GetTime()<expire then
-            -- PlaySoundFile("Interface\\AddOns\\AirjRaidHud\\sounds\\".."odyn"..index..".mp3", "Master")
-            self:PlayYike(sounds[index])
-            self:ScheduleTimer(play,3)
-          end
-        end
-        play()
-      end
-    end
-  end
-  local lp1,lp2
-  function H:OdynP1(index)
-    local tx,ty = unpack(center2[index])
-    local color = markercolor[index]
-    local expire=GetTime()+20
-    lp1 = self:New("Line",{color=color,expire=expire,from={unit="player"},to={x=tx,y=ty}})
-    lp2 = self:New("Point",{color=color,expire=expire,position={x=tx,y=ty}})
-    local function play()
-      if lp1 and lp1.type and GetTime()<expire  then
-        -- PlaySoundFile("Interface\\AddOns\\AirjRaidHud\\sounds\\".."odyn"..index..".mp3", "Master")
-        self:PlayYike(sounds[index])
-        self:ScheduleTimer(play,3)
-      end
-    end
-    play()
-    for k,v in pairs(self.dbmtimers) do
-      if v.spellId == 227629 then
-        if v.expire + 5 > GetTime() and v.expire + 5 < GetTime()+30 then
-          self:SetBar(v.expire + 5,v.expire + 5 - 20)
-          break
-        end
-      end
-    end
-  end
-
-  function H:OdynP1Clear()
-    if lp1 and type(lp1) == "table" and lp1.type then
-      lp1.remove = true
-      lp1 = nil
-    end
-    if lp2 and type(lp2) == "table" and lp2.type then
-      lp2.remove = true
-      lp2 = nil
-    end
-  end
-end
-
-do --Guarm
-  local constids = {
-    228758,
-    228768,
-    228769,
-  }
-  local constNames = {}
-  for i,v in ipairs(constids) do
-    constNames[i] = GetSpellInfo(v)
-  end
-  local colors = {
-    {1,0.5,0,1},
-    {0,1,0.5,1},
-    {0.8,0,1,1},
-  }
-  local messages = {
-    "{rt2}",
-    "{rt6}",
-    "{rt3}",
-  }
-  local sounds = {
-    "mm2",
-    "mm6",
-    "mm3",
-  }
-  function H:GuarmFoam2()
-    for i = 1,3 do
-      if UnitDebuff("player",constNames[i]) then
-        if self.buffer.foamtimer3 then
-          self:CancelTimer(self.buffer.foamtimer3)
-        end
-        self.buffer.foamtimer3 = self:ScheduleRepeatingTimer(function()
-          SendChatMessage(messages[i],"SAY")
-        end,0.75)
-        if self.buffer.foamtimer4 then
-          self:CancelTimer(self.buffer.foamtimer4)
-        end
-        self.buffer.foamtimer4 = self:ScheduleTimer(function()
-          self:CancelTimer(self.buffer.foamtimer3)
-        end,9)
-        return
-      end
-    end
-    -- body...
-  end
-  function H:GuarmFoam(index)
-    if UnitDebuff("player",constNames[index]) then return end
-    self.buffer.foam = self.buffer.foam or {}
-    -- SendChatMessage(messages[index],"SAY")
-    self.buffer.foamtimer = self:ScheduleRepeatingTimer(function()
-      -- SendChatMessage(messages[index],"SAY")
-    end,0.75)
-    self.buffer.foamtimer2 = self:ScheduleTimer(function()
-      self:CancelTimer(self.buffer.foamtimer)
-    end,9)
-    local expire = GetTime() + 9
-    self:SetBar(expire,expire-9)
-    local function play()
-      if self.buffer.foamtimer and  GetTime()<expire then
-        self:PlayYike(sounds[index])
-        self:ScheduleTimer(play,1.5)
-      end
-    end
-    play()
-
-    for i=1,20 do
-      local u = "raid"..i
-      if not UnitIsUnit("player",u) then
-        local color
-        if UnitDebuff(u,constNames[index]) then
-          color = colors[index]
-        else
-          color = {0.8,0.8,0.8,0.6}
-        end
-        self.buffer.foam[i] = self:New("Point",{color=color,radius=2,expire=expire,position={unit=u}})
-      end
-    end
-  end
-
-  function H:GuarmFoamClear()
-    self.buffer.foam = self.buffer.foam or {}
-    self:CancelTimer(self.buffer.foamtimer)
-    self:CancelTimer(self.buffer.foamtimer2)
-    self.buffer.foamtimer = nil
-    for k,v in pairs(self.buffer.foam) do
-      v.remove = true
-      self.buffer.foam[k] = nil
-    end
-  end
-end
-
 do
   local playerPoints={}
-  function H:ShowAllPlayers(expire)
+  local playerReason={}
+  function H:ShowAllPlayers(reason,expire)
     for i=1,20 do
       local u = "raid"..i
-      self:ShowPlayer(u,expire)
+      if UnitExists(u) then
+        self:ShowPlayer(reason,u,expire)
+      end
     end
   end
 
@@ -728,19 +563,27 @@ do
     wipe(playerPoints)
   end
 
-  function H:ShowPlayer(unit,expire)
+  function H:ShowPlayer(reason,unit,expire)
+    -- self:Print("ShowPlayer",reason,unit,expire)
+    local guid = UnitGUID(unit)
+    local _,class = UnitClass(unit)
+    self:ShowPlayerByGUID(reason,guid,class,expire)
+  end
+
+  function H:ShowPlayerByGUID(reason,guid,class,expire)
+    -- self:Print("ShowPlayerByGUID",reason,guid,class,expire)
     expire = expire or (GetTime() + 600)
-    local guid = UnitGUID(u)
     if guid then
+      playerReason[guid] = playerReason[guid] or {}
+      playerReason[guid][reason] = expire
       local point = playerPoints[guid]
       if point and point.expire then
-        point.expire = expire
+        point.expire = math.max(expire,point.expire)
       else
-        if not UnitIsUnit("player",u) then
-          local _,class = UnitClass(u)
+        if guid ~= UnitGUID("player") then
           if class then
             local c = RAID_CLASS_COLORS[class]
-            local p = self:New("Point",{color={c.r,c.g,c.b,1},radius=2,expire=expire,position={guid=guid}})
+            local p = self:New("Point",{color={c.r,c.g,c.b,1},radius=2,expire=expire,position={guid=guid},layer=15})
             playerPoints[guid] = p
           end
         end
@@ -748,8 +591,31 @@ do
     end
   end
 
+  function H:HidePlayerByGUID(reason,guid,class,expire)
+    local point = playerPoints[guid]
+    if point and point.expire then
+      local expire
+      if playerReason[guid] then
+        playerReason[guid][reason] = nil
+        for k,v in pairs(playerReason[guid]) do
+          if not expire or v>expire then
+            expire = v
+          end
+        end
+      end
+      if not expire then
+        point.remove = true
+        playerPoints[guid] = nil
+        playerReason[guid] = nil
+      else
+        point.expire = expire
+      end
+    end
+  end
+
   local buffPoints = {}
-  function H:BuffPoint(spellId,guid,color,radius)
+  function H:NewBuffPoint(data,expire,layer)
+    local spellId,guid,color,radius = unpack(data,1,4)
     local key = guid.."-"..spellId
     local p = buffPoints[key]
     if p then
@@ -757,304 +623,17 @@ do
     end
     if color then
       radius = radius or 8
-      local expire = GetTime() + 60
-      p = self:New("Point",{color=color,radius=radius,expire=expire,position={guid=guid}})
+      expire = expire or GetTime() + 600
+      p = self:New("Point",{color=color,radius=radius,expire=expire,position={guid=guid},layer=layer})
       buffPoints[key] = p
     end
   end
-end
-
-do --NightHold
-  local sering = {}
-  function H:SearingBrand(guid)
-    sering[guid] = GetTime()
-  end
-end
---http://talkify.net/api/Speak?format=mp3&text=集合分担&refLang=-1&id=d3b36cc4-84c0-473b-a543-8b9e0bd30249&voice=Microsoft%20Huihui%20Desktop&rate=4
---http://www.bing.com/translator/api/language/Speak?locale=zh-cn&gender=female&media=audio/mp3&text=%E9%9B%86%E5%90%88%E5%88%86%E6%8B%85&rate=4
-function H:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
-  if self.db.disable then
-    return
-  end
-  local playerGuid = UnitGUID("player")
-  --test
-  -- if spellId==116694 and event == "SPELL_CAST_START" then
-  --   self:OdynP1Clear()
-  --   self:OdynP1(2)
-  -- end
-  -- if spellId==116694 and event == "SPELL_CAST_SUCCESS" then
-  --   self:OdynP1Clear()
-  -- end
-  --tes end
-
-  --Xavius
-  do
-    if spellId==211802 and event == "SPELL_AURA_APPLIED" then  -- blade
-      if self.buffer.lastblade then
-        self:SetRange(30)
-        local a = self:New("Line",{length = 200,width = 3, color={1,0.3,0,0.5},expire=GetTime()+6,from={guid=self.buffer.lastblade},to={guid=destGUID}})
-        self:ScheduleTimer(function() self:Freeze(a.from) self:Freeze(a.to) end,5)
-        self:SetBar(GetTime()+6)
-        self.buffer.lastblade = nil
-      else
-        self.buffer.lastblade = destGUID
-        self:ScheduleTimer(function() self.buffer.lastblade = nil end,4)
-      end
-    end
-    if (spellId==209034 or spellId == 210451) and event == "SPELL_AURA_APPLIED" then  -- Terror
-      if self.buffer.lastterror then
-        if self.buffer.lastterror == playerGuid or destGUID == playerGuid then
-          self:SetRange(20)
-          self.buffer.lastterrorAct = self:New("Line",{width = 1, color={1,0.3,0,0.5},expire=GetTime()+20,from={guid=self.buffer.lastterror},to={guid=destGUID}})
-          local targetGuid
-          if self.buffer.lastterror == playerGuid then
-            targetGuid = destGUID
-          else
-            targetGuid = self.buffer.lastterror
-          end
-          self.buffer.lastterrorAct2 = self:New("Point",{radius = 2, color={1,0.3,0,0.5},expire=GetTime()+20,position={guid=targetGuid}})
-        end
-        self.buffer.lastterror = nil
-      else
-        self.buffer.lastterror = destGUID
-        self:ScheduleTimer(function() self.buffer.lastterror = nil end,4)
-      end
-    end
-    if (spellId==209034 or spellId == 210451) and event == "SPELL_AURA_REMOVED" and destGUID == playerGuid then  -- Terror
-      if self.buffer.lastterrorAct then
-        self.buffer.lastterrorAct.remove = true
-        self.buffer.lastterrorAct = nil
-      end
-      if self.buffer.lastterrorAct2 then
-        self.buffer.lastterrorAct2.remove = true
-        self.buffer.lastterrorAct2 = nil
-      end
-    end
-    if spellId==206651 and event == "SPELL_AURA_APPLIED_DOSE" then  -- tank debuff
-      local _,amount = ...
-      if amount==3 then
-        self:SetRange(40)
-        self.buffer.soul = self.buffer.soul or {}
-        self.buffer.soul[destGUID.."1"] = self:New("Point",{radius = 25, color={0,0.5,1,0.1},expire=GetTime()+60,position={guid=destGUID}})
-      	local	_, class = GetPlayerInfoByGUID(destGUID)
-        if class then
-          local c = RAID_CLASS_COLORS[class]
-          self.buffer.soul[destGUID.."2"] = self:New("Point",{radius = 2, color={c.r,c.g,c.b,1},expire=GetTime()+60,position={guid=destGUID}})
-        end
-      end
-    end
-    if spellId==206651 and event == "SPELL_AURA_REMOVED" then  -- tank debuff
-      if self.buffer.soul[destGUID.."1"] then
-        self.buffer.soul[destGUID.."1"].remove = true
-        self.buffer.soul[destGUID.."1"] = nil
-      end
-      if self.buffer.soul[destGUID.."2"] then
-        self.buffer.soul[destGUID.."2"].remove = true
-        self.buffer.soul[destGUID.."2"] = nil
-      end
-    end
-
-  end
-
-  --Odyn
-  do
-    local odynp3 = {
-      [231346] = 1,
-      [231311] = 2,
-      [231342] = 3,
-      [231344] = 4,
-      [231345] = 5,
-    }
-    local odynp1 = {
-      [229583] = 1,
-      [229579] = 2,
-      [229580] = 3,
-      [229581] = 4,
-      [229582] = 5,
-    }
-    local time = GetTime()
-    if destGUID == playerGuid and odynp3[spellId] and event == "SPELL_AURA_APPLIED" then  -- p3
-      self:SetRange(30)
-      self:OdynP3(odynp3[spellId])
-    end
-
-    if odynp1[spellId] and event == "SPELL_AURA_APPLIED" then -- p1
-      if destGUID == playerGuid then
-        if not self.buffer.odynp1get or time > self.buffer.odynp1get +30 then
-        else
-        end
-        self:SetRange(30)
-        self:OdynP1Clear()
-        self:OdynP1(odynp1[spellId])
-        self.buffer.odynp1get = time
-      end
-      self.buffer.odynp1buffs = self.buffer.odynp1buffs or {}
-      self.buffer.odynp1buffs[spellId] = time
-      local count = 0
-      local index
-      for i,v in pairs(odynp1) do
-        local t = self.buffer.odynp1buffs[i]
-        if t and t > time-30 then
-          count = count + 1
-        else
-          index = v
-        end
-      end
-      if count == 4 and index then
-        if not self.buffer.odynp1get or time > self.buffer.odynp1get +30 then
-          self:SetRange(30)
-          self:OdynP1Clear()
-          self:OdynP1(index)
-          self.buffer.odynp1get = time
-        end
-      end
-    end
-
-    if spellId == 229584 and event == "SPELL_AURA_APPLIED" then -- p1
-      if destGUID == playerGuid then
-        self:PlayYike("safenow")
-        self:OdynP1Clear()
-      end
-    end
-    if destGUID == playerGuid and spellId == 227807 and event == "SPELL_AURA_REMOVED" then
-      self:PlayYike("runin")
-    end
-
-    if spellId == 228162 and event == "SPELL_CAST_START" then  -- sheild of holy
-      self:SetRange(20)
-      local unit
-      for i = 1,4 do
-        if sourceGUID== UnitGUID("boss"..i) then
-          unit = "boss"..i
-          break
-        end
-      end
-      -- if not unit then
-      --   if sourceGUID== playerGuid then
-      --     unit = "player" --test
-      --   end
-      -- end
-      if unit then
-        self:New("Line",{ray=true,length = 200,width = 5, color={1,1,0,0.5},expire=GetTime()+4,from={unit=unit},to={unit=unit.."target"}})
-        self:SetBar(GetTime()+4)
-        for i=1,20 do
-          local u = "raid"..i
-          if not UnitIsUnit("player",u) then
-            local _,class = UnitClass(u)
-            if class then
-              local c = RAID_CLASS_COLORS[class]
-              self:New("Point",{color={c.r,c.g,c.b,1},radius=2,expire=GetTime()+4,position={unit=u}})
-            end
-          end
-        end
-      end
-    end
-    if spellId == 228012 and event == "SPELL_CAST_START" then  --
-      self:SetRange(20)
-      self:New("Point",{color={0,0.5,0,0.5},radius=6,expire=GetTime()+4.5,position={unit="player"}})
-      self:SetBar(GetTime()+4.5)
-      for i=1,20 do
-        local u = "raid"..i
-        if not UnitIsUnit("player",u) then
-          local _,class = UnitClass(u)
-          if class then
-            local c = RAID_CLASS_COLORS[class]
-            self:New("Point",{color={c.r,c.g,c.b,1},radius=2,expire=GetTime()+4.5,position={unit=u}})
-          end
-        end
-      end
+  function H:RemoveBuffPoint(data)
+    local spellId,guid,color,radius = unpack(data,1,4)
+    local key = guid.."-"..spellId
+    local p = buffPoints[key]
+    if p then
+      p.remove = true
     end
   end
-  do -- Guarm
-    local debuffs = {
-      [228744] = 1,
-      [228810] = 2,
-      [228818] = 3,
-      [228794] = 1,
-      [228811] = 2,
-      [228819] = 3,
-    }
-
-    if debuffs[spellId] and event == "SPELL_AURA_APPLIED" then -- foam
-      H:GuarmFoam2()
-      if destGUID == playerGuid then
-        self:SetRange(30)
-        self:GuarmFoamClear()
-        self:GuarmFoam(debuffs[spellId])
-      end
-    end
-
-    if destGUID == playerGuid and debuffs[spellId] and event == "SPELL_AURA_REMOVED" then -- foam
-      self:GuarmFoamClear()
-    end
-  end
-  --Nighthold
-  do
-    -- if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" or event =="SPELL_AURA_APPLIED_DOSE" then
-    --   -- if spellId == 213166 then
-    --   if spellId == 774 then
-    --     self:BuffPoint(spellId,destGUID,{1,0,0,0.5})
-    --   end
-    -- end
-    -- if event == "SPELL_AURA_REMOVED" then
-    --   if spellId == 774 then
-    --     self:BuffPoint(spellId,destGUID)
-    --   end
-    -- end
-  end
-  if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" or event =="SPELL_AURA_APPLIED_DOSE" then
-    if spellId == 213166 then
-      self:SearingBrand(destGUID)
-    end
-  end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 end

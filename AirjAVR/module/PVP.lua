@@ -131,30 +131,32 @@ local kicks = {
   --priest
   [ 15487] = {30,45}, -- silence
     --dk
-  [ 47528] = {15,15,250,251,252},
+
+    --dk
+  [ 47528] = {15,15,3,250,251,252},
   --warrior
-  [  6552] = {2,15,71,72,73}, -- Pummel
+  [  6552] = {2,15,4,71,72,73}, -- Pummel
   -- paly
-  [ 96231] = {2,15,66,70}, -- Rebuke
+  [ 96231] = {2,15,4,66,70}, -- Rebuke
   -- hunter
-	[147362] = {40,24,253,254}, -- Counter Shot
-	[187707] = {2,15,255}, -- Muzzle
+	[147362] = {40,24,3,253,254}, -- Counter Shot
+	[187707] = {2,15,3,255}, -- Muzzle
   -- shaman
-  [ 57994] = {25,12,262,263,264}, -- Wind Shear
+  [ 57994] = {25,12,3,262,263,264}, -- Wind Shear
   --dh
-	[183752] = {15,15,577,581}, -- Consume Magic
+	[183752] = {15,15,3,577,581}, -- Consume Magic
   --druid
-	[106839] = {13,15,103,104}, -- Skull Bash
+	[106839] = {13,15,4,103,104}, -- Skull Bash
   -- monk
-	[116705] = {2,15,268,269}, -- Spear Hand Strike
+	[116705] = {2,15,4,268,269}, -- Spear Hand Strike
   -- rouge
-	[  1766] = {2,15,259,260,261}, -- Kick
+	[  1766] = {2,15,5,259,260,261}, -- Kick
   -- mage
-	[  2139] = {40,24,62,63,64}, -- Counterspell
+	[  2139] = {40,24,6,62,63,64}, -- Counterspell
   -- warlock
-	[ 19647] = {40,24,"417"}, -- Spell Lock (Felhunter)
+	[ 19647] = {40,24,6,"417"}, -- Spell Lock (Felhunter)
   -- [119910] = {40,24,265,266,267}, -- Spell Lock (Comand Demon with Felhunter)
-  [171138] = {40,24,"78215"}, -- Shadow Lock (Doomguard with Grimoire of Supremacy)
+  [171138] = {40,24,6,"78215"}, -- Shadow Lock (Doomguard with Grimoire of Supremacy)
   -- [171140] = {40,24,265,266,267}, -- Shadow Lock (Command Demon with Doomguard)
 	-- [111897] = {40,90,265,266,267}, -- Grimoire: Felhunter
 }
@@ -162,7 +164,7 @@ local kicks = {
 local function say(source,action,dest,extra,icon)
   local link = GetSpellLink(extra) or ""
   icon = icon or ""
-  -- SendChatMessage(icon.." ["..source.."] "..action.." ["..dest.."] "..link..icon,"RAID")
+  SendChatMessage(icon.." ["..source.."] "..action.." ["..dest.."] "..link..icon,"RAID")
 end
 
 local kicktimers= {}
@@ -177,6 +179,20 @@ function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sou
       self:CancelTimer(kicktimers[sourceGUID])
       kicktimers[sourceGUID] = nil
     end
+    local kick = {
+      color={0.5,0.5,0,0.05},
+      color2={0.8,0.8,0,0.1},
+      radius=5,
+    }
+
+    if kicks[spellId] then
+      local d = kicks[spellId][3]
+      kick.duration = d
+      Core:ShowUnitMesh(kick,spellId,sourceGUID,destGUID)
+    end
+
+
+
   end
   if event == "SPELL_CAST_SUCCESS" and kicks[spellId] then
     local sc = sourceGUID and GetPlayerInfoByGUID(sourceGUID)

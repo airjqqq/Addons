@@ -11,12 +11,12 @@ local data = {
   [   339] = { default = false, class = "DRUID", cast = 1.7, cc = "root", duration = 8}, -- Entangling Roots
   -- Balance
 
-  [ 22812] = { default = true, cooldown = { default = 60, [104] = 35 }, class = "DRUID", specID = { 102, 104, 105 }, defensive = 0.2, duration = 12 }, -- Barkskin
+  [ 22812] = { default = false, cooldown = { default = 60, [104] = 35 }, class = "DRUID", specID = { 102, 104, 105 }, defensive = 0.2, duration = 12 }, -- Barkskin
   [ 29166] = { default = false, cooldown = 180, class = "DRUID", specID = { 102, 105 }, offensive = 0.2, duration = 10 }, -- Innervate
   [ 78675] = { default = true, cooldown = 60, class = "DRUID", specID = { 102 }, interrupt = true, duration = 8, aura = {81261}, cc = "silence" }, -- Solar Beam
-  [102560] = { default = false, cooldown = 180, class = "DRUID", specID = { 102 }, offensive = 0.5, duration = 30, replaces = {194223} }, -- Incarnation: Chosen of Elune
+  [102560] = { default = true, cooldown = 180, class = "DRUID", specID = { 102 }, offensive = 0.5, duration = 30, replaces = {194223} }, -- Incarnation: Chosen of Elune
   [108238] = { default = false, cooldown = 120, class = "DRUID", specID = { 102, 103, 105 }, defensive = 0.2, talent = {102280,102401} }, -- Renewal
-  [194223] = { default = false, cooldown = 180, class = "DRUID", specID = { 102 }, offensive = 0.5, duration = 15, talent = {102560} }, -- Celestial Alignment
+  [194223] = { default = true, cooldown = 180, class = "DRUID", specID = { 102 }, offensive = 0.5, duration = 15, talent = {102560} }, -- Celestial Alignment
   [202425] = { default = false, cooldown = 45, class = "DRUID", specID = { 102 }, offensive = true, cooldown_starts_on_aura_fade = true, }, -- Warrior of Elune
   [202770] = { default = false, cooldown = 90, class = "DRUID", specID = { 102 }, offensive = true }, -- Fury of Elune
   [205636] = { default = false, cooldown = 60, class = "DRUID", specID = { 102 }, offensive = true, talent = {202425} }, -- Force of Nature
@@ -51,7 +51,7 @@ local data = {
 
   -- Restoration
 
-  [   740] = { default = true, cooldown = 120, class = "DRUID", specID = { 105}, offensive = 0.5, duration = 8 }, -- Tranquility
+  [   740] = { default = false, cooldown = 120, class = "DRUID", specID = { 105}, offensive = 0.5, duration = 8 }, -- Tranquility
   [ 18562] = { default = false, cooldown = 30, class = "DRUID", specID = { 105}, charges = 2, defensive = 0.1 }, -- Swiftmend
   [ 33891] = { default = true, cooldown = 180, class = "DRUID", specID = { 105}, talent = {}, offensive = 0.5, defensive = 0.5, duration = 30 }, -- Incarnation: Tree of Life
   [102342] = { default = true, cooldown = 60, class = "DRUID", specID = { 105}, defensive = 0.4, duration = 12 }, -- Ironbark

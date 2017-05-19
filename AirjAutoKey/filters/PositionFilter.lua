@@ -12,6 +12,9 @@ function F:OnInitialize()
     value = {},
     greater = {},
   })
+  self:RegisterFilter("AAKFASTCORPSE",L["Move Corpse"],{
+    name = {},
+  })
   self:RegisterFilter("AAKMSTUCKED",L["Stucked"],{
     name = {},
     value = {},
@@ -21,6 +24,10 @@ function F:OnInitialize()
     name = {},
     value = {},
     greater = {},
+  })
+  self:RegisterFilter("SAMEANGLE",L["Sidewinders"],{
+    name = {name = "from unit"},
+    unit = {},
   })
   self:RegisterFilter("HANGLE",L["Face Angle(Deg)"],{
     value = {},
@@ -110,6 +117,21 @@ end
 local pi = math.pi
 local FAR_AWAY = 1000
 
+function F:AAKFASTCORPSE(filter)
+  local h = filter.name and filter.name[1]
+  local cx,cy = GetCorpseMapPosition()
+  if cx and cy then
+    local mapId = GetCurrentMapAreaID()
+    local _,_,_,l,r,t,b = GetAreaMapInfo(mapId)
+    l = -l
+    r = -r
+    cx = l+(r-l)*cx
+    cy = t+(b-t)*cy
+    AirjMove:MoveTo({cx,cy,-10000},h)
+    return true
+  end
+end
+
 function F:AAKFASTMOVE(filter)
 
   local uid = Core:ToKeyTable(filter.name)
@@ -165,24 +187,61 @@ function F:DISTACETONEAREST(filter)
   return minDistance
 end
 
+function angle(guid)
+
+  local pguid = Cache:PlayerGUID()
+  local px,py,pz,f = Cache:GetPosition(pguid)
+  local x,y,z,_,d = Cache:GetPosition(guid)
+  if not x then return 180 end
+  local dx,dy,dz = x-px, y-py, z-pz
+
+  local angle = math.atan2(dy,dx)
+  return  angle,d
+end
+
+function F:SAMEANGLE(filter)
+  filter.unit = filter.unit or "target"
+  local guid = Cache:UnitGUID(filter.unit)
+  filter.name = filter.name or {"target"}
+  local guid2 = Cache:UnitGUID(filter.name[1])
+  if not guid or not guid2 then return end
+  local a1,d1 = angle(guid)
+  local a2,d2 = angle(guid2)
+  local angle = a1-a2
+  angle = angle%(2*pi)
+  if angle > pi then
+    angle = 2*pi - angle
+  end
+  if d1 <= 1.5 then return true end
+  local ea = math.asin(1.5/d1)
+  -- print(angle,ea)
+  angle = angle - ea
+  -- angle = math.abs(angle)
+  if angle*180/pi>30 then return false end
+  if d1*math.cos(angle) >d2+8 then
+    return false
+  end
+  return true
+end
 function F:HANGLE(filter)
   filter.unit = filter.unit or "target"
   local guid = Cache:UnitGUID(filter.unit)
   local pguid = Cache:PlayerGUID()
   local px,py,pz,f = Cache:GetPosition(pguid)
-  local x,y,z = Cache:GetPosition(guid)
+  local x,y,z,_,d,s = Cache:GetPosition(guid)
   if not x then return 180 end
+  if d<s then return 0 end
   local dx,dy,dz = x-px, y-py, z-pz
 
   local angle = math.atan2(dy,dx)
-
   angle = angle - (f + pi/2)
-  if angle < -pi then
-    angle = angle + 2*pi
-  elseif angle > pi then
-    angle = angle - 2*pi
+  angle = angle%(2*pi)
+  if angle > pi then
+    angle = 2*pi - angle
   end
-  return math.abs(angle*180/pi)
+  local ea = math.asin(s/d)
+  angle = angle - ea
+  return angle*180/pi
 end
 
 function F:TANGLE(filter)

@@ -92,6 +92,8 @@ function mod:OnInitialize()
   -- }
   -- Core:RegisterAuraUnit(206388,data)
 
+  --星术师
+
   data = {
     color={0,1,1,0.3},
     radius=8,
@@ -139,6 +141,16 @@ function mod:OnInitialize()
   }
   Core:RegisterAuraUnit(221606,data)
   Core:RegisterAuraUnit(221603,data)
+
+  Core:RegisterCreatureLink(109082,{
+    color = {0.5,0,1,0.3},
+    width = 10,
+    destUnit = "boss1",
+    length = 100,
+  })
+  --109082
+  -- end
+
   -- data = {
   --   color={1,0.4,0,0.2},
   --   color2={1,1,0,0.3},
@@ -190,6 +202,23 @@ function mod:OnEnable()
   self:RegisterEvent("UNIT_SPELLCAST_START")
   self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
   self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+
+  Core:RegisterChatCommand("ass",function(str)
+    local cx,cy,cz = AirjHack:Position(UnitGUID("target"))
+    if cx then
+      for i=1,8 do
+        local range
+        if i == 4 or i == 8 then
+          range = 8
+        else
+          range = 13
+        end
+        local a = -math.pi*0.25 + (math.pi/4)*(i-1)
+        PlaceRaidMarker(i)
+        AirjHack:TerrainClick(cx+range*math.cos(a),cy+range*math.sin(a),cz)
+      end
+    end
+  end)
 end
 
 
