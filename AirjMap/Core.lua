@@ -54,7 +54,8 @@ function Core:OnEnable()
 	self.origin = self:GetOrigin()
 
 	-- Core.test1 = Core.HarmPlayer({position={type="unit",data="player"}})
-	-- Core.test2 = Core.HarmPlayer({position={type="unit",data="target"}})
+  -- Core.test2 = Core.HarmPlayer({position={type="unit",data="target"}})
+	Core.test3 = Core.Vector({position1={type="unit",data="player"},position1={type="unit",data="target"},color1={1,0,0},color2={0,1,0}})
 end
 
 function Core:CreateMap()
@@ -98,6 +99,9 @@ function Core:CreateMap()
   frame:SetScript("OnDragStop",function(self)
     self:StopMovingOrSizing()
 		self:SetScript("OnUpdate",nil)
+    local offsetX,offsetX = self:GetTop(),self:GetLeft()
+    local width,height = self:GetSize()
+    Core.db.profile.mapPoint = {"TOPLEFT","UIParent","TOPLEFT",offsetX,offsetY,width,height }
 		Core:RefreshMap()
   end)
 	frame:SetScript("OnMouseWheel",function (self, delta)
@@ -334,13 +338,20 @@ end
 function Mesh:New(t1,t2,t3,c)
 	local o = self:Supper("New")
 	o.map = {}
-	o.real = {}
-	o:SetTs(t1,t2,t3)
+  o.real = {}
+  o.offset = {}
+	o:SetOffsets(t1,t2,t3)
 	if c then o:SetColor(c) end
 	return o
 end
 
-function Mesh:SetTs(t1,t2,t3)
+function Mesh:SetOffsets(t1,t2,t3)
+	self.offset[1] = t1 or {}
+	self.offset[2] = t2 or {}
+	self.offset[3] = t3 or {}
+end
+
+function Mesh:SetReals(t1,t2,t3)
 	self.real[1] = t1 or {}
 	self.real[2] = t2 or {}
 	self.real[3] = t3 or {}
@@ -372,17 +383,26 @@ function Mesh:SetShow(show)
 	self.hiden = not show
 end
 
-function Mesh:Real2Map(bx,by,bz,bf)
+function Mesh:Offset2Real(bx,by,bz,bf)
 	for i = 1,3 do
-		local x,y,z = unpack(self.real[i])
+		local x,y,z = unpack(self.offset[i])
 		if x then
 			bf = bf or 0
 			x,y = rotate(x,y,bf)
-			x,y = bx+x,by+y
-			x,y = real2map(x,y)
-			self.map[i] = {x,y}
+			x,y,z = bx+x,by+y,bz+(z or 0)
+      self.real[i] = {x,y,z}
 		end
 	end
+end
+
+function Mesh:Real2Map()
+	for i = 1,3 do
+		local x,y,z = unpack(self.real[i])
+    if x then
+      x,y = real2map(x,y)
+      self.map[i] = {x,y}
+    end
+  end
 end
 
 function Mesh:Draw()
@@ -503,6 +523,11 @@ function Drawable:PostUpdate()
 	if self.remove then
 		self:Remove()
 	end
+  if self.expires then
+    if GetTime() > self.expires then
+      self:Remove()
+    end
+  end
 end
 
 function Drawable:Rebuild()
@@ -513,6 +538,19 @@ function Drawable:Remove()
 	Core.drawables[self._id] = nil
 	self:ScanListeners("remove")
   wipe(self)
+end
+
+function Drawable:ParsePosition(position)
+	if position.type == "absolute" then
+		return unpack(position.data)
+	elseif position.type == "guid" then
+		return AirjHack:Position(position.data)
+	elseif position.type == "unit" then
+		local guid = UnitGUID(position.data)
+		if guid then
+			return AirjHack:Position(guid)
+		end
+	end
 end
 
 local Aura = AirjUtil:Class("Aura")
@@ -544,7 +582,8 @@ function Unit:Update()
 	if x then
 		for i,mesh in ipairs(self.meshs) do
 			if mesh:IsShow() then
-				mesh:Real2Map(x,y,z,f)
+				mesh:Offset2Real(x,y,z,f)
+        mesh:Real2Map()
 			end
 		end
   	self:Supper("Update")
@@ -554,16 +593,7 @@ end
 function Unit:GetBasePosition()
 	local position = self:Get("position")
 	if not position then return end
-	if position.type == "absolute" then
-		return unpack(position.data)
-	elseif position.type == "guid" then
-		return AirjHack:Position(position.data)
-	elseif position.type == "unit" then
-		local guid = UnitGUID(position.data)
-		if guid then
-			return AirjHack:Position(guid)
-		end
-	end
+  return self:ParsePosition(position)
 end
 function Unit:GetColor()
 	if self._data.color then
@@ -589,7 +619,7 @@ function Unit:Rebuild()
   --   local mesh = self.auraMeshs[i]
 	-- 	local x1,y1 = rotate(0,size,i/6*math.pi)
 	-- 	local x2,y2 = rotate(0,size,(i-1)/6*math.pi)
-	-- 	mesh:SetTs({0,0,0},{x1,y1,0},{x2,y2,0})
+	-- 	mesh:SetOffsets({0,0,0},{x1,y1,0},{x2,y2,0})
 	-- end
 end
 
@@ -614,8 +644,8 @@ function Unit:PreUpdate()
       local x1,y1 = rotate(0,size,si/6*math.pi)
       local x2,y2 = rotate(0,size,(si-1)/6*math.pi)
       local xs,ys = rotate(0,size,(remain*12/duration)/6*math.pi)
-      mesh1:SetTs({0,0,0},{xs,ys,0},{x2,y2,0})
-      mesh2:SetTs({0,0,0},{x1,y1,0},{xs,ys,0})
+      mesh1:SetOffsets({0,0,0},{xs,ys,0},{x2,y2,0})
+      mesh2:SetOffsets({0,0,0},{x1,y1,0},{xs,ys,0})
       mesh1:SetColor(unpack(c1))
       mesh2:SetColor(unpack(c2))
       mesh1:SetShow(true)
@@ -625,7 +655,7 @@ function Unit:PreUpdate()
       local mesh = self.auraMeshs[i]
   		local x1,y1 = rotate(0,size,i/6*math.pi)
   		local x2,y2 = rotate(0,size,(i-1)/6*math.pi)
-  		mesh:SetTs({0,0,0},{x1,y1,0},{x2,y2,0})
+  		mesh:SetOffsets({0,0,0},{x1,y1,0},{x2,y2,0})
       if i < si then
         mesh:SetShow(true)
         mesh:SetColor(unpack(c1))
@@ -681,10 +711,10 @@ function Unit:AddAura(priority,duration, expires, c1, c2,size)
   return aura._id
 end
 
-local HelpUnit = AirjUtil:Class("HelpUnit",Unit)
-Core.HelpUnit = HelpUnit
+local PointUnit = AirjUtil:Class("PointUnit",Unit)
+Core.PointUnit = PointUnit
 
-function HelpUnit:New(...)
+function PointUnit:New(...)
 	local o = self:Supper("New",...)
 	o.fills = {}
 	o.borders = {}
@@ -702,53 +732,100 @@ function HelpUnit:New(...)
 	end
 	return o
 end
-function HelpUnit:Rebuild()
+
+function PointUnit:GetBorderSize(a,i)
+  local pi = math.pi
+  a = a%(2*pi)
+  if a > pi then
+    a = 2*pi - a
+  end
+  if math.abs(a) > pi/3 then
+    return 1.5
+  else
+    return 1.5/math.cos(pi/3 - math.abs(a))
+  end
+end
+function PointUnit:Rebuild()
 	self:Supper("Rebuild")
 	for i,mesh in ipairs(self.fills) do
 		local size = self:GetSize()
 		local x1,y1 = rotate(0,size,i/6*math.pi)
 		local x2,y2 = rotate(0,size,(i-1)/6*math.pi)
-		mesh:SetTs({0,0,0},{x1,y1,0},{x2,y2,0})
+		mesh:SetOffsets({0,0,0},{x1,y1,0},{x2,y2,0})
 		mesh:SetColor(self:GetColor())
 	end
 	for i,mesh in ipairs(self.borders) do
 		local size = self:GetSize()
 		local a1, a2 = i/6*math.pi,(i-1)/6*math.pi
-		local pi3 = math.pi/3
-		local function a2r(a)
-			if a == 0 or a > 6*pi3-0.01 then
-				r = size*2.5
-			elseif a< pi3 then
-				r = size*1.5 + (pi3 - a)/pi3 * size*0.25
-			elseif a>5*pi3 then
-				r = size*1.5 + (a-5*pi3)/pi3 * size*0.25
-			else
-				r = size*1.5
-			end
-			return r
-		end
-		local x1,y1 = rotate(0,a2r(a1),a1)
-		local x2,y2 = rotate(0,a2r(a2),a2)
-		mesh:SetTs({0,0,0},{x1,y1,0},{x2,y2,0})
+    local r1,t1 = self:GetBorderSize(a1,i)
+    local r2,t2 = self:GetBorderSize(a2,i-1)
+		local x1,y1 = rotate(0,r1*size,t1 or a1)
+		local x2,y2 = rotate(0,r2*size,t2 or a2)
+		mesh:SetOffsets({0,0,0},{x1,y1,0},{x2,y2,0})
 		mesh:SetColor(self:GetBorderColor())
 	end
 end
 
-local HelpPlayer = AirjUtil:Class("HelpPlayer",HelpUnit)
+local HelpPlayer = AirjUtil:Class("HelpPlayer",PointUnit)
 Core.HelpPlayer = HelpPlayer
 
 function HelpPlayer:GetColor()
+  local class = self:GetClass()
+  if class then
+    return getClassColor(class)
+  end
+	return self:Supper(GetColor)
+end
+
+function HelpPlayer:GetClass()
 	local position = self:Get("position")
 	if position then
 		if position.type == "guid" then
 			local _,class = GetPlayerInfoByGUID(position.data)
-			return getClassColor(class)
+			return class
 		elseif position.type == "unit" then
 			local _,class = UnitClass(position.data)
-			return getClassColor(class)
+			return class
 		end
 	end
-	return self:Supper(GetColor)
+end
+
+function HelpPlayer:GetRole()
+	local position = self:Get("position")
+  local guid
+	if position then
+		if position.type == "guid" then
+			guid = position.data
+		elseif position.type == "unit" then
+			guid = UnitGUID(position.data)
+		end
+	end
+  if guid then
+    local spec = AirjHack:PlayerSpec(guid)
+    if spec then
+      local id, name, description, icon, role, class = GetSpecializationInfoByID(spec)
+      return role, class
+    end
+  end
+end
+
+
+function PointUnit:GetBorderSize(a,i)
+  local role = self:GetRole()
+  if role == "TANK" then
+    if i > 6 then i = 12-i end
+    local rs = {2.3,2,2.5,2,2,2.3,2.5}
+    return rs[i+1]
+  elseif role == "HEALER" then
+    local j = i%3
+    local b = math.atan(1/2.5)
+    local c = sqrt(2.5^2+1^2)
+    local rs = {1.5,c,c}
+    local as = {0,b,math.pi/2-b}
+    return rs[j+1],as[j+1]+math.floor(i/3)*math.pi/2
+  else
+    return self:Supper("GetBorderSize",a,i)
+  end
 end
 
 local HarmPlayer = AirjUtil:Class("HarmPlayer",Unit)
@@ -801,15 +878,123 @@ function HarmPlayer:Rebuild()
   local arrow = getArrow(0.4,2.3,1.3,1.3,0,size)
   for i,p in ipairs(arrow) do
     local mesh = self.fills[i]
-		mesh:SetTs(unpack(p))
+		mesh:SetOffsets(unpack(p))
 		mesh:SetColor(self:GetColor())
   end
   local borderArrow = getArrow(0.4,2.3,1.3,1.3,0.2,size)
   for i,p in ipairs(borderArrow) do
     local mesh = self.borders[i]
-		mesh:SetTs(unpack(p))
+		mesh:SetOffsets(unpack(p))
 		mesh:SetColor(self:GetBorderColor())
   end
 end
 
 HarmPlayer.GetColor = HelpPlayer.GetColor
+HarmPlayer.GetClass = HelpPlayer.GetClass
+HarmPlayer.GetRole = HelpPlayer.GetRole
+
+local Vector = AirjUtil:Class("Vector",Drawable)
+Core.Vector = Vector
+
+function Vector:New(...)
+	local o = self:Supper("New",...)
+  o.fills = {}
+	for i = 1,4 do
+		local mesh = Mesh()
+		mesh:SetLevel(1)
+		o:AddMesh(mesh)
+    o.fills[i] = mesh
+	end
+	return o
+end
+function Vector:Rebuild()
+  for i = 1,4 do
+    local mesh = self.fills[i]
+    if i <3 then
+      mesh:SetColor(self:GetColor1())
+    else
+      mesh:SetColor(self:GetColor2())
+    end
+  end
+end
+
+function Vector:PreUpdate()
+	self:Supper("PreUpdate")
+end
+
+function Vector:GetTimer()
+  local duration, expires = self:Get("duration"), self:Get("expires")
+  return duration, expires
+end
+
+function Vector:Update()
+  local p1,p2 = self:Get("position1"),self:Get("position2")
+  if p1 and p2 then
+    local r1 = {self:ParsePosition(p1)}
+    local r2 = {self:ParsePosition(p2)}
+    if r1[1] and r2[1] then
+      local duration, expires = self:GetTimer()
+      local p
+      if duration and expires then
+        p = (expires-GetTime())/duration
+      else
+        p = 0
+      end
+      local dy, dx = r2[2]-r1[2],r2[1]-r1[2]
+      local f = math.atan2(dy, dx)
+      local l = math.sqrt(dx^2+dy^2)
+      local w = self:Get("width") or 2
+      local ox,oy = rotate(0,w/2,f)
+      local ps = {
+        {r1[1]+ox,r1[2]+oy,0},
+        {r1[1]-ox,r1[2]-oy,0},
+        {r2[1]+ox,r2[2]+oy,0},
+        {r2[1]-ox,r2[2]-oy,0},
+      }
+      if P <= 0 then
+        self.fills[1]:SetReals(ps[1],ps[2],ps[3])
+        self.fills[2]:SetReals(ps[4],ps[2],ps[3])
+        self.fills[1]:SetShow(true)
+        self.fills[2]:SetShow(true)
+        self.fills[3]:SetShow(false)
+        self.fills[4]:SetShow(false)
+      elseif p >= 1 then
+        self.fills[3]:SetReals(ps[1],ps[2],ps[3])
+        self.fills[4]:SetReals(ps[4],ps[2],ps[3])
+        self.fills[1]:SetShow(false)
+        self.fills[2]:SetShow(false)
+        self.fills[3]:SetShow(true)
+        self.fills[4]:SetShow(true)
+      else
+        local l1,l2 = l*(1-p),l*p
+        local cx,cy = rotate(l1,0,f)
+        local cs = {
+          {r1[1]+cx+ox,r1[2]+cx+oy,0},
+          {r1[1]+cx-ox,r1[2]+cx-oy,0},
+        }
+        self.fills[1]:SetReals(ps[1],ps[2],cs[1])
+        self.fills[2]:SetReals(cs[2],ps[2],cs[1])
+        self.fills[3]:SetReals(ps[3],ps[4],cs[1])
+        self.fills[4]:SetReals(cs[2],ps[4],cs[1])
+        self.fills[1]:SetShow(true)
+        self.fills[2]:SetShow(true)
+        self.fills[3]:SetShow(true)
+        self.fills[4]:SetShow(true)
+      end
+      self:Supper("Update")
+    end
+  end
+end
+
+function Vector:GetColor1()
+  local t = self:Get("color1")
+	if t then
+		return unpack(t)
+	end
+end
+function Vector:GetColor2()
+  local t = self:Get("color2")
+	if t then
+		return unpack(t)
+	end
+end

@@ -117,6 +117,10 @@ function mod:ObjectInt(guid,offset)
   if not self:HasHacked() then return end
 	return fcn("AirjGetObjectDataInt",guid,offset or 0)
 end
+function mod:PlayerSpec(guid)
+	return self:ObjectInt(guid,0x10D0)
+end
+
 function mod:ObjectFloat(guid,offset)
   if not self:HasHacked() then return end
 	return fcn("AirjGetObjectDataFloat",guid,offset or 0)

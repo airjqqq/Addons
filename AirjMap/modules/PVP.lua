@@ -45,7 +45,7 @@ function P:UpdateArenaUnits()
         if not self.drawables[guid] then
           self.drawables[guid] = {
             unit = unit,
-            drawable = Core.HelpPlayer({position={type="guid",data=guid}}),
+            drawable = Core.HarmPlayer({position={type="guid",data=guid}}),
           }
         else
           self.drawables[guid].mayremove = nil
@@ -115,7 +115,7 @@ function P:BuildSpellIdMaps ()
   end
   return toRet
 end
-
+local auras = {}
 function P:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
   if self.auraSpells[spellId] and self.drawables[destGUID] then
     if event=="SPELL_AURA_APPLIED" then
@@ -130,10 +130,14 @@ function P:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourc
             duration,expires = 5,GetTime() + 5
           end
           local priority, c1, c2,size = data.priority, data.color2, data.color,data.radius
-          self.drawables[destGUID].drawable:AddAura(priority,duration, expires, c1, c2,size)
+          auras[sourceGUID..":"..destGUID..":"..spellId] = self.drawables[destGUID].drawable:AddAura(priority,duration, expires, c1, c2,size)
   			end
   		end
     elseif event == "SPELL_AURA_REMOVED" then
+      local id = auras[sourceGUID..":"..destGUID..":"..spellId]
+      if id then
+        self.drawables[destGUID].drawable:RemoveAura(id)
+      end
     end
   end
 end

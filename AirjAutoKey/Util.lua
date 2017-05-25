@@ -181,6 +181,10 @@ local Object = {
 		obj._class = self._class
 		return obj
 	end,
+	GetClass = function(self)
+		local name = self._class
+		return classes[name]
+	end,
 	Supper = function(self,k,...)
 		local s,i = supper(self,k)
 		if type(s) == "function" then
