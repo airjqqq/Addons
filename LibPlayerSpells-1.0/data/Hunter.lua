@@ -87,6 +87,7 @@ lib:__RegisterSpells("HUNTER", 70100, 1, {
 					DISORIENT = {
 						213691, -- Scatter Shot (disorient) (PvP)
 						224729, -- Bursting Shot (disorient)
+						238559, -- Bursting Shot (disorient)
 					},
 					INCAPACITATE = {
 						  3355, -- Freezing Trap (incapacitate)

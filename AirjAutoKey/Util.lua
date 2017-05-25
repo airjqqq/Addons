@@ -125,3 +125,96 @@ end
 function AirjUtil:IsFIFO (t)
 	return getmetatable(t) == fifoMetatable
 end
+
+function AirjUtil:DeepCopy(table)
+	if type(table) == "table" then
+		local toRet = {}
+		for k,v in pairs(table) do
+			toRet[k] = self:DeepCopy(v)
+		end
+		return toRet
+	else
+		return table
+	end
+end
+-- supper support
+local random = math.random
+function AirjUtil:UUID()
+    local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+    return string.gsub(template, '[xy]', function (c)
+        local v = (c == 'x') and random(0, 0xf) or random(8, 0xb)
+        return string.format('%x', v)
+    end)
+end
+
+
+local function supper(t,k)
+	if t._suppers then
+		local key = "_supperTimes" .. k
+		local start = (rawget(t,key) or 0)+1
+		for i = start,#t._suppers do
+			local v = t._suppers[i]
+			if v[k] then
+				return v[k],i
+			end
+		end
+	end
+end
+
+local classMetaTable = {
+	__index = supper,
+	__call = function(t,...)
+		return t:New(...)
+	end,
+}
+local classes = {}
+local Object = {
+	New = function(self,data)
+		if self._id then
+			error("Instance Can't Call New")
+		end
+		obj = setmetatable({},self)
+		if data then
+			obj._data = AirjUtil:DeepCopy(data)
+		end
+		obj._id = AirjUtil:UUID()
+		obj._class = self._class
+		return obj
+	end,
+	Supper = function(self,k,...)
+		local s,i = supper(self,k)
+		if type(s) == "function" then
+			local key = "_supperTimes" .. k
+			rawset(self,key,i)
+			local r = {s(self,...)}
+			rawset(self,key,nil)
+			return unpack(r,1,10)
+		end
+		return s
+	end,
+	Set = function(self,k,v)
+		if self._data then
+			self._data[k] = v
+		end
+	end,
+	Get = function(self,k)
+		local v = self._data and self._data[k]
+		return v
+	end,
+}
+function AirjUtil:Class(name,parent)
+	if classes[name] then
+		-- error("Already Exists")
+		return classes[name]
+	end
+	local obj = setmetatable({},classMetaTable)
+	if parent then
+		obj._suppers = {parent,unpack(parent._suppers)}
+	else
+		obj._suppers = {Object}
+	end
+	obj.__index = obj
+	obj._class = name
+	classes[name] = obj
+	return obj
+end

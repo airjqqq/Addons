@@ -359,7 +359,7 @@ function M:MoveTimer()
 	local speed = GetUnitSpeed("player")
 	stucked = self:CheckStuckedTime(5)
 	local minTime = 5/speed
-	if stucked >(IsFlying() and 3 or 0.5) + minTime and not (self.goto.templateTime and self.goto.templateTime + 1>GetTime()) then
+	if targetDistanceXY and stucked >(IsFlying() and 3 or 0.5) + minTime and not (self.goto.templateTime and self.goto.templateTime + 1>GetTime()) then
 
 		if not (self.goto.templateTime and self.goto.templateTime+5+stuckedTimes>GetTime()) then
 			stuckedTimes = 0

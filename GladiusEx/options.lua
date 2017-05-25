@@ -52,6 +52,8 @@ local group_defaults = {
 }
 
 GladiusEx.defaults_arena = fn.merge(group_defaults, {
+	backgroundColor = { r = 1, g = 0, b = 0, a = 0.2 },
+	barWidth = 200,
 	modules = {
 		["*"] = true,
 		["TargetBar"] = false,

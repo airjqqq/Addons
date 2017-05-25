@@ -1,0 +1,10 @@
+## Interface: 70300
+## Title: [Airj's] Map
+## Version: 1.0
+## Author: Airj
+## SavedVariables: AirjMapDB
+## RequiredDeps: Ace3,AirjUtil,AirjHack
+
+Core.lua
+Option.lua
+modules/PVP.lua

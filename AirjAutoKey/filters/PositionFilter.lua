@@ -203,7 +203,9 @@ function F:SAMEANGLE(filter)
   filter.unit = filter.unit or "target"
   local guid = Cache:UnitGUID(filter.unit)
   filter.name = filter.name or {"target"}
-  local guid2 = Cache:UnitGUID(filter.name[1])
+  local unit2 = filter.name[1]
+  unit2 = Core:ParseUnit(unit2) or unit2
+  local guid2 = Cache:UnitGUID(unit2)
   if not guid or not guid2 then return end
   local a1,d1 = angle(guid)
   local a2,d2 = angle(guid2)
