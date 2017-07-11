@@ -10,11 +10,12 @@ L["!!Main Addon Description"] = "Proporciona notificaciones visuales, auditivas 
 L["ABSORBAMT"] = "Cantidad de escudos de absorción"
 L["ABSORBAMT_DESC"] = "Comprueba la cantidad total de escudos de absorción que tiene la unidad.  "
 L["ACTIVE"] = "%d Activo"
+L["ADDONSETTINGS_DESC"] = "Configurar todos los parámetros generales de los addon."
 L["AIR"] = "Aire"
 L["ALLOWCOMM"] = "Permitir compartir en el juego"
 L["ALLOWCOMM_DESC"] = "Permitir a otros usuarios de TellMeWhen enviarle datos. "
 L["ALLOWVERSIONWARN"] = "Notificar de nueva versión"
-L["ALPHA"] = "Alfa"
+L["ALPHA"] = "Opacidad"
 L["ANCHORTO"] = "Anclar a"
 L["ANIM_ACTVTNGLOW"] = "Icono: Borde de Activación"
 L["ANIM_ACTVTNGLOW_DESC"] = "Muestra el borde de activación de hechizo de Blizzard en el icono. "
@@ -1473,3 +1474,4 @@ L["WARN_DRMISMATCH"] = [=[Advertencia! Está comprobando rendimientos decrecient
 Todos los hechizos deben ser de la misma categoría de rendimiento decreciente para que el icono funcione correctamente. Se detectaron las siguientes categorías y hechizos:]=]
 L["WATER"] = "Agua"
 L["worldboss"] = "Jefe del Mundo"
+

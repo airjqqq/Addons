@@ -24,9 +24,9 @@ function AVRPolygonMesh:New(line,outalpha,inalpha)
 	local s=AVRMesh:New()
 	AVRPolygonMesh:Embed(s)
 	s.class=AVRPolygonMesh.meshInfo.class
-	s.line=line or {{-10,0,0},{10,0,0},{30,50,0},{0,60,0},{-30,50,0}}
-	s.oa=outalpha or 0.2
-	s.ia=inalpha or 0.4
+	s.line=line or {{{-10,0,0},{10,0,0},{30,50,0},{0,60,0},{-30,50,0}}}
+	s.oa=outalpha
+	s.ia=inalpha
 	s.vertices=nil
 	s.name=L["Polygon"]
 	return s
@@ -54,11 +54,11 @@ function AVRPolygonMesh:SetLine(line)
 	self.vertices=nil
 	return self
 end
-function AVRPolygonMesh:AddPoint(point)
-	tinsert(self.line,point)
-	self.vertices=nil
-	return self
-end
+-- function AVRPolygonMesh:AddPoint(point)
+-- 	tinsert(self.line,point)
+-- 	self.vertices=nil
+-- 	return self
+-- end
 
 function AVRPolygonMesh:GetOptions()
 	local o=AVRMesh.GetOptions(self)
@@ -89,22 +89,28 @@ end
 
 
 function AVRPolygonMesh:GenerateMesh()
-	local line=self.line
-	if #line>=3 then
-		local o = {0,0,0}
-		for i,v in ipairs(line) do
-			for j = 1,3 do
-				o[j] = o[j]+v[j]
+	local lines=self.line
+	for i,line in ipairs(lines) do
+		if #line>=3 then
+			if #line == 3 then
+				self:AddTriangle(line[1][1],line[1][2],line[1][3],line[2][1],line[2][2],line[2][3],line[3][1],line[3][2],line[3][3])
+			else
+				local o = {0,0,0}
+				for i,v in ipairs(line) do
+					for j = 1,3 do
+						o[j] = o[j]+v[j]
+					end
+				end
+				for j = 1,3 do
+					o[j] = o[j]/#line
+				end
+				local s = line[#line]
+				for i=1,#line do
+					local n = line[i]
+					self:AddTriangle(o[1],o[2],o[3],s[1],s[2],s[3],n[1],n[2],n[3])
+					s=n
+				end
 			end
-		end
-		for j = 1,3 do
-			o[j] = o[j]/#line
-		end
-		local s = line[#line]
-		for i=1,#line do
-			local n = line[i]
-			self:AddTriangle(o[1],o[2],o[3],s[1],s[2],s[3],n[1],n[2],n[3])
-			s=n
 		end
 	end
 	AVRMesh.GenerateMesh(self)
@@ -121,18 +127,19 @@ function AVRPolygonMesh:OnUpdate(threed)
 	end
 	if self.oa or self.ia then
 		local px,py,pz=threed.playerPosX,threed.playerPosY,threed.playerPosZ
-		local vs = self.vertices
-		local s=vs[#vs]
-		local inside=false
-		for i=2,#vs do
-			local e = vs[i]
-			if py>s[2] and py<=e[2] or py>e[2] and py<=s[2] then
-				local l,r = (px-s[1])*(e[2]-s[2]),(py-s[2])*(e[1]-s[1])
-				if e[2]>s[2] and l>r or e[2]<s[2] and l<r then
-					inside = not inside
+		for i,line in pairs(self.line) do
+			local s=line[#vs]
+			local inside=false
+			for i=1,#line do
+				local e = line[i]
+				if py>s[2] and py<=e[2] or py>e[2] and py<=s[2] then
+					local l,r = (px-s[1])*(e[2]-s[2]),(py-s[2])*(e[1]-s[1])
+					if e[2]>s[2] and l>r or e[2]<s[2] and l<r then
+						inside = not inside
+					end
 				end
+				s=e
 			end
-			s=e
 		end
 		if inside then
 			self.a=self.ia
@@ -144,14 +151,22 @@ function AVRPolygonMesh:OnUpdate(threed)
 	self.visible=true
 	if self.followPlayer then
 		self.translateX,self.translateY,self.translateZ=threed.playerPosX,threed.playerPosY,threed.playerPosZ
-		self.rotateZ=threed.playerDirection
+		if not self.nofacing then
+			self.rotateZ=threed.playerDirection
+		else
+			self.rotateZ = 0
+		end
 	elseif self.followUnit~=nil then
 		ux,uy,uz,uf=threed:GetUnitPosition(self.followUnit)
 		if not ux or ux==0.0 then
 			self.visible=false
 		else
 			self.translateX,self.translateY,self.translateZ=ux,uy,uz--threed.playerPosZ
-			self.rotateZ=uf
+			if not self.nofacing then
+				self.rotateZ=uf
+			else
+				self.rotateZ = 0
+			end
 		end
 	else
 		self.translateX,self.translateY,self.translateZ=0.0,0.0,0.0

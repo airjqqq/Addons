@@ -7,6 +7,7 @@ local color = "BF7FFF"
 local L = setmetatable({},{__index = function(t,k) return k end})
 
 function F:OnInitialize()
+  self:RegisterFilter("DAMGETAKENSPELL",L["DT By Spell"])
   self:RegisterFilter("CHANNELDAMAGE",L["Since Last Damage"])
   self:RegisterFilter("CHANNELHEAL",L["Since Last Heal"])
   self:RegisterFilter("NEXTSWING",L["Next Swing"],{
@@ -74,6 +75,18 @@ function F:OnInitialize()
     name = {name="Spell ID"},
     unit = {name="Unit, blank as anybody"},
   })
+  self:RegisterFilter("CASTSUCCESSEDBY",L["Casted By"],{
+    value = {},
+    greater = {},
+    name = {name="Spell ID"},
+    unit = {name="Unit, blank as anybody"},
+  })
+  self:RegisterFilter("CASTSUCCESSEDFROM",L["Casted From"],{
+    value = {},
+    greater = {},
+    name = {name="Spell ID"},
+    unit = {name="Unit, blank as anybody"},
+  })
   self:RegisterFilter("CASTSUCCESSEDUNIT",L["Cast Unit"],{
     name = {name="Spell ID"},
     unit = {name="Unit, blank as anybody"},
@@ -109,6 +122,20 @@ function F:RegisterFilter(key,name,keys,subtypes)
   })
 end
 --LASTDAMAGEDONETIME
+
+function F:DAMGETAKENSPELL(filter)
+  -- filter.name
+  filter.unit = filter.unit or "player"
+  local guid = Cache:UnitGUID(filter.unit)
+  local toFind = {destGUID = guid,spellId = filter.name}
+  local data = Cache.cache.damage:find(toFind,nil,nil,{t=GetTime()-(Core:ParseValue(filter.value) or 0)})
+  if data then
+    return GetTime() - data.t
+  else
+    return 120
+  end
+end
+
 function F:CHANNELDAMAGE(filter)
   assert(filter.name and #filter.name==1)
   filter.unit = filter.unit or "player"
@@ -293,7 +320,7 @@ function F:SINCECASTING(filter)
     guid = Cache:UnitGUID(filter.unit)
     if not guid then return false end
   end
-  local data = Cache.cache.casting:find({spellId=spellId,guid=guid})
+  local data = Cache.cache.casting:find({spellId=filter.name,guid=guid})
   if not data then return 120 end
   return GetTime() - data.endTime/1000
 end
@@ -318,7 +345,31 @@ function F:CASTSUCCESSED(filter)
     if not guid then return false end
   end
   local sourceGUID = AirjCache:PlayerGUID()
-  local data = Cache.cache.castSuccess:find({spellId=spellId,destGUID=guid,sourceGUID=sourceGUID})
+  local data = Cache.cache.castSuccess:find({spellId=spellId,destGUID=guid,sourceGUID=sourceGUID},nil,nil,{t=GetTime()-(Core:ParseValue(filter.value) or 0)})
+  if not data then return 120 end
+  return GetTime() - data.t
+end
+function F:CASTSUCCESSEDBY(filter)
+  assert(filter.name)
+	-- local spellId = filter.name[1]
+  local guid
+  if filter.unit then
+    guid = Cache:UnitGUID(filter.unit)
+    if not guid then return false end
+  end
+  local sourceGUID = AirjCache:PlayerGUID()
+  local data = Cache.cache.castSuccess:find({spellId=filter.name,sourceGUID=guid,destGUID=sourceGUID},nil,nil,{t=GetTime()-(Core:ParseValue(filter.value) or 0)})
+  if not data then return 120 end
+  return GetTime() - data.t
+end
+function F:CASTSUCCESSEDFROM(filter)
+  assert(filter.name)
+  assert(filter.unit)
+	-- local spellId = filter.name[1]
+  local guid
+  guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local data = Cache.cache.castSuccess:find({spellId=filter.name,sourceGUID=guid},nil,nil,{t=GetTime()-(Core:ParseValue(filter.value)or 0)})
   if not data then return 120 end
   return GetTime() - data.t
 end
@@ -330,7 +381,7 @@ function F:CASTSUCCESSEDUNIT(filter)
   if not guid then return false end
   local sourceGUID = AirjCache:PlayerGUID()
   local data = Cache.cache.castSuccess:find({spellId=spellId,sourceGUID=sourceGUID})
-  return data and data.guid == guid or false
+  return data and data.destGUID == guid or false
 end
 
 function F:SINCELASTCAST(filter)

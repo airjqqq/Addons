@@ -206,7 +206,7 @@
 						novo_objeto.displayName = nome:gsub (("%-.*"), "")
 						
 					elseif (_detalhes.remove_realm_from_name) then
-						novo_objeto.displayName = nome:gsub (("%-.*"), "%*")
+						novo_objeto.displayName = nome:gsub (("%-.*"), "%*") --nome = nil
 						
 					else
 						novo_objeto.displayName = nome
@@ -302,6 +302,13 @@
 				
 			else
 				novo_objeto.displayName = nome
+				
+				--Chromie - From 'The Deaths of Chromie'
+				if (serial and type (serial) == "string") then
+					if (serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-122663%-%w+$")) then
+						novo_objeto.grupo = true
+					end
+				end
 			end
 			
 			--> � inimigo

@@ -82,6 +82,7 @@ L.NoteShowOnlyPersonal = "Показывать только собственну
 L.NoteShowOnlyInRaid = "Показывать только в рейдовых подземельях"
 L.NoteAutoloadOnBoss = "Автозагрузка на боссе:"
 L.NoteSaveAllNew = "Сохранять полученные заметки"
+L.NoteEnableWhenReceive = "Включить при получении новой заметки"
 
 L.setminimap1 = "Скрыть иконку у мини-карты"
 L.setauthor = "Автор"
@@ -758,6 +759,8 @@ L.BossWatcherAllPhases = "Все фазы"
 L.BossWatcherPerCast = "За одно применение"
 L.BossWatcherOnlySegmentsWithAura = "Выбрать только сегменты с активной аурой"
 L.BossWatcherOnlySegmentsWithEnemy = "Выбрать только сегменты с активной целью"
+L.BossWatcherHealToTanks = "Только танки"
+L.BossWatcherHealToNonTanks = "Все, кроме танков"
 
 L.InspectViewerTalents = "Таланты и символы"
 L.InspectViewerInfo = "Другая информация"

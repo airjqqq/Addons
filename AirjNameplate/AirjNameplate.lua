@@ -34,6 +34,47 @@ function NP:Update ()
     else
       combat:Hide()
     end
+    local arenanumber = frame.arenanumber
+    if not arenanumber then
+      arenanumber = CreateFrame("Frame",nil,parent)
+      arenanumber:SetPoint("RIGHT",parent,"LEFT",-10,0)
+      arenanumber:SetSize(30,30)
+      arenanumber:SetFrameStrata("BACKGROUND")
+      -- combat:SetFrameLevel
+      local texture = arenanumber:CreateTexture()
+      texture:SetAllPoints()
+      texture:SetColorTexture(1,0,0,0.4)
+      local fontString = arenanumber:CreateFontString()
+      fontString:SetAllPoints()
+      fontString:SetVertexColor(0,1,1,1)
+      fontString:SetFont("Fonts\\FRIZQT__.TTF",30,"OUTLINE")
+      fontString:SetText("")
+      arenanumber.fontString = fontString
+      frame.arenanumber = arenanumber
+    end
+    local isarena
+    for i = 1,3 do
+      if UnitIsUnit("arena"..i,unit) then
+        arenanumber:Show()
+        arenanumber.fontString:SetText(i.."")
+        isarena = true
+        break
+      end
+    end
+    if not isarena then
+      if UnitIsUnit("target",unit) then
+        arenanumber:Show()
+        arenanumber.fontString:SetText("T")
+        isarena = true
+      elseif UnitIsUnit("focus",unit) then
+        arenanumber:Show()
+        arenanumber.fontString:SetText("F")
+        isarena = true
+      end
+    end
+    if not isarena then
+      arenanumber:Hide()
+    end
     local dricons = frame.dricons
     if not dricons then
       dricons = {}

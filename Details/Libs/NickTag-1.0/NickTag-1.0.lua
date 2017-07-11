@@ -4,7 +4,7 @@
 -- NickTag:SetNickname (name) -> set the player nick name, after set nicktag will broadcast the nick over addon guild channel.
 -- 
 
-local major, minor = "NickTag-1.0", 8
+local major, minor = "NickTag-1.0", 9
 local NickTag, oldminor = LibStub:NewLibrary (major, minor)
 
 if (not NickTag) then 
@@ -620,7 +620,7 @@ end
 		--> check if contain any non allowed characters, by now only accpet letters, numbers and spaces.
 		--> by default wow do not accetp spaces, but here will allow.
 		--> tested over lua 5.2 and this capture was okey with accents, not sure why inside wow this doesn't work.
-		local notallow = string.find (name, "[^a-zA-Záéíóúãõ%s]")
+		local notallow = string.find (name, "[^a-zA-Zï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½%s]")
 		if (notallow) then
 			return false, LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_2"] --> error 2 = nickname only support letters, numbers and spaces.
 		end
@@ -939,7 +939,10 @@ end
 
 			serial = select ( 3, strsplit ( "-", serial ) )
 		end
-		return tonumber ("0x"..serial)
+		if (not serial) then
+			return
+		end
+		return tonumber ("0x" .. serial)
 	end
 	
 	--> choose avatar window

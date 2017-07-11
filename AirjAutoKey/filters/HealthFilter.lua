@@ -238,8 +238,8 @@ end
 function F:BOSSMANA(filter)
   filter.unit = filter.unit or "boss1"
   filter.value = filter.value or 0.1
-  local power = Cache:Call("UnitPower","power",SPELL_POWER_MANA)
-  local maxPower = Cache:Call("UnitPowerMax","power",SPELL_POWER_MANA)
+  local power = Cache:Call("UnitPower","player",SPELL_POWER_MANA)
+  local maxPower = Cache:Call("UnitPowerMax","player",SPELL_POWER_MANA)
   local bossguid = UnitGUID(filter.unit)
   local bosshealth,powerPercent
   if bossguid then

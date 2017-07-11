@@ -3,6 +3,7 @@ if (GetLocale() == "koKR") then
 DBM_CORE_NEED_LOCALS				= "프로그래밍이나 언어에 소질이 있으신가요? 그렇다면 DBM이 다른 언어를 더 지원할 수 있게 도와주세요. 저희를 돕고 싶다면 |HDBM:localizersneeded|h|cff3588ff여기를 클릭|r해서 포럼을 방문해 주세요."
 DBM_CORE_NEED_LOGS					= "DBM이 최고의 보스 알림 애드온이 되기 위해선 Transcriptor (http://www.wowace.com/addons/transcriptor/)로 집계한 전투 기록이 필요합니다. 저희를 돕고 싶다면 보스 전투를 Transcriptor로 기록한 데이터를 저희 포럼에 올려주세요. 7.0 레이드와 던전 기록만 필요합니다."
 DBM_HOW_TO_USE_MOD					= "DBM을 사용해 주셔서 감사합니다. 대화창에서 /dbm help를 입력하면 사용 가능한 명령어 목록을 볼 수 있습니다. 설정을 하시려면 /dbm을 입력하세요. 보스 알림 설정을 기호에 맞게 변경하려면 해당 던전을 직접 선택해서 로딩해야 합니다. DBM은 첫 실행시 당신의 전문화를 인식해서 그에 맞게 최적화 된 설정을 제공하지만 일부 설정을 추가로 켜야할 때도 있을 겁니다."
+DBM_SILENT_REMINDER					= "알림: DBM이 아직도 조용함 모드입니다."
 
 DBM_FORUMS_MESSAGE					= "버그를 발견했거나 타이머가 맞지 않나요? 경고, 타이머, 특수 기능이 더 추가됐으면 하는 보스 모드가 있나요?\n그렇다면 새 Deadly Boss Mods 토론장(|HDBM:forums|h|cff3588ffhttp://www.deadlybossmods.com|r)을 방문해서 버그를 제보하고 새 기능을 요청해 보세요. (링크를 클릭하면 주소를 복사할 수 있습니다)"
 DBM_FORUMS_COPY_URL_DIALOG			= "토론장과 사용자 지원 포럼을 방문해 보세요"
@@ -18,7 +19,7 @@ DBM_CORE_LOAD_MOD_VER_MISMATCH		= "DBM-Core가 로딩 조건과 맞지 않아 %s
 DBM_CORE_LOAD_MOD_DISABLED			= "%s|1이;가; 설치는 돼있지만 켜져있질 않습니다. 직접 켜기 전까진 모드가 로딩되지 않습니다."
 DBM_CORE_LOAD_MOD_DISABLED_PLURAL	= "%s|1이;가; 설치는 돼있지만 켜져있질 않습니다. 직접 켜기 전까진 모드들이 로딩되지 않습니다."
 
-DBM_CORE_WHATS_NEW					= "새로 추가된 사항: '대규모 패치'시 옵션 설정을 강제 업데이트 또는 사용 안함 상태로 만드는 기능이 대규모 패치가 아닌 버전에도 잘못 발동되던 버그를 수정했습니다. DBM은 더이상 사용자 설정과 관계없이 부서진 해안 동영상을 중단시키지 않을 것입니다. 악마 침공 모드가 추가됐습니다. 자잘한 텍스트 오류 수정"
+DBM_CORE_WHATS_NEW					= "오버워치와 히어로즈 오브 더 스톰 초읽기 효과음이 DBM 핵심 모듈에서 분리되어 별도의 다운로드 파일로 옮겨졌습니다. 초읽기 팩을 다시 설치하려면 DBM-CountPack-Overwatch와 DBM-CountPack-HoTS를 다운로드 받으세요. 분리 작업을 통해 이들 게임에 캐릭터가 새로 추가될 떄마다 미디어 파일이 DBM에 추가되어 번번히 다시 다운로드 받는 일이 현저히 줄어들 것입니다. 또한 지금 보시는 메시지 같은게 다시 표시되지 않도록 숨기는 설정도 추가되었습니다."
 DBM_CORE_WHATS_NEW_LINK				= "DBM은 음성팩과 함께 이용하는 걸 권장하고 있습니다. 그 이유와 사용 방법에 대한 도움말은 |HDBM:forumsnews|h|cff3588ff이곳을 클릭|r해서 알아보세요"
 
 --Post Patch 7.1
@@ -157,7 +158,7 @@ DBM_CORE_YOUR_VERSION_OUTDATED      = "사용중인 Deadly Boss Mods 버전이 �
 DBM_CORE_VOICE_PACK_OUTDATED		= "사용중인 DBM 음성팩에 본 DBM 버전에서 지원하는 음성 지원이 없을 수 있습니다. 일부 특수 경고 효과음이 현재 음성팩 버전이 지원하지 않는 음성인 경우 작동하지 않습니다. 새 버전의 음성팩을 다운로드 받거나 제작자에게 누락된 음성 파일 업데이트를 문의하시기 바랍니다"
 DBM_CORE_VOICE_MISSING				= "선택한 DBM 음성팩을 찾을 수 없습니다. 설정 내역이 'None' 으로 초기화 됩니다. 만약 이것이 오류라면 음성팩이 제대로 설치되어 있고 애드온 목록에서 활성화되어 있는지 확인해 보시기 바랍니다."
 DBM_CORE_VOICE_DISABLED				= "현재 DBM 음성팩이 한 개 이상 설치되어 있지만 사용하고 있는게 없습니다. 음성팩을 사용하려면 '음성 경보' 항목에서 음성팩이 지정되어 있는지 확인하세요. 음성팩을 사용할 의사가 없으면 음성팩을 삭제하시면 이 메시지는 더이상 출력되지 않습니다"
-DBM_CORE_VOICE_COUNT_MISSING		= "찾을 수 없는 음성/초읽기 팩에 초읽기 음성 %d번이 설정되어 있습니다. 기본 설정으로 초기화되었습니다."
+DBM_CORE_VOICE_COUNT_MISSING		= "초읽기 음성 %d번으로 설정된 음성/초읽기 팩을 찾을 수 없습니다. 기본 설정으로 초기화 되었습니다: %s"
 
 DBM_CORE_UPDATEREMINDER_HEADER			= "사용중인 Deadly Boss Mods 버전이 사용 기한을 지났습니다.\n Curse, WoWI나 다음 주소에서 %s (r%d) 버전을 다운로드 할 수 있습니다:"
 DBM_CORE_UPDATEREMINDER_HEADER_ALPHA	= "사용중인 Deadly Boss Mods ALPHA 버전이 사용 기한을 지났습니다.\n 적어도 %d 테스트 버전 이상은 사용해야 합니다. ALPHA 버전을 선택한 DBM 이용자는 최신 ALPHA 버전을 실행하는걸 권장합니다. 아니면 최신 RELEASE 버전을 사용하는 것도 좋습니다. 오래된 ALPHA 버전은 개발용인 관계로 버전 검사 기능이 제한되어 있기 때문입니다."
@@ -228,7 +229,8 @@ DBM_CORE_SLASHCMD_HELP2				= {
 	"/dbm version: 공대원의 보스 모드 버전 검사를 실시합니다. (단축 명령어: ver)",
 	"/dbm version2: 공대원 보스 모드 버전 검사 및 구버전 사용자에게 귓속말을 보냅니다. (단축 명령어: ver2)",
 	"/dbm lockout: 공대원에게 공격대 귀속 정보를 수집합니다. (단축 명령어: lockouts, ids) (승급 권한 필요)",
-	"/dbm lag: 공격대 지연시간 검사 작업을 실행합니다."
+	"/dbm lag: 공격대 지연시간 검사 작업을 실행합니다.",
+	"/dbm durability: 공대원의 내구도 검사를 실시합니다."
 }
 DBM_CORE_TIMER_USAGE	= {
 	"DBM 타이머 명령어:",
@@ -254,12 +256,18 @@ DBM_CORE_RIGHT						= "오른쪽"
 DBM_CORE_BACK						= "뒤쪽"--BACK
 DBM_CORE_MIDDLE						= "가운데"
 DBM_CORE_FRONT						= "앞쪽"
+DBM_CORE_EAST						= "동쪽"
+DBM_CORE_WEST						= "서쪽"
+DBM_CORE_NORTH						= "북쪽"
+DBM_CORE_SOUTH						= "남쪽"
 DBM_CORE_INTERMISSION				= "사잇 단계"
 DBM_CORE_ORB						= "구슬"
 DBM_CHEST							= "상자"--As in Treasure 'Chest'. Not Chest as in body part.
 DBM_NO_DEBUFF						= "%s 없음"--For use in places like info frame where you put "Not Spellname"
 DBM_ALLY							= "공대원"--Such as "Move to Ally"
 DBM_ADDS							= "쫄"--Such as "Move to Ally"
+DBM_CORE_ROOM_EDGE					= "구석"
+DBM_CORE_SAFE						= "안전함"
 --Common Locals end
 
 DBM_CORE_BREAK_USAGE				= "쉬는 시간은 60분을 초과할 수 없습니다. 쉬는 시간은 초단위가 아니라 분단위로 입력해야 합니다."
@@ -329,10 +337,10 @@ DBM_CORE_AUTO_SPEC_WARN_TEXTS.youpos		= "%s (위치: %%s): 당신"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.soakpos		= "%s (뭉칠 위치: %%s)"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.target		= "%s: >%%s<"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.targetcount	= "%s (%%s): >%%s< "
-DBM_CORE_AUTO_SPEC_WARN_TEXTS.defensive		= "%s - 방어 기술 사용"
+DBM_CORE_AUTO_SPEC_WARN_TEXTS.defensive		= "%s - 생존기 켜세요"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.taunt		= "%s: >%%s< - 지금 도발"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.close		= "근처의 >%%2$s<에게 %1$s"
-DBM_CORE_AUTO_SPEC_WARN_TEXTS.move		= "%s - 바닥 피하세요"
+DBM_CORE_AUTO_SPEC_WARN_TEXTS.move		= "%s - 피하세요"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.dodge		= "%s - 피하세요"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.moveaway		= "%s - 거리 이격"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.moveto		= "%s - >%%s<|1으로;로; 이동"
@@ -344,7 +352,9 @@ DBM_CORE_AUTO_SPEC_WARN_TEXTS.count		= "%s! (%%s)"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.stack		= "당신에게 %s (%%d중첩)"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.switch		= "%s - 대상 바꾸세요"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.switchcount	= "%s - 대상 바꾸세요 (%%s)"
+DBM_CORE_AUTO_SPEC_WARN_TEXTS.gtfo		= "바닥 - 피하세요"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.Adds		= "쫄 등장 - 대상 바꾸세요"
+DBM_CORE_AUTO_SPEC_WARN_TEXTS.Addscustom	= "쫄 등장 - %s"
 
 -- Auto-generated Special Warning Localizations
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.spell			= "$spell:%s 특수 경고 보기"
@@ -364,7 +374,7 @@ DBM_CORE_AUTO_SPEC_WARN_OPTIONS.targetcount	= "$spell:%s 대상 특수 경고 �
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.defensive		= "$spell:%s에 방어 기술 사용 특수 경고 보기"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.taunt			= "다른 탱커가 $spell:%s 대상이면 도발 특수 경고 보기"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.close			= "당신 근처에 $spell:%s 대상이 있으면 특수 경고 보기"
-DBM_CORE_AUTO_SPEC_WARN_OPTIONS.move			= "$spell:%s 바닥 피하기 특수 경고 보기"
+DBM_CORE_AUTO_SPEC_WARN_OPTIONS.move			= "$spell:%s 피하기 특수 경고 보기"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.dodge			= "$spell:%s 피하기 특수 경고 보기"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.moveaway		= "$spell:%s에 거리 이격 특수 경고 보기"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.moveto			= "$spell:%s에 특정인 또는 특정 위치로 이동 특수 경고 보기"
@@ -376,7 +386,9 @@ DBM_CORE_AUTO_SPEC_WARN_OPTIONS.count			= "$spell:%s 특수 경고 보기 (횟�
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.stack			= "당신이 $spell:%2$s %1$d중첩 이상이 된 경우 특수 경고 보기"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switch			= "$spell:%s에 대상 변경 특수 경고 보기"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switchcount 		= "$spell:%s에 대상 변경 특수 경고 보기 (횟수 포함)"
+DBM_CORE_AUTO_SPEC_WARN_OPTIONS.gtfo 			= "바닥 피하기 특수 경고 보기"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.Adds 			= "쫄 등장시 대상 변경 특수 경고 보기"
+DBM_CORE_AUTO_SPEC_WARN_OPTIONS.Addscustom		= "쫄 등장시 특수 경고 보기"
 
 -- Auto-generated Timer Localizations
 DBM_CORE_AUTO_TIMER_TEXTS.target		= "%s: %%s"
@@ -396,6 +408,7 @@ DBM_CORE_AUTO_TIMER_TEXTS.nextspecial		= "다음 특수 능력"
 DBM_CORE_AUTO_TIMER_TEXTS.achievement		= "%s"
 DBM_CORE_AUTO_TIMER_TEXTS.phase			= "다음 단계"
 DBM_CORE_AUTO_TIMER_TEXTS.adds			= "다음 쫄 등장"
+DBM_CORE_AUTO_TIMER_TEXTS.addscustom		= "쫄 등장 (%s)"
 
 DBM_CORE_AUTO_TIMER_OPTIONS.target		= "$spell:%s 디버프 타이머 바 보기"
 DBM_CORE_AUTO_TIMER_OPTIONS.cast		= "$spell:%s 시전 타이머 바 보기"
@@ -414,6 +427,7 @@ DBM_CORE_AUTO_TIMER_OPTIONS.nextspecial		= "다음 특수 능력 타이머 바 �
 DBM_CORE_AUTO_TIMER_OPTIONS.achievement		= "%s 업적의 타이머 바 보기"
 DBM_CORE_AUTO_TIMER_OPTIONS.phase		= "다음 단계 타이머 바 보기"
 DBM_CORE_AUTO_TIMER_OPTIONS.adds		= "쫄 등장 타이머 바 보기"
+DBM_CORE_AUTO_TIMER_OPTIONS.addscustom		= "쫄 등장 타이머 바 보기"
 DBM_CORE_AUTO_TIMER_OPTIONS.roleplay		= "역할 수행(롤플레이) 지속 시간 타이머 바 보기"
 
 DBM_CORE_AUTO_ICONS_OPTION_TEXT			= "$spell:%s 대상에 공격대 징표 설정"
@@ -424,16 +438,21 @@ DBM_CORE_AUTO_ARROW_OPTION_TEXT3		= "$spell:%s 특정 지점을 가리키는 DBM
 DBM_CORE_AUTO_VOICE_OPTION_TEXT			= "$spell:%s에 대한 음성 경보 듣기"
 DBM_CORE_AUTO_VOICE2_OPTION_TEXT		= "단계 전환시 음성 경보 듣기"
 DBM_CORE_AUTO_VOICE3_OPTION_TEXT		= "쫄 등장시 음성 경보 듣기"
+DBM_CORE_AUTO_VOICE4_OPTION_TEXT		= "바닥 밟았을 때 음성 경보 듣기"
 DBM_CORE_AUTO_COUNTDOWN_OPTION_TEXT		= "$spell:%s 쿨타임에 맞춰 초읽기 듣기"
-DBM_CORE_AUTO_COUNTDOWN_OPTION_TEXT2	= "$spell:%s 남은 시간 초읽기 듣기"
+DBM_CORE_AUTO_COUNTDOWN_OPTION_TEXT2		= "$spell:%s 남은 시간 초읽기 듣기"
 DBM_CORE_AUTO_COUNTOUT_OPTION_TEXT		= "$spell:%s 지속 시간 초읽기 듣기"
-DBM_CORE_AUTO_YELL_OPTION_TEXT.yell		= "$spell:%s 대상일 때 대화로 알리기"
-DBM_CORE_AUTO_YELL_OPTION_TEXT.count	= "$spell:%s 대상일 때 대화로 알리기 (횟수 포함)"
-DBM_CORE_AUTO_YELL_OPTION_TEXT.fade		= "$spell:%s 대상일 때 대화로 알리기 (초읽기 포함)"
+DBM_CORE_AUTO_YELL_OPTION_TEXT.shortyell	= "$spell:%s 대상일 때 대화로 알리기"
+DBM_CORE_AUTO_YELL_OPTION_TEXT.yell		= "$spell:%s 대상일 때 대화로 알리기 (플레이어 이름 포함)"
+DBM_CORE_AUTO_YELL_OPTION_TEXT.count		= "$spell:%s 대상일 때 대화로 알리기 (횟수 포함)"
+DBM_CORE_AUTO_YELL_OPTION_TEXT.fade		= "$spell:%s 지속시간이 끝나갈 때 대화로 알리기 (주문 이름 및 초읽기 포함)"
+DBM_CORE_AUTO_YELL_OPTION_TEXT.shortfade	= "$spell:%s 지속시간이 끝나갈 때 대화로 알리기 (초읽기 포함)"
 DBM_CORE_AUTO_YELL_OPTION_TEXT.position	= "$spell:%s 대상일 때 대화로 알리기 (위치 포함)"
+DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.shortyell	= "%%s"
 DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.yell	= UnitName("player") .. "에게 %s!"
 DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.count	= UnitName("player") .. "에게 %s! (%%d)"
 DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.fade	= "%s %%d초 후 사라짐!"
+DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.shortfade	= "%%d초"
 DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.position	= "{rt%%3$d}"..UnitName("player").."{rt%%3$d}에게 %1$s %%2$s"
 DBM_CORE_AUTO_HUD_OPTION_TEXT			= "$spell:%s에 HUD 표시 (중단됨)"
 DBM_CORE_AUTO_HUD_OPTION_TEXT_MULTI		= "여러 보스 기술에 HUD 표시 (중단됨)"
@@ -505,5 +524,10 @@ DBM_CORE_LAG_CHECKING				= "공격대의 지연시간 확인중..."
 DBM_CORE_LAG_HEADER					= "Deadly Boss Mods - 지연시간 확인 결과"
 DBM_CORE_LAG_ENTRY					= "%s: 서버 지연시간 [%d ms] / 개인 지연시간 [%d ms]"
 DBM_CORE_LAG_FOOTER					= "응답없음: %s"
+
+DBM_CORE_DUR_CHECKING				= "공격대 내구도 검사중..."
+DBM_CORE_DUR_HEADER					= "Deadly Boss Mods - 내구도 검사 결과"
+DBM_CORE_DUR_ENTRY					= "%s: 내구도 [%d 퍼센트] / 깨진 장비 [%s]"
+DBM_CORE_LAG_FOOTER					= "응답 없음: %s"
 
 end

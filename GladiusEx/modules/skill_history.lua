@@ -76,7 +76,7 @@ local MAX_ICONS = 40
 
 local SkillHistory = GladiusEx:NewGladiusExModule("SkillHistory",
 	fn.merge(defaults, {
-		minShowSize = 1.5,
+		minShowSize = 1,
 		AttachTo = "Frame",
 		Anchor = "TOPRIGHT",
 		RelativePoint = "TOPLEFT",
@@ -85,7 +85,7 @@ local SkillHistory = GladiusEx:NewGladiusExModule("SkillHistory",
 		OffsetY = -0,
 	}),
 	fn.merge(defaults, {
-		minShowSize = 1.2,
+		minShowSize = 1,
 		AttachTo = "Frame",
 		Anchor = "TOPLEFT",
 		RelativePoint = "TOPRIGHT",

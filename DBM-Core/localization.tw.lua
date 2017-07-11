@@ -3,6 +3,7 @@ if GetLocale() ~= "zhTW" then return end
 DBM_CORE_NEED_LOCALS				= "你是否擁有良好的程式開發或語言能力? 如果是的話, DBM需要你的本地化翻譯。拜訪我們的討論區|HDBM:localizersneeded|h|cff3588ffclicking here|r"
 DBM_CORE_NEED_LOGS					= "DBM需要Transcriptor (http://www.wowace.com/addons/transcriptor/) 去紀錄測試伺服器的戰鬥紀錄讓插件更加完美。如果你願意幫忙，請使用transcriptor去紀錄這些戰鬥過程然後將記錄發佈在。需要7.0的團隊和五人副本戰鬥紀錄，。"
 DBM_HOW_TO_USE_MOD					= "歡迎使用DBM。在聊天頻道輸入 /dbm 打開設定開始設定。你可以載入特定區域後為任何首領設定你喜歡的特別設置。DBM會在第一次啟動時嘗試掃描你的職業天賦，但有些選項你可能想打開。"
+DBM_SILENT_REMINDER					= "提醒：DBM正處於無聲模式。"
 
 DBM_FORUMS_MESSAGE					= "發現臭蟲或錯誤的計時器?你希望要讓某些模組有新的警告，計時器或是特別功能?\nDeadly Boss Mods討論，臭蟲回報與功能要求討論區 |HDBM:forums|h|cff3588ffhttp://www.deadlybossmods.com|r (你可以點擊連結去複製網址)"
 DBM_FORUMS_COPY_URL_DIALOG			= "來拜訪我們新的討論與支援討論區"
@@ -18,8 +19,8 @@ DBM_CORE_LOAD_MOD_VER_MISMATCH		= "%s不能被讀取因為你的DBM核心未達�
 DBM_CORE_LOAD_MOD_DISABLED			= "%s已安裝但目前停用中。此模組不會載入除非你啟用它。"
 DBM_CORE_LOAD_MOD_DISABLED_PLURAL	= "%s已安裝但目前停用中。這些模組不會載入除非你啟用它們。"
 
-DBM_CORE_WHATS_NEW					= "版本更新：修正一個DBM版本更新的問題。DBM不再會不顧使用者的設定去過濾破碎群島的片段動畫。加入惡魔入侵模組。"
-DBM_CORE_WHATS_NEW_LINK				= "提醒：因為暴雪將在7.1版本將移除副本中的單位位置的API，許多與單位位置的功能如：距離雷達將有許多限制。想了解為什麼：|HDBM:forumsnews|h|cff3588ff點擊這裡|r"
+DBM_CORE_WHATS_NEW					= "鬥陣特攻和暴雪英霸倒數音效已經從DBM核心分離而且有獨立的插件包下載。想重新取得這些音效。請安裝插件DBM-CountPack-Overwatch和DBM-CountPack-HoTS。也有新功能可關閉類似更新註釋再次提示。"
+DBM_CORE_WHATS_NEW_LINK				= "推薦使用DBM加上語音包。想知道為什麼而且如何可以幫助你：|HDBM:forumsnews|h|cff3588ff點擊這裡|r"
 
 --Post Patch 7.1
 DBM_CORE_NO_RANGE					= "距離雷達不能在副本中使用，使用傳統文字距離框架取代"
@@ -32,7 +33,7 @@ DBM_CORE_DYNAMIC_MULTIPLE			= "DBM已中禁用多項功能，你目前的團隊�
 
 DBM_CORE_LOOT_SPEC_REMINDER			= "你目前的專精為:%s。而你目前的拾取選擇為:%s。"
 
-DBM_CORE_BIGWIGS_ICON_CONFLICT		= "DBM偵測到你同時開啟BigWigs和DBM的團隊圖示。請關閉其中之一的團隊圖示功能以免與你的隊伍隊長產生衝突。"
+DBM_CORE_BIGWIGS_ICON_CONFLICT		= "DBM偵測到你同時開啟BigWigs和DBM的團隊圖示。請關閉其中之一的團隊圖示功能以免與產生衝突。"
 
 DBM_CORE_MOD_AVAILABLE				= "%s的DBM插件已經可供使用。你可以在|HDBM:forums|h|cff3588ffdeadlybossmods.com|r或Curse上找到。此訊息只會顯示一次。."
 
@@ -227,7 +228,8 @@ DBM_CORE_SLASHCMD_HELP2				= {
 	"/dbm version：進行團隊的版本檢測（也可使用：ver）。",
 	"/dbm version2: 進行團隊的版本檢測並密語提醒過期的使用者（也可使用：ver2）。",
 	"/dbm lockout: 向團隊成員請求他們當前的團隊副本鎖定訊息(鎖定訊息、副本id) (需要團隊隊長或助理權限)。",
-	"/dbm lag: 進行團隊範圍內的網路延遲檢測。"
+	"/dbm lag: 進行團隊範圍內的網路延遲檢測。",
+	"/dbm durability: 進行團隊範圍內的裝備耐久度檢測。"
 }
 DBM_CORE_TIMER_USAGE	= {
 	"DBM計時器指令：",
@@ -259,6 +261,7 @@ DBM_CHEST							= "獎勵箱"
 DBM_NO_DEBUFF						= "沒有%s"
 DBM_ALLY							= "隊友"
 DBM_ADDS							= "小怪"
+DBM_CORE_ROOM_EDGE					= "房間邊緣"
 --Common Locals end
 
 DBM_CORE_BREAK_USAGE				= "休息時間不能長於60分鐘。請確定你輸入的時間是分鐘不是秒。"
@@ -341,6 +344,7 @@ DBM_CORE_AUTO_SPEC_WARN_TEXTS.count			= "%s!(%%s)"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.stack			= "你中了%%d層%s"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.switch		= "%s - 快更換目標!"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.switchcount	= "%s - 快更換目標!(%%s)"
+DBM_CORE_AUTO_SPEC_WARN_TEXTS.gtfo			= "注意腳下 - 快移動"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.Adds			= "小怪來了 - 快更換目標!"
 
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.spell		= "為$spell:%s顯示特別警告"
@@ -372,6 +376,7 @@ DBM_CORE_AUTO_SPEC_WARN_OPTIONS.count 		= "為$spell:%s顯示特別警告"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.stack		= "為中了>=%d層$spell:%s時顯示特別警告"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switch		= "為$spell:%s顯示特別警告去更換目標"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switchcount = "為$spell:%s顯示特別警告(次數)去更換目標"
+DBM_CORE_AUTO_SPEC_WARN_OPTIONS.gtfo 		= "為離開地上危險的技能時顯示特別警告"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.Adds		= "為到來的小怪更換目標時顯示特別警告"
 
 DBM_CORE_AUTO_TIMER_TEXTS.target			= "%s:%%s"
@@ -420,16 +425,21 @@ DBM_CORE_AUTO_ARROW_OPTION_TEXT3		= "為中了$spell:%s後移動到特定區域�
 DBM_CORE_AUTO_VOICE_OPTION_TEXT			= "為$spell:%s播放語音音效"
 DBM_CORE_AUTO_VOICE2_OPTION_TEXT		= "為階段轉換播放語音音效"
 DBM_CORE_AUTO_VOICE3_OPTION_TEXT		= "為到來的小怪播放語音音效"
+DBM_CORE_AUTO_VOICE4_OPTION_TEXT		= "為地上危險的技能播放語音音效"
 DBM_CORE_AUTO_COUNTDOWN_OPTION_TEXT		= "為$spell:%s的冷卻播放倒數計時音效"
 DBM_CORE_AUTO_COUNTDOWN_OPTION_TEXT2	= "為$spell:%s的減益播放倒數計時音效"
 DBM_CORE_AUTO_COUNTOUT_OPTION_TEXT		= "為$spell:%s的持續時間播放倒數計時音效"
-DBM_CORE_AUTO_YELL_OPTION_TEXT.yell		= "當你中了$spell:%s時大喊"
+DBM_CORE_AUTO_YELL_OPTION_TEXT.shortyell	= "當你中了$spell:%s時大喊"
+DBM_CORE_AUTO_YELL_OPTION_TEXT.yell		= "當你中了$spell:%s時大喊(玩家名字)"
 DBM_CORE_AUTO_YELL_OPTION_TEXT.count	= "當你中了$spell:%s時大喊(次數)"
-DBM_CORE_AUTO_YELL_OPTION_TEXT.fade		= "當$spell:%s正消退時大喊"
+DBM_CORE_AUTO_YELL_OPTION_TEXT.fade		= "當$spell:%s正消退時大喊(倒數和技能名稱)"
+DBM_CORE_AUTO_YELL_OPTION_TEXT.shortfade	= "當$spell:%s正消退時大喊(倒數)"
 DBM_CORE_AUTO_YELL_OPTION_TEXT.position	= "當你中了$spell:%s時大喊(位置)"
+DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.shortyell	= "%%s"
 DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.yell	= "" .. UnitName("player") .. "中了%s!"
 DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.count	= "" .. UnitName("player") .. "中了%s!(%%d)"
 DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.fade	= "%s在%%d秒後消退!"
+DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.shortfade	= "%%d"
 DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.position = "" .. UnitName("player") .. "中了%s!(%%s)".."{rt%%d}"--Arg order is going to be a problem. any way to word differently for playername at end?
 DBM_CORE_AUTO_HUD_OPTION_TEXT			= "為$spell:%s顯示HudMap(已退役)"
 DBM_CORE_AUTO_HUD_OPTION_TEXT_MULTI		= "為不同的機制顯示HudMap(已退役)"
@@ -478,6 +488,10 @@ DBM_SPEED_CLEAR_TIMER_TEXT	= "最佳紀錄"
 DBM_COMBAT_RES_TIMER_TEXT	= "下一個戰復充能"
 DBM_CORE_TIMER_RESPAWN		= "%s重生"
 
+DBM_CORE_DUR_CHECKING				= "檢測團隊裝備耐久度..."
+DBM_CORE_DUR_HEADER					= "Deadly Boss Mods - 裝備耐久度結果"
+DBM_CORE_DUR_ENTRY					= "%s:耐久度[%d百分比]/裝備損壞[%s]"
+DBM_CORE_LAG_FOOTER					= "無回應:%s"
 
 DBM_REQ_INSTANCE_ID_PERMISSION		= "%s想要查看你的副本ID和進度鎖定情況。\n你想發送該訊息給%s嗎? 在你的當前進程（除非你下線）他可以一直查閱該訊息。"
 DBM_ERROR_NO_RAID					= "你必須在一個團隊中才可以使用這個功能。"

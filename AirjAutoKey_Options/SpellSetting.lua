@@ -87,6 +87,12 @@ local spellConfigWidgets = {
 		width = 320,
 	},
 	{
+		key = "pollall",
+		widget = "CheckBox",
+		text = L["Poll All"],
+		desc = "",
+	},
+	{
 		key = "heading",
 		widget = "SimpleGroup",
 		text = "",
@@ -482,6 +488,13 @@ function mod:CreateMainConfigGroup()
 		local spell = mod:GetCurrentSpell()
 		spell.group = value or nil
 		if spell.group then
+		end
+		self:UpdateSpellTreeGroup()
+	end)
+	group.pollall:SetCallback("OnValueChanged",function(widget,event,value)
+		local spell = mod:GetCurrentSpell()
+		spell.pollall = value or nil
+		if spell.pollall then
 		end
 		self:UpdateSpellTreeGroup()
 	end)
@@ -1258,6 +1271,7 @@ function mod:UpdateMainConfigGroup()
 	group.barcast:SetValue(spell.barcast or false)
 	group.anyinraid:SetText(type(spell.anyinraid)=="boolean" and "all" or spell.anyinraid or "")
 	group.continue:SetValue(spell.continue or false)
+	group.pollall:SetValue(spell.pollall or false)
 	group.isr:SetValue(spell.isr or false)
 	group.group:SetValue(spell.group or false)
 	group.note:SetText(spell.note or "")

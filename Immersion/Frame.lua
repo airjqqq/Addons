@@ -9,6 +9,7 @@ local frame = _G[ _ .. 'Frame' ]
 local talkbox = frame.TalkBox
 local titles = frame.TitleButtons
 local inspector = frame.Inspector
+local elements = talkbox.Elements
 local _Mixin = L.Mixin
 L.frame = frame
 
@@ -105,16 +106,25 @@ frame.ADDON_LOADED = function(self, name)
 		L.cfg = _G[svref] or L.GetDefaultConfig()
 		_G[svref] = L.cfg
 
+		-- Set module scales
 		talkbox:SetScale(L('boxscale'))
 		titles:SetScale(L('titlescale'))
+		elements:SetScale(L('elementscale'))
 		self:SetScale(L('scale'))
 
+		-- Set the module points
 		talkbox:SetPoint(L('boxpoint'), UIParent, L('boxoffsetX'), L('boxoffsetY'))
 		titles:SetPoint('CENTER', UIParent, 'CENTER', L('titleoffset'), 0)
 		titles:SetMovable(true)
 
 		self:SetFrameStrata(L('strata'))
 		talkbox:SetFrameStrata(L('strata'))
+
+		-- If previous version and flyins were disabled, set anidivisor to instant
+		if L.cfg.disableflyin then
+			L.cfg.disableflyin = nil
+			L.cfg.anidivisor = 1
+		end
 
 		-- Set frame ignore for hideUI features on load.
 		L.ToggleIgnoreFrame(Minimap, not L('hideminimap'))
@@ -133,7 +143,7 @@ frame.ADDON_LOADED = function(self, name)
 		local logo = CreateFrame('Frame', nil, L.config)
 		logo:SetFrameLevel(4)
 		logo:SetSize(64, 64)
-		logo:SetPoint('BOTTOMRIGHT', -16, 16)
+		logo:SetPoint('TOPRIGHT', 8, 24)
 		logo:SetBackdrop({bgFile = ('Interface\\AddOns\\%s\\Textures\\Logo'):format(_)})
 
 		-- Run functions for compatibility with other addons on load.
@@ -178,7 +188,7 @@ L.HideFrame(QuestFrame)
 ----------------------------------
 -- Set backdrops on elements
 ----------------------------------
-talkbox.Elements:SetBackdrop(L.Backdrops.TALKBOX)
+elements:SetBackdrop(L.Backdrops.TALKBOX)
 talkbox.Hilite:SetBackdrop(L.Backdrops.GOSSIP_HILITE)
 
 ----------------------------------
@@ -189,17 +199,17 @@ _Mixin(titles, L.TitlesMixin)
 ----------------------------------
 -- Initiate elements
 ----------------------------------
-_Mixin(talkbox.Elements, L.ElementsMixin)
+_Mixin(elements, L.ElementsMixin)
 
 ----------------------------------
 -- Set up dynamically sized frames
 ----------------------------------
 do
 	local AdjustToChildren = L.AdjustToChildren
-	_Mixin(talkbox.Elements, AdjustToChildren)
-	_Mixin(talkbox.Elements.Content, AdjustToChildren)
-	_Mixin(talkbox.Elements.Progress, AdjustToChildren)
-	_Mixin(talkbox.Elements.Content.RewardsFrame, AdjustToChildren)
+	_Mixin(elements, AdjustToChildren)
+	_Mixin(elements.Content, AdjustToChildren)
+	_Mixin(elements.Progress, AdjustToChildren)
+	_Mixin(elements.Content.RewardsFrame, AdjustToChildren)
 	_Mixin(inspector, AdjustToChildren)
 	_Mixin(inspector.Extras, AdjustToChildren)
 	_Mixin(inspector.Choices, AdjustToChildren)
@@ -279,6 +289,10 @@ end
 -- Misc fixes
 ----------------------------------
 talkbox:RegisterForClicks('LeftButtonUp', 'RightButtonUp')
+talkbox:RegisterForDrag('LeftButton')
+talkbox:SetMovable(true)
+talkbox:SetUserPlaced(false)
+talkbox:SetClampedToScreen(true)
 talkbox.TextFrame.SpeechProgress:SetFont('Fonts\\MORPHEUS.ttf', 16, '')
 
 ----------------------------------
@@ -328,11 +342,12 @@ frame.FadeIns = {
 	talkbox.PortraitFrame.FadeIn,
 }
 
-frame.FadeIn = function(self, fadeTime, stopPlay, ignoreFrameFade)
+function frame:FadeIn(fadeTime, playAnimations, ignoreFrameFade)
+	self.fadeState = 'in'
 	L.UIFrameFadeIn(self, fadeTime or 0.2, self:GetAlpha(), 1)
-	if ( not stopPlay ) and ( self.timeStamp ~= GetTime() ) then
-		for _, Fader in pairs(self.FadeIns) do
-			Fader:Play()
+	if ( playAnimations ) and ( self.timeStamp ~= GetTime() ) then
+		for _, animation in pairs(self.FadeIns) do
+			animation:Play()
 		end
 	end
 	if not ignoreFrameFade and L('hideui') and not self.fadeFrames then
@@ -384,7 +399,7 @@ frame.FadeIn = function(self, fadeTime, stopPlay, ignoreFrameFade)
 	end
 end
 
-frame.RestoreFadedFrames = function(self)
+function frame:RestoreFadedFrames()
 	if self.fadeFrames then
 		for frame, info in pairs(self.fadeFrames) do
 			if hideFrames[frame] then
@@ -396,7 +411,8 @@ frame.RestoreFadedFrames = function(self)
 	end
 end
 
-frame.FadeOut = function(self, fadeTime, ignoreOnTheFly)
+function frame:FadeOut(fadeTime, ignoreOnTheFly)
+	self.fadeState = 'out'
 	L.UIFrameFadeOut(self, fadeTime or 1, self:GetAlpha(), 0, {
 		finishedFunc = self.Hide,
 		finishedArg1 = self,

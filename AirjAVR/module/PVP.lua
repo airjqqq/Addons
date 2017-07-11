@@ -4,11 +4,15 @@ local LibPlayerSpells = LibStub('LibPlayerSpells-1.0')
 local Cache
 function mod:OnInitialize()
   Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
+end
+
+
+function mod:OnEnable()
   --constants
   local stun = {
     color={0.4,0.0,0,0.05},
-    color2={1,0.0,0,0.2},
-    radius=3,
+    color2={1,0.0,0,0.3},
+    radius=4,
   }
   local cc = {
     color={0.5,0.5,0,0.05},
@@ -69,9 +73,16 @@ function mod:OnInitialize()
     length = 5,
   }
   local spells = {
-    118, -- poly
-    209753, -- cyclone
-    5782, --Fear
+    [118] = 2, -- poly
+    -- [28272] = 2, -- poly
+    [214634] = 0.8, -- black ice
+
+    [209753] = 2, -- cyclone
+    -- [33786] = 2, -- cyclone
+    [5782] = 2, --Fear
+
+    [339] = 1.4,
+    [8936] = 0.8,
   }
   local pguid = Cache:PlayerGUID()
   if Cache then
@@ -84,20 +95,27 @@ function mod:OnInitialize()
       end
       local name,_,_,_,st,et = UnitCastingInfo("player")
       local matched
-      for i,v in pairs(spells) do
-        if GetSpellInfo(v) == name then
+      local sid,width
+      for id,w in pairs(spells) do
+        if GetSpellInfo(id) == name then
           matched = true
+          sid = id
+          width = w
           break
         end
       end
       if matched then
-        local data = Cache.cache.castStartTo.lastplayer
-        local guid = AirjAutoKey.lastpoly or data and data.guid
+        local data = Cache.cache.castStart:find({sourceGUID = pguid,spellId=sid})
+        -- dump({data,sourceGUID = pguid,spellId=sid})
+        local guid = data and data.destGUID
+        -- print(sid)
         if guid then
-          self.lcum = Core:ShowLinkMesh(mdata,data.spellId.."bg",pguid,guid)
+          mdata.width = width
+          mdata2.width = width
+          self.lcum = Core:ShowLinkMesh(mdata,sid.."bg",pguid,guid)
           local _,_,_,_,distance = Cache:GetPosition(guid)
           mdata2.length = distance*(GetTime()*1000-st)/(et-st)
-          self.lcum2 = Core:ShowLinkMesh(mdata2,data.spellId,pguid,guid)
+          self.lcum2 = Core:ShowLinkMesh(mdata2,sid,pguid,guid)
         end
       end
     end
@@ -124,9 +142,187 @@ function mod:OnInitialize()
   }
   Core:RegisterAreaTriggerCircle(194278,data)
 
+  data = {
+    color={0.0,0.7,0.3,0.05},
+    color2={0.0,0.9,0.3,0.1},
+    duration=15,
+    radius = 10,
+    spellId = 198838,
+  }
+  Core:RegisterCreatureCircle(100943,data)
+  self.drawables = {}
+  self.timers = {}
+
   self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+  self:RegisterEvent("GROUP_ROSTER_UPDATE",self.UpdateArenaUnits,self)
+  self:RegisterEvent("ARENA_OPPONENT_UPDATE",self.UpdateArenaUnits,self)
+  self:UpdateArenaUnits()
 end
 
+function mod:IsInArena()
+  -- return IsInInstance() == "arena" or true --debug
+  return IsInInstance() == "arena"
+end
+local function getClassColor(class)
+	local d = RAID_CLASS_COLORS[class]
+	if d then
+		return d.r,d.g,d.b,1
+	end
+end
+
+local function rotate(x,y,a)
+  local s,c = math.sin(a),math.cos(a)
+  return x*c - y*s, x*s+y*c
+end
+local helpLine = {}
+do
+  local number = 36
+  local t = {}
+  for i = 1,number do
+    local a = i*math.pi*2/number
+    local b = a
+    if b > math.pi then
+      b = 2*math.pi-b
+    end
+    local size = 1.5
+    if math.abs(b)<math.pi/3 then
+      size = size*(1+1/math.cos(math.abs(b)-math.pi/3))/2
+    end
+    local x,y = rotate(0,size,a)
+    t[i] = {x,y,0}
+  end
+  helpLine = {t}
+end
+local function getArrow(aw2,alf,alb,als,abs,size)
+  abs = abs or 0
+  local arrow = {
+  	{{0,-alb-abs*1.5},{aw2+abs,-(alb-aw2)-abs*0.5},{-aw2-abs,-(alb-aw2)-abs*0.5},{aw2+abs,alf-aw2+abs*0.5},{-aw2-abs,alf-aw2+abs*0.5},{0,alf+abs*1.5}},
+    {{aw2+abs,alf-aw2+abs*0.5},{aw2+abs,alf-aw2*3-abs*2.5},{als+abs,alf-als+abs*0.5},{als+abs,alf-als-aw2*2-abs*2.5}},
+    {{-aw2-abs,alf-aw2+abs*0.5},{-aw2-abs,alf-aw2*3-abs*2.5},{-als-abs,alf-als+abs*0.5},{-als-abs,alf-als-aw2*2-abs*2.5}},
+  }
+  local toRet = {}
+  local function multi(t,p)
+    return {t[1]*p,t[2]*p,0}
+  end
+  for _,p in ipairs(arrow) do
+    for j = 3, #p do
+      tinsert(toRet,{multi(p[j-2],size),multi(p[j-1],size),multi(p[j],size)})
+    end
+  end
+  return toRet
+end
+
+local harmLine = getArrow(0.4,2.3,1.3,1.3,0,1.5)
+
+local petLine = {}
+do
+  local number = 36
+  local t = {}
+  for i = 1,number do
+    local a = i*math.pi*2/number
+    local b = a
+    if b > math.pi then
+      b = 2*math.pi-b
+    end
+    local size = 1
+    if math.abs(b)<math.pi/3 then
+      -- size = size*(1+1/math.cos(math.abs(b)-math.pi/3))/2
+    end
+    local x,y = rotate(0,size,a)
+    t[i] = {x,y,0}
+  end
+  petLine = {t}
+end
+function mod:GenerateMesh(guid,unit,lines)
+
+  local scene = AVR:GetTempScene(100)
+  local m = AVRPolygonMesh:New(lines)
+  -- local m = AVRPolygonMesh:New(helpLine)
+  scene:AddMesh(m,false,false)
+  m:SetFollowUnit(guid)
+  -- m:SetFollowUnit(unit)
+  local _,class = UnitClass(unit)
+  local r,g,b = getClassColor(class)
+  m:SetColor(r,g,b,unit == "player" and 0.2 or 0.5)
+
+  local pm = AVRPolygonMesh:New(petLine)
+  scene:AddMesh(pm,false,false)
+  pm:SetFollowUnit(unit.."pet")
+  pm:SetColor(r,g,b,0.5)
+  self.drawables[guid] = {
+    unit = unit,
+    drawable = m,
+    drawablePet = pm,
+  }
+end
+
+function mod:UpdateArenaUnits()
+  for u,timer in pairs(self.timers) do
+    self:CancelTimer(timer)
+  end
+  wipe(self.timers)
+  for guid,data in pairs(self.drawables) do
+    data.mayremove = true
+  end
+  if self:IsInArena() then
+    for i,unit in ipairs({"player","party1","party2"}) do
+
+      local guid = UnitGUID(unit)
+      if guid and UnitClass(unit) then
+        if not self.drawables[guid] then
+          self:GenerateMesh(guid,unit,helpLine)
+        else
+          self.drawables[guid].mayremove = nil
+          -- self.drawables[guid].drawable.rebuild = true
+        end
+      else
+        local timer
+        timer = self:ScheduleRepeatingTimer(function()
+          local guid = UnitGUID(unit)
+          if guid and UnitClass(unit) then
+            if not self.drawables[guid] then
+              self:GenerateMesh(guid,unit,helpLine)
+            end
+            self:CancelTimer(timer)
+            self.timers[unit] = nil
+          end
+        end,0.1)
+        self.timers[unit] = timer
+      end
+    end
+    for i,unit in ipairs({"arena1","arena2","arena3"}) do
+      local guid = UnitGUID(unit)
+      if guid and UnitClass(unit) then
+        if not self.drawables[guid] then
+          self:GenerateMesh(guid,unit,getArrow(0.4,2.3,1.3,1.3,0,1.5))
+        else
+          self.drawables[guid].mayremove = nil
+          -- self.drawables[guid].drawable.rebuild = true
+        end
+      else
+        local timer
+        timer = self:ScheduleRepeatingTimer(function()
+          local guid = UnitGUID(unit)
+          if guid and UnitClass(unit) then
+            if not self.drawables[guid] then
+              self:GenerateMesh(guid,unit,getArrow(0.4,2.3,1.3,1.3,0,1.5))
+            end
+            self:CancelTimer(timer)
+            self.timers[unit] = nil
+          end
+        end,0.1)
+        self.timers[unit] = timer
+      end
+    end
+  end
+  for guid,data in pairs(self.drawables) do
+    if data.mayremove then
+      data.drawable:Remove()
+      data.drawablePet:Remove()
+      self.drawables[guid] = nil
+    end
+  end
+end
 local kicks = {
   --priest
   [ 15487] = {30,45}, -- silence
@@ -164,10 +360,11 @@ local kicks = {
 local function say(source,action,dest,extra,icon)
   local link = GetSpellLink(extra) or ""
   icon = icon or ""
-  SendChatMessage(icon.." ["..source.."] "..action.." ["..dest.."] "..link..icon,"RAID")
+  -- SendChatMessage(icon.." ["..source.."] "..action.." ["..dest.."] "..link..icon,"RAID")
 end
 
 local kicktimers= {}
+local cm
 
 function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
   if event == "SPELL_INTERRUPT" then
@@ -180,8 +377,8 @@ function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sou
       kicktimers[sourceGUID] = nil
     end
     local kick = {
-      color={0.5,0.5,0,0.05},
-      color2={0.8,0.8,0,0.1},
+      color={0.3,0.7,0,0.05},
+      color2={0.5,0.9,0,0.1},
       radius=5,
     }
 
@@ -190,10 +387,20 @@ function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sou
       kick.duration = d
       Core:ShowUnitMesh(kick,spellId,sourceGUID,destGUID)
     end
-
-
-
   end
+  if event == "SPELL_CAST_SUCCESS" and sourceGUID == UnitGUID("player") then
+    if spellId == 48018 or spellId == 101643 or spellId == 119996 then
+      local scene = AVR:GetTempScene(100)
+      local m = AVRCircleMesh:New(40)
+      m:TranslateMesh(AirjHack:Position(sourceGUID))
+      scene:AddMesh(m,false,false)
+      if cm then
+        cm:Remove()
+      end
+      cm = m
+    end
+  end
+  Core:ShowUnitMesh(data,spellId,sourceGUID,destGUID,text)
   if event == "SPELL_CAST_SUCCESS" and kicks[spellId] then
     local sc = sourceGUID and GetPlayerInfoByGUID(sourceGUID)
     local dc = destGUID and GetPlayerInfoByGUID(destGUID)

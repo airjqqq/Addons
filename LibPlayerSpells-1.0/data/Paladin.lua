@@ -72,6 +72,7 @@ lib:__RegisterSpells("PALADIN", 70100, 1, {
 					[ 20066] = "INCAPACITATE", -- Repentance (incapacitate)
 					[ 62124] = "TAUNT", -- Hand of Reckoning (taunt)
 					[105421] = "DISORIENT", -- Blinding Light (disorient)
+					-- [217824] = "SILENCE",
 					STUN = {
 						   853, -- Hammer of Justice (stun)
 						205290, -- Wake of Ashes (Retribution artifact) (stun)

@@ -1,11 +1,7 @@
-## Interface: 72000
+## Interface: 70250
 ## Title: [Airj's] Util
 ## Version: 2.0
 ## Author: Airj
-## RequiredDeps: Ace3,AirjHack
+## RequiredDeps: Ace3
 
-#embeds.xml
-#Libs\DRData-1.0\DRData-1.0.xml
-
-# AirjAutoKey.lua
-..\AirjAutoKey\Util.lua
+AirjUtil.lua

@@ -8,12 +8,7 @@ local band = bit.band
 
 function Cache:OnInitialize()
 	--self.cache.name[key]={t=GetTime(),k=v}
-	self.cache = setmetatable({},{
-		__index=function(t,k)
-			t[k]=AirjUtil:NewFIFO(self.fifosize[k] or 1000)
-			return t[k]
-		end
-	})
+	self:ResetCache()
 	self.interval = {
 		buffs = 1,
 		debuffs = 1,
@@ -95,6 +90,20 @@ function Cache:OnEnable()
 	    -- end
 	  end,0.1)
 	end,5)
+
+	self:RegisterEvent("ARENA_PREP_OPPONENT_SPECIALIZATIONS",self.ResetCache,self)
+  self:RegisterChatCommand("acr", function()
+		self:ResetCache()
+	end)
+end
+
+function Cache:ResetCache()
+	self.cache = setmetatable({},{
+		__index=function(t,k)
+			t[k]=AirjUtil:NewFIFO(self.fifosize[k] or 1000)
+			return t[k]
+		end
+	})
 end
 
 -- function Cache:RestarRecovertTimer()

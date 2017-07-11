@@ -3,9 +3,9 @@ local AceGUI = LibStub("AceGUI-3.0")
 AirjGuild = Core
 -- local GS = LibStub("LibGuildStorage-1.2")
 
-local RAID1DETAIL = "1团活动时间:星期四、一、二、三，晚上8:30-11:30，CallLoot分配(队长分配)。主打M模式，进度M8/10。装等要求910+，主召：奶萨/元素萨/盗贼/法师"
-local RAID2DETAIL = "2团活动时间:星期四、五(、六、日)，晚上8:30-11:30。CallLoot分配(队长分配)，备战萨墓。速推暗夜要塞H模式，装等要求880+，主召：坦克、治疗、指挥"
-local WORLDMESSAGE = "<Hand Of Justice>公会,上班族为主.1团进度M8/10,招FS/SM/DZ.2团主打H,招指挥"
+local RAID1DETAIL = "一团 时间:星期四/一/二/三,晚上8:30-11:30.CL分配.装等要求910,当前8/9H,以后主打M,招:qs/sm/dz/dh/ss/fs"
+local RAID2DETAIL = "二团 时间:星期五(/六/日),晚上8:30-11:30.CL分配.当前普通全通,以后主打H模式,小号提升团,装等要求880+"
+local WORLDMESSAGE = "<Hand Of Justice>公会,上班族,H8/9,晚上活动.M我查看招人详情"
 local GAMESSAGE = "要参加公会活动请m我装等,专精,经验等信息,团队列表如下:"
 
 function Core:OnInitialize()
@@ -44,7 +44,7 @@ function Core:OnEnable()
   self:RegisterEvent("CHAT_MSG_OFFICER")
   self.worldLastTime = GetTime()
   self.gaLastTime = GetTime() - 10*60
-  self:World(180,"大脚世界频道",WORLDMESSAGE)
+  -- self:World(600,"大脚世界频道",WORLDMESSAGE)
   self:GuildAnnouncement(15*60,GAMESSAGE)
   self:RegisterChatCommand("ag", function(str)
     self:CheckAndTogglePointIndexSelector("ChatCommand")
@@ -193,6 +193,7 @@ function Core:GuildAnnouncement(interval,message)
 end
 
 local nextAutoGuildInfo = {}
+Core.next = nextAutoGuildInfo
 local guildRosterInfo={}
 local nameToFullName = {}
 function Core:CHAT_MSG_WHISPER(event,message, sender, language, channelString, target, flags, unknown, channelNumber, channelName, unknown, counter, guid)
@@ -212,14 +213,20 @@ function Core:CHAT_MSG_WHISPER(event,message, sender, language, channelString, t
       if not guildRosterInfo[sender] and not nameToFullName[sender] then
         if not nextAutoGuildInfo[sender] or nextAutoGuildInfo[sender]<GetTime() then
           self:ScheduleTimer(function()
-            if AirjHack and AirjHack:HasHacked() then
-              SendChatMessage("你好！回复“JRGH”或“加入公会”自动邀请加入公会。","WHISPER",nil,sender)
-              RunMacroText("/ginvite "..sender)
-            end
-            SendChatMessage(RAID1DETAIL,"WHISPER",nil,sender)
-            SendChatMessage(RAID2DETAIL,"WHISPER",nil,sender)
+            self:ScheduleTimer(function()
+              SendChatMessage(RAID1DETAIL,"WHISPER",nil,sender)
+            end,1)
+            self:ScheduleTimer(function()
+              SendChatMessage(RAID2DETAIL,"WHISPER",nil,sender)
+            end,2)
+            self:ScheduleTimer(function()
+              if AirjHack and AirjHack:HasHacked() then
+                SendChatMessage("你好,回“JRGH”或“加入公会”自动邀请.","WHISPER",nil,sender)
+                RunMacroText("/ginvite "..sender)
+              end
+            end,3)
           end,3)
-          nextAutoGuildInfo[sender] = GetTime()+300
+          nextAutoGuildInfo[sender] = GetTime()+900
         end
       end
     end
@@ -228,7 +235,7 @@ end
 
 
 --[[
-活动时间:星期四、一、二、三，晚上8:30-11:30。CallLoot分配。装等要求875+。
+活动时间:星期四/一/二/三,晚上8:30-11:30.CallLoot分配.装等要求875+.
 
 进度:M4/7
 
@@ -309,6 +316,17 @@ function Core:UpdateParticipation()
     end
     self:UpdateGuildRosterInfo()
     local added = {}
+    do
+      local a,b = IsInInstance()
+      if b=="none" then
+        SendChatMessage(pointIndex.."团 开组,m我123自动进组","GUILD")
+      else
+        if not UnitAffectingCombat("player") then
+          SendChatMessage(pointIndex.."团 开组,m我123自动进组","GUILD")
+          -- SendChatMessage(pointIndex.."团 出勤率更新中...","RAID")
+        end
+      end
+    end
     local function add(name,cp)
       local data = guildRosterInfo[name]
       if data then

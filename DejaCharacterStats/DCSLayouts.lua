@@ -1,11 +1,13 @@
 --Elvis is the greatest!
-local ADDON_NAME, namespace = ... 	--localization
+--local ADDON_NAME, namespace = ... 	--localization
+local _, namespace = ... 	--localization
 local L = namespace.L 				--localization
-
+--local _, char_ctats_pane = ... --seems like shared upvaluing of tables isn't so easy
+local char_ctats_pane = CharacterStatsPane
 DCS_ClassSpecDB = {}
 
 local _, DCS_TableData = ...
-
+local scrollbarchecked
 local _, gdbprivate = ...
 	gdbprivate.gdbdefaults.gdbdefaults.dejacharacterstatsScrollbarChecked = {
 		ScrollbarSetChecked = false,
@@ -24,15 +26,22 @@ local StatScrollFrame = CreateFrame("ScrollFrame", nil, CharacterFrameInsetRight
 	StatScrollFrame.ScrollBar:Hide()
 	
 	StatScrollFrame:HookScript("OnScrollRangeChanged", function(self, xrange, yrange)
+		--[[
 		local checked = gdbprivate.gdb.gdbdefaults.dejacharacterstatsScrollbarChecked
 		if checked.ScrollbarSetChecked == true then
 			self.ScrollBar:SetShown(floor(yrange) ~= 0)
 		elseif not checked.ScrollbarSetChecked == true then
 			self.ScrollBar:Hide()
 		end
+		--]]
+		if scrollbarchecked then
+			self.ScrollBar:SetShown(floor(yrange) ~= 0)
+		else
+			self.ScrollBar:Hide()
+		end
 	end)
 	
-	StatFrame = CreateFrame("Frame", nil, StatScrollFrame)
+	local StatFrame = CreateFrame("Frame", nil, StatScrollFrame)
 	StatFrame:SetWidth(191)
 	StatFrame:SetPoint("TOPLEFT")
 	StatFrame.AnchorFrame = CreateFrame("Frame", nil, StatFrame)
@@ -40,19 +49,19 @@ local StatScrollFrame = CreateFrame("ScrollFrame", nil, CharacterFrameInsetRight
 	StatFrame.AnchorFrame:SetPoint("TOPLEFT")
 	StatScrollFrame:SetScrollChild(StatFrame)
 
-	CharacterStatsPane.ItemLevelFrame:SetParent(StatFrame)
-	CharacterStatsPane.ItemLevelFrame.Value:SetFont(CharacterStatsPane.ItemLevelFrame.Value:GetFont(), 22, "THINOUTLINE")
-	CharacterStatsPane.ItemLevelFrame.Value:SetPoint("CENTER",CharacterStatsPane.ItemLevelFrame.Background, "CENTER", 0, 1)
+	char_ctats_pane.ItemLevelFrame:SetParent(StatFrame)
+	char_ctats_pane.ItemLevelFrame.Value:SetFont(char_ctats_pane.ItemLevelFrame.Value:GetFont(), 22, "THINOUTLINE")
+	char_ctats_pane.ItemLevelFrame.Value:SetPoint("CENTER",char_ctats_pane.ItemLevelFrame.Background, "CENTER", 0, 1)
 
-	CharacterStatsPane.AttributesCategory:SetParent(StatFrame)
-	CharacterStatsPane.AttributesCategory:SetHeight(28)
-	CharacterStatsPane.AttributesCategory.Background:SetHeight(28)
+	char_ctats_pane.AttributesCategory:SetParent(StatFrame)
+	char_ctats_pane.AttributesCategory:SetHeight(28)
+	char_ctats_pane.AttributesCategory.Background:SetHeight(28)
 
-	CharacterStatsPane.ClassBackground:SetParent(StatScrollFrame)
+	char_ctats_pane.ClassBackground:SetParent(StatScrollFrame)
 
-	CharacterStatsPane.EnhancementsCategory:SetParent(StatFrame)
-	CharacterStatsPane.EnhancementsCategory:SetHeight(28)
-	CharacterStatsPane.EnhancementsCategory.Background:SetHeight(28)
+	char_ctats_pane.EnhancementsCategory:SetParent(StatFrame)
+	char_ctats_pane.EnhancementsCategory:SetHeight(28)
+	char_ctats_pane.EnhancementsCategory.Background:SetHeight(28)
 
 local DefaultData = DCS_TableData:MergeTable({
     { statKey = "ItemLevelFrame" },
@@ -181,12 +190,14 @@ local configMode = false
 local function ShowCharacterStats(unit)
     local stat
     local count, backgroundcount, height = 0, false, 4
-	local hideatzero = true --placeholder for the checkbox hideatzero
-	local butshowstatifchecked = false --placeholder for the checkbox butshowstatifchecked
+	local hideatzero = gdbprivate.gdb.gdbdefaults.dejacharacterstatsHideatZeroChecked.SetChecked --placeholder for the checkbox hideatzero
+	--print(hideatzero,"hide@zero")
     for _, v in ipairs(ShownData) do
         stat = DCS_TableData.StatData[v.statKey]
+		--print(v.statKey)
 		if stat then -- if some stat gets removed or if experimenting with adding stats
 			stat.updateFunc(stat.frame, unit)
+			--print(v.statKey,stat.frame.numericValue) -- to verify that recorded numeric value is the one intended - either rounded or with many decimal digits
 			if (configMode) then
 				stat.frame:Show()
 				stat.frame.checkButton:Show()
@@ -197,7 +208,7 @@ local function ShowCharacterStats(unit)
 					stat.frame:SetAlpha(1)
 				end
 			else
-				if hideatzero and not butshowstatifchecked then
+				if hideatzero then
 					if v.hideAt then
 						if v.hideAt == stat.frame.numericValue then
 							stat.frame:Hide()
@@ -243,8 +254,9 @@ local function ShowCharacterStats(unit)
 		UpdateStatFrameWidth(191)
 		StatScrollFrame.ScrollBar:Hide()
 	else
-		local checked = gdbprivate.gdb.gdbdefaults.dejacharacterstatsScrollbarChecked
-		if checked.ScrollbarSetChecked == true then
+		--local checked = gdbprivate.gdb.gdbdefaults.dejacharacterstatsScrollbarChecked
+		--if checked.ScrollbarSetChecked == true then
+		if scrollbarchecked then
 			UpdateStatFrameWidth(180)
 			StatScrollFrame.ScrollBar:Show()
 		else
@@ -463,7 +475,7 @@ end)
 ---------------------
 
 
-CharacterStatsPane:HookScript("OnShow", function(self)
+char_ctats_pane:HookScript("OnShow", function(self)
 	self:Hide()
 	StatScrollFrame:Show()
 end)
@@ -656,9 +668,9 @@ end
 
 local function DCS_ClassCrestBGCheck()
 	if DCS_ClassBackgroundCheck:GetChecked(true) then
-		CharacterStatsPane.ClassBackground:Show() 
+		char_ctats_pane.ClassBackground:Show() 
 	else
-		CharacterStatsPane.ClassBackground:Hide()
+		char_ctats_pane.ClassBackground:Hide()
 	end
 end
 	
@@ -680,9 +692,9 @@ local function DCS_DefaultStatsAnchors()
 	StatScrollFrame.ScrollBar:SetPoint("BOTTOMLEFT", StatScrollFrame, "BOTTOMRIGHT", -16, 16)
 	StatScrollFrame.ScrollBar:Hide()
 
-	CharacterStatsPane.ClassBackground:ClearAllPoints()
-	CharacterStatsPane.ClassBackground:SetParent(StatScrollFrame)
-	CharacterStatsPane.ClassBackground:SetPoint("TOP", StatScrollFrame, "TOP", -2.50, 3)
+	char_ctats_pane.ClassBackground:ClearAllPoints()
+	char_ctats_pane.ClassBackground:SetParent(StatScrollFrame)
+	char_ctats_pane.ClassBackground:SetPoint("TOP", StatScrollFrame, "TOP", -2.50, 3)
 	
 	configButtonOnClose()
 	DCS_ClassCrestBGCheck()
@@ -715,11 +727,11 @@ local function DCS_InterfaceOptionsStatsAnchors()
 		DCS_TableResetCheck:SetParent(StatScrollFrame)
 		DCS_TableResetCheck:SetPoint("BOTTOMRIGHT", 3, -42)
 
-		CharacterStatsPane.ClassBackground:ClearAllPoints()
-		CharacterStatsPane.ClassBackground:SetParent(DejaCharacterStatsPanel)
-		CharacterStatsPane.ClassBackground:SetPoint("TOPLEFT", DejaCharacterStatsPanel, "TOPLEFT", 377, -80)
-		CharacterStatsPane.ClassBackground:SetPoint("BOTTOMRIGHT", DejaCharacterStatsPanel, "BOTTOMRIGHT", -48, 126)
-		CharacterStatsPane.ClassBackground:Show()
+		char_ctats_pane.ClassBackground:ClearAllPoints()
+		char_ctats_pane.ClassBackground:SetParent(DejaCharacterStatsPanel)
+		char_ctats_pane.ClassBackground:SetPoint("TOPLEFT", DejaCharacterStatsPanel, "TOPLEFT", 377, -80)
+		char_ctats_pane.ClassBackground:SetPoint("BOTTOMRIGHT", DejaCharacterStatsPanel, "BOTTOMRIGHT", -48, 126)
+		char_ctats_pane.ClassBackground:Show()
 
 		DCS_ClassCrestBGCheck()
 		ShowCharacterStats("player")
@@ -750,10 +762,10 @@ CharacterFrameInsetRight:HookScript("OnHide", function(self)
 		DCS_TableRelevantStats:Hide() 	--For some reason these two have to be hidden again even tho they are hidden with configButtonOnClose() below.
 		DCS_TableResetCheck:Hide()		--For some reason these two have to be hidden again even tho they are hidden with configButtonOnClose() below.
 
-		CharacterStatsPane.ClassBackground:ClearAllPoints()
-		CharacterStatsPane.ClassBackground:SetParent(UIParent)
-		CharacterStatsPane.ClassBackground:SetPoint("BOTTOMRIGHT", UIParent, "TOPLEFT", 0, 0)
-		CharacterStatsPane.ClassBackground:Show()
+		char_ctats_pane.ClassBackground:ClearAllPoints()
+		char_ctats_pane.ClassBackground:SetParent(UIParent)
+		char_ctats_pane.ClassBackground:SetPoint("BOTTOMRIGHT", UIParent, "TOPLEFT", 0, 0)
+		char_ctats_pane.ClassBackground:Show()
 
 		configButtonOnClose()
 	end
@@ -816,7 +828,7 @@ local function DCS_InterfaceOptConfigButton_OnLeave(self)
 		configMode = not configMode
 		if (configMode) then
 			self:SetNormalTexture("Interface\\Buttons\\LockButton-Unlocked-Up")
-			set_config_mode(true)
+			set_config_mode(true) --might get improved into set_config_mode(configMode)
 		else
 			self:SetNormalTexture("Interface\\Buttons\\LockButton-Locked-Up")
 			set_config_mode(false)
@@ -837,17 +849,22 @@ local DCS_ScrollbarCheck = CreateFrame("CheckButton", "DCS_ScrollbarCheck", Deja
 	DCS_ScrollbarCheck.tooltipText = L["Displays the DCS scrollbar."] --Creates a tooltip on mouseover.
 	_G[DCS_ScrollbarCheck:GetName() .. "Text"]:SetText(L["Scrollbar"])
 	
-	DCS_ScrollbarCheck:SetScript("OnEvent", function(self, event, arg1)
+	DCS_ScrollbarCheck:SetScript("OnEvent", function(self, event)
 		if event == "PLAYER_LOGIN" then
-			local checked = gdbprivate.gdb.gdbdefaults.dejacharacterstatsScrollbarChecked
-			self:SetChecked(checked.ScrollbarSetChecked)
+			--local checked = gdbprivate.gdb.gdbdefaults.dejacharacterstatsScrollbarChecked
+			--self:SetChecked(checked.ScrollbarSetChecked)
+			local checked = gdbprivate.gdb.gdbdefaults.dejacharacterstatsScrollbarChecked.ScrollbarSetChecked
+			self:SetChecked(checked)
+			scrollbarchecked = checked
+			self:UnregisterEvent(event)
 			--Logic is built into ShowCharacterStats("player")
 		end
-		DCS_ScrollbarCheck:UnregisterAllEvents();
-        ShowCharacterStats("player")
+		--DCS_ScrollbarCheck:UnregisterAllEvents();
+        --ShowCharacterStats("player") --during login no need to display stats
 	end)
 
-	DCS_ScrollbarCheck:SetScript("OnClick", function(self,event,arg1) 
+	DCS_ScrollbarCheck:SetScript("OnClick", function(self) 
+		--[[
 		local checked = gdbprivate.gdb.gdbdefaults.dejacharacterstatsScrollbarChecked
 		if self:GetChecked(true) then
 			--Show/Hide Logic is built into ShowCharacterStats("player")
@@ -856,6 +873,17 @@ local DCS_ScrollbarCheck = CreateFrame("CheckButton", "DCS_ScrollbarCheck", Deja
 			gdbprivate.gdb.gdbdefaults.dejacharacterstatsScrollbarChecked.ScrollbarSetChecked = false
 		end		
         ShowCharacterStats("player")
+		--]]
+		local checked = self:GetChecked() 
+		gdbprivate.gdb.gdbdefaults.dejacharacterstatsScrollbarChecked.ScrollbarSetChecked = checked 
+		scrollbarchecked = checked
+		ShowCharacterStats("player")
+		--later will try
+		--[[
+		scrollbarchecked = not scrollbarchecked
+		gdbprivate.gdb.gdbdefaults.dejacharacterstatsScrollbarChecked.ScrollbarSetChecked = scrollbarchecked 
+		ShowCharacterStats("player")
+		--]]		
 	end)
 
 
@@ -871,8 +899,8 @@ local DCS_ClassBackgroundCheck = CreateFrame("CheckButton", "DCS_ClassBackground
 	DCS_ClassBackgroundCheck.tooltipText = L["Displays the class crest background."] --Creates a tooltip on mouseover.
 	_G[DCS_ClassBackgroundCheck:GetName() .. "Text"]:SetText(L["Class Crest Background"])
 	
-	DCS_ClassBackgroundCheck:SetScript("OnEvent", function(self, event, arg1)
-		if event == "PLAYER_LOGIN" then
+	DCS_ClassBackgroundCheck:SetScript("OnEvent", function(self, event)
+		--[[if event == "PLAYER_LOGIN" then
 		local checked = gdbprivate.gdb.gdbdefaults.dejacharacterstatsClassBackgroundChecked
 			self:SetChecked(checked.ClassBackgroundChecked)
 			if self:GetChecked(true) then
@@ -884,9 +912,21 @@ local DCS_ClassBackgroundCheck = CreateFrame("CheckButton", "DCS_ClassBackground
 			end
 		end
 		DCS_ClassBackgroundCheck:UnregisterAllEvents();
+		--]]
+		if event == "PLAYER_LOGIN" then
+			local checked = gdbprivate.gdb.gdbdefaults.dejacharacterstatsClassBackgroundChecked.ClassBackgroundChecked
+			self:SetChecked(checked)
+			if checked then
+				char_ctats_pane.ClassBackground:Show() 
+			else
+				char_ctats_pane.ClassBackground:Hide() 
+			end
+			self:UnregisterEvent(event);
+		end
 	end)
 
-	DCS_ClassBackgroundCheck:SetScript("OnClick", function(self,event,arg1) 
+	DCS_ClassBackgroundCheck:SetScript("OnClick", function(self)
+		--[[
 		local checked = gdbprivate.gdb.gdbdefaults.dejacharacterstatsClassBackgroundChecked
 		if self:GetChecked(true) then
 			CharacterStatsPane.ClassBackground:Show() 
@@ -896,6 +936,15 @@ local DCS_ClassBackgroundCheck = CreateFrame("CheckButton", "DCS_ClassBackground
 			gdbprivate.gdb.gdbdefaults.dejacharacterstatsClassBackgroundChecked.ClassBackgroundChecked = false
 		end		
         ShowCharacterStats("player")
+		--]]
+		local checked = self:GetChecked()
+		gdbprivate.gdb.gdbdefaults.dejacharacterstatsClassBackgroundChecked.ClassBackgroundChecked = checked
+		if checked then
+			char_ctats_pane.ClassBackground:Show()
+		else
+			char_ctats_pane.ClassBackground:Hide()
+		end
+        ShowCharacterStats("player") --does it need to be called?
 	end)
 
 InterfaceOptionsFrame:HookScript("OnShow", function(self)

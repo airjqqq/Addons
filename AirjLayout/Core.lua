@@ -154,6 +154,7 @@ function Core:SetLayout()
 
 
   if AirjAutoKey_GUI_anchor then
+    AirjAutoKey_GUI_anchor:ClearAllPoints()
     AirjAutoKey_GUI_anchor:SetPoint("CENTER",UIParent,"CENTER",0,-240)
   end
 

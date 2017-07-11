@@ -114,6 +114,7 @@ function M:OnEnable()
 	self.cruiseTimer = self:ScheduleRepeatingTimer(self.CruiseTimer,0.01,self)
 
 	self:ScheduleRepeatingTimer(self.CheckGiftTrigged,0.01,self)
+	self:ScheduleRepeatingTimer(self.CheckATTrigged,0.01,self)
   self:RegisterMessage("AIRJ_HACK_OBJECT_CREATED",self.OnObjectCreated,self)
   self:RegisterMessage("AIRJ_HACK_OBJECT_DESTROYED",self.OnObjectDestroyed,self)
 	for i = 1,10 do
@@ -196,13 +197,14 @@ function M:MoveTimer()
 	-- end
 	local targetAngle,targetDistance,facingAngle,facingDistance,targetDistanceXY,targetDistanceZ,targetSize,targetPitch
 	local playFacing = GetPlayerFacing()
+	local speed = select(IsFlying() and 3 or IsSwimming() and 4 or 2 ,GetUnitSpeed("player"))
 	do
 		local type,data,minDistance,is
 		if self.goto.templateTime and self.goto.templateTime>GetTime() then
 			for i,v in ipairs(self.goto.targetTimeT) do
 				if GetTime()< v+self.goto.templateTime then
 					-- print(i)
-					type,data = self.goto.targetTypeT[i],self.goto.targetDataT[i]
+					type,data,minDistance = self.goto.targetTypeT[i],self.goto.targetDataT[i],self.goto.targetMinDistanceT and self.goto.targetMinDistanceT[i]
 					break
 				end
 			end
@@ -211,6 +213,9 @@ function M:MoveTimer()
 		end
 		if not type then
 			type,data,minDistance,is = self.goto.targetType,self.goto.targetData,self.goto.targetMinDistance,self.goto.incluedTargetSize
+			if minDistance then
+				minDistance = max(0.02*speed,minDistance)
+			end
 		end
 		if type then
 			local x, y, z, _, s = self:GetPositionForType(type,data)
@@ -229,7 +234,10 @@ function M:MoveTimer()
 	end
 	do
 		local type,data,minAngle = self.goto.facingType,self.goto.facingData,self.goto.facingMinAngle
-		if type then
+		if type == "facing" then
+			facingDistance = 40
+			facingAngle = self:GetAngleFacing(data)
+		elseif type then
 			local x,y,z = self:GetPositionForType(type,data)
 			if x then
 				facingDistance = self:GetDistanceFromPlayer(x,y,z)
@@ -242,8 +250,8 @@ function M:MoveTimer()
 	local stop
 	local moveDistanceXY,moveDistance
 	if targetDistanceXY then
-		moveDistanceXY = targetDistanceXY - (self.goto.targetMinDistance or 0.2) - (self.goto.incluedTargetSize and targetSize or 0)
-		moveDistance = targetDistance - (self.goto.targetMinDistance or 0.2) - (self.goto.incluedTargetSize and targetSize or 0)
+		moveDistanceXY = targetDistanceXY - (minDistance or 0.2) - (self.goto.incluedTargetSize and targetSize or 0)
+		moveDistance = targetDistance - (minDistance or 0.2) - (self.goto.incluedTargetSize and targetSize or 0)
 	else
 		moveDistanceXY = 0
 		moveDistance = 0
@@ -263,8 +271,11 @@ function M:MoveTimer()
 			turnAngle = facingAngle + 1
 			moves[6] = 1
 		end
+		if self.goto.targetStopAfterReach then
+			self:SetMoveTarget()
+		end
 	else
-		if facingAngle and facingDistance > 1 then
+		if facingAngle and facingDistance > 2.5 and not IsMounted() then
 			local difAngle = abs(targetAngle-facingAngle)
 			local pon = targetAngle > facingAngle and -1 or 1
 			if difAngle > 180 then difAngle = 360 - difAngle end
@@ -320,7 +331,7 @@ function M:MoveTimer()
 		end
 	end
 	if (IsSwimming() or IsFlying()) then
-		if targetPitch then
+		if targetPitch and (moveDistanceXY>1 or targetDistanceZ>1 or targetDistanceZ < -1) then
 			local pitch = AirjHack:GetPitch()
 				-- print(targetPitch,pitch)
 			if targetPitch - pitch> 0.05 then
@@ -356,7 +367,7 @@ function M:MoveTimer()
 		-- jumped = GetTime()
 		print("jump")
 	end
-	local speed = GetUnitSpeed("player")
+	-- local speed = GetUnitSpeed("player")
 	stucked = self:CheckStuckedTime(5)
 	local minTime = 5/speed
 	if targetDistanceXY and stucked >(IsFlying() and 3 or 0.5) + minTime and not (self.goto.templateTime and self.goto.templateTime + 1>GetTime()) then
@@ -508,10 +519,10 @@ function M:ClearGoToTemplate()
 	self.goto.templateTime = GetTime()
 end
 
-function M:SetMoveTarget (type,data,follow,minDistance,incluedTargetSize)
+function M:SetMoveTarget (type,data,sar,minDistance,incluedTargetSize)
 	self.goto.targetType = type
 	self.goto.targetData = data
-	self.goto.targetFollow= follow
+	self.goto.targetStopAfterReach= sar
 	if (minDistance and minDistance<0.1) then minDistance = 0.1 end
 	self.goto.targetMinDistance = minDistance
 	self.goto.incluedTargetSize = incluedTargetSize
@@ -540,13 +551,13 @@ function M:KeepGoToUnit(unit,...)
 end
 
 function M:KeepFollowUnit(unit,...)
-	self:SetMoveTarget("unit",unit,true,...)
+	self:SetMoveTarget("unit",unit,nil,...)
 end
 
 function M:KeepFollowGUID(guid,...)
 	--local guid = UnitGUID(unit)
 	if guid and guid~=UnitGUID("player") then
-		self:SetMoveTarget("guid",guid,true,...)
+		self:SetMoveTarget("guid",guid,nil,...)
 	end
 end
 function M:KeepFacingUnit(unit,...)
@@ -578,7 +589,7 @@ function M:MoveToNearest(uid,parachute,ignore)
 	for guid,t in pairs(guids) do
 		if not ignore or not ignore[guid] then
 			local ot,_,_,_,oid = AirjHack:GetGUIDInfo(guid)
-			if ot == "Creature" or ot == "GameObject" then
+			if ot == "Creature" or ot == "GameObject" or ot == "AreaTrigger" then
 				if uid and uid[oid] then
           local mignore = AirjMove.ignores[oid]
           if not mignore or not mignore[guid] then
@@ -623,6 +634,29 @@ function M:MoveTo(point,parachute)
 	else
 		self:SetMoveTarget("point",point)
 	end
+end
+
+function M:MoveToTemplate(...)
+	local data,durations,duration = {},{},0
+	local typeT,minDistance = {},{}
+	for i,d in ipairs({...}) do
+		local x,y,z,t,md = unpack(d)
+		typeT[i] = "point"
+		data[i] = {x,y,z}
+		minDistance[i] = md-0.1
+		durations[i] = t
+		duration = duration + t
+	end
+	self.goto.targetDataT = data
+	self.goto.targetTypeT = typeT
+	self.goto.targetMinDistanceT = minDistance
+	self.goto.targetTimeT = {}
+	local started = 0
+	for i,v in ipairs(durations) do
+		self.goto.targetTimeT[i] = -duration + v + started
+		started = started + v
+	end
+	self.goto.templateTime = GetTime()+duration
 end
 
 local defaultDB = {
@@ -989,6 +1023,15 @@ function M:GetDistanceFromPlayer (x,y,z,xy)
 	return self:GetDistance({x,y,xy and pz or z},{px, py, pz})
 end
 
+function M:GetAngleFacing(angle)
+	local px, py, pz, pf = self:GetPlayPosition()
+	local facing = pf*180/math.pi
+	angle = angle*180/math.pi
+	angle = angle - 90 - facing + 360
+	if (angle > 180) then angle = angle - 360 end
+	return angle
+end
+
 function M:GetAngle(x,y,z)
 	local px, py, pz, pf = self:GetPlayPosition()
 	local facing = pf*180/math.pi
@@ -1074,6 +1117,22 @@ function M:GetGUIDInfo(guid)
 end
 
 local gifts = {}
+local areaTriggers = {}
+M.areaTriggers = areaTriggers
+local areaTriggerSpellIds = {
+	[242613] = true,
+}
+
+function M:CheckATTrigged()
+	local px,py,pz,pf = self:GetPlayPosition()
+	for guid,position in pairs(areaTriggers) do
+		local x,y,z,r = unpack(position)
+		local d = math.sqrt((px-x)*(px-x)+(py-y)*(py-y)+(pz-z)*(pz-z))
+		if d< (r or 1) then
+			areaTriggers[guid] = nil
+		end
+	end
+end
 
 function M:CheckGiftTrigged()
 	local px,py,pz,pf = self:GetPlayPosition()
@@ -1103,7 +1162,28 @@ function M:OnObjectCreated(event,guid,type)
 				end
 				if match then
 					local x,y,z = AirjHack:Position(guid)
-					gifts[guid] = {x,y,z}
+		      local radius = AirjHack:ObjectFloat(guid,0x94)
+					gifts[guid] = {x,y,z,radius}
+				end
+			end
+			if areaTriggerSpellIds[spellId] then
+				local gs = {AirjHack:ObjectGUID4(UnitGUID("player"))}
+				local match = true
+				local oi = {}
+				for i=1,4 do
+					oi[i] = AirjHack:ObjectInt(guid,0x64+i*4)
+				end
+				for i=1,4 do
+					if gs[i] ~= oi[i] then
+						match = false
+						break
+					end
+				end
+					-- dump({id,oi,gs,match})
+				if match then
+					local x,y,z = AirjHack:Position(guid)
+		      local radius = AirjHack:ObjectFloat(guid,0x94)
+					areaTriggers[guid] = {x,y,z,radius,spellId}
 				end
 			end
     end
@@ -1111,6 +1191,7 @@ function M:OnObjectCreated(event,guid,type)
 end
 function M:OnObjectDestroyed(event,guid)
 	gifts[guid] = nil
+	areaTriggers[guid] = nil
 end
 
 function M:IsHardMoving()
@@ -1201,7 +1282,32 @@ function M:GoToGift()
 		end,time)
 	end
 end
-
+function M:GoToAreaTriggers(ids,maxDistance)
+	maxDistance = maxDistance or 5
+	local px,py,pz,pf = self:GetPlayPosition()
+	local tx,ty,tz,tr
+	local distance
+	for guid,position in pairs(areaTriggers) do
+		local x,y,z,r,sid = unpack(position)
+		local d = math.sqrt((px-x)*(px-x)+(py-y)*(py-y)+(pz-z)*(pz-z))
+		if (not distance or d<distance) and ids[sid] then
+			tx,ty,tz,tr = x,y,z,r
+			distance = d
+		end
+	end
+	if distance and distance < tr-0.1 then
+		return
+	end
+	if tx and not self.gifting then
+		if self:IsHardMoving() then
+			self:MoveAsHard()
+			return
+		end
+		local speed = select(IsFlying() and 3 or IsSwimming() and 4 or 2 ,GetUnitSpeed("player"))
+		self:MoveToTemplate({tx,ty,tz,distance/speed,tr-0.1})
+	end
+	return distance
+end
 local turning
 
 function M:TurnAndCast(spellId,prejump,delay)
@@ -1209,11 +1315,13 @@ function M:TurnAndCast(spellId,prejump,delay)
 		return
 	end
 	local spellName = GetSpellInfo(spellId)
+	local rerc,relc
 	if not spellName then return end
 	if not turning and (GetSpellCooldown(spellName) == 0 or 1) then
 		local f = GetPlayerFacing()
 		local f2 = (f+math.pi)%(2*math.pi)
- 		local d = not (self.leftDown==1 or self.rightDown==1)
+ 	-- 	local d = not (self.leftDown==1 or self.rightDown==1)
+ 		local d = true
  		local ld = self.leftDown==1
  		local rd = self.rightDown==1
 		local i = 0
@@ -1224,10 +1332,14 @@ function M:TurnAndCast(spellId,prejump,delay)
 		local turn = function()
 			if i == 0 then
 				if d then FlipCameraYaw(180) end
-				if rd and not ld then
+				if ld then
+					CameraOrSelectOrMoveStop()
+				end
+				if rd then
 					TurnOrActionStop()
-					CameraOrSelectOrMoveStart()
+					-- CameraOrSelectOrMoveStart()
 					-- print("r->l start")
+					rerc = true
 				end
 			end
 			if i<10 then
@@ -1239,19 +1351,35 @@ function M:TurnAndCast(spellId,prejump,delay)
 				RunMacroText("/cast "..spellName)
 			end
 			if i == 10 then
-				if d then FlipCameraYaw(180) end
+				if d then
+					FlipCameraYaw(180)
+				end
 			end
 			if i == delay then
+				-- print("done")
 				turning = nil
-				if rd and not ld then
-					CameraOrSelectOrMoveStop()
+				if rerc then
+					-- CameraOrSelectOrMoveStop()
 					TurnOrActionStart()
 					-- print("r->l stop")
+				end
+				if relc then
+					CameraOrSelectOrMoveStart()
 				end
 				self:MoveAsHard()
 				self:CancelTimer(timer)
 			end
 			if i>2 and i<delay-2 then
+
+				if self.leftDown == 1 then
+					CameraOrSelectOrMoveStop()
+					relc = true
+				end
+				if self.rightDown ==1 then
+					TurnOrActionStop()
+					rerc = true
+					-- CameraOrSelectOrMoveStart()
+				end
 				if i%2==0 then
 					self:Move(5,1)
 					self:Move(6,0)
@@ -1259,6 +1387,10 @@ function M:TurnAndCast(spellId,prejump,delay)
 					self:Move(5,0)
 					self:Move(6,1)
 				end
+				-- if self.rightDown ==1 then
+				-- 	CameraOrSelectOrMoveStop()
+				-- 	TurnOrActionStart()
+				-- end
 			end
 			i = i + 1
 		end
@@ -1266,6 +1398,89 @@ function M:TurnAndCast(spellId,prejump,delay)
 		turning = 1
 		if prejump then
 			JumpOrAscendStart()
+		end
+	end
+end
+
+function M:GreenCast(...)
+
+	local ld = self.leftDown==1
+	local rd = self.rightDown==1
+	AirjHack:GreenCast(...)
+	if rd then
+		TurnOrActionStart()
+	end
+	if ld then
+		CameraOrSelectOrMoveStart()
+	end
+end
+
+function M:StepStun(unit)
+	local t = unit or "target"
+	local gcd=AirjCache:GetSpellCooldown(61304)
+	if gcd<0.2 then
+		local c = UnitPower("player",4)
+		local e = UnitPower("player",3)
+		local can,canks
+		local s=GetShapeshiftForm()
+		local cd=AirjCache:GetSpellCooldown(408)
+		local m = "/cast [@"..t.."] "
+		local modcd,_,modknow=AirjCache:GetSpellCooldown(137619)
+		local data = AirjCache.cache.castSuccess:find({spellId=1856,sourceGUID=UnitGUID("player")},nil,nil,{t=GetTime()-10})
+		local vs = data and GetTime() - data.t or 10
+		if not UnitBuff("player","潜行") or vs<3 then
+			if not can and c>3 and e>24 and cd<0.2 then
+				m = m.."肾击"
+				can=1
+				canks = 1
+			end
+			if not can and modknow and modcd<0.2 and c<=3 and e>24 and cd<0.2 then
+				m = "/cast 死亡标记\n"..m.."肾击"
+				can=1
+				canks = 1
+			end
+			if not can and s~=0 and e>39 then
+				m = m.."偷袭"
+				can=1
+			end
+			if not can and s==0 and e>39 then
+				if AirjCache:GetSpellCooldown(186313)<0.2 then
+					m = "/cast 暗影之舞\n"..m.."偷袭"
+					can=1
+				end
+			end
+			if not can and s==0 and e>39 then
+				if AirjCache:GetSpellCooldown(1856)<0.2 then
+					m = "/cast 消失\n"..m.."偷袭"
+					can=1
+				end
+			end
+			if can then
+				local guid = UnitGUID(t)
+				local p={AirjCache:GetPosition(guid)}
+				local d = p[5]
+				local scd = AirjCache:GetSpellCooldown(36554)
+				local data = AirjCache.cache.castSuccess:find({spellId=36554,destGUID=guid,sourceGUID=UnitGUID("player")},nil,nil,{t=GetTime()-1})
+				local cs = data and GetTime() - data.t or 10
+				if cs > 1 then
+					if d >5 and scd<1 then
+						m="/cast [@"..t.."] 暗影步\n"
+					elseif d>5 and IsStealthed() then
+						m="/cast [@"..t.."] 暗影打击\n"
+					elseif d>5 and d<25 and AirjCache:GetSpellCooldown(1856)<0.2 then
+						m="/cast 消失\n/cast [@"..t.."] 暗影打击\n"
+					elseif d>8 then
+						m = nil
+					end
+					print(d)
+				end
+			end
+		else
+			m = m.."偷袭"
+		end
+		print(m)
+		if m then
+			AirjHack:RunMacroText(m)
 		end
 	end
 end

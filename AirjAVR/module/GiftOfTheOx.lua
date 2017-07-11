@@ -53,4 +53,5 @@ function mod:OnEnable()
   Core:RegisterAreaTriggerCircle(124503,data)
   Core:RegisterAreaTriggerCircle(124506,data)
   Core:RegisterAreaTriggerCircle(124507,data)
+
 end

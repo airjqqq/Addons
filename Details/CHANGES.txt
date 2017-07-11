@@ -1,7 +1,7 @@
-changeset:   624:4be72351c8a1
-tag:         v7.2.0.3673.118
+changeset:   655:61f3bdbef2d6
+tag:         v7.2.5.4201.122-release
 user:        Tercio
-date:        Tue May 09 13:52:54 2017 -0300
-summary:     - more fixes to #187 ticket.
+date:        Tue Jun 27 15:36:27 2017 -0300
+summary:     - using GetServerTime() instead of time() to compare when a boss has died across guild members.
 
 

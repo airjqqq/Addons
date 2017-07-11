@@ -49,13 +49,13 @@ end
 function Core:OnEnable()
   self:CreateMap()
   self:ScheduleRepeatingTimer(self.MapTracker,1,self)
-  self:ScheduleRepeatingTimer(self.Draw,0.01,self)
+  self:ScheduleRepeatingTimer(self.Draw,0.02,self)
 
 	self.origin = self:GetOrigin()
 
 	-- Core.test1 = Core.HarmPlayer({position={type="unit",data="player"}})
   -- Core.test2 = Core.HarmPlayer({position={type="unit",data="target"}})
-	Core.test3 = Core.Vector({position1={type="unit",data="player"},position1={type="unit",data="target"},color1={1,0,0},color2={0,1,0}})
+	-- Core.test3 = Core.Vector({position1={type="unit",data="player"},position2={type="unit",data="target"},color1={1,0,0},color2={0,1,0}})
 end
 
 function Core:CreateMap()
@@ -65,12 +65,13 @@ function Core:CreateMap()
     if not point then
       point,parent,anchorPoint,offsetX,offsetY,width,height = "BOTTOMLEFT","UIParent","BOTTOMLEFT",0,180,200,200
     end
+    -- print(point,parent,anchorPoint,offsetX,offsetY)
     frame:SetPoint(point,parent,anchorPoint,offsetX,offsetY)
     frame:SetSize(width,height)
   end
   local bgTexture = frame:CreateTexture()
   bgTexture:SetAllPoints()
-  bgTexture:SetColorTexture(0.2,0.2,0.2,1)
+  bgTexture:SetColorTexture(0,0,0,1)
   bgTexture:SetDrawLayer("BACKGROUND",-2)
   frame:RegisterForDrag("LeftButton","RightButton")
   frame:EnableMouse(true)
@@ -99,9 +100,10 @@ function Core:CreateMap()
   frame:SetScript("OnDragStop",function(self)
     self:StopMovingOrSizing()
 		self:SetScript("OnUpdate",nil)
-    local offsetX,offsetX = self:GetTop(),self:GetLeft()
+    local offsetX,offsetY = self:GetLeft(),self:GetBottom()
     local width,height = self:GetSize()
-    Core.db.profile.mapPoint = {"TOPLEFT","UIParent","TOPLEFT",offsetX,offsetY,width,height }
+    Core.db.profile.mapPoint = {"BOTTOMLEFT","UIParent","BOTTOMLEFT",offsetX,offsetY,width,height }
+    -- print(offsetX,offsetY,width,height)
 		Core:RefreshMap()
   end)
 	frame:SetScript("OnMouseWheel",function (self, delta)
@@ -115,7 +117,7 @@ function Core:CreateMap()
 		Core:RefreshMap()
 	end)
   frame:SetScript("OnMouseDown",function(self,...)
-    if IsAltKeyDown() and IsShiftKeyDown() then
+    if IsAltKeyDown() and IsShiftKeyDown() and IsControlKeyDown() then
   		local origin,key = Core:GetOrigin()
   		Core.db.profile.origins[key] = nil
     end
@@ -397,7 +399,7 @@ end
 
 function Mesh:Real2Map()
 	for i = 1,3 do
-		local x,y,z = unpack(self.real[i])
+		local x,y,z = unpack(self.real[i] or {})
     if x then
       x,y = real2map(x,y)
       self.map[i] = {x,y}
@@ -608,6 +610,8 @@ end
 function Unit:GetBorderColor()
 	if self._data.borderColor then
 		return unpack(self._data.borderColor)
+  else
+    return 0.1,0.1,0.1,1
 	end
 end
 
@@ -734,15 +738,16 @@ function PointUnit:New(...)
 end
 
 function PointUnit:GetBorderSize(a,i)
+  -- print("PointUnit:GetBorderSize")
   local pi = math.pi
   a = a%(2*pi)
   if a > pi then
     a = 2*pi - a
   end
-  if math.abs(a) > pi/3 then
+  if math.abs(a) >= pi/3 then
     return 1.5
   else
-    return 1.5/math.cos(pi/3 - math.abs(a))
+    return 1.5*(1/math.cos(pi/3 - math.abs(a))+1)/2
   end
 end
 function PointUnit:Rebuild()
@@ -759,6 +764,7 @@ function PointUnit:Rebuild()
 		local a1, a2 = i/6*math.pi,(i-1)/6*math.pi
     local r1,t1 = self:GetBorderSize(a1,i)
     local r2,t2 = self:GetBorderSize(a2,i-1)
+    -- print(r1,t1)
 		local x1,y1 = rotate(0,r1*size,t1 or a1)
 		local x2,y2 = rotate(0,r2*size,t2 or a2)
 		mesh:SetOffsets({0,0,0},{x1,y1,0},{x2,y2,0})
@@ -810,20 +816,22 @@ function HelpPlayer:GetRole()
 end
 
 
-function PointUnit:GetBorderSize(a,i)
+function HelpPlayer:GetBorderSize(a,i)
   local role = self:GetRole()
   if role == "TANK" then
     if i > 6 then i = 12-i end
-    local rs = {2.3,2,2.5,2,2,2.3,2.5}
+    local rs = {1.3,1.5,1.7,1.5,1.5,1.6,2}
     return rs[i+1]
   elseif role == "HEALER" then
     local j = i%3
-    local b = math.atan(1/2.5)
-    local c = sqrt(2.5^2+1^2)
-    local rs = {1.5,c,c}
+    local a1,a2 = 1.5,0.5
+    local b = math.atan(a2/(a1+a2))
+    local c = sqrt((a1+a2)^2+a2^2)
+    local rs = {a1,c,c}
     local as = {0,b,math.pi/2-b}
     return rs[j+1],as[j+1]+math.floor(i/3)*math.pi/2
   else
+    -- return 1.5
     return self:Supper("GetBorderSize",a,i)
   end
 end
@@ -927,6 +935,12 @@ function Vector:GetTimer()
   return duration, expires
 end
 
+function Vector:SetTimer(duration, expires)
+  expires = expires or duration and (duration + GetTime())
+  self:Set("duration",duration)
+  self:Set("expires",expires)
+end
+
 function Vector:Update()
   local p1,p2 = self:Get("position1"),self:Get("position2")
   if p1 and p2 then
@@ -940,10 +954,12 @@ function Vector:Update()
       else
         p = 0
       end
-      local dy, dx = r2[2]-r1[2],r2[1]-r1[2]
+      local dy, dx = r2[2]-r1[2],r2[1]-r1[1]
       local f = math.atan2(dy, dx)
       local l = math.sqrt(dx^2+dy^2)
       local w = self:Get("width") or 2
+
+      -- print(dy,dx)
       local ox,oy = rotate(0,w/2,f)
       local ps = {
         {r1[1]+ox,r1[2]+oy,0},
@@ -951,7 +967,7 @@ function Vector:Update()
         {r2[1]+ox,r2[2]+oy,0},
         {r2[1]-ox,r2[2]-oy,0},
       }
-      if P <= 0 then
+      if p <= 0 then
         self.fills[1]:SetReals(ps[1],ps[2],ps[3])
         self.fills[2]:SetReals(ps[4],ps[2],ps[3])
         self.fills[1]:SetShow(true)
@@ -969,8 +985,8 @@ function Vector:Update()
         local l1,l2 = l*(1-p),l*p
         local cx,cy = rotate(l1,0,f)
         local cs = {
-          {r1[1]+cx+ox,r1[2]+cx+oy,0},
-          {r1[1]+cx-ox,r1[2]+cx-oy,0},
+          {r1[1]+cx+ox,r1[2]+cy+oy,0},
+          {r1[1]+cx-ox,r1[2]+cy-oy,0},
         }
         self.fills[1]:SetReals(ps[1],ps[2],cs[1])
         self.fills[2]:SetReals(cs[2],ps[2],cs[1])
@@ -980,6 +996,9 @@ function Vector:Update()
         self.fills[2]:SetShow(true)
         self.fills[3]:SetShow(true)
         self.fills[4]:SetShow(true)
+      end
+      for i = 1,4 do
+        self.fills[i]:Real2Map()
       end
       self:Supper("Update")
     end

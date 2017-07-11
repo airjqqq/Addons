@@ -29,6 +29,10 @@ function F:OnInitialize()
     name = {name = "from unit"},
     unit = {},
   })
+  -- self:RegisterFilter("SAMEANGLE",L["In Line"],{
+  --   name = {name = "from unit"},
+  --   unit = {},
+  -- })
   self:RegisterFilter("HANGLE",L["Face Angle(Deg)"],{
     value = {},
     greater = {},
@@ -167,7 +171,7 @@ function F:DISTACETONEAREST(filter)
 	for guid,t in pairs(guids) do
     if not ignore or not ignore[guid] then
   		local ot,_,_,_,oid = AirjHack:GetGUIDInfo(guid)
-  		if ot == "Creature" or ot == "GameObject" then
+  		if ot == "Creature" or ot == "GameObject" or ot == "AreaTrigger" then
   			if uid and uid[oid] then
           local mignore = AirjMove.ignores[oid]
           if not mignore or not mignore[guid] then

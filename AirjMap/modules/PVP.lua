@@ -1,6 +1,7 @@
 local Core =  LibStub("AceAddon-3.0"):GetAddon("AirjMap")
 local P = Core:NewModule("PVP","AceEvent-3.0","AceTimer-3.0")
 local LibPlayerSpells
+Core.PVP = P
 
 function P:OnInitialize()
 end
@@ -9,7 +10,7 @@ function P:OnEnable()
   LibPlayerSpells = LibStub('LibPlayerSpells-1.0')
   self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
   self.drawables = {}
-  self.harmUnits = {}
+  -- self.harmUnits = {}
 	self:RegisterEvent("GROUP_ROSTER_UPDATE",self.UpdateArenaUnits,self)
 	self:RegisterEvent("ARENA_OPPONENT_UPDATE",self.UpdateArenaUnits,self)
   self:UpdateArenaUnits()
@@ -36,6 +37,7 @@ function P:UpdateArenaUnits()
           }
         else
           self.drawables[guid].mayremove = nil
+          self.drawables[guid].drawable.rebuild = true
         end
       end
     end
@@ -49,6 +51,7 @@ function P:UpdateArenaUnits()
           }
         else
           self.drawables[guid].mayremove = nil
+          self.drawables[guid].drawable.rebuild = true
         end
       end
     end

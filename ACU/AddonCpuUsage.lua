@@ -348,7 +348,6 @@ local tutorial_phrases = {
 	end
 	
 	local function calc_cpu_intervals (self, elapsed)
-	
 		UpdateAddOnCPUUsage()
 	
 		local delay = 0
@@ -365,7 +364,16 @@ local tutorial_phrases = {
 
 		self.cpu_time = self.cpu_time + game_time
 		self.addons_time = self.addons_time + addons_time
-		
+
+		--should pre create these tables on another place
+		if (not self.addons_selftimer) then
+			self.addons_selftimer = {}
+			self.addons_gametick = {}
+		end
+		self.addons_selftimer [addon_name] = (self.addons_selftimer [addon_name] or 0) + game_time
+		if (self.addons_selftimer [addon_name] > 0.016) then
+			self.addons_gametick [addon_name] = (self.addons_gametick [addon_name] or 0) + 1
+		end
 	end
 	
 	function ACU:Tick (t)
@@ -427,10 +435,13 @@ local tutorial_phrases = {
 			CPUResetUsage()
 			
 			ACU.CurrentEncounter.tick_thread = ACU:ScheduleRepeatingTimer ("Tick", 1)
-
+			
 			TimeFrame.cpu_time = 0
 			TimeFrame.addons_time = 0
-			--TimeFrame:SetScript ("OnUpdate", calc_cpu_intervals)
+			
+			if (ACU.CalculateGameTime) then
+				TimeFrame:SetScript ("OnUpdate", calc_cpu_intervals)
+			end
 			
 			if (debugmode) then
 				ACU:Msg ("loop started.")

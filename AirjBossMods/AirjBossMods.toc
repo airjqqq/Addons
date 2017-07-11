@@ -1,0 +1,11 @@
+## Interface: 70300
+## Title: [Airj's] Boss Mods
+## Notes: Raid Voice/Icons/Text/Says/Map
+## Version: 1.0
+## Author: Airj
+## SavedVariables: AirjBossModsDB
+## RequiredDeps: Ace3,AirjUtil
+
+AirjBossMods.lua
+raids/TombofSargeras.lua
+raids/TestBossMod.lua

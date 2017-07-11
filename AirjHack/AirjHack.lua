@@ -128,7 +128,14 @@ end
 
 function mod:UnitHealth(guid)
   if not self:HasHacked() then return end
-  return fcn("AirjGetHealth",guid)
+	local health, max, prediction, absorb, healAbsorb, isdead = fcn("AirjGetHealth",guid)
+	if health and health < 0 then
+		health = health + 2^32
+	end
+	if max and max < 0 then
+		max = max + 2^32
+	end
+  return health, max, prediction, absorb, healAbsorb, isdead
 end
 
 function mod:GetPitch()
@@ -182,11 +189,22 @@ function mod:TerrainClick(x,y,z)
 	-- end
 end
 
+local casted = {}
 function mod:GreenCast(spell,unit,maxrange,minrange)
 	local spellName = GetSpellInfo(spell)
 	if not spellName then return end
 	local guid = UnitGUID(unit)
 	if not guid then return end
+	casted[spellName] = casted[spellName] or {}
+	local ced = casted[spellName]
+	if ced.t and ced.t < GetTime() then
+		ced.c = 0
+	end
+	if ced.c and ced.c > 5 then
+		return
+	end
+	ced.c = (ced.c or 0) + 1
+	ced.t = GetTime() + 2
 	local tx,ty,tz = self:Position(guid)
 	local x,y,z = AirjHack:Position(UnitGUID("player"))
 	local dx,dy,dz = tx-x,ty-y,tz-z
@@ -374,7 +392,7 @@ function mod:GetGUIDInfo(guid)
   if objectType == "Player" then
     _,serverId,id = unpack(guids)
 		-- id = tonumber(id)
-  elseif objectType == "Creature" or objectType == "GameObject" or objectType == "AreaTrigger" then
+  elseif objectType == "Creature" or objectType == "GameObject" or objectType == "AreaTrigger" or objectType == "Pet" then
     objectType,_,serverId,instanceId,zone,id,spawn = unpack(guids)
 		id = tonumber(id)
   end

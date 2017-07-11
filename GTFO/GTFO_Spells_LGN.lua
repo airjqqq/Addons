@@ -362,6 +362,37 @@ GTFO.SpellID["233868"] = {
   sound = 1;
 };
 
+GTFO.SpellID["209931"] = {  
+	--desc = "Watery Globules (Lady Zithreen)";
+	sound = 1;
+};
+
+GTFO.SpellID["247307"] = {
+  --desc = "Volatile Vials (Apothecary Tillings)";
+  sound = 1;
+};
+
+-- Inflicts Shadow damage to any enemies within an area every 1 sec.
+GTFO.SpellID["246941"] = {
+  --desc = "Looming Shadows";
+  sound = 1;
+};
+
+GTFO.SpellID["248591"] = {
+  --desc = "Tangled Web (Nezar'Azret)";
+  sound = 1;
+};
+
+GTFO.SpellID["248599"] = {
+  --desc = "Lava (Fiery Behemoth)";
+  sound = 1;
+};
+
+GTFO.SpellID["52117"] = {
+  --desc = "Pulsing Shards (Iceshatter)";
+  applicationOnly = true;
+  sound = 1;
+};
 
 -- **********
 -- * Mardum *
@@ -1155,6 +1186,11 @@ GTFO.SpellID["216027"] = {
   sound = 1;
 };
 
+GTFO.SpellID["216685"] = {
+  --desc = "Flames of Argus (Tichondrius)";
+  sound = 1;
+};
+
 GTFO.SpellID["216726"] = {
   --desc = "Ring of Shadows (Tichondrius)";
   sound = 1;
@@ -1430,6 +1466,16 @@ GTFO.SpellID["233177"] = {
   sound = 1;
 };
 
+GTFO.SpellID["237583"] = {
+  --desc = "Burning Celerity";
+  sound = 1;
+};
+
+GTFO.SpellID["240295"] = {
+  --desc = "Searing Rend (nil)";
+  sound = 1;
+};
+
 -- ********************
 -- * Tomb of Sargeras *
 -- ********************
@@ -1501,11 +1547,6 @@ GTFO.SpellID["234550"] = {
   sound = 1;
 };
 
-GTFO.SpellID["233444"] = {
-  --desc = "Bone Saw (Atrigan)";
-  sound = 1;
-};
-
 GTFO.SpellID["235237"] = {
   --desc = "Fel Squall (Belac)";
   sound = 1;
@@ -1531,3 +1572,22 @@ GTFO.SpellID["236516"] = {
   sound = 1;
 };
 
+GTFO.SpellID["218004"] = {
+  --desc = "Kil'jaeden's Perdition (Kil'jaeden)";
+  sound = 1;
+};
+
+GTFO.SpellID["240109"] = {
+  --desc = "Fel Spike (Targuz)";
+  sound = 1;
+};
+
+GTFO.SpellID["240249"] = {
+  --desc = "Molten Fel (Fallen Avatar)";
+  sound = 1;
+};
+
+GTFO.SpellID["234062"] = {
+  --desc = "Unbound Chaos (Fallen Avatar)";
+  sound = 1;
+};

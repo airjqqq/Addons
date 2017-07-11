@@ -76,6 +76,8 @@ if not L then return end
 --Translation missing 
 -- L["STRING_ATTRIBUTE_ENERGY"] = ""
 --Translation missing 
+-- L["STRING_ATTRIBUTE_ENERGY_ALTERNATEPOWER"] = ""
+--Translation missing 
 -- L["STRING_ATTRIBUTE_ENERGY_ENERGY"] = ""
 --Translation missing 
 -- L["STRING_ATTRIBUTE_ENERGY_MANA"] = ""
@@ -87,6 +89,8 @@ if not L then return end
 -- L["STRING_ATTRIBUTE_ENERGY_RUNEPOWER"] = ""
 --Translation missing 
 -- L["STRING_ATTRIBUTE_HEAL"] = ""
+--Translation missing 
+-- L["STRING_ATTRIBUTE_HEAL_ABSORBED"] = ""
 --Translation missing 
 -- L["STRING_ATTRIBUTE_HEAL_DONE"] = ""
 --Translation missing 
@@ -210,6 +214,8 @@ if not L then return end
 --Translation missing 
 -- L["STRING_CUSTOM_DAMAGEONANYMARKEDTARGET_DESC"] = ""
 --Translation missing 
+-- L["STRING_CUSTOM_DAMAGEONSHIELDS"] = ""
+--Translation missing 
 -- L["STRING_CUSTOM_DAMAGEONSKULL"] = ""
 --Translation missing 
 -- L["STRING_CUSTOM_DAMAGEONSKULL_DESC"] = ""
@@ -223,6 +229,8 @@ if not L then return end
 -- L["STRING_CUSTOM_DTBS"] = ""
 --Translation missing 
 -- L["STRING_CUSTOM_DTBS_DESC"] = ""
+--Translation missing 
+-- L["STRING_CUSTOM_DYNAMICOVERAL"] = ""
 --Translation missing 
 -- L["STRING_CUSTOM_EDIT"] = ""
 --Translation missing 
@@ -370,6 +378,94 @@ if not L then return end
 --Translation missing 
 -- L["STRING_FIGHTNUMBER"] = ""
 --Translation missing 
+-- L["STRING_FORGE_BUTTON_ALLSPELLS"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_ALLSPELLS_DESC"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_BWTIMERS"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_BWTIMERS_DESC"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_DBMTIMERS"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_DBMTIMERS_DESC"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_ENCOUNTERSPELLS"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_ENCOUNTERSPELLS_DESC"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_ENEMIES"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_ENEMIES_DESC"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_PETS"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_PETS_DESC"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_PLAYERS"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_PLAYERS_DESC"] = ""
+--Translation missing 
+-- L["STRING_FORGE_ENABLEPLUGINS"] = ""
+--Translation missing 
+-- L["STRING_FORGE_FILTER_BARTEXT"] = ""
+--Translation missing 
+-- L["STRING_FORGE_FILTER_CASTERNAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_FILTER_ENCOUNTERNAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_FILTER_ENEMYNAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_FILTER_OWNERNAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_FILTER_PETNAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_FILTER_PLAYERNAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_FILTER_SPELLNAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_BARTEXT"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_CASTER"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_CLASS"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_CREATEAURA"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_ENCOUNTERID"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_ENCOUNTERNAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_EVENT"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_FLAG"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_GUID"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_ICON"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_ID"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_INDEX"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_NAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_NPCID"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_OWNER"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_SCHOOL"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_SPELLID"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_TIMER"] = ""
+--Translation missing 
+-- L["STRING_FORGE_TUTORIAL_DESC"] = ""
+--Translation missing 
+-- L["STRING_FORGE_TUTORIAL_TITLE"] = ""
+--Translation missing 
+-- L["STRING_FORGE_TUTORIAL_VIDEO"] = ""
+--Translation missing 
 -- L["STRING_FREEZE"] = ""
 --Translation missing 
 -- L["STRING_FROM"] = ""
@@ -377,6 +473,34 @@ if not L then return end
 -- L["STRING_GERAL"] = ""
 --Translation missing 
 -- L["STRING_GLANCING"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_BOSS"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_DATABASEERROR"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_DIFF"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_GUILD"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_PLAYERBASE"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_PLAYERBASE_INDIVIDUAL"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_PLAYERBASE_PLAYER"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_PLAYERBASE_RAID"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_RAID"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_ROLE"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_SHOWHISTORY"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_SHOWRANK"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_SYNCBUTTONTEXT"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_TUTORIAL_DESC"] = ""
 --Translation missing 
 -- L["STRING_HEAL"] = ""
 --Translation missing 
@@ -534,6 +658,10 @@ L["STRING_MINITUTORIAL_OPTIONS_PANEL6"] = "Selezionare qui che finestra che si d
 -- L["STRING_MODE_ALL"] = ""
 --Translation missing 
 -- L["STRING_MODE_GROUP"] = ""
+--Translation missing 
+-- L["STRING_MODE_OPENFORGE"] = ""
+--Translation missing 
+-- L["STRING_MODE_OPENGUILDDAMAGERANK"] = ""
 --Translation missing 
 -- L["STRING_MODE_PLUGINS"] = ""
 --Translation missing 

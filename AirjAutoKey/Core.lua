@@ -76,7 +76,29 @@ function Core:OnEnable()
       self:SetParam(key,value)
     end
   end)
+  self:RegisterChatCommand("aaksp", function(str)
+    local key,value,time = strsplit(" ",str)
+    if value == "nil" then
+      value = nil
+    else
+      value = {AirjHack:Position(UnitGUID(value or "player"))}
+    end
+    time = tonumber(time)
+    if time then
+      self:SetParamTemporary(key,value,time)
+    else
+      self:SetParam(key,value)
+    end
+  end)
+  self:RegisterChatCommand("aaklp", function(str)
+    local key = strsplit(" ",str)
+    local value = self:GetParam(key)
+    if value then
+      AirjMove:SetMoveTarget("point",{value[1],value[2],value[3]},true)
 
+      AirjMove:SetMoveFacing ("facing",math.pi/2 + value[4])
+    end
+  end)
   self:RegisterChatCommand("aakr", function(str)
     local name,unit = strsplit(" ",str)
     self:ExecuteSpecificSequence(name,unit)
@@ -245,7 +267,8 @@ do
     end,
     gui = function(value)
       if AirjAutoKey_GUI_anchor then
-        AirjAutoKey_GUI_anchor:SetPoint("BOTTOMLEFT",UIParent,"BOTTOMLEFT",0,0)
+        AirjAutoKey_GUI_anchor:ClearAllPoints()
+        AirjAutoKey_GUI_anchor:SetPoint("CENTER",UIParent,"CENTER",0,-240)
       end
     end,
   }
@@ -265,6 +288,8 @@ do
     local back = self.paramBack[key]
     if not back then
       self.paramBack[key] = {value = self.param[key],expires = GetTime() + time}
+    else
+      self.paramBack[key].expires = GetTime() + time
     end
     self.param[key] = value
   end
@@ -533,6 +558,9 @@ do
         fv = strsub(fv,1,-2)
         fv = tonumber(fv) or 1
         fv = fv * range
+      elseif suf == "p" then
+        fv = strsub(fv,1,-2)
+        fv = self:GetParam(fv) or 0
       else
         fv = tonumber(fv) or 0
       end
@@ -620,35 +648,39 @@ do
   end
 
   function Core:CheckFilterArray(filterArray,priority)
-    local countToPass = filterArray.value or 0
-  	if countToPass <= 0 then
-  		countToPass = countToPass + #filterArray
-  	end
-    local countToFail = #filterArray - countToPass
-  	local passedCount = 0
-  	local failedCount = 0
-    for i,filter in ipairs(filterArray) do
-      local passed
-      -- passed, priority = self:CheckFilter(filter,priority)
-      local success
-      local lastPriority = priority
-      success, passed, priority = pcall(self.CheckFilter,self,filter,priority)
-      if not success then
-        passed, priority = false, lastPriority
+    if filterArray.name and #filterArray.name>0 and false then
+
+    else
+      local countToPass = filterArray.value or 0
+    	if countToPass <= 0 then
+    		countToPass = countToPass + #filterArray
+    	end
+      local countToFail = #filterArray - countToPass
+    	local passedCount = 0
+    	local failedCount = 0
+      for i,filter in ipairs(filterArray) do
+        local passed
+        -- passed, priority = self:CheckFilter(filter,priority)
+        local success
+        local lastPriority = priority
+        success, passed, priority = pcall(self.CheckFilter,self,filter,priority)
+        if not success then
+          passed, priority = false, lastPriority
+        end
+        if passed then
+          passedCount = passedCount + 1
+        else
+          failedCount = failedCount + 1
+        end
+        if passedCount >= countToPass then
+          return true, priority
+        end
+        if failedCount > countToFail then
+          return false, priority
+        end
       end
-      if passed then
-        passedCount = passedCount + 1
-      else
-        failedCount = failedCount + 1
-      end
-      if passedCount >= countToPass then
-        return true, priority
-      end
-      if failedCount > countToFail then
-        return false, priority
-      end
+    	return true, priority
     end
-  	return true, priority
   end
 
   function Core:PreCheckSplitedUnit(unit,checked)
@@ -668,22 +700,30 @@ do
     return passed
   end
 
-  function Core:SplitAndCheckSequence(sequence,unitList)
+  function Core:SplitAndCheckSequence(sequence,unitList,executed)
     if not unitList then return end
     local filterArray = sequence.filter
     local checked = {}
     local priorityList = {}
+    local realcheck
     for _,unit in ipairs(unitList) do
       if self:PreCheckSplitedUnit(unit,checked) or sequence.isr then
-        self:SetAirUnit(unit)
-        local passed,priority = Core:CheckFilterArray(filterArray)
-          -- self:Print("SplitAndCheckSequence",passed,unit)
-        if passed then
-          -- self:Print(unit,passed,priority)
-          if priority then
-            priorityList[unit] = priority
-          else
-            return unit
+        local guid = UnitGUID(unit)
+        if not executed or executed and guid and not executed[guid] then
+          realcheck = true
+          -- if executed then
+          --   print(unit)
+          -- end
+          self:SetAirUnit(unit)
+          local passed,priority = Core:CheckFilterArray(filterArray)
+            -- self:Print("SplitAndCheckSequence",passed,unit)
+          if passed then
+            -- self:Print(unit,passed,priority)
+            if priority then
+              priorityList[unit] = priority
+            else
+              return unit
+            end
           end
         end
       else
@@ -696,7 +736,7 @@ do
         maxValue = priority
       end
     end
-    return maxKey
+    return maxKey,not realcheck
   end
 
 
@@ -710,15 +750,22 @@ do
     --
   end
 
-  function Core:CheckAndExecuteSequence(sequence)
+  function Core:CheckAndExecuteSequence(sequence,executed)
     if not self:CheckBasicFilters(sequence) then return end
     local unitList = self:GetUnitListByAirType(sequence.anyinraid)
     -- dump(unitList)
     local filterReturn, unit
+    local allexcuted
     local lastunit = self:GetAirUnit()
     if unitList then
-      filterReturn = self:SplitAndCheckSequence(sequence,unitList)
+      filterReturn,allexcuted = self:SplitAndCheckSequence(sequence,unitList,executed)
       unit = filterReturn
+      if sequence.pollall then
+        executed = executed or {}
+        if unit then
+          executed[UnitGUID(unit)] = true
+        end
+      end
     else
       filterReturn = self:CheckFilterArray(sequence.filter or {},unitList)
       unit = lastunit
@@ -737,6 +784,11 @@ do
       end
       if execute then
         self:ExecuteSequence(sequence,unit)
+        if sequence.pollall then
+          if not allexcuted then
+            self:CheckAndExecuteSequence(sequence,executed)
+          end
+        end
       end
     end
   end
@@ -837,7 +889,7 @@ do
   }
   function Core:GetUnitListByAirType(airType)
     if not airType then return end
-    if not knownAirType[airType] then return {airType} end
+    if not knownAirType[airType] then local t = {strsplit(",",airType)} return t end
     if unitListCache[airType] then return unitListCache[airType] end
     local unitList = {"target","mouseover","player","targettarget","focus","focustarget","pet","pettarget"};
     if airType == "help" or airType == "all" then

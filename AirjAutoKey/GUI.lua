@@ -36,6 +36,8 @@ local ignores = {
 	[228597] = true,
 	[147193] = true,
 	[199116] = true,
+	[121473] = true,
+	[121474] = true,
 }
 do
   local caststart = {}
@@ -245,7 +247,7 @@ local widgets = {
     name = L["Tar"],
     update = function(widget,data)
       local target = Core:GetParam("target")
-      widget:SetValue(target > 1)
+      widget:SetValue(target and target > 1 or false)
     	widget:SetLabel(data.name..": "..target)
     end,
     onclick = function(widget,value)

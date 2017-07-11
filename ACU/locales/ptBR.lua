@@ -57,3 +57,4 @@ L["STRING_TUTORIAL_LINE_6"] = [=[
 
 |cFFFFFFFFImportante:|r) Quando terminar com os testes de performance, desative a Captura de CPU clicando no botão 'Desligar', no canto inferior direito da janela.]=]
 L["STRING_TUTORIAL_TITLE"] = "Sega estes passos:"
+

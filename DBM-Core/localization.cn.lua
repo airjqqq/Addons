@@ -2,13 +2,14 @@
 -- Diablohu(diablohudream@gmail.com)
 -- yleaf(yaroot@gmail.com)
 -- Mini Dragon(projecteurs@gmail.com)
--- Last update: 2017/03/18
+-- Last update: 2017/06/27
 
 if GetLocale() ~= "zhCN" then return end
 
 DBM_CORE_NEED_LOCALS				= "如果你会编程并且英语不错，请来帮助我们完善DBM中文翻译。请|HDBM:localizersneeded|h|cff3588ff点击此处|获取更多消息。"
 DBM_CORE_NEED_LOGS					= "DBM需要战斗记录器 (http://www.wowace.com/addons/transcriptor/) 的日志来使得技能判断更准确。如果你想帮忙，请用 transcriptor 记录并上传日志文件到我们的论坛。我们现在只对7.0的数据感兴趣。"
 DBM_HOW_TO_USE_MOD					= "欢迎使用DBM。在聊天框输入 /dbm help 以获取可用命令的帮助。输入 /dbm 可打开设置窗口，并对各个Boss模块进行设置，也可以浏览首领击杀记录。DBM 会在你第一次使用时读取你的职业和专精并做出相应设置，但是有些设置需要手动开启。"
+DBM_SILENT_REMINDER					= "提示：DBM 正处于安静模式。"
 
 DBM_FORUMS_MESSAGE					= "发现BUG或错误的计时条?你希望要让某些模组有新的警告，计时器或是特别功能?\n拜访新的Deadly Boss Mods |HDBM:forums|h|cff3588ffhttp://www.deadlybossmods.com|r (你可以点击链接复制网址)"
 DBM_FORUMS_COPY_URL_DIALOG			= "拜访我们的讨论与支持论坛"
@@ -24,11 +25,11 @@ DBM_CORE_LOAD_MOD_VER_MISMATCH		= "%s 模块无法被载入。 DBM核心版本�
 DBM_CORE_LOAD_MOD_DISABLED			= "%s 模块已安装但被禁用。该模块不会被载入除非启用它。"
 DBM_CORE_LOAD_MOD_DISABLED_PLURAL	= "%s 模块已安装但被禁用。这些模块不会被载入除非启用它们。"
 
-DBM_CORE_WHATS_NEW					= "新功能：我们已经准备好了7.2的恶魔入侵事件。还有一些Bug修复，不过写了你也不会来认真读。"
-DBM_CORE_WHATS_NEW_LINK				= "在接下来的DBM版本中，很多依赖于单位位置的功能，如箭头，距离雷达和HUD会因为暴雪爸爸对API的取缔而精简。想要知道更多可以 |HDBM:forumsnews|h|cff3588ff点击此处|r 访问我们的论坛。"
+DBM_CORE_WHATS_NEW					= "为了提高更新速度，守望先锋及风暴英雄倒计时音效已经从主模块中移除。请单独下载 DBM-CountPack-Overwatch & DBM-CountPack-HoTS。"
+DBM_CORE_WHATS_NEW_LINK				= "建议配合语音包使用。 |HDBM:forumsnews|h|cff3588ff点击这里|r 获取更多信息。"
 
 --Post Patch 7.1
-DBM_CORE_NO_RANGE					= "距离雷达在副本中无法使用"
+DBM_CORE_NO_RANGE					= "距离雷达在副本中无法使用，该功能会使用文本代替"
 DBM_CORE_NO_ARROW					= "箭头在副本中无法使用"
 DBM_CORE_NO_HUD						= "HUDMap 在副本中无法使用"
 
@@ -236,7 +237,8 @@ DBM_CORE_SLASHCMD_HELP2				= {
 	"/dbm version: 进行团队范围的DBM版本检测(也可使用: ver)",
 	"/dbm version2: 进行团队范围的DBM版本检测并密语那些过期版本用户(也可使用: ver2)",
 	"/dbm lockout: 查询团队成员当前的副本锁定状态(副本CD)(也可使用: lockouts, ids)(需要队长或助理权限)。",
-	"/dbm lag: 检测全团网络延时"
+	"/dbm lag: 检测全团网络延时",
+	"/dbm durability: 检测全团装备耐久度"
 }
 DBM_CORE_TIMER_USAGE	= {
 	"DBM计时器可用命令:",
@@ -267,6 +269,7 @@ DBM_CHEST							= "奖励宝箱"
 DBM_NO_DEBUFF						= "没有%s"
 DBM_ALLY							= "队友"--Such as "Move to Ally"
 DBM_ADDS							= "小怪"--Such as "Move to Ally"
+DBM_CORE_ROOM_EDGE					= "房间边缘"
 
 DBM_CORE_BREAK_USAGE				= "休息时间不能超过60分钟。请确保你输入的是分钟而不是秒。"
 DBM_CORE_BREAK_START				= "开始休息 - %s分钟！（由 %s 发送）"
@@ -488,6 +491,10 @@ DBM_SPEED_KILL_TIMER_TEXT	= "击杀记录"
 DBM_SPEED_CLEAR_TIMER_TEXT	= "最速清除"
 DBM_COMBAT_RES_TIMER_TEXT	= "下一次可用战复"
 DBM_CORE_TIMER_RESPAWN		= "%s 刷新"
+
+DBM_CORE_DUR_CHECKING				= "全团装备耐久度检测请稍后..."
+DBM_CORE_DUR_HEADER					= "DBM - 装备耐久度检测结果"
+DBM_CORE_DUR_ENTRY					= "%s: %d 耐久度 / %s件装备损坏"
 
 DBM_REQ_INSTANCE_ID_PERMISSION		= "%s请求获取你现在副本的存档ID与进度。是否愿意向&s提交进度？\n\n注意：在接受后，他可以随时查看您当前的进度情况，直到您下线、掉线或重载用户界面。"
 DBM_ERROR_NO_RAID					= "使用该功能需要身处一个团队中。"

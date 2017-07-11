@@ -59,7 +59,7 @@ local data = {
   [204293] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 264 }, defensive = 0.5, talent = {98008}, duration = 20 }, -- Spirit Link
   [108280] = { default = false, cooldown = 180, class = "SHAMAN", specID = { 264 }, offensive = 0.2, duration = 6 }, -- Healing Tide Totem
   [157153] = { default = false, cooldown = 30, class = "SHAMAN", specID = { 264 }, defensive = 0.1, talent = {} }, -- Cloudburst Totem
-  [198838] = { default = false, cooldown = 60, class = "SHAMAN", specID = { 264 }, defensive = 0.2, duration = 15, talent = {207399} }, -- Earthen Shield Totem
+  [198838] = { default = true, cooldown = 60, class = "SHAMAN", specID = { 264 }, defensive = 0.4, duration = 15, replaces = {207399} }, -- Earthen Shield Totem
   [207399] = { default = false, cooldown = 300, class = "SHAMAN", specID = { 264 }, defensive = 1, duration = 30, talent = {198838} }, -- Ancestral Protection Totem
   [ 77130] = { default = true, cooldown = 8, class = "SHAMAN", specID = {264}, dispel = true, cooldown_starts_on_dispel = true },  -- Remove Corruption
   [ 77472] = { default = false, class = "SHAMAN", specID = {264}, cast = 2.5, heal = true},  --Healing Wave (Shaman)

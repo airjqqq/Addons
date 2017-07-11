@@ -1,6 +1,6 @@
 ## Interface: 70200
 ## Author: p3lim
-## Version: 70200.39-Release
+## Version: 70200.41-Release
 ## Title: Bonus Roll Preview
 ## Notes: Easily see what the bonus loot roll can yield
 

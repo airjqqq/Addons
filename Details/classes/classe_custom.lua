@@ -2330,7 +2330,7 @@
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		
 		local DynamicOverallDamage = {
-			name = "Dynamic Overall Damage",
+			name = Loc ["STRING_CUSTOM_DYNAMICOVERAL"], --"Dynamic Overall Damage",
 			icon = [[Interface\ICONS\Achievement_Quests_Completed_08]],
 			attribute = false,
 			spellid = false,
@@ -2455,14 +2455,14 @@
 
 		local have = false
 		for _, custom in ipairs (self.custom) do
-			if (custom.name == "Dynamic Overall Damage" and (custom.script_version and custom.script_version >= DynamicOverallDamage.script_version) ) then
+			if (custom.name == Loc ["STRING_CUSTOM_DYNAMICOVERAL"] and (custom.script_version and custom.script_version >= DynamicOverallDamage.script_version) ) then
 				have = true
 				break
 			end
 		end
 		if (not have) then
 			for i, custom in ipairs (self.custom) do
-				if (custom.name == "Dynamic Overall Damage") then
+				if (custom.name == Loc ["STRING_CUSTOM_DYNAMICOVERAL"]) then
 					table.remove (self.custom, i)
 				end
 			end
@@ -2470,6 +2470,107 @@
 			DynamicOverallDamage.__index = _detalhes.atributo_custom		
 			self.custom [#self.custom+1] = DynamicOverallDamage
 		end
+		
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		
+		local DamageOnShields = {
+			name = Loc ["STRING_CUSTOM_DAMAGEONSHIELDS"],
+			icon = [[Interface\ICONS\Spell_Holy_PowerWordShield]],
+			attribute = false,
+			spellid = false,
+			author = "Details!",
+			desc = "Damage done to shields",
+			source = false,
+			target = false,
+			script_version = 1,
+			script = [[
+				--get the parameters passed
+				local Combat, CustomContainer, Instance = ...
+				--declade the values to return
+				local total, top, amount = 0, 0, 0
+
+				--do the loop
+				for index, actor in ipairs (Combat:GetActorList(1)) do
+				    if (actor:IsPlayer()) then
+					
+					--get the actor total damage absorbed
+					local totalAbsorb = actor.totalabsorbed
+					
+					--get the damage absorbed by all the actor pets
+					for petIndex, petName in ipairs (actor.pets) do
+					    local pet = Combat :GetActor (1, petName)
+					    if (pet) then
+						totalAbsorb = totalAbsorb + pet.totalabsorbed
+					    end
+					end
+					
+					--add the value to the actor on the custom container
+					CustomContainer:AddValue (actor, totalAbsorb)        
+					
+				    end
+				end
+				--loop end
+
+				--if not managed inside the loop, get the values of total, top and amount
+				total, top = CustomContainer:GetTotalAndHighestValue()
+				amount = CustomContainer:GetNumActors()
+
+				--return the values
+				return total, top, amount
+			]],
+			tooltip = [[
+				--get the parameters passed
+				local actor, Combat, instance = ...
+
+				--get the cooltip object (we dont use the convencional GameTooltip here)
+				local GameCooltip = GameCooltip
+
+				--Cooltip code
+				--get the actor total damage absorbed
+				local totalAbsorb = actor.totalabsorbed
+				local format_func = Details:GetCurrentToKFunction()
+
+				--get the damage absorbed by all the actor pets
+				for petIndex, petName in ipairs (actor.pets) do
+				    local pet = Combat :GetActor (1, petName)
+				    if (pet) then
+					totalAbsorb = totalAbsorb + pet.totalabsorbed
+				    end
+				end
+
+				GameCooltip:AddLine (actor:Name(), format_func (_, actor.totalabsorbed))
+				Details:AddTooltipBackgroundStatusbar()
+
+				for petIndex, petName in ipairs (actor.pets) do
+				    local pet = Combat :GetActor (1, petName)
+				    if (pet) then
+					totalAbsorb = totalAbsorb + pet.totalabsorbed
+					
+					GameCooltip:AddLine (petName, format_func (_, pet.totalabsorbed))
+					Details:AddTooltipBackgroundStatusbar()        
+					
+				    end
+				end
+			]],
+		}
+
+		local have = false
+		for _, custom in ipairs (self.custom) do
+			if (custom.name == Loc ["STRING_CUSTOM_DAMAGEONSHIELDS"] and (custom.script_version and custom.script_version >= DamageOnShields.script_version) ) then
+				have = true
+				break
+			end
+		end
+		if (not have) then
+			for i, custom in ipairs (self.custom) do
+				if (custom.name == Loc ["STRING_CUSTOM_DAMAGEONSHIELDS"]) then
+					table.remove (self.custom, i)
+				end
+			end
+			setmetatable (DamageOnShields, _detalhes.atributo_custom)
+			DamageOnShields.__index = _detalhes.atributo_custom		
+			self.custom [#self.custom+1] = DamageOnShields
+		end		
 		
 ---------------------------------------		
 		

@@ -251,7 +251,7 @@ function F:UNITISHEALER(filter)
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local id, name, description, icon, role, class = Cache:GetSpecInfo(guid)
-  if IsResting and UnitIsUnit("focus",filter.unit) then return true end
+  if IsResting() and UnitIsUnit("focus",filter.unit) then return true end
   return role == "HEALER"
 end
 

@@ -58,7 +58,7 @@ function NPC:QUEST_PROGRESS(...) -- special case, doesn't use QuestInfo
 	if hasItems then
 		local width, height = elements.Progress:GetSize()
 		-- Extra: 32 padding + 8 offset from talkbox + 8 px bottom offset
-		self.TalkBox:SetExtraOffset(height + 48) 
+		self.TalkBox:SetExtraOffset((height + 48) * L('elementscale')) 
 		return
 	end
 	self:ResetElements()
@@ -163,7 +163,7 @@ function NPC:AddQuestInfo(template)
 		content:Hide()
 	end 
 	-- Extra: 32 px padding 
-	self.TalkBox:SetExtraOffset(height + 32)
+	self.TalkBox:SetExtraOffset((height + 32) * L('elementscale'))
 	self.TalkBox.NameFrame.FadeIn:Play()
 end
 
@@ -369,17 +369,18 @@ end
 ----------------------------------
 function NPC:PlayIntro(event, ignoreFrameFade)
 	local isShown = self:IsVisible()
+	local shouldAnimate = isShown and not L('disableglowani')
 	self:Show()
 	if IsOptionFrameOpen() then
 		self:ForceClose()
 	else
 		self:EnableKeyboard(true)
-		self:FadeIn(nil, isShown, ignoreFrameFade)
+		self:FadeIn(nil, shouldAnimate, ignoreFrameFade)
 		local box = self.TalkBox
 		local point = L('boxpoint')
 		local x, y = L('boxoffsetX'), L('boxoffsetY')
 		box:ClearAllPoints()
-		if not isShown and not L('disableflyin') then
+		if not isShown then
 			box:SetPoint(point, UIParent, point, -x, -y)
 		end
 		box:SetOffset(box.offsetX or x, box.offsetY or y)
@@ -478,6 +479,7 @@ end
 ----------------------------------
 function TalkBox:SetOffset(x, y)
 	local point = L('boxpoint')
+	local anidivisor = L('anidivisor')
 	x = x or L('boxoffsetX')
 	y = y or L('boxoffsetY')
 
@@ -487,28 +489,28 @@ function TalkBox:SetOffset(x, y)
 	local isBottom = ( point == 'Bottom' )
 	local isVert = ( isBottom or point == 'Top' )
 
-	y = y +  ( isBottom and self.extraY or 0 )
+	y = y + ( isBottom and self.extraY or 0 )
 
 	local evaluator = self[ 'Get' .. point ]
-	local parent = UIParent
 	local comp = isVert and y or x
-	local func = self[point]
 
-	if not evaluator then
-		self:SetPoint(point, parent, x, y)
+	if ( not evaluator ) or ( anidivisor <= 1 ) then
+		self:SetPoint(point, UIParent, x, y)
 		return
 	end
 
 	self:SetScript('OnUpdate', function(self)
-		local offset = (evaluator(self) or 0) - (evaluator(parent) or 0)
+		self.isOffsetting = true
+		local offset = (evaluator(self) or 0) - (evaluator(UIParent) or 0)
 		local diff = ( comp - offset )
 		if (offset == 0) or abs( comp - offset ) < 0.3 then
-			self:SetPoint(point, parent, x, y)
+			self:SetPoint(point, UIParent, x, y)
+			self.isOffsetting = false
 			self:SetScript('OnUpdate', nil)
 		elseif isVert then
-			self:SetPoint(point, parent, x, offset + ( diff / 10 ))
+			self:SetPoint(point, UIParent, x, offset + ( diff / anidivisor ))
 		else
-			self:SetPoint(point, parent, offset + (diff / 10), y)
+			self:SetPoint(point, UIParent, offset + (diff / anidivisor), y)
 		end
 	end)
 end
@@ -527,6 +529,44 @@ end
 
 function TalkBox:OnLeave()
 	L.UIFrameFadeOut(self.Hilite, 0.15, self.Hilite:GetAlpha(), 0)
+end
+
+function TalkBox:OnDragStart()
+	if ( L('boxlock') or self.isOffsetting ) then return end
+	self:StartMoving()
+end
+
+function TalkBox:OnDragStop()
+	if ( L('boxlock') or self.isOffsetting ) then return end
+	self:StopMovingOrSizing()
+	local maxX, maxY = UIParent:GetSize()
+	local uiX, uiY = UIParent:GetCenter()
+	local centerX, centerY = self:GetCenter()
+	local offsets = {
+		Left 	= self:GetLeft(),
+		Right 	= maxX - self:GetRight(),
+		Top 	= maxY - self:GetTop(),
+		Bottom 	= self:GetBottom() - (self.extraY or 0),
+	}
+	local lowestVal, newPoint
+	for anchorPoint, offsetVal in pairs(offsets) do
+		if not lowestVal or offsetVal < lowestVal then
+			newPoint = anchorPoint
+			lowestVal = offsetVal
+		end
+	end
+	if ( newPoint == 'Left' or newPoint == 'Right' ) then self.extraY = 0
+		L.Set('boxoffsetX', newPoint == 'Right' and -lowestVal or lowestVal)
+		L.Set('boxoffsetY', centerY - uiY)
+	else if newPoint == 'Top' then self.extraY = 0 end
+		L.Set('boxoffsetY', newPoint == 'Top' and -lowestVal or lowestVal)
+		L.Set('boxoffsetX', centerX - uiX)
+	end
+	L.Set('boxpoint', newPoint)
+	self:ClearAllPoints()
+	self.offsetX = L('boxoffsetX')
+	self.offsetY = L('boxoffsetY')
+	self:SetPoint(L('boxpoint'), UIParent, L('boxoffsetX'), L('boxoffsetY') + (self.extraY or 0))
 end
 
 function TalkBox:OnLeftClick()
@@ -586,7 +626,8 @@ end
 function TalkBox:SetExtraOffset(newOffset)
 	local currX = ( self.offsetX or L('boxoffsetX') )
 	local currY = ( self.offsetY or L('boxoffsetY') )
-	self.extraY = newOffset
+	local allowExtra = L('anidivisor') > 0
+	self.extraY = allowExtra and newOffset or 0
 	self:SetOffset(currX, currY)
 end
 

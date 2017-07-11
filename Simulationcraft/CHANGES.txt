@@ -1,24 +1,12 @@
-tag 3df1627872da64cb68d3c68fac97858c21772add v1.7.1
+tag c7f52071ca37d0a82bb3cba7c0cc13f45eafd8f0 v1.7.4
 Author:	Navv <navv1234@gmail.com>
-Date:	Fri May 12 21:59:57 2017 +0300
+Date:	Tue Jun 13 20:39:17 2017 +0300
 
-release
+v1.7.4
 
-commit 42eb92dcbe31209075d3d1c86f32609cbb5390bb
+commit 15ff35bf265da1ad52e1550c49091ae3e03f53e1
 Author: Navv <navv1234@gmail.com>
-Date:   Fri May 12 21:59:42 2017 +0300
+Date:   Tue Jun 13 20:38:13 2017 +0300
 
-    Update version
-
-commit b99901320202ad9bd470e41f7d78ab0ce8e18092
-Author: Dave Hendler <sollaires@gmail.com>
-Date:   Tue May 9 18:47:43 2017 -0700
-
-    FIX: Remove slot lookup - breaks on non-English clients and also unnecessary using the equipment manager APIs
-
-commit b99901320202ad9bd470e41f7d78ab0ce8e18092
-Author: Dave Hendler <sollaires@gmail.com>
-Date:   Tue May 9 18:47:43 2017 -0700
-
-    FIX: Remove slot lookup - breaks on non-English clients and also unnecessary using the equipment manager APIs
+    Fix sanity checks. Update toc.
 

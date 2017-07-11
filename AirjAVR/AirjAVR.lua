@@ -32,17 +32,28 @@ function Core:OnEnable()
 			self.objectHistory:push(v)
 		end
 	end
-	
+
   self:RegisterMessage("AIRJ_HACK_OBJECT_CREATED",self.OnObjectCreated,self)
   self:RegisterMessage("AIRJ_HACK_OBJECT_DESTROYED",self.OnObjectDestroyed,self)
   self:RegisterEvent("MODIFIER_STATE_CHANGED",self.OnModifierStateChanged,self)
   self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+  self:RegisterEvent("PLAYER_LOGOUT")
+
+
+  local scene = AVR:GetTempScene(100)
+	m=AVRLinkMesh:New("target")
+	m:SetClassColor(true)
+	scene:AddMesh(m,false,false)
+
 end
 
 function Core:OnDisable()
   self:UnregisterMessage("AIRJ_HACK_OBJECT_CREATED")
   self:UnregisterMessage("AIRJ_HACK_OBJECT_DESTROYED")
   self:UnregisterEvent("MODIFIER_STATE_CHANGED")
+end
+
+function Core:PLAYER_LOGOUT()
 	db.history = {}
 	for v,k,i in self.objectHistory:iterator() do
 		db.history[i] = v
@@ -100,7 +111,7 @@ function Core:ShowUnitMesh(data,spellId,sourceGUID,destGUID,text)
     end
 		local meshduration
 		local unit = Cache:FindUnitByGUID(destGUID)
-		if unit then
+		if unit and not data.duration then
 			local spellName = GetSpellInfo(spellId)
 			local fcn = data.isbuff and UnitBuff or UnitDebuff
 			local name, rank, icon, count, dispelType, duration, expires = fcn(unit,spellName)
@@ -129,6 +140,7 @@ function Core:ShowUnitMesh(data,spellId,sourceGUID,destGUID,text)
 		m.suffix = text
     scene:AddMesh(m,false,false)
     self.activeMeshs[key]=m
+		return m
   end
 end
 
@@ -194,17 +206,18 @@ end
 
 
 function Core:GetGUIDInfo(guid)
-  if not guid then return end
-  local guids = {string.split("-",guid)}
-  local objectType,serverId,instanceId,zone,id,spawn
-  objectType = guids[1]
-  if objectType == "Player" then
-    _,serverId,id = unpack(guids)
-  elseif objectType == "Creature" or objectType == "GameObject" or objectType == "AreaTrigger" then
-    objectType,_,serverId,instanceId,zone,id,spawn = unpack(guids)
-  end
-  id = tonumber(id)
-  return objectType,serverId,instanceId,zone,id,spawn
+	return AirjHack:GetGUIDInfo(guid)
+  -- if not guid then return end
+  -- local guids = {string.split("-",guid)}
+  -- local objectType,serverId,instanceId,zone,id,spawn
+  -- objectType = guids[1]
+  -- if objectType == "Player" then
+  --   _,serverId,id = unpack(guids)
+  -- elseif objectType == "Creature" or objectType == "GameObject" or objectType == "AreaTrigger" then
+  --   objectType,_,serverId,instanceId,zone,id,spawn = unpack(guids)
+  -- end
+  -- id = tonumber(id)
+  -- return objectType,serverId,instanceId,zone,id,spawn
 end
 
 local colorIndex = 1
@@ -213,8 +226,12 @@ function Core:OnObjectCreated(event,guid,type)
 	-- print(guid,type)
   if bit.band(type,0x2)==0 then
     local objectType,serverId,instanceId,zone,cid,spawn = self:GetGUIDInfo(guid)
-		local history = {}
-		history.guid = guid
+		local history = {
+			guid = guid,
+			objectType = objectType,
+			id = cid,
+			t = GetTime(),
+		}
 		-- self:Print(guid)
     if objectType == "AreaTrigger" then
       local spellId = AirjHack:ObjectInt(guid,0x88)
@@ -224,6 +241,9 @@ function Core:OnObjectCreated(event,guid,type)
       if data and not data.radius and radius~=0 then
         data.radius = radius
       end
+			if data then
+				self:Print(GetSpellLink(spellId))
+			end
       self:ShowUnitMesh(data,spellId,nil,guid)
 			history.spellId = spellId
 			history.radius = radius
@@ -237,6 +257,10 @@ function Core:OnObjectCreated(event,guid,type)
 				if guid then
       		self:ShowLinkMesh(data,0,guid,destuid)
 				end
+			end
+			data = self.register.onCreatureCircleIds[cid]
+			if guid and data then
+				self:ShowUnitMesh(data,data.spellId,nil,guid)
 			end
     end
 		local position = {AirjHack:Position(guid)}
@@ -252,8 +276,14 @@ function Core:OnObjectDestroyed(event,guid,type)
       local spellId = AirjHack:ObjectInt(guid,0x88)
       self:HideUnitMesh(self.register.onAreaTriggerCircleIds[spellId],spellId,nil,guid)
     end
-    if objectType == "Creature" then
-      self:HideLinkMesh(self.register.onCreatureLinkIds[cid],0,UnitGUID("player"),guid)
+    if objectType == "Creature" or objectType == "GameObject" or objectType == "Vehicle" then
+			local data = self.register.onCreatureLinkIds[cid]
+			if data then
+				local destUnit = data.destUnit or "player"
+				local destuid = UnitGUID(destUnit)
+	      self:HideLinkMesh(data,0,guid,destuid)
+			end
+      self:HideUnitMesh(self.register.onCreatureCircleIds[cid],0,nil,guid)
     end
   end
 end
@@ -328,6 +358,9 @@ end
 do --Registers
   function Core:RegisterCreatureLink(cid,data)
     self.register.onCreatureLinkIds[cid]=data or {}
+  end
+  function Core:RegisterCreatureCircle(cid,data)
+    self.register.onCreatureCircleIds[cid]=data or {}
   end
 
   function Core:RegisterAreaTriggerCircle(spellId,data)

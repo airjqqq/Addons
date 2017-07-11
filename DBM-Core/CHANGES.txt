@@ -1,26 +1,97 @@
-tag 8862b63fac8213bb0c2a9a1d45d4f5c18f65f6e4 7.2.6
+tag e0d9165807c08d8e114b97f0eb217347e1fb9048 7.2.13
 Author:	subversion <svn@deadlybossmods.com>
-Date:	Tue May 2 19:26:07 2017 +0200
+Date:	Tue Jul 4 20:52:20 2017 +0200
 
-Tagging as 7.2.6
+Tagging as 7.2.13
 
-commit 68f89c3d332e729fb4e0ece77ca763e6fd41697d
+commit def4c409669259699a6b2d985bb8ce07af4331d7
 Author: subversion <svn@deadlybossmods.com>
-Date:   Tue May 2 19:26:07 2017 +0200
+Date:   Tue Jul 4 20:52:20 2017 +0200
 
-    increment version number to 7.2.6
+    increment version number to 7.2.13
 
-commit 9fdf2c10e94711f17e5383aa05bd50d0d810ba48
+commit 6fdc4dc7ec23b44c9b2e02d7776d18a563d8dae5
 Author: subversion <svn@deadlybossmods.com>
-Date:   Tue May 2 19:09:59 2017 +0200
+Date:   Tue Jul 4 20:49:33 2017 +0200
 
-    Omega via svn r16201:
-    fix errors
+    tandanu via svn r16406:
+    fix parameter validation
 
-commit 134626691b5fc1783ae179cc43ff8c02c8094441
+commit ca59e7cd40779ff33ececafb579d918fd0764cc6
 Author: subversion <svn@deadlybossmods.com>
-Date:   Tue May 2 10:00:13 2017 +0200
+Date:   Tue Jul 4 19:33:35 2017 +0200
 
-    tandanu via svn r16200:
+    Omega via svn r16405:
+    more checks to nil error from user reports
+    Added obelisk warnings/timers to KJ
+
+commit 4ff4dd9de8dc44ad2def9a2d2b47373d46da8f2a
+Author: subversion <svn@deadlybossmods.com>
+Date:   Tue Jul 4 18:24:57 2017 +0200
+
+    Omega via svn r16404:
+    in all languages
+
+commit 63211fddfae406568b3134959e0f474e907e8abe
+Author: subversion <svn@deadlybossmods.com>
+Date:   Tue Jul 4 18:24:06 2017 +0200
+
+    Omega via svn r16403:
+    Fix shortyell and shortfade hopefully
+
+commit d2f278268d048985401ff744b6c46da336862ca2
+Author: subversion <svn@deadlybossmods.com>
+Date:   Tue Jul 4 18:16:56 2017 +0200
+
+    Omega via svn r16402:
+    fix nil error
+
+commit 2657d01f252873d7c1e95f866cbfbb5e94c99026
+Author: subversion <svn@deadlybossmods.com>
+Date:   Tue Jul 4 05:47:00 2017 +0200
+
+    Omega via svn r16401:
+    Add protection against double incorp timer (if target dies and she retargets)
+
+commit 3ecc9fe3b49d68a18135653e52abcb379e570c6d
+Author: subversion <svn@deadlybossmods.com>
+Date:   Mon Jul 3 17:33:03 2017 +0200
+
+    Omega via svn r16400:
+    CN Update
+
+commit 46c21669e35c228e8d8d2833fc7da117ffe898b2
+Author: subversion <svn@deadlybossmods.com>
+Date:   Mon Jul 3 08:04:44 2017 +0200
+
+    Omega via svn r16399:
+    Kr Update
+
+commit 46a956441a4675f182e3b6768f1fb1bb34af2713
+Author: subversion <svn@deadlybossmods.com>
+Date:   Mon Jul 3 02:43:07 2017 +0200
+
+    Omega via svn r16398:
+    Add more core shortcuts
+
+commit 9fc5c1f2d01707e1bb5da38c00e441271654c80c
+Author: subversion <svn@deadlybossmods.com>
+Date:   Sun Jul 2 04:39:19 2017 +0200
+
+    Omega via svn r16397:
+    Fix sever soul warning saying polymorph
+
+commit 7b113bcecb650ce0675f7045fcee949614275823
+Author: subversion <svn@deadlybossmods.com>
+Date:   Sun Jul 2 04:35:12 2017 +0200
+
+    Omega via svn r16396:
+    Fix sever soul warning saying polymorph
+
+commit 9c914287667242144bfe005b2880057f91e32301
+Author: subversion <svn@deadlybossmods.com>
+Date:   Sun Jul 2 00:04:25 2017 +0200
+
+    tandanu via svn r16395:
     increment alpha version
 

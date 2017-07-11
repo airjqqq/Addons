@@ -2262,3 +2262,4 @@ L["WARN_DRMISMATCH"] = [=[警告！你正在檢查遞減的法術來自兩個不
 L["WATER"] = "水之圖騰"
 L["worldboss"] = "首領"
 
+

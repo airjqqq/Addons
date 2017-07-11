@@ -38,12 +38,16 @@ L["STRING_ATTRIBUTE_DAMAGE_FRAGS"] = "Abates"
 L["STRING_ATTRIBUTE_DAMAGE_FRIENDLYFIRE"] = "Fogo Amigo"
 L["STRING_ATTRIBUTE_DAMAGE_TAKEN"] = "Dano Recebido"
 L["STRING_ATTRIBUTE_ENERGY"] = "Recursos"
+--Translation missing 
+-- L["STRING_ATTRIBUTE_ENERGY_ALTERNATEPOWER"] = ""
 L["STRING_ATTRIBUTE_ENERGY_ENERGY"] = "Energia Gerada"
 L["STRING_ATTRIBUTE_ENERGY_MANA"] = "Mana Restaurada"
 L["STRING_ATTRIBUTE_ENERGY_RAGE"] = "Raiva Gerada"
 L["STRING_ATTRIBUTE_ENERGY_RESOURCES"] = "Outros Recursos"
 L["STRING_ATTRIBUTE_ENERGY_RUNEPOWER"] = "Poder Rúnico Gerado"
 L["STRING_ATTRIBUTE_HEAL"] = "Cura"
+--Translation missing 
+-- L["STRING_ATTRIBUTE_HEAL_ABSORBED"] = ""
 L["STRING_ATTRIBUTE_HEAL_DONE"] = "Cura Feita"
 L["STRING_ATTRIBUTE_HEAL_ENEMY"] = "Cura Feita por Inimigos"
 L["STRING_ATTRIBUTE_HEAL_HPS"] = "Cura Por Segundo"
@@ -105,6 +109,8 @@ L["STRING_CUSTOM_CREATE"] = "Criar"
 L["STRING_CUSTOM_CREATED"] = "O novo display foi criado com sucesso."
 L["STRING_CUSTOM_DAMAGEONANYMARKEDTARGET"] = "Dano em Outros Alvos Marcados"
 L["STRING_CUSTOM_DAMAGEONANYMARKEDTARGET_DESC"] = "Mostra o dano causado em alvos marcados com outras marcas."
+--Translation missing 
+-- L["STRING_CUSTOM_DAMAGEONSHIELDS"] = ""
 L["STRING_CUSTOM_DAMAGEONSKULL"] = "Dano no Alvo com Caveira"
 L["STRING_CUSTOM_DAMAGEONSKULL_DESC"] = "Mostra o dano causado em alvos marcados com caveira."
 L["STRING_CUSTOM_DESCRIPTION"] = "Descrição:"
@@ -112,6 +118,8 @@ L["STRING_CUSTOM_DESCRIPTION_DESC"] = "Descreva o que este display faz."
 L["STRING_CUSTOM_DONE"] = "Terminar"
 L["STRING_CUSTOM_DTBS"] = "Dano Sofrido por Magias"
 L["STRING_CUSTOM_DTBS_DESC"] = "Mostra o dano de magias inimigas contra o seu grupo de raide."
+--Translation missing 
+-- L["STRING_CUSTOM_DYNAMICOVERAL"] = ""
 L["STRING_CUSTOM_EDIT"] = "Editar"
 L["STRING_CUSTOM_EDIT_SEARCH_CODE"] = "Editar Código de Busca"
 L["STRING_CUSTOM_EDIT_TOOLTIP_CODE"] = "Editar Código do Tooltip"
@@ -197,10 +205,126 @@ L["STRING_FEEDBACK_PREFERED_SITE"] = "Escolha sua página preferida:"
 L["STRING_FEEDBACK_SEND_FEEDBACK"] = "Enviar Feedback"
 L["STRING_FEEDBACK_WOWI_DESC"] = "Deixe um comentário na página do Details!."
 L["STRING_FIGHTNUMBER"] = "Luta #"
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_ALLSPELLS"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_ALLSPELLS_DESC"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_BWTIMERS"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_BWTIMERS_DESC"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_DBMTIMERS"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_DBMTIMERS_DESC"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_ENCOUNTERSPELLS"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_ENCOUNTERSPELLS_DESC"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_ENEMIES"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_ENEMIES_DESC"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_PETS"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_PETS_DESC"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_PLAYERS"] = ""
+--Translation missing 
+-- L["STRING_FORGE_BUTTON_PLAYERS_DESC"] = ""
+--Translation missing 
+-- L["STRING_FORGE_ENABLEPLUGINS"] = ""
+--Translation missing 
+-- L["STRING_FORGE_FILTER_BARTEXT"] = ""
+--Translation missing 
+-- L["STRING_FORGE_FILTER_CASTERNAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_FILTER_ENCOUNTERNAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_FILTER_ENEMYNAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_FILTER_OWNERNAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_FILTER_PETNAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_FILTER_PLAYERNAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_FILTER_SPELLNAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_BARTEXT"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_CASTER"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_CLASS"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_CREATEAURA"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_ENCOUNTERID"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_ENCOUNTERNAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_EVENT"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_FLAG"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_GUID"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_ICON"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_ID"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_INDEX"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_NAME"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_NPCID"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_OWNER"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_SCHOOL"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_SPELLID"] = ""
+--Translation missing 
+-- L["STRING_FORGE_HEADER_TIMER"] = ""
+--Translation missing 
+-- L["STRING_FORGE_TUTORIAL_DESC"] = ""
+--Translation missing 
+-- L["STRING_FORGE_TUTORIAL_TITLE"] = ""
+--Translation missing 
+-- L["STRING_FORGE_TUTORIAL_VIDEO"] = ""
 L["STRING_FREEZE"] = "Este segmento não está disponível no momento"
 L["STRING_FROM"] = "Fonte"
 L["STRING_GERAL"] = "Geral"
 L["STRING_GLANCING"] = "Glancing"
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_BOSS"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_DATABASEERROR"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_DIFF"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_GUILD"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_PLAYERBASE"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_PLAYERBASE_INDIVIDUAL"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_PLAYERBASE_PLAYER"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_PLAYERBASE_RAID"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_RAID"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_ROLE"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_SHOWHISTORY"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_SHOWRANK"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_SYNCBUTTONTEXT"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_TUTORIAL_DESC"] = ""
 L["STRING_HEAL"] = "Cura"
 L["STRING_HEAL_ABSORBED"] = "Cura absorvida"
 L["STRING_HEAL_CRIT"] = "Cura Critica"
@@ -294,6 +418,10 @@ L["STRING_MIRROR_IMAGE"] = "Imagem Espelhada"
 L["STRING_MISS"] = "Errou"
 L["STRING_MODE_ALL"] = "Modo: Tudo"
 L["STRING_MODE_GROUP"] = "Modo: Padrão"
+--Translation missing 
+-- L["STRING_MODE_OPENFORGE"] = ""
+--Translation missing 
+-- L["STRING_MODE_OPENGUILDDAMAGERANK"] = ""
 L["STRING_MODE_PLUGINS"] = "plugins"
 L["STRING_MODE_RAID"] = "Plugins: Raide"
 L["STRING_MODE_SELF"] = "Plugins: Individuais"

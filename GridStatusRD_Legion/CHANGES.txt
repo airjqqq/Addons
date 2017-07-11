@@ -1,8 +1,9 @@
 ------------------------------------------------------------------------
-r31 | tptbk | 2017-04-01 16:32:04 -0500 (Sat, 01 Apr 2017) | 1 line
+r35 | tptbk | 2017-06-28 20:57:59 -0500 (Wed, 28 Jun 2017) | 2 lines
 Changed paths:
-   M /trunk/GridStatusRD_Legion.toc
+   M /trunk/TombofSargeras.lua
 
-Bump TOC For 7.2
+Desolate Host
+    Add Wither
 ------------------------------------------------------------------------
 

@@ -218,7 +218,7 @@ L.HUDAlphaSlider			= "Alpha: %0.1f"
 
 -- Tab: Spoken Alerts Frame
 L.Panel_SpokenAlerts		= "Spoken Alerts"
-L.Area_VoiceSelection		= "Voice Selections"
+L.Area_VoiceSelection		= "Voice Selections (scroll selection menus with mouse wheel)"
 L.CountdownVoice			= "Set primary voice for count sounds"
 L.CountdownVoice2			= "Set secondary voice for count sounds"
 L.CountdownVoice3			= "Set tertiary voice for count sounds"
@@ -256,6 +256,7 @@ L.SpamBlockNoHealthFrame	= "Do not show health frame"
 L.SpamBlockNoCountdowns		= "Do not play countdown sounds"
 L.SpamBlockNoYells			= "Do not send chat yells"
 L.SpamBlockNoNoteSync		= "Do not accept shared notes"
+L.SpamBlockNoReminders		= "Do not show any login, recommendation, or update messages (NOT recommended)"
 
 L.Area_Restore				= "DBM Restore Options (Whether DBM restores previous user state when mods finish)"
 L.SpamBlockNoIconRestore	= "Do not save icon states and restore them on combat end"

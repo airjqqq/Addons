@@ -51,15 +51,15 @@ for spellID, encounterInfo in next, {
 	[232445] = {1737, 786, nil, 14}, -- Gul'dan
 
 	-- Tomb of Sargeras
-	-- [240655] = {1862, 875}, -- 1 Goroth
-	-- [240656] = {1867, 875}, -- 2 Demonic Inquisition
-	-- [240657] = {1856, 875}, -- 3 Harjatan
-	-- [240658] = {1903, 875}, -- 4 Sisters of the Moon
-	-- [240659] = {1861, 875}, -- 5 Mistress Sassz'ine
-	-- [240660] = {1896, 875}, -- 6 The Desolate Host
-	-- [240661] = {1897, 875}, -- 7 Maiden of Vigilance
-	-- [240662] = {1873, 875}, -- 8 Fallen Avatar
-	-- [240663] = {1898, 875}, -- 9 Kil'jaeden
+	[240655] = {1862, 875, nil, 14}, -- Goroth
+	[240656] = {1867, 875, nil, 14}, -- Demonic Inquisition
+	[240657] = {1856, 875, nil, 14}, -- Harjatan
+	[240658] = {1861, 875, nil, 14}, -- Mistress Sassz'ine
+	[240659] = {1903, 875, nil, 14}, -- Sisters of the Moon
+	[240660] = {1896, 875, nil, 14}, -- The Desolate Host
+	[240661] = {1897, 875, nil, 14}, -- Maiden of Vigilance
+	[240662] = {1873, 875, nil, 14}, -- Fallen Avatar
+	[240663] = {1898, 875, nil, 14}, -- Kil'jaeden
 
 	--- Dungeons
 	-- Return to Karazhan (Mythic)
@@ -161,6 +161,11 @@ end
 
 for _, spellID in next, {
 	232109, -- Nightbane (no dungeon journal entry)
+
+	-- PvP
+	240042, -- Arena 2v2 Weekly Quest
+	240048, -- Arena 3v3 Weekly Quest
+	240052, -- Battlegrounds 10v10 Weekly Quest
 } do
 	ns.encounterBlacklist[spellID] = true
 end

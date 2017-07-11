@@ -210,7 +210,7 @@ function F:GetDotDamagePerSecond(guid,unit)
   for i,v in pairs(debuffs) do
     local tooltip = v.tooltip
     if tooltip then
-      local t,d,s = tooltip:match("每(%d+)秒[^%d]+(%d+)点(.*)伤害")
+      local t,d,s = tooltip:match("每([%d%.]*%d+)秒[^%d]+([%d%.]*%d+)点(.*)伤害")
       -- print(t,d, tooltip)
       if t and d then
         t = tonumber(t)

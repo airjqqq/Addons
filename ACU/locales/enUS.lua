@@ -55,3 +55,4 @@ L["STRING_TUTORIAL_LINE_6"] = [=[
 
 |cFFFFFFFFImportant:|r) When you are done with your tests, make sure to disable the Cpu Profiler clicking on the 'Stop Profiler' button.]=]
 L["STRING_TUTORIAL_TITLE"] = "Follow these steps:"
+

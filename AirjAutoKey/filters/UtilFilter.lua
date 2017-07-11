@@ -44,12 +44,15 @@ function F:OnInitialize()
   self:RegisterFilter("STANCE",L["Stance"],{value={}})
   self:RegisterFilter("STEALTH",L["Stealth"],{})
   self:RegisterFilter("RUNE",L["Rune"],{name={name=L["Offset"]},value={},greater={}})
+  self:RegisterFilter("BUFFENERGY",L["Buff Energy"],{name={name=L["Spell ID | CD Time "]},value={},greater={}})
+  self:RegisterFilter("CDDEBUFF",L["CD Debuff"],{name={name=L["Spell ID | CD Time "]},value={},greater={},unit={}})
   self:RegisterFilter("CDENERGY",L["CD Energy"],{name={name=L["Spell ID | CD Time "]},value={},greater={}})
   self:RegisterFilter("CDFOCUS",L["CD Focus"],{name={name=L["Spell ID | CD Time | Fps"]},value={},greater={}})
   self:RegisterFilter("UACOUNT",L["UA Count"],{value={},greater={},unit={}})
   self:RegisterFilter("PMULTIPLIER",L["P multiplier"],{value={},greater={},unit={},name={}})
   self:RegisterFilter("NEXTINSANITY",L["Next Insanity"])
   self:RegisterFilter("INSANITYDRAINSTACK",L["Insanity Drain"])
+  -- self:RegisterFilter("FOCUSTTM",L["Focus TTM"])
   self:RegisterFilter("TOTEMTIME",L["Totem Time"],{name={},value={},greater={}},{
     [1]=L["Fire"],
     [2]=L["Eath"],
@@ -156,8 +159,8 @@ local function checkEnemyInRange (radius,unit)
   end
   for guid,data in pairs(Cache.exists) do
     if data[2] then
-      local isdead = select(6,Cache:GetHealth(guid))
-      if isdead==false then
+      local health,_,_,_,_,isdead = Cache:GetHealth(guid)
+      if health > 100 and isdead==false then
         local x,y,z,f,d,s = Cache:GetPosition(guid)
         if x then
           if not unit then
@@ -807,6 +810,41 @@ function F:TOTEMTIME(filter)
 		end
 	end
   return value
+end
+
+function F:CDDEBUFF(filter)
+  filter.value = filter.value or 50
+  local name = filter.name and filter.name[1]
+  assert(name)
+  local cdoffset = filter.name and filter.name[2] or 0
+  local cd = Cache:GetSpellCooldown(name)
+  cd = math.max(cd-cdoffset,0)
+  local tfilter = {
+    type = "DEBUFFSELF",
+    name = {select(2,unpack(filter.name))},
+    unit = filter.unit,
+    greater = filter.greater,
+    value = filter.value - cd,
+  }
+  return self:CheckTypeFilter(tfilter)
+end
+
+function F:BUFFENERGY(filter)
+  filter.value = filter.value or 50
+  local name = filter.name and filter.name[1]
+  assert(name)
+  local cdoffset = filter.name and filter.name[2] or 0
+  local buffs = Cache:GetBuffs(guid,filter.unit,{[name] = true})
+  local cd
+  if buffs[1] then
+    local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(buffs[1])
+    cd = (expires - t)/timeMod
+  end
+  cd = cd and math.max(cd-cdoffset,0) or 0
+  local inactiveRegen, activeRegen = GetPowerRegen()
+  local power = Cache:Call("UnitPower","player",SPELL_POWER_ENERGY)
+  power = power + cd*activeRegen
+  return power
 end
 
 function F:CDENERGY(filter)
