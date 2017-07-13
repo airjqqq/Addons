@@ -1,5 +1,5 @@
 local addonsname = "AirjBossMods"
-local Core = LibStub("AceAddon-3.0"):NewAddon(addonsname,"AceConsole-3.0","AceTimer-3.0","AceEvent-3.0")
+local Core = LibStub("AceAddon-3.0"):NewAddon(addonsname,"AceConsole-3.0","AceTimer-3.0","AceEvent-3.0","AceSerializer-3.0","AceComm-3.0")
 _G[addonsname] = Core
 local Util = AirjUtil
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
@@ -7,6 +7,9 @@ local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 local AceDBOptions = LibStub("AceDBOptions-3.0")
 ABM = Core
 local db
+
+Core.version = "v0.0.1"
+
 local options
 do-- Options
   options = {
@@ -308,7 +311,7 @@ do-- Options
         db.anchorPoints[anchorName] = {"CENTER","UIParent","CENTER",0,0,d[6],d[7]}
         self:ResetAnchor(anchorName)
       elseif key == "test" then
-        self:RestDatas()
+        self:ResetDatas()
         local now = GetTime()
         if anchorName == "icon" then
           local is = {0,3,10,13}
@@ -351,7 +354,7 @@ do-- Options
     end
   end
 end
-function Core:RestDatas()
+function Core:ResetDatas()
   self.iconDatas = {}
   self.voiceDatas = {}
   self.sayDatas = {}
@@ -385,7 +388,7 @@ function Core:OnInitialize()
   self.anchors = {}
   self.icons = {}
   self.timelineRows = {}
-  self:RestDatas()
+  self:ResetDatas()
   self:RegisterChatCommand("abm", function(str)
     if str == "reset" then
       db.anchorPoints = nil
@@ -396,6 +399,8 @@ function Core:OnInitialize()
       end
     elseif str == "test" then
       self:Test()
+    elseif str == "version" then
+      self:CheckVersion()
     else
       AceConfigDialog:Open(addonsname)
     end
@@ -408,7 +413,7 @@ function Core:OnInitialize()
 end
 
 function Core:Test()
-  self:RestDatas()
+  self:ResetDatas()
   local now = GetTime()
   self.testing = true
   self:ENCOUNTER_START("ENCOUNTER_START",0, "Test", 0, 10)
@@ -572,6 +577,7 @@ function Core:OnEnable()
   self:RegisterEvent("CHAT_MSG_RAID_BOSS_EMOTE","CallBacks")
   self:RegisterEvent("ENCOUNTER_START")
   self:RegisterEvent("ENCOUNTER_END")
+	self:RegisterComm("AIRJ_BOSS_MODS_COMM")
 
   self:RegisterMessage("AIRJ_HACK_OBJECT_CREATED","CallBacks")
   self:RegisterMessage("AIRJ_HACK_OBJECT_DESTROYED","CallBacks")
@@ -593,10 +599,55 @@ function Core:OnEnable()
       end
     end
   end
+end
 
+--version
+function Core:CheckVersion()
+  self.checkversion = {}
+  Core:SendComm({type="checkversion"})
+  Core:ScheduleTimer(function()
+    for name,data in pairs(self.checkversion) do
+      self:Print(name.." - "..data.version.." - ".. (data.hacked and "|cff00ff00HACKED|r" or "|cffffff00NOT HACKED|r"))
+    end
+    for i = 1,40 do
+      local name = UnitName("raid"..i)
+      if name then
+        name = Ambiguate(name,"none")
+        if not self.checkversion[name] then
+          self:Print(name.." - |cffff0000NOT INSTALLED|r"))
+        end
+      end
+    end
+  end,1)
+end
+--pulling
+function Core:StartPull(time)
+  self.pulling = not self.pulling
+  if self.pulling then
+    time = time or 10
+    self:SetTextT({text1="|cffffff00准备开怪: |r|cff00ffff{number}|r",text2="|cff00ff00开怪|r",expires = GetTime()+time})
+  else
+    self:ResetDatas()
+    self:SetTextT({text1="|cffff0000取消开怪|r",expires = GetTime()+3})
+  end
 end
 
 --utils
+function Core:SendComm(data,target)
+  self:SendCommMessage("AIRJ_BOSS_MODS_COMM",self:Serialize(data),target and "WHISPER","RAID",target,"ALERT")
+end
+function mod:OnCommReceived(prefix,message,channel,sender)
+	local match, data = self:Deserialize(message)
+	if not match then return end
+  if data.type == "checkversion" then
+    self:SendComm({type = "version",version = self.version,hacked = AirjHack and AirjHack:HasHacked()},sender)
+  elseif data.type == "version" then
+    self.checkversion = self.checkversion or {}
+    self.checkversion[sender] = data
+  elseif data.type == "pull" then
+    self:StartPull(data.time)
+  end
+end
 function Core:FindHelpUnitByName(name)
   self.hn2u = self.hn2u or {}
   local n2u = self.hn2u
@@ -718,7 +769,7 @@ function Core:ENCOUNTER_END(event,encounterID, name, difficulty, size, success)
   end
   self.currentBoss = nil
   self.timelineMayChanged = true
-  self:RestDatas()
+  self:ResetDatas()
 end
 
 
