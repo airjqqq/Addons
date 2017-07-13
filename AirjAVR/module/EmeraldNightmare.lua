@@ -6,14 +6,14 @@ local Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
 function mod:OnInitialize()
   local data
   do
-    Core:RegisterAuraUnit(203096,data) --溃烂
+    Core:RegisterAuraCooldowns(203096,data) --溃烂
     data = {
       color={0.2,0.5,0,0.2},
       color2={0.3,0.7,0,0.3},
       radius=8,
       duration=9,
     }
-    Core:RegisterAuraUnit(228796,data) --溃烂
+    Core:RegisterAuraCooldowns(228796,data) --溃烂
   end
   do --test
   end
@@ -25,14 +25,14 @@ function mod:OnInitialize()
       line={{0,10,0},{50,60,0},{-50,60,0}},
       duration=8,
     }
-    Core:RegisterBreath(202977,data) --Infested Breath
+    Core:RegisterStartCastPolygon(202977,data) --Infested Breath
     data = {
       color={0.2,0.5,0,0.2},
       color2={0.3,0.7,0,0.3},
       radius=8,
       duration=9,
     }
-    Core:RegisterAuraUnit(203096,data) --溃烂
+    Core:RegisterAuraCooldowns(203096,data) --溃烂
     data = {
       color={0.2,0.5,0,0.2},
       color2={0.3,0.7,0,0.3},
@@ -40,21 +40,21 @@ function mod:OnInitialize()
       duration=9,
     }
 
-    Core:RegisterAuraUnit(221028,data) --不稳定的
+    Core:RegisterAuraCooldowns(221028,data) --不稳定的
     data = {
       color={0.4,0.0,0,0.2},
       color2={0.7,0.0,0,0.3},
       radius=15,
       duration=8,
     }
-    Core:RegisterAuraUnit(204463,data) --爆裂溃烂
+    Core:RegisterAuraCooldowns(204463,data) --爆裂溃烂
     data = {
       color={0.0,0.4,0,0.2},
       color2={0.0,0.7,0,0.3},
       radius=5,
       duration=20,
     }
-    Core:RegisterAuraUnit(205043,data) --感染意志 205043
+    Core:RegisterAuraCooldowns(205043,data) --感染意志 205043
     -- data = {
     --   color={0.2,0.1,0.5,0.2},
     --   color2={0.4,0.0,0.8,0.3},
@@ -62,7 +62,7 @@ function mod:OnInitialize()
     --   duration=10,
     --   spellId = 203646,
     -- }
-    -- Core:RegisterCreatureLink("Creature",102998,data) --腐化的害虫
+    -- Core:RegisterCreatureBeam("Creature",102998,data) --腐化的害虫
   end
   do --Il'gynoth
     data = {
@@ -70,34 +70,34 @@ function mod:OnInitialize()
       alpha = 0.3,
       color={1,0,0,0.2},
     }
-    Core:RegisterCreatureLink(105383,data) --小触手
+    Core:RegisterCreatureBeam(105383,data) --小触手
     data = {
       color={0.2,0.5,0,0.2},
       color2={0.3,0.7,0,0.3},
       radius=5,
       duration=10,
     }
-    Core:RegisterAuraUnit(208929,data) --Spew Corruption
+    Core:RegisterAuraCooldowns(208929,data) --Spew Corruption
     data = {
       width = 0.2,
       alpha = 0.3,
       classColor = true,
     }
-    Core:RegisterAuraLink(210099,data) --Ichor Fixate
+    Core:RegisterAuraBeam(210099,data) --Ichor Fixate
     data = {
       color={0.5,0.0,0,0.2},
       color2={0.8,0.0,0,0.3},
       radius=11,
       duration=8,
     }
-    Core:RegisterAuraUnit(215128,data) --Blood
+    Core:RegisterAuraCooldowns(215128,data) --Blood
     data = {
       color={0.0,0.0,0.5,0.2},
       color2={0.0,0.5,0.8,0.3},
       radius=2,
       duration=40,
     }
-    Core:RegisterAuraUnit(209469,data) --touch
+    Core:RegisterAuraCooldowns(209469,data) --touch
   end
   do
 
@@ -107,7 +107,7 @@ function mod:OnInitialize()
         radius=10,
         duration=6,
       }
-      Core:RegisterAuraUnit(198006,data) --Spew Corruption
+      Core:RegisterAuraCooldowns(198006,data) --Spew Corruption
   end
   do --4 dragen
     data = {
@@ -116,21 +116,21 @@ function mod:OnInitialize()
       radius=8,
       duration=90,
     }
-    Core:RegisterAuraUnit(203787,data) --Spew Corruption
+    Core:RegisterAuraCooldowns(203787,data) --Spew Corruption
     data = {
       color={0.2,0,0.5,0.1},
       color2={0.3,0,0.7,0.2},
       radius=4,
       duration=8,
     }
-    Core:RegisterAuraUnit(203770,data) --Spew Corruption
+    Core:RegisterAuraCooldowns(203770,data) --Spew Corruption
     data = {
       color={0.2,0,0.5,0.1},
       color2={0.3,0,0.7,0.2},
       radius=4,
       duration=30,
     }
-    Core:RegisterAuraUnit(204044,data) --Spew Corruption
+    Core:RegisterAuraCooldowns(204044,data) --Spew Corruption
   end
   do -- ER
     data = {
@@ -139,14 +139,14 @@ function mod:OnInitialize()
       radius=8,
       duration=6,
     }
-    Core:RegisterAuraUnit(215460,data) --Necrotic Venom
+    Core:RegisterAuraCooldowns(215460,data) --Necrotic Venom
     data = {
       color={0.0,0.7,0,0.2},
       color2={0.0,0.5,0,0.3},
       radius=8,
       duration=6,
     }
-    Core:RegisterAuraUnit(215460,data) --Necrotic Venom
+    Core:RegisterAuraCooldowns(215460,data) --Necrotic Venom
   end
   do --Cenarius
     data = {
@@ -155,21 +155,21 @@ function mod:OnInitialize()
       radius=5,
       duration=8,
     }
-    Core:RegisterAuraUnit(211368,data) -- Touch of Life
+    Core:RegisterAuraCooldowns(211368,data) -- Touch of Life
     data = {
       color= {0.3,0.0,0.5,0.2},
       color2={0.5,0.0,0.8,0.3},
       radius=8,
       duration=8,
     }
-    Core:RegisterAuraUnit(211471,data) --Scroned Touch
+    Core:RegisterAuraCooldowns(211471,data) --Scroned Touch
     --
     -- data = {
     --   width = 0.4,
     --   alpha = 0.3,
     --   color={1,0,0,0.2},
     -- }
-    -- Core:RegisterCreatureLink(104636,data) --P1 mod
+    -- Core:RegisterCreatureBeam(104636,data) --P1 mod
   end
   do --Xavius
     data = {
@@ -178,55 +178,55 @@ function mod:OnInitialize()
       radius=25,
       duration=15,
     }
-    -- Core:RegisterAuraUnit(206651,data)
-    -- Core:RegisterAuraUnit(209158,data)
+    -- Core:RegisterAuraCooldowns(206651,data)
+    -- Core:RegisterAuraCooldowns(209158,data)
     data = {
       color={0.0,0.5,0,0.2},
       color2={0.0,0.8,0,0.3},
       radius=5,
       duration=4,
     }
-    Core:RegisterAuraUnit(211802,data) -- Blades
+    Core:RegisterAuraCooldowns(211802,data) -- Blades
     data = {
       color={0.5,0.5,0,0.2},
       color2={0.8,0.8,0,0.3},
       radius=5,
       duration=10,
     }
-    Core:RegisterAuraUnit(210451,data) -- Terror
-    Core:RegisterAuraUnit(209034,data) -- Terror
+    Core:RegisterAuraCooldowns(210451,data) -- Terror
+    Core:RegisterAuraCooldowns(209034,data) -- Terror
     data = {
       color= {0.3,0.0,0.5,0.2},
       color2={0.5,0.0,0.8,0.3},
       radius=12,
       duration=5,
     }
-    Core:RegisterAuraUnit(224508,data)
+    Core:RegisterAuraCooldowns(224508,data)
     data = {
       width = 0.2,
       alpha = 0.3,
       classColor = true,
     }
-    Core:RegisterAuraLink(205771,data) --Fxiation
+    Core:RegisterAuraBeam(205771,data) --Fxiation
     data = {
       color= {0.0,0.0,0.5,0.2},
       color2={0.0,0.0,0.8,0.3},
       radius=6,
       duration=20,
     }
-    Core:RegisterAuraUnit(208431,data) --
+    Core:RegisterAuraCooldowns(208431,data) --
     data = {
       width = 0.2,
       alpha = 0.3,
       color={0,0,1,0.2},
     }
-    Core:RegisterCreatureLink(105611,data) --P2 mod
+    Core:RegisterCreatureBeam(105611,data) --P2 mod
     data = {
       width = 0.4,
       alpha = 0.3,
       color={1,0,0,0.2},
     }
-    Core:RegisterCreatureLink(103695,data) --P1 mod
+    Core:RegisterCreatureBeam(103695,data) --P1 mod
   end
 
   self:RegisterEvent("UNIT_SPELLCAST_START")

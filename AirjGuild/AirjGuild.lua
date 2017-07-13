@@ -37,7 +37,6 @@ function Core:OnEnable()
   AirjGuildDB = AirjGuildDB or {}
   self.db = AirjGuildDB
   self.db.standbyList = {}
-  -- AirjAutoKey:OnChatCommmand("world",600,"大脚世界频道 <Hand Of Justice>公会,上班族为主.1团进度M4/10,招LR/FS/ZS/DZ.2团休闲,主打H,招稳定坦克")
   self.worldTimer = self:ScheduleRepeatingTimer(self.WorldTimer,10,self)
   self.gaTimer = self:ScheduleRepeatingTimer(self.GuildAnnouncementTimer,10,self)
   self:RegisterEvent("CHAT_MSG_CHANNEL")

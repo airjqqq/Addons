@@ -50,8 +50,8 @@ function mod:OnEnable()
       end,
     },
   }
-  Core:RegisterAreaTriggerCircle(124503,data)
-  Core:RegisterAreaTriggerCircle(124506,data)
-  Core:RegisterAreaTriggerCircle(124507,data)
+  Core:RegisterCreateAreaTrigger(124503,data)
+  Core:RegisterCreateAreaTrigger(124506,data)
+  Core:RegisterCreateAreaTrigger(124507,data)
 
 end

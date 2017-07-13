@@ -4,10 +4,20 @@ local R = Core:NewModule(modulename,"AceEvent-3.0")
 
 function R:OnEnable()
   local bossmod = Core:NewBoss({encounterID = 0})
+
   function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
     local now = GetTime()
     if event == "SPELL_AURA_APPLIED" then
     end
+  end
+  function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
+    print()
+    -- AirjAVR:RegisterCreatureBeam(121227,{width = 1,alpha = 0.3,color={1,0,0,0.3},})
+    AirjAVR:RegisterCreatureBeam(88076,{width = 1,alpha = 0.3,color={1,0,0,0.3},removes = GetTime() + 1e9})
+  end
+  function bossmod:ENCOUNTER_END(event,encounterID, name, difficulty, size)
+    -- AirjAVR:RegisterCreatureBeam(121227)
+    AirjAVR:RegisterCreatureBeam(88076)
   end
   function bossmod:UNIT_SPELLCAST_SUCCEEDED(aceEvent,uId, spellName, _, spellGUID)
     local now = GetTime()
@@ -44,39 +54,18 @@ function R:OnEnable()
       text = "Phase: 1",
       timepoints = {
         {
-          text = "Point: 1",
-          time = 10,
+          text = "末日决战",
+          color = {1,0,0},
+          time = 0,
         },
         {
-          text = "Point: 2",
-          time = 25,
-        },
-      },
-    },
-    {
-      phase = 2,
-      text = "Phase: 2",
-      timepoints = {
-        {
-          text = "Point: 4",
-          time = 10,
+          text = "大圈",
+          color = {1,0.5,0},
+          time = 15,
         },
         {
-          text = "Point: 5",
-          time = 25,
-        },
-      },
-    },
-    {
-      phase = 3,
-      text = "Phase: 3",
-      timepoints = {
-        {
-          text = "Point: 7",
-          time = 10,
-        },
-        {
-          text = "Point: 8",
+          text = "击飞",
+          color = {0.5,0,1},
           time = 25,
         },
       },

@@ -12,13 +12,13 @@ function mod:OnInitialize()
   --   color2={0,0.5,0,0.3},
   --   radius=10,
   -- }
-  -- Core:RegisterAuraUnit(230345,data)
+  -- Core:RegisterAuraCooldowns(230345,data)
   data = {
     color={0.5,0,0,0.1},
     color2={1,0,0,0.3},
     radius=10,
   }
-  Core:RegisterAuraUnit(233272,data)
+  Core:RegisterAuraCooldowns(233272,data)
 
   --2
   data = {
@@ -26,7 +26,7 @@ function mod:OnInitialize()
     color2={1,0,1,0.1},
     radius=10,
   }
-  Core:RegisterAuraUnit(233983,data)
+  Core:RegisterAuraCooldowns(233983,data)
 
   --3
 
@@ -35,13 +35,13 @@ function mod:OnInitialize()
     alpha = 0.3,
     classColor = true,
   }
-  Core:RegisterAuraLink(234016,data)
+  Core:RegisterAuraBeam(234016,data)
   data = {
     color={0,0,0.5,0.05},
     color2={0,0,1,0.1},
     radius=8,
   }
-  Core:RegisterAuraUnit(231729,data)
+  Core:RegisterAuraCooldowns(231729,data)
 
   --4
   data = {
@@ -49,38 +49,38 @@ function mod:OnInitialize()
     color2={0,0,1,0.1},
     radius=8,
   }
-  Core:RegisterAuraUnit(236519,data)
+  Core:RegisterAuraCooldowns(236519,data)
   data = {
     color={0,0,0.5,0.05},
     color2={0,0,1,0.1},
     radius=8,
   }
-  Core:RegisterAuraUnit(236550,data)
+  Core:RegisterAuraCooldowns(236550,data)
   data = {
     width = 4,
     alpha = 0.3,
     color={1,0,0,0.3},
     -- classColor = true,
   }
-  Core:RegisterAuraLink(236541,data)
+  Core:RegisterAuraBeam(236541,data)
   data = {
     color={0.5,0,0,0.1},
     color2={1,0,0.0,0.3},
     radius=8,
   }
-  Core:RegisterAuraUnit(236712,data)
+  Core:RegisterAuraCooldowns(236712,data)
   data = {
     color={0.5,0,0.5,0.1},
     color2={1,0,0.1,0.3},
     radius=8,
   }
-  Core:RegisterAuraUnit(236541,data)
+  Core:RegisterAuraCooldowns(236541,data)
   data = {
     width = 4,
     alpha = 0.3,
     color={1,0,1,0.3},
   }
-  Core:RegisterAuraLink(236541,data)
+  Core:RegisterAuraBeam(236541,data)
 
 
   --5
@@ -89,20 +89,20 @@ function mod:OnInitialize()
     color2={0,0,1,0.3},
     radius=5,
   }
-  Core:RegisterAuraUnit(232913,data)
+  Core:RegisterAuraCooldowns(232913,data)
   data = {
     color={0,0.5,0,0.1},
     color2={0,1,0.0,0.3},
     radius=5,
   }
-  Core:RegisterAuraUnit(230139,data)
+  Core:RegisterAuraCooldowns(230139,data)
   data = {
     width = 4,
     alpha = 0.3,
     color={0,1,0,0.3},
     -- classColor = true,
   }
-  Core:RegisterAuraLink(230139,data)
+  Core:RegisterAuraBeam(230139,data)
 
   --6
   data = {
@@ -110,40 +110,40 @@ function mod:OnInitialize()
     color2={0,0,1,0.3},
     radius=5,
   }
-  Core:RegisterAuraUnit(236361,data)
+  Core:RegisterAuraCooldowns(236361,data)
   data = {
     width = 4,
     alpha = 0.3,
     color={0,1,0,0.3},
     -- classColor = true,
   }
-  Core:RegisterAuraLink(238018,data)
+  Core:RegisterAuraBeam(238018,data)
   data = {
     color={0,0.5,0,0.1},
     color2={0,1,0.0,0.3},
     radius=8,
   }
-  Core:RegisterAuraUnit(236515,data)
-  Core:RegisterAuraUnit(235969,data)
+  Core:RegisterAuraCooldowns(236515,data)
+  Core:RegisterAuraCooldowns(235969,data)
   data = {
     color={0.5,0.5,0,0.1},
     color2={1,1,0.0,0.3},
     radius=5,
   }
-  Core:RegisterAuraUnit(236459,data)
+  Core:RegisterAuraCooldowns(236459,data)
   data = {
     color={0.5,0,0,0.1},
     color2={1,0,0.0,0.3},
     radius=8,
   }
-  Core:RegisterAuraUnit(238442,data)
+  Core:RegisterAuraCooldowns(238442,data)
   --7
   data = {
     color={0.5,0,0,0.1},
     color2={1,0,0.0,0.3},
     radius=5,
   }
-  Core:RegisterAuraUnit(235117,data)
+  Core:RegisterAuraCooldowns(235117,data)
 
   --8
   data = {
@@ -151,7 +151,7 @@ function mod:OnInitialize()
     color2={1,0,1,0.3},
     radius=8,
   }
-  Core:RegisterAuraUnit(239739,data)
+  Core:RegisterAuraCooldowns(239739,data)
   data = {
     color={0,0.5,0,0.1},
     color2={0,1,0.0,0.3},
@@ -159,7 +159,7 @@ function mod:OnInitialize()
     duration = 15,
     isbuff = true,
   }
-  Core:RegisterAuraUnit(241008,data)
+  Core:RegisterAuraCooldowns(241008,data)
   --9
 
   data = {
@@ -167,15 +167,15 @@ function mod:OnInitialize()
     color2={0,0,1.0,0.3},
     radius=5,
   }
-  Core:RegisterAuraUnit(236710,data)
+  Core:RegisterAuraCooldowns(236710,data)
 
   data = {
     width = 1,
     alpha = 0.3,
     color={1,0,0,0.3},
   }
-  Core:RegisterCreatureLink(124590,data)
-  -- Core:RegisterCreatureLink(96829,data)
+  Core:RegisterCreatureBeam(121227,data)
+  -- Core:RegisterCreatureBeam(96829,data)
 
 
 
@@ -195,7 +195,7 @@ end
 
 local demonicObelisk = {}
 
-function mod:OnObjectCreated(event,guid,type)
+function mod:AIRJ_HACK_OBJECT_CREATED(event,guid,type)
 	-- print(guid,type)
   if bit.band(type,0x2)==0 then
     local objectType,serverId,instanceId,zone,cid,spawn = Core:GetGUIDInfo(guid)
@@ -212,7 +212,7 @@ function mod:OnObjectCreated(event,guid,type)
   end
 end
 
-function mod:OnObjectDestroyed(event,guid,type)
+function mod:AIRJ_HACK_OBJECT_DESTROYED(event,guid,type)
   local m = demonicObelisk[guid]
   if m then
     m:Remove()
@@ -228,7 +228,7 @@ function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sou
       radius=15,
       duration = 5,
     }
-    Core:ShowUnitMesh(data,spellId,sourceGUID,destGUID)
+    -- Core:ShowUnitMesh(data,spellId,sourceGUID,destGUID)
 
   end
   -- if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" or event =="SPELL_AURA_APPLIED_DOSE" then
@@ -266,7 +266,7 @@ function mod:CHAT_MSG_ADDON(prefix, msg, channel, targetName)
             isbuff = true,
             duration = 3,
           }
-          Core:ShowUnitMesh(data,236604,guid,guid)
+          -- Core:ShowUnitMesh(data,236604,guid,guid)
         end
       end
     end

@@ -1,8 +1,8 @@
 local Core =  LibStub("AceAddon-3.0"):GetAddon("AirjAVR")
 local mod = Core:NewModule("PVE","AceEvent-3.0","AceTimer-3.0")
-local Cache
+-- local Cache
 function mod:OnInitialize()
-  Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
+  -- Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
 end
 
 
@@ -12,6 +12,17 @@ function mod:OnEnable()
   self:RegisterEvent("GROUP_ROSTER_UPDATE",self.UpdateUnits,self)
   self:UpdateUnits()
 
+  self:ScheduleRepeatingTimer(function()
+    if Core.playerAlpha then
+      local a = Core.playerAlpha
+      Core.playerAlpha = nil
+      for guid,data in pairs(self.drawables) do
+        local m = data.drawable
+        m.a = a
+      end
+    end
+  end,0.01)
+
 
   -- local data = {
   --   color={0.0,0.7,0,0.2},
@@ -19,7 +30,7 @@ function mod:OnEnable()
   --   radius=2.5,
   --   duration=11,
   -- }
-  -- Core:RegisterAreaTriggerCircle(242613,data)
+  -- Core:RegisterCreateAreaTrigger(242613,data)
 
 end
 local function getClassColor(class)
@@ -102,8 +113,10 @@ function mod:GenerateMesh(guid,unit,lines)
   -- m:SetFollowUnit(unit)
   local _,class = UnitClass(unit)
   local r,g,b = getClassColor(class)
-  m:SetColor(r,g,b,unit == "player" and 0.2 or 0.35)
-
+  m:SetColor(r,g,b,0)
+  if unit == "player" then
+    m.isplayer = true
+  end
   -- local pm = AVRPolygonMesh:New(petLine)
   -- scene:AddMesh(pm,false,false)
   -- pm:SetFollowUnit(unit.."pet")
@@ -164,30 +177,30 @@ function mod:UpdateUnits()
       end
     end
 
-    for i,unit in ipairs({"boss1","boss2","boss3","boss4"}) do
-      local guid = UnitGUID(unit)
-      if guid then
-        if not self.drawables[guid] then
-          self:GenerateMesh(guid,unit,getArrow(0.4,2.3,1.3,1.3,0,4))
-        else
-          self.drawables[guid].mayremove = nil
-          -- self.drawables[guid].drawable.rebuild = true
-        end
-      else
-        local timer
-        timer = self:ScheduleRepeatingTimer(function()
-          local guid = UnitGUID(unit)
-          if guid and UnitClass(unit) then
-            if not self.drawables[guid] then
-              self:GenerateMesh(guid,unit,getArrow(0.4,2.3,1.3,1.3,0,4))
-            end
-            self:CancelTimer(timer)
-            self.timers[unit] = nil
-          end
-        end,0.1)
-        self.timers[unit] = timer
-      end
-    end
+    -- for i,unit in ipairs({"boss1","boss2","boss3","boss4"}) do
+    --   local guid = UnitGUID(unit)
+    --   if guid then
+    --     if not self.drawables[guid] then
+    --       self:GenerateMesh(guid,unit,getArrow(0.4,2.3,1.3,1.3,0,4))
+    --     else
+    --       self.drawables[guid].mayremove = nil
+    --       -- self.drawables[guid].drawable.rebuild = true
+    --     end
+    --   else
+    --     local timer
+    --     timer = self:ScheduleRepeatingTimer(function()
+    --       local guid = UnitGUID(unit)
+    --       if guid and UnitClass(unit) then
+    --         if not self.drawables[guid] then
+    --           self:GenerateMesh(guid,unit,getArrow(0.4,2.3,1.3,1.3,0,4))
+    --         end
+    --         self:CancelTimer(timer)
+    --         self.timers[unit] = nil
+    --       end
+    --     end,0.1)
+    --     self.timers[unit] = timer
+    --   end
+    -- end
   end
 
   for guid,data in pairs(self.drawables) do

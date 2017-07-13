@@ -43,49 +43,54 @@ function R:OnEnable()
     end
   end
   do --1
-    local bossmod = Core:NewBoss({encounterID = 1862})
+    local bossmod = Core:NewBoss({encounterID = 2032})
     local aoeCnt = 0
     function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
       local now = GetTime()
       if event == "SPELL_AURA_APPLIED" then
         --Star
         if spellId == 233272 and destGUID == Core:GetPlayerGUID() then
-          Core:SetIcon(1,GetSpellTexture(spellId),2,6,nil,nil,nil)
-          Core:SetText("|cff00ff00火球点你：{number}|r","|cff00ff00火球飞行中...|r",now+6,now+7.5)
+          Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 6, start = nil, expires = nil, size = 2, name = "火球", reverse = false})
+          Core:SetScreen(0,1,0)
+          Core:SetTextT({text1 = "|cffff0000火球点你: |cff00ffff{number}|r", text2 = "|cff00ff00火球飞行中...|r",start = nil,expires = now+6})
           Core:SetVoice("bombrun")
           Core:SetVoice("safenow",now+7.5)
-          Core:SetScreen(0,1,0,1)
-          Core:SetScreen(0,1,0,1,now+0.6)
         end
         --Buring Armor
         if spellId == 231363 then
           if destGUID == Core:GetPlayerGUID() then
-            Core:SetIcon(10,GetSpellTexture(spellId),1,6)
-            Core:SetText("|cffff0000远离人群：{number}|r","|cff00ff00返回|r",now+5,now+7)
+
+
+            Core:SetIconT({index = 13, texture = GetSpellTexture(spellId), duration = 6, start = nil, expires = nil, size = 1, name = "破甲", reverse = false})
+            Core:SetScreen(1,0,0,0.5)
+            Core:SetTextT({text1 = "|cffff0000远离人群: |cff00ffff{number}|r", text2 = "|cff00ff00返回|r",start = nil,expires = now+6})
             Core:SetVoice("runout")
-            Core:SetVoice("safenow",now+6)
+            Core:SetVoice("runin",now+6)
+            Core:SetPlayerAlpha({alpha = 0.5,start=now+0,removes=now+6})
             for i = 3,6 do
               Core:SetSay(""..(6-i),now + i)
             end
           else
             if Core:GetPlayerRole() == "TANK" then
               Core:SetVoice("tauntboss")
-              Core:SetText("|cffff0000换坦嘲讽|r","",now+2,now+2)
+              Core:SetText("|cffffff00换坦嘲讽|r","",now+2,now+2)
             end
           end
         end
         --Melted Armor
         if spellId == 234264 and destGUID == Core:GetPlayerGUID() then
-          Core:SetIcon(10,GetSpellTexture(spellId),1,20)
+          Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 20, name = GetSpellInfo(spellId), count = count, scale = false})
         end
         --Crashing Comet
         if spellId == 230345 and destGUID == Core:GetPlayerGUID() then
-          Core:SetIcon(10,GetSpellTexture(spellId),1,16)
+          Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 16, name = GetSpellInfo(spellId), count = count, scale = false})
         end
       end
       if event == "SPELL_CAST_START" then
         if spellId == 233062 then
-          Core:SetText("|cffff0000即将AOE：{number}|r","|cff00ff00AOE结束...|r",now+6,now+7.5)
+          Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 6, start = nil, expires = nil, size = 2, name = "AOE", reverse = false})
+          Core:SetScreen(0,1,0)
+          Core:SetTextT({text1 = "|cffffff00即将AOE: |cff00ffff{number}|r", text2 = "|cff00ff00AOE结束|r",start = nil,expires = now+6})
           Core:SetVoice("findshelter")
           Core:SetVoice("safenow",now+6)
           self.basetime = GetTime() + 6
@@ -106,12 +111,17 @@ function R:OnEnable()
     	local spellId = tonumber(select(5, strsplit("-", spellGUID)), 10)
       local now = GetTime()
     	if spellId == 233050 then--Infernal Spike
-        Core:SetText("|cffffff00尖刺出现：{number}|r","",now+3,now+3)
         Core:SetVoice("watchstep")
+        Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 2.5, size = 1, name = "尖刺", reverse = false})
+        Core:SetTextT({text1 = "|cffff0000尖刺: |cff00ffff{number}|r", text2 = "|cff00ff00尖刺|r",expires = now+2.5})
     	elseif spellId == 233285 then--Rain of Brimston
-        Core:SetText("|cffff00ff帮忙分担：{number}|r","|cff00ff00分担结束|r",now+9,now+10.5)
-        Core:SetVoice("helpsoak")
+
+        Core:SetVoice("stepring")
+        Core:SetIconT({index = 10, texture = GetSpellTexture(spellId), duration = 9, size = 1, name = "踩圈", reverse = false})
+        Core:SetTextT({text1 = "|cffff0000踩圈: |cff00ffff{number}|r", text2 = "|cff00ff00踩圈结束|r",expires = now+9})
         Core:SetVoice("safenow",now+9)
+        Core:SetPlayerAlpha({alpha = 0.5,start=now+0,removes=now+9})
+        Core:SetScreen(0,1,1,0.5)
     	elseif spellId == 232249 then
     	end
     end
@@ -119,17 +129,19 @@ function R:OnEnable()
       local now = GetTime()
       aoeCnt = 0
     end
+    local cometName = GetSpellInfo(232249)
     local lastCometTime
     function bossmod:Timer10ms()
       local now = GetTime()
-    	local hasDebuff, _, _, _, _, _, _, _, _, _, spellId = UnitDebuff("player", GetSpellInfo(232249))
+    	local hasDebuff, _, _, _, _, _, _, _, _, _, spellId = UnitDebuff("player", cometName)
     	if hasDebuff and spellId == 232249 and (not lastCometTime or now - lastCometTime > 10) then
     		lastCometTime = now
-        Core:SetIcon(10,GetSpellTexture(spellId),1,5,nil,nil,nil)
-        Core:SetText("|cffff0000小圈点你：{number}|r","|cff00ff00返回人群|r",now+5,now+7)
-        Core:SetVoice("runout")
-        Core:SetVoice("safenow",now+5)
+        Core:SetIconT({index = 13, texture = GetSpellTexture(spellId), duration = 5, start = nil, expires = nil, size = 1, name = "小圈", reverse = false})
         Core:SetScreen(1,0,0,0.5)
+        Core:SetTextT({text1 = "|cffff0000小圈点你: |cff00ffff{number}|r", text2 = "|cff00ff00返回人群|r",start = nil,expires = now+6})
+        Core:SetVoice("runout")
+        Core:SetVoice("runin",now+5)
+        Core:SetPlayerAlpha({alpha = 0.5,start=now+0,removes=now+5})
         for i = 2,5 do
           Core:SetSay(""..(5-i),now + i)
         end
@@ -697,32 +709,70 @@ function R:OnEnable()
   do --9
     local atname = GetSpellInfo(234310)
     local fcname = GetSpellInfo(245509)
+    local p3aoecount = 0
     local bossmod = Core:NewBoss({encounterID = 2051})
+
+    function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
+      p3aoecount = 0
+      Core:RegisterCreatureBeam(121227,{width = 1,alpha = 0.3,color={1,0,0,0.3},removes = GetTime() + 1e9})
+      Core:RegisterAuraCooldowns(236710,{color = {0,0,1,0.2},radius = 5})
+
+    end
+    function bossmod:ENCOUNTER_END(event,encounterID, name, difficulty, size)
+      Core:RegisterCreatureBeam(121227)
+    end
+    local demonicObelisk = {}
+    function bossmod:AIRJ_HACK_OBJECT_CREATED(event,guid,type)
+    	-- print(guid,type)
+      if bit.band(type,0x2)==0 then
+        local objectType,serverId,instanceId,zone,cid,spawn = AirjHack:GetGUIDInfo(guid)
+        if objectType == "Creature" and cid == 120270 then --88076
+          local scene = AVR:GetTempScene(100)
+          local lines = {{{-100,2,0},{-100,-2,0},{100,-2,0},{100,2,0}},{{-2,100,0},{-2,-100,0},{2,-100,0},{2,100,0}}}
+          local m = AVRPolygonMesh:New(lines)
+          scene:AddMesh(m,false,false)
+          m:SetFollowUnit(guid)
+          m.nofacing = true
+          m:SetColor(0,1,0,0.2)
+          demonicObelisk[guid] = m
+        end
+      end
+    end
+    function bossmod:AIRJ_HACK_OBJECT_DESTROYED(event,guid,type)
+      local m = demonicObelisk[guid]
+      if m then
+        m:Remove()
+      end
+    end
     function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
       local now = GetTime()
-      if event == "SPELL_AURA_APPLIED" then
+      if (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" or event == "SPELL_AURA_APPLIED_DOSE") then
         --p1
         if spellId == 234310 and Core:GetPlayerGUID() == destGUID then
-          Core:SetIcon(10,GetSpellTexture(spellId),1,60)
+          local count = select(2,...)
+          Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 60, expires = now + 60, name = GetSpellInfo(spellId), count = count, scale = false})
         end
         if spellId == 236710 and Core:GetPlayerGUID() == destGUID then
-          Core:SetIcon(1,GetSpellTexture(spellId),2,8)
+          Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 8, start = nil, expires = nil, size = 2, name = "映像", reverse = false})
           Core:SetVoice("gather")
-          Core:SetScreen(0.5,0,1,0.8)
-          Core:SetText("|cffff0000映像点你:{number}|r","|cff00ff00映像结束|r",now+8,now+9)
-          for i = 5,8 do
-            Core:SetSay(""..(8-i),now + i)
+          Core:SetScreen(0.5,0,1)
+          Core:SetTextT({text1 = "|cffff0000映像点你: |cff00ffff{number}|r", text2 = "|cff00ff00映像结束|r",start = nil,expires = now+8})
+          for i = 0,3 do
+            Core:SetSay(""..i,now + 8 - i)
           end
         end
         if spellId == 239932 then
           if UnitIsUnit("boss1target","player") then
-            Core:SetVoice("defensive")
-            Core:SetText("|cffff0000邪爪开始|r",nil,now+2,now+2)
-            Core:SetScreen(1,0,0,0.8)
+            Core:SetVoice("defensive",now+6)
+            Core:SetTextT({text1 = "|cffffff00邪爪开始|r", text2 = "",start = nil,expires = now+2})
+            Core:SetScreen(1,0,0)
           end
           if Core:GetPlayerRole() == "HEALER" then
             Core:SetVoice("tankheal")
-            Core:SetText("|cffff0000邪爪开始|r",nil,now+2,now+2)
+            Core:SetTextT({text1 = "|cffffff00邪爪开始|r", text2 = "",start = nil,expires = now+2})
+          end
+          if Core:GetPlayerRole() == "TANK" then
+            Core:SetIconT({index = 13, texture = GetSpellTexture(spellId), duration = 11.5, size = 1, name = "邪爪"})
           end
         end
         if spellId == 244834 then
@@ -730,25 +780,27 @@ function R:OnEnable()
           self.basetime = now
           Core:SetVoice("phasechange")
         end
-        --p2.5
         if spellId == 241721 and Core:GetPlayerGUID() == destGUID then
-          Core:SetIcon(10,GetSpellTexture(spellId),1,20)
+          Core:SetIconT({index = 13, texture = GetSpellTexture(spellId), duration = 20, expires = nil, name = GetSpellInfo(spellId), count = count, scale = false})
+        end
+        if Core:GetPlayerGUID() == destGUID and spellId==239932 and Core:GetPlayerRole() == "TANK" then
+          local c = select(4,UnitDebuff("player",fcname)) or 0
+          Core:SetTextT({text1 = "|cffffff00邪爪 - |cff00ffff"..c.." |cffffff00层|r", text2 = "",start = nil,expires = now+2})
+          Core:SetIconT({index = 13, texture = GetSpellTexture(spellId), duration = 20, expires = nil, name = GetSpellInfo(spellId), count = c, scale = c==1})
         end
       end
-      if (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_APPLIED_DOSE") and Core:GetPlayerGUID() == destGUID and spellId==239932 and Core:GetPlayerRole() == "TANK" then
-        local c = select(4,UnitDebuff("player",fcname)) or 0
-        Core:SetText("|cffff0000邪爪 - "..c.."层|r",nil,now+2,now+2)
-        Core:SetIcon(1,GetSpellTexture(spellId),2,20,nil,nil,nil,c)
-      end
       if event == "SPELL_AURA_REMOVED" then
-        if spellId == 234310 and Core:GetPlayerGUID() == destGUID then
-          Core:SetIcon(10,GetSpellTexture(spellId),1,0)
+        if (spellId == 234310) and Core:GetPlayerGUID() == destGUID then
+          Core:ClearIcon(3)
+        end
+        if (spellId == 241721 or spellId == 239932) and Core:GetPlayerGUID() == destGUID then
+          Core:ClearIcon(13)
         end
         if spellId == 239932 then
           if not UnitDebuff("player",fcname) then
             if Core:GetPlayerRole() == "TANK" then
               Core:SetVoice("tauntboss")
-              Core:SetText("|cffff0000换坦嘲讽|r","",now+2,now+2)
+              Core:SetTextT({text1 = "|cffffff00换坦嘲讽|r", text2 = "",start = nil,expires = now+2})
             end
           end
         end
@@ -765,10 +817,13 @@ function R:OnEnable()
       end
       if event == "SPELL_CAST_START" then
         if spellId == 240910 then
-          if not UnitDebuff("player",atname) then
-            Core:SetText("|cffff0000末日决战:{number}|r","|cff00ff00末日决战结束|r",now+9,now+10)
+          local hasDebuff,rank, icon, count, dispelType, duration, expires = UnitDebuff("player",atname)
+          if not hasDebuff or expires - now < 9 then
             Core:SetVoice("stepring")
+            Core:SetIconT({index = 10, texture = GetSpellTexture(spellId), duration = 9, size = 1, name = "末日决战", reverse = false})
+            Core:SetTextT({text1 = "|cffff0000末日决战: |cff00ffff{number}|r", text2 = "|cff00ff00决战结束|r",expires = now+9})
             Core:SetVoice("safenow",now+9)
+            Core:SetPlayerAlpha({alpha = 0.5,start=now+0,removes=now+9})
           end
         end
         if spellId == 241983 then
@@ -777,20 +832,31 @@ function R:OnEnable()
           Core:SetVoice("phasechange")
         end
         if spellId == 238999 then
-          if not UnitDebuff("player",atname) then
-            Core:SetText("|cffff0000千魂:{number}|r","|cff00ff00千魂结束|r",now+9,now+10)
+          p3aoecount = p3aoecount + 1
+
+          Core:SetIconT({index = 1, texture = GetSpellTexture(240910), duration = 9, size = 2, name = "千魂", reverse = false})
+          Core:SetTextT({text1 = "|cffff0000千魂: |cff00ffff{number}|r", text2 = "|cff00ff00千魂结束|r",expires = now+9})
+          if p3aoecount > 1 then
+            Core:SetVoice("justrun",now+7)
+          else
+            Core:SetVoice("defensive",now+5)
           end
+          Core:SetVoice("safenow",now+9)
         end
       end
       if event == "SPELL_CAST_SUCCESS" then
-        if spellId == 238430 and Core:GetPlayerGUID() == destGUID then
-          Core:SetIcon(1,GetSpellTexture(spellId),2,5)
-          -- Core:SetIcon(1,GetSpellTexture(238430),2,5)
-          Core:SetVoice("bombrun")
-          Core:SetText("|cffff0000大圈点你: {number}|r","|cff00ff00大圈结束|r",now+5,now+6)
-          Core:SetScreen(1,1,0,0.8)
-          for i = 2,5 do
-            Core:SetSay(""..(5-i),now + i)
+        if spellId == 238430 then
+          Core:CreateCooldown({guid = destGUID,spellId = spellId,radius = 15,duration = 5,color = {1,1,0},alpha = 0.2,})
+          if Core:GetPlayerGUID() == destGUID then
+            Core:SetIcon(1,GetSpellTexture(spellId),2,5)
+            -- Core:SetIcon(1,GetSpellTexture(238430),2,5)
+            Core:SetVoice("bombrun")
+            Core:SetTextT({text1 = "|cffff0000大圈点你: |cff00ffff{number}|r", text2 = "|cff00ff00大圈结束|r",start = nil,expires = now+5})
+            Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 5, start = nil, expires = nil, size = 2, name = "大圈爆炸", reverse = false})
+            for i = 0,3 do
+              Core:SetSay(""..i,now + 5 - i)
+            end
+            Core:SetScreen(1,1,0)
           end
         end
       end
@@ -800,41 +866,51 @@ function R:OnEnable()
       local now = GetTime()
       if spellId == 244856 then
         Core:SetVoice("watchstep")
-        Core:SetText("|cffff0000火球出现|r","",now+3,now+3)
-        Core:SetScreen(0,1,1,0.8)
+        Core:SetVoice("watchorb",now + 3)
+        Core:SetTextT({text1 = "|cffff0000火球: |cff00ffff{number}|r", text2 = "|cff00ff00火球生成|r",expires = now+5,start = nil})
+        Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 5, name = "火球", reverse = false})
+        Core:SetScreen(0,1,1)
       end
     end
 
-    function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
-    end
 
     function bossmod:CHAT_MSG_RAID_BOSS_EMOTE(event, msg, sender, _, _, target)
+      local now = GetTime()
       if msg:find("235059") then
-        Core:SetVoice("carefly")
-        Core:SetScreen(0,1,1,1)
-        Core:SetText("|cff00ffff紫圈坠落:{number}|r","",now+10,now+10)
+        local spellId = 235059
+        Core:SetVoice("movecenter", now)
+        Core:SetVoice("carefly",now+5)
+        Core:SetTextT({text1 = "|cffffff00准备击飞: |cff00ffff{number}|r", text2 = "|cff00ff00击飞...|r",expires = now+10,start = now+5})
+        Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 10, name = "奇点", reverse = false})
+        Core:SetScreen(0,1,1)
       end
       if msg:find("238502") then
+        local spellId = 238502
         if Core:GetPlayerGUID() == UnitGUID(target) then
-          local spellId = 238502
-          Core:SetIcon(1,GetSpellTexture(spellId),2,5)
           Core:SetVoice("laserrun")
-          Core:SetText("|cffff0000激光点你: {number}|r","|cff00ff00激光结束|r",now+5,now+6)
-          Core:SetScreen(1,0,0,1)
+          Core:SetTextT({text1 = "|cffff0000激光点你: |cff00ffff{number}|r", text2 = "|cff00ff00激光结束|r",start = nil,expires = now+5})
+          Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 5, start = nil, expires = nil, size = 2, name = "激光", reverse = false})
+          for i = 0,3 do
+            Core:SetSay(""..i,now + 5 - i)
+          end
+          Core:SetScreen(1,0,0)
           Core:ScheduleTimer(function()
             if (GetUnitSpeed("player") or 1) > 0 then
               Core:SetVoice("stopmove")
             end
           end,3)
         else
-          Core:SetVoice("helpsoak")
-          Core:SetVoice("range5",now + 1)
+          Core:SetVoice("range5")
         end
-
+        Core:SetPlayerAlpha({alpha = 0.5,start=now+0,removes=now+5})
+        local unit = Core:FindHelpUnitByName(target)
+        if unit then
+          Core:CreateBeam({fromUnit= "boss1",toGUID = UnitGUID(unit),width = 6,length = 100,color = {1,0,0},alpha = 0.2,removes = now + 5})
+          Core:CreateCooldown({guid = UnitGUID(unit),spellId = spellId,radius = 8,duration = 5,color = {1,0,0},alpha = 0.2})
+        end
       end
     end
 
-    local lastCometTime
     function bossmod:Timer10ms()
       local now = GetTime()
     end

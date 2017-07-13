@@ -22,35 +22,35 @@ function mod:OnEnable()
     --   radius=5,
     --   duration=60,
     -- }
-    -- Core:RegisterAuraUnit(227500,data)
+    -- Core:RegisterAuraCooldowns(227500,data)
     -- data = {
     --   color={0.4,0.2,0,0.2},
     --   color2={0.7,0.4,0,0.3},
     --   radius=5,
     --   duration=60,
     -- }
-    -- Core:RegisterAuraUnit(227491,data)
+    -- Core:RegisterAuraCooldowns(227491,data)
     -- data = {
     --   color={0.4,0.4,0,0.2},
     --   color2={0.7,0.7,0,0.3},
     --   radius=5,
     --   duration=60,
     -- }
-    -- Core:RegisterAuraUnit(227498,data)
+    -- Core:RegisterAuraCooldowns(227498,data)
     -- data = {
     --   color={0.4,0.0,0.3,0.2},
     --   color2={0.7,0.0,0.5,0.3},
     --   radius=5,
     --   duration=60,
     -- }
-    -- Core:RegisterAuraUnit(227490,data)
+    -- Core:RegisterAuraCooldowns(227490,data)
     -- data = {
     --   color={0.0,0.4,0.4,0.2},
     --   color2={0.0,0.7,0.7,0.3},
     --   radius=5,
     --   duration=60,
     -- }
-    -- Core:RegisterAuraUnit(227499,data)
+    -- Core:RegisterAuraCooldowns(227499,data)
 
     --P3 blue circle
     data = {
@@ -59,7 +59,7 @@ function mod:OnEnable()
       radius=8,
       duration=5,
     }
-    Core:RegisterAuraUnit(227807,data)
+    Core:RegisterAuraCooldowns(227807,data)
 
     -- Hyrja's Golden Circle
     data = {
@@ -68,14 +68,14 @@ function mod:OnEnable()
       radius=8,
       duration=3,
     }
-    Core:RegisterAuraUnit(228029,data)
+    Core:RegisterAuraCooldowns(228029,data)
 
     -- data = {
     --   width = 2,
     --   alpha = 0.3,
     --   classColor = true,
     -- }
-    -- Core:RegisterAuraLink(228029,data)
+    -- Core:RegisterAuraBeam(228029,data)
 
   end
   self.timer=mod:ScheduleRepeatingTimer(self.Timer,0.2,self)
@@ -276,12 +276,12 @@ function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sou
       local index = debuffs[spellId]
       if not UnitDebuff(unit,constNames[index]) then
         local name, rank, icon, count, dispelType, duration, expires = UnitDebuff(unit,spellName)
-        Core:ShowUnitMesh({
-              color=colors[index],
-              color2=colors2[index],
-              radius=8,
-              duration=expires-GetTime(),
-            },spellId,sourceGUID,destGUID)
+        -- Core:ShowUnitMesh({
+        --       color=colors[index],
+        --       color2=colors2[index],
+        --       radius=8,
+        --       duration=expires-GetTime(),
+        --     },spellId,sourceGUID,destGUID)
       end
     end
     if event == "SPELL_AURA_REMOVED" and debuffs[spellId] then

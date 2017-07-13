@@ -5,18 +5,16 @@ local Cache
 function mod:OnInitialize()
   Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
 end
-
+AirjAVRPVP = mod
 
 function mod:OnEnable()
   --constants
   local stun = {
-    color={0.4,0.0,0,0.05},
-    color2={1,0.0,0,0.3},
+    color={1,0.0,0,0.3},
     radius=4,
   }
   local cc = {
-    color={0.5,0.5,0,0.05},
-    color2={0.8,0.8,0,0.1},
+    color={1,1,0,0.1},
     radius=5,
   }
   local root = {
@@ -50,16 +48,16 @@ function mod:OnEnable()
       -- data = root
     end
     if data then
-      Core:RegisterAuraUnit(spellId,data)
+      Core:RegisterAuraCooldowns(spellId,data)
     end
   end
   -- for spellId, flags, providers, modifiedSpells, moreFlags in LibPlayerSpells:IterateSpells("SURVIVAL") do
   --   local data = survival
-  --   Core:RegisterAuraUnit(spellId,data)
+  --   Core:RegisterAuraCooldowns(spellId,data)
   -- end
   -- for spellId, flags, providers, modifiedSpells, moreFlags in LibPlayerSpells:IterateSpells("BURST") do
   --   local data = burst
-  --   Core:RegisterAuraUnit(spellId,data)
+  --   Core:RegisterAuraCooldowns(spellId,data)
   -- end
   local mdata = {
     width = 2,
@@ -87,12 +85,6 @@ function mod:OnEnable()
   local pguid = Cache:PlayerGUID()
   if Cache then
     local fcn = function()
-      if self.lcum then
-        Core:HideLinkMeshM(self.lcum)
-        Core:HideLinkMeshM(self.lcum2)
-        self.lcum = nil
-        self.lcum2 = nil
-      end
       local name,_,_,_,st,et = UnitCastingInfo("player")
       local matched
       local sid,width
@@ -108,48 +100,51 @@ function mod:OnEnable()
         local data = Cache.cache.castStart:find({sourceGUID = pguid,spellId=sid})
         -- dump({data,sourceGUID = pguid,spellId=sid})
         local guid = data and data.destGUID
-        -- print(sid)
         if guid then
-          mdata.width = width
-          mdata2.width = width
-          self.lcum = Core:ShowLinkMesh(mdata,sid.."bg",pguid,guid)
           local _,_,_,_,distance = Cache:GetPosition(guid)
-          mdata2.length = distance*(GetTime()*1000-st)/(et-st)
-          self.lcum2 = Core:ShowLinkMesh(mdata2,sid,pguid,guid)
+          if not self.lcum1 then
+            self.lcum1 = Core:CreateBeam({
+    					classColor = true,
+    					alpha = 0.4,
+              removes = GetTime() + 1e100,
+    				})
+            self.lcum2 = Core:CreateBeam({
+    					classColor = true,
+    					alpha = 0.4,
+              removes = GetTime() + 1e100,
+    				})
+          end
+          local m1 = Core.createdMeshs[self.lcum1]
+          local m2 = Core.createdMeshs[self.lcum2]
+          if m1 and m2 then
+            if m1.target ~= guid then
+              m1:SetTarget(guid)
+              m2:SetTarget(guid)
+            end
+            m1.width = width
+            m2.width = width
+            m1.length = distance
+            m2.length = distance*(GetTime()*1000-st)/(et-st)
+            m1.visible = true
+            m2.visible = true
+          end
+        end
+      else
+        if self.lcum1 then
+          local m1 = Core.createdMeshs[self.lcum1]
+          local m2 = Core.createdMeshs[self.lcum2]
+          m1.visible = false
+          m2.visible = false
         end
       end
     end
     self:ScheduleRepeatingTimer(function() pcall(fcn) end,0.01)
   end
   local data
-  data = {
-    color={0.0,0.7,0.7,0.05},
-    color2={0.0,0.9,0.9,0.1},
-    radius=19,
-    duration=9.6,
-  }
-  Core:RegisterAreaTriggerCircle(191034,data)
-  data = {
-    color={0.0,0.7,0.7,0.05},
-    color2={0.0,0.9,0.9,0.1},
-    duration=60,
-  }
-  Core:RegisterAreaTriggerCircle(187651,data)
-  data = {
-    color={0.8,0.8,0.0,0.15},
-    color2={0.9,0.3,0.0,0.2},
-    duration=15,
-  }
-  Core:RegisterAreaTriggerCircle(194278,data)
-
-  data = {
-    color={0.0,0.7,0.3,0.05},
-    color2={0.0,0.9,0.3,0.1},
-    duration=15,
-    radius = 10,
-    spellId = 198838,
-  }
-  Core:RegisterCreatureCircle(100943,data)
+  Core:RegisterCreateAreaTrigger(191034,{color={0.0,0.7,0.7,0.2}})
+  Core:RegisterCreateAreaTrigger(187651,{color={0.0,0.7,0.7,0.2}})
+  Core:RegisterCreateAreaTrigger(194278,{color={0.8,0.8,0,0.2}})
+  Core:RegisterCreatureCooldown(100943,{color={0,1,0.5,0.2},spellId=198838})
   self.drawables = {}
   self.timers = {}
 
@@ -376,16 +371,16 @@ function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sou
       self:CancelTimer(kicktimers[sourceGUID])
       kicktimers[sourceGUID] = nil
     end
-    local kick = {
-      color={0.3,0.7,0,0.05},
-      color2={0.5,0.9,0,0.1},
-      radius=5,
-    }
-
     if kicks[spellId] then
       local d = kicks[spellId][3]
-      kick.duration = d
-      Core:ShowUnitMesh(kick,spellId,sourceGUID,destGUID)
+      Core:CreateCooldown({
+				guid = destGUID,
+				spellId = spellId,
+				radius = 5,
+				duration = d,
+				color = {0.3,0.7,0},
+				alpha = 0.3,
+			})
     end
   end
   if event == "SPELL_CAST_SUCCESS" and sourceGUID == UnitGUID("player") then
@@ -400,7 +395,6 @@ function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sou
       cm = m
     end
   end
-  Core:ShowUnitMesh(data,spellId,sourceGUID,destGUID,text)
   if event == "SPELL_CAST_SUCCESS" and kicks[spellId] then
     local sc = sourceGUID and GetPlayerInfoByGUID(sourceGUID)
     local dc = destGUID and GetPlayerInfoByGUID(destGUID)

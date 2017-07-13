@@ -1,16 +1,364 @@
 local addonsname = "AirjBossMods"
 local Core = LibStub("AceAddon-3.0"):NewAddon(addonsname,"AceConsole-3.0","AceTimer-3.0","AceEvent-3.0")
-local Util = AirjUtil
-
 _G[addonsname] = Core
+local Util = AirjUtil
+local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
+local AceDBOptions = LibStub("AceDBOptions-3.0")
 ABM = Core
 local db
+local options
+do-- Options
+  options = {
+    type = "group",
+    handler = Core,
+    get = "GetOption",
+    set = "SetOption",
+    func = "ExecuteOption",
+    disabled = "DisabledOption",
+    args = {
+      enable = {
+        type = "execute",
+        order = 10,
+        name = "模拟测试 /abm test",
+        width = "full",
+        func = "Test",
+      },
+      icon={
+        name = "图标",
+        type = "group",
+        order = 10,
+        args={
+          test = {
+            type = "execute",
+            order = 5,
+            name = "测试",
+            desc = "测试此功能",
+            descStyle = "inline",
+            width = "full",
+            -- disable = true,
+          },
+          lock = {
+            type = "toggle",
+            order = 10,
+            name = "锁定",
+            desc = "显示/隐藏锚点,用于拖动/放缩",
+            descStyle = "inline",
+            width = "full",
+          },
+          disable = {
+            type = "toggle",
+            order = 20,
+            name = "禁用",
+            desc = "启用/禁用功能",
+            descStyle = "inline",
+            width = "full",
+          },
+          reset = {
+            type = "execute",
+            order = 30,
+            name = "重置位置",
+            width = "full",
+          },
+          center = {
+            type = "execute",
+            order = 40,
+            name = "放置于中间",
+            descStyle = "inline",
+            width = "full",
+          },
+        },
+      },
+      text={
+        name = "文字",
+        type = "group",
+        order = 20,
+        args={
+          test = {
+            type = "execute",
+            order = 5,
+            name = "测试",
+            desc = "测试此功能",
+            descStyle = "inline",
+            width = "full",
+            -- disable = true,
+          },
+          lock = {
+            type = "toggle",
+            order = 10,
+            name = "锁定",
+            desc = "显示/隐藏锚点,用于拖动/放缩",
+            descStyle = "inline",
+            width = "full",
+          },
+          disable = {
+            type = "toggle",
+            order = 20,
+            name = "禁用",
+            desc = "启用/禁用功能",
+            descStyle = "inline",
+            width = "full",
+          },
+          reset = {
+            type = "execute",
+            order = 30,
+            name = "重置位置",
+            width = "full",
+          },
+          center = {
+            type = "execute",
+            order = 40,
+            name = "放置于中间",
+            descStyle = "inline",
+            width = "full",
+          },
+        },
+      },
+      timeline={
+        name = "时间轴",
+        type = "group",
+        order = 30,
+        args={
+          test = {
+            type = "execute",
+            order = 5,
+            name = "测试",
+            desc = "测试此功能",
+            descStyle = "inline",
+            width = "full",
+            -- disable = true,
+          },
+          lock = {
+            type = "toggle",
+            order = 10,
+            name = "锁定",
+            desc = "显示/隐藏锚点,用于拖动/放缩",
+            descStyle = "inline",
+            width = "full",
+          },
+          disable = {
+            type = "toggle",
+            order = 20,
+            name = "禁用",
+            desc = "启用/禁用功能",
+            descStyle = "inline",
+            width = "full",
+          },
+          reset = {
+            type = "execute",
+            order = 30,
+            name = "重置位置",
+            width = "full",
+          },
+          center = {
+            type = "execute",
+            order = 40,
+            name = "放置于中间",
+            descStyle = "inline",
+            width = "full",
+          },
+        },
+      },
+      say={
+        name = "喊话(/s)",
+        type = "group",
+        order = 40,
+        args={
+          test = {
+            type = "execute",
+            order = 5,
+            name = "测试",
+            desc = "测试此功能",
+            descStyle = "inline",
+            width = "full",
+            -- disable = true,
+          },
+          disable = {
+            type = "toggle",
+            order = 20,
+            name = "禁用",
+            desc = "启用/禁用功能",
+            descStyle = "inline",
+            width = "full",
+          },
+        },
+      },
+      voice={
+        name = "语音",
+        type = "group",
+        order = 50,
+        args={
+          test = {
+            type = "execute",
+            order = 5,
+            name = "测试",
+            desc = "测试此功能",
+            descStyle = "inline",
+            width = "full",
+            -- disable = true,
+          },
+          disable = {
+            type = "toggle",
+            order = 20,
+            name = "禁用",
+            desc = "启用/禁用功能",
+            descStyle = "inline",
+            width = "full",
+          },
+        },
+      },
+      screen={
+        name = "全屏警报",
+        type = "group",
+        order = 60,
+        args={
+          test = {
+            type = "execute",
+            order = 5,
+            name = "测试",
+            desc = "测试此功能",
+            descStyle = "inline",
+            width = "full",
+            -- disable = true,
+          },
+          disable = {
+            type = "toggle",
+            order = 20,
+            name = "禁用",
+            desc = "启用/禁用功能",
+            descStyle = "inline",
+            width = "full",
+          },
+        },
+      },
+      avr={
+        name = "增强现实",
+        type = "group",
+        order = 60,
+        disabled = not (AirjHack and AirjAVR and AirjHack:HasHacked()),
+        args={
+          test = {
+            type = "execute",
+            order = 5,
+            name = "测试",
+            desc = "测试此功能",
+            descStyle = "inline",
+            disabled = "DisabledOption",
+            width = "full",
+            -- disable = true,
+          },
+          disable = {
+            type = "toggle",
+            order = 20,
+            name = "禁用",
+            desc = "启用/禁用功能",
+            descStyle = "inline",
+            width = "full",
+          },
+        },
+      },
+    },
+  }
+  function Core:DisabledOption(info)
+    if #info == 2 then
+      local anchorName, key = info[1], info[2]
+      if key == "test" then
+        return db.anchorDisables and db.anchorDisables[anchorName]
+      end
+    elseif #info == 1 then
+    end
+  end
+  function Core:GetOption(info)
+    if #info == 2 then
+      local anchorName, key = info[1], info[2]
+      if key == "lock" then
+        return db.anchorHides and db.anchorHides[anchorName]
+      elseif key == "disable" then
+        return db.anchorDisables and db.anchorDisables[anchorName]
+      end
+    elseif #info == 1 then
+    end
+  end
+  function Core:SetOption(info,value,...)
+    if #info == 2 then
+      local anchorName, key = info[1], info[2]
+      if key == "lock" then
+        db.anchorHides = db.anchorHides or {}
+        db.anchorHides[anchorName] = value
+        self:ResetAnchor(anchorName)
+      elseif key == "disable" then
+        db.anchorDisables = db.anchorDisables or {}
+        db.anchorDisables[anchorName] = value
+        self:ResetAnchor(anchorName)
+      end
+    elseif #info == 1 then
+    end
+  end
+  function Core:ExecuteOption(info)
+    if #info == 2 then
+      local anchorName, key = info[1], info[2]
+      if key == "reset" then
+        if db.anchorPoints then
+          db.anchorPoints[anchorName] = nil
+        end
+        self:ResetAnchor(anchorName)
+      elseif key == "center" then
+        db.anchorPoints = db.anchorPoints or {}
+        local d = defaultAnchors[anchorName]
+        db.anchorPoints[anchorName] = {"CENTER","UIParent","CENTER",0,0,d[6],d[7]}
+        self:ResetAnchor(anchorName)
+      elseif key == "test" then
+        self:RestDatas()
+        local now = GetTime()
+        if anchorName == "icon" then
+          local is = {0,3,10,13}
+          for i = 1,4 do
+            local _, spellId = GetSpellBookItemInfo(25+i,"player")
+            local texture = GetSpellTexture(spellId)
+            local name = GetSpellInfo(spellId)
+            self:SetIconT({index = is[i], texture = texture, duration = 20+i*5, name = name, scale = false, reverse = (i%2==0)})
+          end
+          local _, spellId = GetSpellBookItemInfo(30,"player")
+          local texture = GetSpellTexture(spellId)
+          local name = GetSpellInfo(spellId)
+          self:SetIconT({index = 1, texture = texture, duration = 5, size = 2, name = name, reverse = false})
+        elseif anchorName == "text" then
+          self:SetTextT({text1 = "|cffff0000测试警报: |cff00ffff{number}|r", text2 = "|cff00ff00警报结束|r",expires = now+9})
+        elseif anchorName == "timeline" then
+          self.testing = true
+          local bossMod = self:GetTestBossMod()
+          bossMod.basetime = now
+          bossMod.phase = 1
+        elseif anchorName == "say" then
+          for i = 0,3 do
+            self:SetSay(""..i,now + 3 - i)
+          end
+        elseif anchorName == "voice" then
+          self:SetVoice("stepring")
+          self:SetVoice("bombrun", now+1)
+        elseif anchorName == "screen" then
+          self:SetScreenT({r=0.5,g=0,b=1,time = now + 0})
+          self:SetScreenT({r=1,g=1,b=0,time = now + 1})
+        elseif anchorName == "avr" then
+          local _, spellId = GetSpellBookItemInfo(36,"player")
+          self:CreateBeam({fromUnit= "player",toUnit = "target",width = 6,length = 100,color = {1,0,0},alpha = 0.2,removes = now + 4,start = now + 2})
+          self:CreateCooldown({unit = "player",spellId = spellId,radius = 8,duration = 5,color = {0,1,0},alpha = 0.2})
+          self:SetPlayerAlpha({alpha = 0.5, removes = now + 8})
+
+        end
+      end
+    elseif #info == 1 then
+    end
+  end
+end
 function Core:RestDatas()
   self.iconDatas = {}
   self.voiceDatas = {}
   self.sayDatas = {}
   self.screenDatas = {}
+  self.playerAlphaDatas = {}
   self.textDatas = {}
+  self.testing = nil
 end
 
 local anchors = {
@@ -20,11 +368,17 @@ local anchors = {
   -- "board",
   -- "map",
 }
-local defaultAnchors = {
-  icon = {"TOP",UIParent,"TOP",0,-100,400,20},
-  text = {"CENTER",UIParent,"CENTER",0,20,400,20},
-  timeline = {"CENTER",UIParent,"CENTER",-300,100,300,20},
+local anchorNames = {
+  icon = "图标锚点",
+  text = "文字锚点",
+  timeline = "时间轴锚点",
 }
+local defaultAnchors = {
+  icon = {"TOP","UIParent","TOP",0,-20,400,20},
+  text = {"CENTER","UIParent","CENTER",0,150,400,20},
+  timeline = {"CENTER","UIParent","CENTER",-280,0,300,20},
+}
+
 function Core:OnInitialize()
   _G[addonsname.."DB"] = _G[addonsname.."DB"] or {}
   db = _G[addonsname.."DB"]
@@ -33,38 +387,56 @@ function Core:OnInitialize()
   self.timelineRows = {}
   self:RestDatas()
   self:RegisterChatCommand("abm", function(str)
-    -- db.hideAnchor = not db.hideAnchor
-    -- for n,anchor in pairs(self.anchors) do
-    --   if db.hideAnchor then
-    --     anchor:Hide()
-    --   else
-    --     anchor:Show()
-    --   end
-    -- end
     if str == "reset" then
-      db.anchors = nil
+      db.anchorPoints = nil
+      db.anchorHides = nil
+      db.anchorDisables = nil
       for _, name in pairs(anchors) do
         self:ResetAnchor(name)
       end
     elseif str == "test" then
-      self.testing = true
-      local bossMod = self:GetTestBossMod()
-      bossMod.basetime = GetTime()
-      bossMod.phase = 1
-      self:SetIcon(0,nil,1,25,nil,nil,nil,"一般BUFF")
-      self:SetIconT({index = 0, duration = 25, count = "一般BUFF"})
-      self:SetIconT({index = 1, duration = 5, size = 2, count = "关键BUFF"})
-      self:SetIconT({index = 3, duration = 15, count = "一般BUFF"})
-      self:SetTextT({text1 = "|cff00ffff先来的: {number}|r",expires = GetTime()+5})
-      self:SetTextT({text1 = "|cffffff00后来的: {number}|r",expires = GetTime()+3,start = GetTime() + 1})
+      self:Test()
+    else
+      AceConfigDialog:Open(addonsname)
     end
   end)
 
-  self.bossMods = Util:NewFIFO(1000)
+  self.bossMods = {}
+
+  AceConfigRegistry:RegisterOptionsTable(addonsname, options)
+  AceConfigDialog:AddToBlizOptions(addonsname)
 end
 
-local function getTimeString(value)
-  return string.format(value<2 and "%0.1f" or "%0.0f",value)
+function Core:Test()
+  self:RestDatas()
+  local now = GetTime()
+  self.testing = true
+  self:ENCOUNTER_START("ENCOUNTER_START",0, "Test", 0, 10)
+  self:SetIconT({index = 3, texture = GetSpellTexture(234310), duration = 60, expires = now + 40, name = "末日之雨", count = "2", scale = false})
+  self:SetIconT({index = 10, texture = GetSpellTexture(240910), duration = 9, size = 1, name = "末日决战", reverse = false})
+  self:SetIconT({index = 1, texture = GetSpellTexture(238430), duration = 5, start = now+15, expires = now + 20, size = 2, name = "大圈爆炸", reverse = false})
+  self:SetIconT({index = 0, texture = GetSpellTexture(235059), duration = 10, expires = now + 35, start = now+25, name = "奇点", reverse = false})
+  self:SetTextT({text1 = "|cffff0000末日决战: |cff00ffff{number}|r", text2 = "|cff00ff00决战结束|r",expires = now+9})
+  self:SetTextT({text1 = "|cffff0000大圈点你: |cff00ffff{number}|r", text2 = "|cff00ff00大圈结束|r",start = now + 15,expires = now+20})
+  self:SetTextT({text1 = "|cffffff00奇点出现|r", text2 = "",start = now + 25,expires = now+28})
+  self:SetTextT({text1 = "|cffffff00准备击飞: |cff00ffff{number}|r", text2 = "|cff00ff00击飞中...|r",expires = now+35,start = now + 32})
+  self:SetVoice("stepring")
+  self:SetVoice("safenow", now+9)
+  self:SetVoice("bombrun", now+15)
+  for i = 0,3 do
+    -- self:SetSay(""..i,now + 20 - i)
+  end
+  self:SetVoice("movecenter", now+25)
+  self:SetVoice("carefly", now+32)
+  self:SetScreenT({r=0.5,g=0,b=1,time = now + 32})
+  self:SetScreenT({r=1,g=1,b=0,time = now + 15})
+
+  self:CreateCooldown({unit = "player",spellId = spellId,radius = 15,duration = 5,color = {1,1,0},alpha = 0.2,start=now+15,expires=now+20})
+  self:SetPlayerAlpha({alpha = 0.5,start=now+0,removes=now+9})
+end
+
+function Core:GetTimeString(value)
+  return string.format(value<3 and "%0.1f" or "%0.0f",value)
 end
 
 local k2s = {
@@ -92,27 +464,29 @@ end
 
 function Core:ResetAnchor(name)
   local anchor = self.anchors[name]
-  local data = db.anchors and db.anchors[name] or defaultAnchors[name] or {"CENTER",UIParent,"CENTER",0,0,200,20}
-  local a,b,c,x,y,w,h,hide = unpack(data)
+  if not anchor then return end
+  local data = db.anchorPoints and db.anchorPoints[name] or defaultAnchors[name] or {"CENTER",UIParent,"CENTER",0,0,200,20}
+  local a,b,c,x,y,w,h = unpack(data)
   anchor:ClearAllPoints()
   anchor:SetPoint(a,b,c,x,y)
   anchor:SetSize(w,h)
+  local hide = db.anchorHides and db.anchorHides[name] or false
   if hide then anchor:Hide() else anchor:Show() end
+  local disable = db.anchorDisables and db.anchorDisables[name] or false
+  if disable then
+    -- anchor.disable = true
+    anchor.texture:SetColorTexture(1,0,0,0.5)
+  else
+    -- anchor.disable = nil
+    anchor.texture:SetColorTexture(0,0,0,0.5)
+  end
 end
 
-function Core:UpdateAnchors()
-end
-function Core:OnEnable()
-  -- Create Anchors
+function Core:CreateAnchors()
   for i,name in pairs(anchors) do
     local anchor = CreateFrame("Frame",addonsname .. "_"..name.."Anchor")
     self.anchors[name] = anchor
     anchor.name = name
-    self:ResetAnchor(name)
-    -- local data = db.anchors and db.anchors[name] or {"CENTER",UIParent,"CENTER",0,0,200,20}
-    -- local a,b,c,x,y,w,h = unpack(data)
-    -- anchor:SetPoint(a,b,c,x,y)
-    -- anchor:SetSize(w,h)
   	anchor:EnableMouse(true)
   	anchor:SetMovable(true)
     anchor:RegisterForDrag("LeftButton","RightButton")
@@ -134,27 +508,63 @@ function Core:OnEnable()
       self:StopMovingOrSizing()
       local offsetX,offsetY = self:GetLeft(),self:GetBottom()
       local width,height = self:GetSize()
-      db.anchors = db.anchors or {}
-      db.anchors[name] = {"BOTTOMLEFT","UIParent","BOTTOMLEFT",offsetX,offsetY,width,height }
+      db.anchorPoints = db.anchorPoints or {}
+      db.anchorPoints[name] = {"BOTTOMLEFT","UIParent","BOTTOMLEFT",offsetX,offsetY,width,height }
+      self.resizing = true
       self:SetScript("OnUpdate",nil)
   	end)
+
+    anchor:SetScript("OnEnter", function(self)
+  		GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT");
+      GameTooltip:AddLine("左键拖动 - 移动\n右键拖动 - 放缩\nCtrl 点击 - 锁定\nAlt 点击 - 禁用\nShift 点击 - 重置\n\n/abm test - 测试", 1, 1, 1, 1)
+      GameTooltip:Show()
+  		GameTooltip:SetFrameLevel(50);
+    end)
+    anchor:SetScript("OnLeave",function(self)
+      GameTooltip:Hide()
+    end)
+    anchor:SetScript("OnMouseDown", function(self)
+      if IsControlKeyDown() then
+        db.anchorHides = db.anchorHides or {}
+        db.anchorHides[name] = true
+        Core:ResetAnchor(name)
+      elseif IsAltKeyDown() then
+        db.anchorDisables = db.anchorDisables or {}
+        db.anchorDisables[name] = not db.anchorDisables[name]
+        Core:ResetAnchor(name)
+      elseif IsShiftKeyDown() then
+        db.anchorDisables = db.anchorDisables or {}
+        db.anchorDisables[name] = nil
+        db.anchorHides = db.anchorHides or {}
+        db.anchorHides[name] = nil
+        db.anchorPoints = db.anchorPoints or {}
+        db.anchorPoints[name] = nil
+        Core:ResetAnchor(name)
+        self.resizing = true
+      end
+    end)
     local texture = anchor:CreateTexture()
     texture:SetColorTexture(0,0,0,0.5)
     texture:SetAllPoints()
     anchor.texture = texture
     local fontstring = anchor:CreateFontString(nil,"OVERLAY","GameFontHighlight")
-    fontstring:SetFont("Fonts\\FRIZQT__.TTF",16,"MONOCHROME")
+    fontstring:SetFont("Fonts\\ARKai_C.TTF",16,"MONOCHROME")
     -- fontstring:SetTextHeight(16)
-    fontstring:SetText(name)
+    fontstring:SetText(anchorNames[name])
   	fontstring:SetAllPoints()
 
-    if db.hideAnchor then
-      anchor:Hide()
-    else
-      anchor:Show()
-    end
+    self:ResetAnchor(name)
   end
-  self:ScheduleRepeatingTimer(self.Update,0.02,self)
+end
+function Core:OnEnable()
+  self:CreateAnchors()
+  local updateFrame = CreateFrame("Frame")
+  updateFrame:SetPoint("TOPLEFT",UIParent,"TOPLEFT")
+  updateFrame:SetSize(1,1)
+  updateFrame:SetScript("OnUpdate",function()
+    self:Update()
+  end)
+  -- self:ScheduleRepeatingTimer(self.Update,0.01,self)
   self:ScheduleRepeatingTimer(self.Timer10ms,0.01,self)
 
   self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED","CallBacks")
@@ -163,7 +573,65 @@ function Core:OnEnable()
   self:RegisterEvent("ENCOUNTER_START")
   self:RegisterEvent("ENCOUNTER_END")
 
+  self:RegisterMessage("AIRJ_HACK_OBJECT_CREATED","CallBacks")
+  self:RegisterMessage("AIRJ_HACK_OBJECT_DESTROYED","CallBacks")
+
   self.timelineMayChanged = true
+
+  local avrFunctions = {
+    "RegisterCreatureBeam",
+    "RegisterAuraCooldowns",
+    "RegisterAuraBeam",
+    "CreateCooldown",
+    "CreateBeam",
+  }
+  for i, key in pairs(avrFunctions) do
+    self[key] = function(self,...)
+      local disable = db.anchorDisables and db.anchorDisables.avr
+      if not disable and AirjAVR then
+        AirjAVR[key](AirjAVR,...)
+      end
+    end
+  end
+
+end
+
+--utils
+function Core:FindHelpUnitByName(name)
+  self.hn2u = self.hn2u or {}
+  local n2u = self.hn2u
+  name = Ambiguate(name,"none")
+  local unit = n2u[name]
+  if unit then
+    if UnitName(unit) == name then
+      return unit
+    else
+      n2u[name] = nil
+    end
+  end
+  local groupNumber = GetNumGroupMembers()
+  local pre
+  if IsInRaid() then
+    pre = "raid"
+  else
+    pre = "party"
+    groupNumber = groupNumber - 1
+  end
+  local units = {}
+  for i = 1,groupNumber do
+    local u = pre..i
+    tinsert(units,u)
+  end
+  tinsert(units,"player")
+  for i,u in ipairs(units) do
+    local n = UnitName(u)
+    if n then
+      n2u[n] = u
+      if n == name then
+        return u
+      end
+    end
+  end
 end
 
 function Core:GetPlayerGUID()
@@ -181,27 +649,21 @@ function Core:GetPlayerRole()
 end
 
 function Core:GetTestBossMod()
-  return self.bossMods:find({encounterID = 0})
+  return self.bossMods[0]
 end
 
 function Core:GetCurrentBossMod()
-  local currentBossId = self.currentBoss and self.currentBoss.encounterID
-  local bossMod
-  if currentBossId then
-    bossMod = self.bossMods:find({encounterID = currentBossId})
+  if self.currentBoss then
+    bossMod = self.currentBoss.bossMod
   else
     bossMod = self.testing and self:GetTestBossMod()
-  end
-  if bossMod then
-    bossMod.basetime = bossMod.basetime or GetTime()
-    bossMod.phase = bossMod.phase or 1
   end
   return bossMod
 end
 
 function Core:NewBoss(data)
   assert(data and data.encounterID)
-  self.bossMods:push(data,data.encounterID)
+  self.bossMods[data.encounterID] = data
   return data
 end
 
@@ -221,12 +683,15 @@ function Core:Timer10ms()
 end
 
 function Core:ENCOUNTER_START(event,encounterID, name, difficulty, size)
-  print("ENCOUNTER_START",event,encounterID, name, difficulty, size)
+  -- print("ENCOUNTER_START",event,encounterID, name, difficulty, size)
+
+  local bossMod = self.bossMods[encounterID]
   self.currentBoss = {
     encounterID = encounterID,
     name = name,
     difficulty = difficulty,
     size = size,
+    bossMod = bossMod,
   }
   local bossMod = self:GetCurrentBossMod()
   if bossMod then
@@ -241,7 +706,7 @@ function Core:ENCOUNTER_START(event,encounterID, name, difficulty, size)
 end
 
 function Core:ENCOUNTER_END(event,encounterID, name, difficulty, size, success)
-  print("ENCOUNTER_END",event,encounterID, name, difficulty, size, success)
+  -- print("ENCOUNTER_END",event,encounterID, name, difficulty, size, success)
   local bossMod = self:GetCurrentBossMod()
   if bossMod then
     bossMod.difficulty = nil
@@ -264,6 +729,7 @@ function Core:Update()
   self:UpdateScreen()
   self:UpdateVoice()
   self:UpdateSay()
+  self:UpdatePlayerAlpha()
 end
 -- icons
 --[[
@@ -276,6 +742,7 @@ end
   removes = now + 10,
   reverse = true,
   size = 1,
+  name = "",
   count = "",
 }
 ]]
@@ -286,10 +753,12 @@ function Core:SetIconT(data)
   local duration = data.duration or 10
   local expires = data.expires or GetTime() + duration
   local start = data.start or GetTime()
-  local removes = data.removes or expires
-  local reverse = data.reverse == nil and true or reverse
+  local removes = data.removes or expires + 0.5
+  local reverse = data.reverse == nil and true or data.reverse
   local size = data.size or 1
+  local name = data.name or ""
   local count = data.count or ""
+  local scale = data.scale == nil and 10/size or data.scale
   self.iconDatas[index] = {
     texture = texture,
     duration = duration,
@@ -298,17 +767,23 @@ function Core:SetIconT(data)
     removes = removes,
     reverse = reverse,
     size = size,
+    name = name,
     count = count,
+    scale = scale,
     justSetUp = true,
   }
   return self.iconDatas[index]
 end
+function Core:ClearIcon(index)
+  self.iconDatas[index] = nil
+end
+
 function Core:SetIcon(index,texture,size,duration,expires,removes,reverse,count)
   index = index or 0
   texture = texture or 458972
   duration = duration or 10
   expires = expires or GetTime() + duration
-  removes = removes or expires
+  removes = removes or expires + 0.5
   reverse = reverse == nil and true or reverse
   self.iconDatas[index] = {
     texture = texture,
@@ -322,53 +797,134 @@ function Core:SetIcon(index,texture,size,duration,expires,removes,reverse,count)
   }
   return self.iconDatas[index]
 end
+
+local scaleDuration = 0.3
+
 function Core:UpdateIcons()
-  local anchor = self.anchors.icon
-  local resized = anchor.resizing
-  if resized then anchor.resizing = nil end
-  local size = anchor:GetWidth()/4
-  local now = GetTime()
-  for k,v in pairs(self.iconDatas) do
-    local icon = self.icons[k]
-    if not icon then
-      icon = CreateFrame("Frame")
-      local castIconCooldown = CreateFrame("Cooldown",nil,icon,"CooldownFrameTemplate")
-      castIconCooldown:SetAllPoints()
-      icon.castIconCooldown = castIconCooldown
+  local disable = db.anchorDisables and db.anchorDisables.icon
+  if disable then
+    wipe(self.iconDatas)
+  else
+    local anchor = self.anchors.icon
+    local resized = anchor.resizing
+    if resized then anchor.resizing = nil end
+    local size = anchor:GetWidth()/4
+    local now = GetTime()
+    for k,v in pairs(self.iconDatas) do
+      local icon = self.icons[k]
+      if not icon then
+        icon = CreateFrame("Frame")
+        local castIconCooldown = CreateFrame("Cooldown",nil,icon,"CooldownFrameTemplate")
+        castIconCooldown:SetHideCountdownNumbers(true)
+        castIconCooldown.noCooldownCount = true
+        castIconCooldown:SetAllPoints()
+        icon.castIconCooldown = castIconCooldown
 
-      local castIconTexture = icon:CreateTexture(nil,"BACKGROUND")
-      castIconTexture:SetAllPoints()
-      castIconTexture:SetColorTexture(0,0,0)
-      icon.castIconTexture = castIconTexture
+        local castIconTexture = icon:CreateTexture(nil,"BACKGROUND")
+        castIconTexture:SetAllPoints()
+        castIconTexture:SetColorTexture(0,0,0)
+        icon.castIconTexture = castIconTexture
 
-      local count = icon:CreateFontString()
-      count:SetAllPoints()
-      count:SetFont("Fonts\\ARKai_C.TTF",72,"OUTLINE")
-      count:SetJustifyH("RIGHT")
-      count:SetJustifyV("BOTTOM")
-      icon.count = count
+        local iconText = CreateFrame("Frame")
+        iconText:SetFrameStrata("HIGH")
+        iconText:SetParent(icon)
+        iconText:SetPoint("CENTER")
+        icon.iconText = iconText
 
-      self.icons[k] = icon
-    end
-    if now > v.removes then
-      icon:Hide()
-      self.iconDatas[k] = nil
-    else
-      if resized or v.justSetUp then
-        local isize = size*(v.size or 1)
-        icon:SetSize(isize, isize)
-        local x,y = (k)%10,-math.floor(k/10)
-        icon:SetPoint("TOPLEFT",anchor,"BOTTOMLEFT",x*size,y*size)
-        icon.count:SetFont("Fonts\\ARKai_C.TTF",isize*0.4,"OUTLINE")
+        local count = iconText:CreateFontString()
+        count:SetAllPoints()
+        count:SetFont("Fonts\\ARKai_C.TTF",72,"OUTLINE")
+        count:SetJustifyH("RIGHT")
+        count:SetJustifyV("BOTTOM")
+        count:SetWordWrap(false)
+        count:SetDrawLayer("OVERLAY",7)
+        icon.count = count
+
+        local name = iconText:CreateFontString()
+        name:SetAllPoints()
+        name:SetFont("Fonts\\ARKai_C.TTF",72,"OUTLINE")
+        name:SetJustifyH("LEFT")
+        name:SetJustifyV("TOP")
+        name:SetWordWrap(false)
+        icon.name = name
+
+        local cd = iconText:CreateFontString()
+        cd:SetAllPoints()
+        cd:SetFont("Fonts\\ARKai_C.TTF",72,"OUTLINE")
+        cd:SetJustifyH("CENTER")
+        cd:SetJustifyV("MIDDLE")
+        cd:SetWordWrap(false)
+        icon.cd = cd
+
+        self.icons[k] = icon
       end
-      if v.justSetUp then
-        icon.castIconTexture:SetTexture(v.texture)
-        icon.castIconCooldown:SetCooldown(v.expires - v.duration, v.duration)
-        icon.castIconCooldown:SetReverse(v.reverse)
-        icon.count:SetText(v.count or "")
-        icon:Show()
+      if now > v.removes then
+        icon:Hide()
+        self.iconDatas[k] = nil
+      elseif now > v.start then
+        if not v.scaling and v.scale and v.scale ~= false then
+          v.scaling = now + scaleDuration
+        end
+        if resized or v.justSetUp or v.scaling then
+          -- if v.scaled then
+          --   v.scaled = nil
+          --   print("scaled")
+          -- end
+          local isize = size*(v.size or 1)
+          local x,y = ((k)%10)*size + isize/2, -math.floor(k/10)*size - isize/2
+          if v.scaling  then
+            if v.scaling > now then
+              local p = (v.scaling - now)/scaleDuration
+              local scale = ((v.scale-1)*p + 1)
+              isize = scale * isize
+
+              local ax, ay = anchor:GetLeft(),anchor:GetBottom()
+              local w,h = UIParent:GetSize()
+              local s = UIParent:GetScale()
+              w = w*s
+              h = h*s
+              local dx = ax + x - w/2
+              local dy = ay + y - h/2
+              -- print(dx,dy,p)
+              x = x - dx * p
+              y = y - dy * p
+            else
+              v.scaling = nil
+              v.scale = nil
+            end
+          end
+          icon:ClearAllPoints()
+          icon:SetPoint("CENTER",anchor,"BOTTOMLEFT",x,y)
+          icon:SetSize(isize, isize)
+          icon.iconText:SetSize(isize*0.9, isize*0.9)
+          local countText = v.count or ""
+          local countLen = string.len(countText)
+          local countSize = min(isize*0.4,2*isize/countLen)
+          icon.count:SetFont("Fonts\\ARKai_C.TTF",countSize,"OUTLINE")
+          icon.count:SetText(countText)
+          local nameText = v.name or ""
+          local nameLen = string.len(nameText)
+          local nameSize = min(isize*0.4,2*isize/nameLen)
+          icon.name:SetFont("Fonts\\ARKai_C.TTF",nameSize,"OUTLINE")
+          icon.name:SetText(nameText)
+          icon.count:SetText(countText)
+
+          icon.cd:SetFont("Fonts\\ARKai_C.TTF",isize*0.5,"OUTLINE")
+        end
+        if v.justSetUp then
+          icon.castIconTexture:SetTexture(v.texture)
+          icon.castIconCooldown:SetCooldown(v.expires - v.duration, v.duration)
+          icon.castIconCooldown:SetReverse(v.reverse)
+          icon:Show()
+        end
+        local formatCD = function(value)
+          return string.format(value<0 and "" or value<3 and "|cffff0000%0.1f|r" or value<5 and "|cffff0000%0.0f|r" or "|cffffff00%0.0f|r",value)
+        end
+        local cd = formatCD(v.expires - now)
+        icon.cd:SetText(cd)
+        v.justSetUp = false
+        icon.show = true
       end
-      icon.show = true
     end
   end
   for i, icon in pairs(self.icons) do
@@ -394,7 +950,7 @@ function Core:SetTextT(data)
   local text2 = data.text2 or text1
   local expires = data.expires or GetTime() + 10
   local start = data.start or GetTime()
-  local removes = data.removes or expires + 2
+  local removes = data.removes or expires + 1
   tinsert(self.textDatas, 1, {
     text1 = text1,
     text2 = text2,
@@ -421,10 +977,18 @@ function Core:SetText(text1,text2,expires,removes,start)
   })
 end
 function Core:UpdateText()
+  local disable = db.anchorDisables and db.anchorDisables.text
+  if disable then
+    wipe(self.textDatas)
+    if self.text then
+      self.text:Hide()
+    end
+    return
+  end
   local anchor = self.anchors.text
   local resized = anchor.resizing
   if resized then anchor.resizing = nil end
-  local size = anchor:GetWidth()/8
+  local size = anchor:GetWidth()/5
   local now = GetTime()
   local text = self.text
   if not text then
@@ -436,29 +1000,42 @@ function Core:UpdateText()
     text.fontstring = fontstring
     self.text = text
   end
-
+  local earlyExpires, earlyExpiresData
   for i, data in pairs(self.textDatas) do
     if now > data.removes then
       tremove(self.textDatas,i)
     elseif now > data.start then
-      local ftext
-      if now > data.expires then
-        ftext = data.text2
-      else
-        ftext = data.text1
+      if not earlyExpires or data.expires<earlyExpires then
+        earlyExpires = data.expires
+        earlyExpiresData = data
       end
-      local num = getTimeString(data.expires-now)
-      ftext = string.gsub(ftext,"{number}",num)
-      text.fontstring:SetText(ftext)
-      if resized or data.justSetUp then
-        text.fontstring:SetFont("Fonts\\ARKai_C.TTF",size,"THICKOUTLINE")
-        text:SetSize(20*size,size)
-      end
-      text:Show()
-      return
     end
   end
-  text:Hide()
+  if earlyExpiresData then
+    local data = earlyExpiresData
+    local ftext
+    if now > data.expires then
+      ftext = data.text2
+    else
+      ftext = data.text1
+    end
+    local num = self:GetTimeString(data.expires-now)
+    ftext = string.gsub(ftext,"{number}",num)
+    text.fontstring:SetText(ftext)
+    if resized or data.justSetUp then
+      text:ClearAllPoints()
+      text:SetPoint("CENTER",anchor,"BOTTOM", 0, -size*0.6)
+      text.fontstring:SetFont("Fonts\\ARKai_C.TTF",size,"THICKOUTLINE")
+      text:SetSize(20*size,size)
+    end
+    if data.justSetUp then
+      -- TODO play scale animation
+    end
+    data.justSetUp = false
+    text:Show()
+  else
+    text:Hide()
+  end
 end
 --screen
 --[[
@@ -475,7 +1052,7 @@ function Core:SetScreenT(data)
   local r = data.r or 1
   local g = data.g or 0
   local b = data.b or 0
-  local a = data.a or 0.5
+  local a = data.a or 1
   local time = data.time or GetTime()
   local duration = data.duration or 0.3
   tinsert(self.screenDatas, {
@@ -490,7 +1067,7 @@ function Core:SetScreen(r,g,b,a,time,duration)
   r = r or 1
   g = g or 0
   b = b or 0
-  a = a or 0.4
+  a = a or 1
   time = time or GetTime()
   duration = duration or 0.3
   tinsert(self.screenDatas, {
@@ -502,15 +1079,25 @@ function Core:SetScreen(r,g,b,a,time,duration)
 end
 
 function Core:UpdateScreen()
+  local disable = db.anchorDisables and db.anchorDisables.screen
+  if disable then
+    wipe(self.screenDatas)
+    if self.screen then
+      self.screen:Hide()
+    end
+    return
+  end
   local now = GetTime()
   for i,v in ipairs(self.screenDatas) do
     if now>v.time then
       local screen = self.screen
       if not screen then
         screen = CreateFrame("Frame")
+        screen:SetFrameStrata("TOOLTIP")
         screen:SetAllPoints(UIParent)
         local texture = screen:CreateTexture()
         texture:SetAllPoints()
+        texture:SetBlendMode("ADD")
         screen.texture = texture
         self.screen = screen
       end
@@ -526,9 +1113,12 @@ function Core:UpdateScreen()
         local a = (1-abs(now-(v.time + v.duration))/v.duration)
         screen:SetAlpha(a)
         screen:Show()
-        break
+        return
       end
     end
+  end
+  if self.screen then
+    self.screen:Hide()
   end
 end
 
@@ -543,6 +1133,11 @@ function Core:SetSay(text,time)
 end
 
 function Core:UpdateSay()
+  local disable = db.anchorDisables and db.anchorDisables.say
+  if disable then
+    wipe(self.sayDatas)
+    return
+  end
   local now = GetTime()
   for i,v in ipairs(self.sayDatas) do
     if now>v.time then
@@ -563,6 +1158,11 @@ function Core:PlayDBMYike(name)
   PlaySoundFile("Interface\\AddOns\\DBM-VPYike\\"..name..".ogg", "Master")
 end
 function Core:UpdateVoice()
+  local disable = db.anchorDisables and db.anchorDisables.voice
+  if disable then
+    wipe(self.voiceDatas)
+    return
+  end
   local now = GetTime()
   for i,v in ipairs(self.voiceDatas) do
     if now>v.time then
@@ -572,18 +1172,57 @@ function Core:UpdateVoice()
   end
 end
 
+-- player alpha
+function Core:SetPlayerAlpha(data)
+  local now = GetTime()
+  local alpha = data.alpha or 0.4
+  local removes = data.removes or now + 5
+  local start = start or now
+  tinsert(self.playerAlphaDatas, 1, {
+    alpha = alpha,
+    removes = removes,
+    start = start,
+    justSetUp = true,
+  })
+end
+local justset
+function Core:UpdatePlayerAlpha()
+  if not AirjAVR then return end
+  local disable = db.anchorDisables and db.anchorDisables.avr
+  if disable then
+    AirjAVR.playerAlpha =0
+  else
+    local now = GetTime()
+    for i,data in ipairs(self.playerAlphaDatas) do
+      if now >data.removes then
+        self.playerAlphaDatas[i] = nil
+      elseif now > data.start then
+        AirjAVR.playerAlpha = data.alpha
+        justset = true
+        return
+      end
+    end
+    if justset then
+      AirjAVR.playerAlpha =0
+      justset = nil
+    end
+  end
+end
+
 -- timeline
 function Core:UpdateTimeline()
-  local anchor = self.anchors.timeline
-  local resized = anchor.resizing
-  if resized then anchor.resizing = nil end
   local bossMod = self:GetCurrentBossMod()
-  if not bossMod then
+
+  local disable = db.anchorDisables and db.anchorDisables.timeline
+  if not bossMod or disable then
     for i = 1,#self.timelineRows do
       self.timelineRows[i]:Hide()
     end
     return
   end
+  local anchor = self.anchors.timeline
+  local resized = anchor.resizing
+  if resized then anchor.resizing = nil end
   local phase = bossMod.phase
   local basetime = bossMod.basetime
   local nativedata, timelineChanged
@@ -642,12 +1281,12 @@ function Core:UpdateTimeline()
       bar:SetStatusBarTexture([[Interface\Buttons\WHITE8X8]])
       row.bar = bar
       local fontstring = bar:CreateFontString(nil,"OVERLAY","GameFontHighlight")
-      fontstring:SetFont("Fonts\\FRIZQT__.TTF",72,"MONOCHROME")
+      fontstring:SetFont("Fonts\\ARKai_C.TTF",72,"MONOCHROME")
     	fontstring:SetAllPoints()
       fontstring:SetJustifyH("LEFT")
       row.name = fontstring
       fontstring = bar:CreateFontString(nil,"OVERLAY","GameFontHighlight")
-      fontstring:SetFont("Fonts\\FRIZQT__.TTF",72,"MONOCHROME")
+      fontstring:SetFont("Fonts\\ARKai_C.TTF",72,"MONOCHROME")
     	fontstring:SetAllPoints()
       fontstring:SetJustifyH("RIGHT")
       row.time = fontstring
@@ -656,8 +1295,8 @@ function Core:UpdateTimeline()
     if resized or timelineChanged then
       row:SetSize(width,height)
       row:SetPoint("TOP",anchor,"BOTTOM",0,-(i-1)*height)
-      row.name:SetFont("Fonts\\FRIZQT__.TTF",height*0.5,"OUTLINE")
-      row.time:SetFont("Fonts\\FRIZQT__.TTF",height*0.8,"OUTLINE")
+      row.name:SetFont("Fonts\\ARKai_C.TTF",height*0.5,"OUTLINE")
+      row.time:SetFont("Fonts\\ARKai_C.TTF",height*0.8,"OUTLINE")
     end
     local percent,alpha
     local timeString
@@ -676,14 +1315,14 @@ function Core:UpdateTimeline()
         elseif  now>basetime+data.time then
           percent = 1
           alpha = 1-0.8*(now-(basetime+data.time))/10
-          timeString = "|cffff3000 -"..getTimeString(-(basetime+data.time-now)).."|r"
+          timeString = "|cffff3000 -"..self:GetTimeString(-(basetime+data.time-now)).."|r"
         elseif now>basetime+data.time-10 then
           percent = (now - (basetime+data.time-10))/10
-          timeString = "|cffffff00"..getTimeString(basetime+data.time-now).."|r"
+          timeString = "|cffffff00"..self:GetTimeString(basetime+data.time-now).."|r"
           alpha = 1
         else
           percent = 0
-          timeString = basetime+data.time-now<60 and getTimeString(basetime+data.time-now) or "-"
+          timeString = basetime+data.time-now<60 and self:GetTimeString(basetime+data.time-now) or "-"
           alpha = 1
         end
       else
