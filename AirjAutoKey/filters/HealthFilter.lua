@@ -177,6 +177,14 @@ function F:STAGGER(filter)
 end
 
 local hpsMythic = 40e4
+local function getHPS(guid)
+  local hps = AirjBossMods:GetDifficultyDamage(bossmod.difficulty,hpsMythic)
+  local id, name, description, icon, role, class = Cache:GetSpecInfo(guid)
+  if role == "TANK" then
+    hps = hps * 2
+  end
+  return hps
+end
 local furtureHealthCache = {}
 Core.furtureHealthCache = furtureHealthCache
 function F:GetFutureHealth(guid,unit,time)
@@ -198,7 +206,7 @@ function F:GetFutureHealth(guid,unit,time)
   if AirjBossMods then
     local bossmod = AirjBossMods:GetCurrentBossMod()
     if bossmod and bossmod.furtureDamage then
-      local hps = AirjBossMods:GetDifficultyDamage(bossmod.difficulty,hpsMythic)
+      local hps = getHPS(guid)
       furtureDamage = true
       local frames = AirjBossMods:GetFutureDamageFrames(guid,time)
       local last = GetTime()
@@ -291,7 +299,7 @@ function F:GetFutureHotUptime(guid,unit,time,start)
     local bossmod = AirjBossMods:GetCurrentBossMod()
     if bossmod and bossmod.furtureDamage then
       furtureDamage = true
-      local hps = AirjBossMods:GetDifficultyDamage(bossmod.difficulty,hpsMythic)
+      local hps = getHPS(guid)
       local frames = AirjBossMods:GetFutureDamageFrames(guid,time+start)
       local last = GetTime()
       local startT = last+start
