@@ -12,13 +12,13 @@ function mod:OnInitialize()
   --   color2={0,0.5,0,0.3},
   --   radius=10,
   -- }
-  -- Core:RegisterAuraCooldowns(230345,data)
+  -- Core:RegisterAuraCooldown(230345,data)
   data = {
     color={0.5,0,0,0.1},
     color2={1,0,0,0.3},
     radius=10,
   }
-  Core:RegisterAuraCooldowns(233272,data)
+  Core:RegisterAuraCooldown(233272,data)
 
   --2
   data = {
@@ -26,7 +26,7 @@ function mod:OnInitialize()
     color2={1,0,1,0.1},
     radius=10,
   }
-  Core:RegisterAuraCooldowns(233983,data)
+  Core:RegisterAuraCooldown(233983,data)
 
   --3
 
@@ -41,7 +41,7 @@ function mod:OnInitialize()
     color2={0,0,1,0.1},
     radius=8,
   }
-  Core:RegisterAuraCooldowns(231729,data)
+  Core:RegisterAuraCooldown(231729,data)
 
   --4
   data = {
@@ -49,13 +49,13 @@ function mod:OnInitialize()
     color2={0,0,1,0.1},
     radius=8,
   }
-  Core:RegisterAuraCooldowns(236519,data)
+  Core:RegisterAuraCooldown(236519,data)
   data = {
     color={0,0,0.5,0.05},
     color2={0,0,1,0.1},
     radius=8,
   }
-  Core:RegisterAuraCooldowns(236550,data)
+  Core:RegisterAuraCooldown(236550,data)
   data = {
     width = 4,
     alpha = 0.3,
@@ -68,13 +68,13 @@ function mod:OnInitialize()
     color2={1,0,0.0,0.3},
     radius=8,
   }
-  Core:RegisterAuraCooldowns(236712,data)
+  Core:RegisterAuraCooldown(236712,data)
   data = {
     color={0.5,0,0.5,0.1},
     color2={1,0,0.1,0.3},
     radius=8,
   }
-  Core:RegisterAuraCooldowns(236541,data)
+  Core:RegisterAuraCooldown(236541,data)
   data = {
     width = 4,
     alpha = 0.3,
@@ -89,13 +89,13 @@ function mod:OnInitialize()
     color2={0,0,1,0.3},
     radius=5,
   }
-  Core:RegisterAuraCooldowns(232913,data)
+  Core:RegisterAuraCooldown(232913,data)
   data = {
     color={0,0.5,0,0.1},
     color2={0,1,0.0,0.3},
     radius=5,
   }
-  Core:RegisterAuraCooldowns(230139,data)
+  Core:RegisterAuraCooldown(230139,data)
   data = {
     width = 4,
     alpha = 0.3,
@@ -110,7 +110,7 @@ function mod:OnInitialize()
     color2={0,0,1,0.3},
     radius=5,
   }
-  Core:RegisterAuraCooldowns(236361,data)
+  Core:RegisterAuraCooldown(236361,data)
   data = {
     width = 4,
     alpha = 0.3,
@@ -123,27 +123,27 @@ function mod:OnInitialize()
     color2={0,1,0.0,0.3},
     radius=8,
   }
-  Core:RegisterAuraCooldowns(236515,data)
-  Core:RegisterAuraCooldowns(235969,data)
+  Core:RegisterAuraCooldown(236515,data)
+  Core:RegisterAuraCooldown(235969,data)
   data = {
     color={0.5,0.5,0,0.1},
     color2={1,1,0.0,0.3},
     radius=5,
   }
-  Core:RegisterAuraCooldowns(236459,data)
+  Core:RegisterAuraCooldown(236459,data)
   data = {
     color={0.5,0,0,0.1},
     color2={1,0,0.0,0.3},
     radius=8,
   }
-  Core:RegisterAuraCooldowns(238442,data)
+  Core:RegisterAuraCooldown(238442,data)
   --7
   data = {
     color={0.5,0,0,0.1},
     color2={1,0,0.0,0.3},
     radius=5,
   }
-  Core:RegisterAuraCooldowns(235117,data)
+  Core:RegisterAuraCooldown(235117,data)
 
   --8
   data = {
@@ -151,7 +151,7 @@ function mod:OnInitialize()
     color2={1,0,1,0.3},
     radius=8,
   }
-  Core:RegisterAuraCooldowns(239739,data)
+  Core:RegisterAuraCooldown(239739,data)
   data = {
     color={0,0.5,0,0.1},
     color2={0,1,0.0,0.3},
@@ -159,7 +159,7 @@ function mod:OnInitialize()
     duration = 15,
     isbuff = true,
   }
-  Core:RegisterAuraCooldowns(241008,data)
+  Core:RegisterAuraCooldown(241008,data)
   --9
 
   data = {
@@ -167,7 +167,7 @@ function mod:OnInitialize()
     color2={0,0,1.0,0.3},
     radius=5,
   }
-  Core:RegisterAuraCooldowns(236710,data)
+  Core:RegisterAuraCooldown(236710,data)
 
   data = {
     width = 1,

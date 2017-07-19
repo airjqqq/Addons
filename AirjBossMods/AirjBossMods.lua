@@ -238,7 +238,7 @@ do-- Options
         name = "增强现实",
         type = "group",
         order = 60,
-        disabled = not (AirjHack and AirjAVR and AirjHack:HasHacked()),
+        disabled = function() return not (AirjHack and AirjAVR and AirjHack:HasHacked()) end,
         args={
           test = {
             type = "execute",
@@ -361,6 +361,7 @@ function Core:ResetDatas()
   self.screenDatas = {}
   self.playerAlphaDatas = {}
   self.textDatas = {}
+  self.furtureDamageDatas = {}
   self.testing = nil
 end
 
@@ -390,18 +391,27 @@ function Core:OnInitialize()
   self.timelineRows = {}
   self:ResetDatas()
   self:RegisterChatCommand("abm", function(str)
-    if str == "reset" then
+    local key,value = string.split(" ",str,2)
+    if key == "reset" then
       db.anchorPoints = nil
       db.anchorHides = nil
       db.anchorDisables = nil
       for _, name in pairs(anchors) do
         self:ResetAnchor(name)
       end
-    elseif str == "test" then
-      self:Test()
-    elseif str == "version" then
+    elseif key == "test" then
+      if value and tonumber(value) then
+        self:ENCOUNTER_START("ENCOUNTER_START",tonumber(value), "Test", 16, 20)
+      else
+        self:Test()
+      end
+    elseif key == "version" or key == "ver" then
       self:CheckVersion()
+    elseif key == "pull" then
+      -- self:StartPull(value and tonumber(value) or 10)
+      self:SendComm({type="pull",time=value and tonumber(value) or 10})
     else
+      AceConfigRegistry:NotifyChange(addonsname)
       AceConfigDialog:Open(addonsname)
     end
   end)
@@ -416,7 +426,7 @@ function Core:Test()
   self:ResetDatas()
   local now = GetTime()
   self.testing = true
-  self:ENCOUNTER_START("ENCOUNTER_START",0, "Test", 0, 10)
+  self:ENCOUNTER_START("ENCOUNTER_START",0, "Test", 16, 10)
   self:SetIconT({index = 3, texture = GetSpellTexture(234310), duration = 60, expires = now + 40, name = "末日之雨", count = "2", scale = false})
   self:SetIconT({index = 10, texture = GetSpellTexture(240910), duration = 9, size = 1, name = "末日决战", reverse = false})
   self:SetIconT({index = 1, texture = GetSpellTexture(238430), duration = 5, start = now+15, expires = now + 20, size = 2, name = "大圈爆炸", reverse = false})
@@ -570,14 +580,15 @@ function Core:OnEnable()
     self:Update()
   end)
   -- self:ScheduleRepeatingTimer(self.Update,0.01,self)
-  self:ScheduleRepeatingTimer(self.Timer10ms,0.01,self)
+  -- self:ScheduleRepeatingTimer(self.Timer10ms,0.01,self)
+  self:ScheduleRepeatingTimer(self.Timer10ms,0.1,self)
 
   self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED","CallBacks")
   self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED","CallBacks")
   self:RegisterEvent("CHAT_MSG_RAID_BOSS_EMOTE","CallBacks")
   self:RegisterEvent("ENCOUNTER_START")
   self:RegisterEvent("ENCOUNTER_END")
-	self:RegisterComm("AIRJ_BOSS_MODS_COMM")
+	self:RegisterComm("AIRJ_BM_COMM")
 
   self:RegisterMessage("AIRJ_HACK_OBJECT_CREATED","CallBacks")
   self:RegisterMessage("AIRJ_HACK_OBJECT_DESTROYED","CallBacks")
@@ -586,7 +597,7 @@ function Core:OnEnable()
 
   local avrFunctions = {
     "RegisterCreatureBeam",
-    "RegisterAuraCooldowns",
+    "RegisterAuraCooldown",
     "RegisterAuraBeam",
     "CreateCooldown",
     "CreateBeam",
@@ -614,7 +625,7 @@ function Core:CheckVersion()
       if name then
         name = Ambiguate(name,"none")
         if not self.checkversion[name] then
-          self:Print(name.." - |cffff0000NOT INSTALLED|r"))
+          self:Print(name.." - |cffff0000NOT INSTALLED|r")
         end
       end
     end
@@ -622,21 +633,31 @@ function Core:CheckVersion()
 end
 --pulling
 function Core:StartPull(time)
-  self.pulling = not self.pulling
-  if self.pulling then
-    time = time or 10
-    self:SetTextT({text1="|cffffff00准备开怪: |r|cff00ffff{number}|r",text2="|cff00ff00开怪|r",expires = GetTime()+time})
-  else
+  local now = GetTime()
+  if not self.pulling or now > self.pulling then
     self:ResetDatas()
-    self:SetTextT({text1="|cffff0000取消开怪|r",expires = GetTime()+3})
+    time = time or 10
+    self:SetTextT({text1="|cffffff00准备开怪: |r|cff00ffff{number}|r",text2="|cff00ff00开怪|r",expires = now+time})
+    self:SetVoiceT({str="kai1             guai4           dao4     shu3"})
+    -- local count = {,"yi1","er4","san1","si4","wu3"}
+    for i = 1,5 do
+      self:SetVoiceT({file="count\\"..i,time = now+time-i-0.2})
+    end
+    self:SetVoiceT({str="kai1             guai4",time = now+time-0.2})
+    self.pulling = now + time
+  else
+    self.pulling = nil
+    self:ResetDatas()
+    self:SetTextT({text1="|cffff0000取消开怪|r",expires = now+2})
+    self:SetVoiceT({str="qu3         xiao1            kai1             guai4"})
   end
 end
 
 --utils
 function Core:SendComm(data,target)
-  self:SendCommMessage("AIRJ_BOSS_MODS_COMM",self:Serialize(data),target and "WHISPER","RAID",target,"ALERT")
+  self:SendCommMessage("AIRJ_BM_COMM",self:Serialize(data),target and "WHISPER" or IsInRaid() and "RAID" or "PARTY",target,"ALERT")
 end
-function mod:OnCommReceived(prefix,message,channel,sender)
+function Core:OnCommReceived(prefix,message,channel,sender)
 	local match, data = self:Deserialize(message)
 	if not match then return end
   if data.type == "checkversion" then
@@ -734,7 +755,7 @@ function Core:Timer10ms()
 end
 
 function Core:ENCOUNTER_START(event,encounterID, name, difficulty, size)
-  -- print("ENCOUNTER_START",event,encounterID, name, difficulty, size)
+  print("ENCOUNTER_START",event,encounterID, name, difficulty, size)
 
   local bossMod = self.bossMods[encounterID]
   self.currentBoss = {
@@ -912,7 +933,7 @@ function Core:UpdateIcons()
       if now > v.removes then
         icon:Hide()
         self.iconDatas[k] = nil
-      elseif now > v.start then
+      elseif not v.start or now > v.start then
         if not v.scaling and v.scale and v.scale ~= false then
           v.scaling = now + scaleDuration
         end
@@ -1199,14 +1220,58 @@ function Core:UpdateSay()
 end
 
 --voice
-function Core:SetVoice(file,time,custom)
+function Core:SetVoiceT(data)
+  local time = data.time or GetTime()
+  local str = data.str
+  local interval = data.interval
+  local file = data.file or str == nil and "runaway"
+  tinsert(self.voiceDatas,{time=time,file=file,str=str,interval=interval})
+end
+function Core:SetVoice(file,time,interval)
   file = file or "runaway"
   time = time or GetTime()
-  tinsert(self.voiceDatas,{time=time,file=file,custom=custom})
+  tinsert(self.voiceDatas,{time=time,file=file,interval=interval})
 end
 
 function Core:PlayDBMYike(name)
   PlaySoundFile("Interface\\AddOns\\DBM-VPYike\\"..name..".ogg", "Master")
+end
+
+function Core:PlayChar(c)
+  -- print("play",c)
+  PlaySoundFile("Interface\\AddOns\\AirjBossMods\\sounds\\pinyin\\"..c..".gsm", "Master")
+end
+function Core:PlayString(str,interval)
+  local cs = {strsplit(" ",str)}
+  if #cs<1 then
+    return
+  end
+  local index = 1
+  local next = GetTime()
+  interval = interval or 0.1
+  local timer
+  timer = self:ScheduleRepeatingTimer(function()
+    local c = cs[index]
+    if c then
+      local now = GetTime()
+      if now>=next then
+        index = index + 1
+        if c ~= "" then
+          Core:PlayChar(c)
+        end
+        local t = 1
+        if c == "" then
+          t = 0.2
+        elseif strsub(c,-1) == "3" then
+          t = 1.2
+        end
+        -- next = now + interval * t
+        next = next + interval * t
+      end
+    else
+      self:CancelTimer(timer)
+    end
+  end,0.01)
 end
 function Core:UpdateVoice()
   local disable = db.anchorDisables and db.anchorDisables.voice
@@ -1217,7 +1282,11 @@ function Core:UpdateVoice()
   local now = GetTime()
   for i,v in ipairs(self.voiceDatas) do
     if now>v.time then
-      self:PlayDBMYike(v.file)
+      if v.str then
+        self:PlayString(v.str,v.interval)
+      elseif v.file then
+        self:PlayDBMYike(v.file)
+      end
       tremove(self.voiceDatas,i)
     end
   end
@@ -1298,8 +1367,10 @@ function Core:UpdateTimeline()
       for j,vv in ipairs(v.timepoints) do
         local d = vv.time and ((basetime+vv.time) - now)
         if not d or (d>-20 and (d<20 or rownum < maxrow)) then
-          rownum = rownum + 1
-          rowdata[rownum] = vv
+          if not vv.disabled then
+            rownum = rownum + 1
+            rowdata[rownum] = vv
+          end
         end
       end
     else
@@ -1392,5 +1463,92 @@ function Core:UpdateTimeline()
   end
   for i = rownum+1,#self.timelineRows do
     self.timelineRows[i]:Hide()
+  end
+end
+
+
+-- furture damage
+local idg = 0
+local function getId ()
+  idg = idg + 1
+  return idg
+end
+
+function Core:SetFurtureDamage(data)
+  local now = GetTime()
+  local key = data.key or getId()
+  data.damage = data.damage or 0
+  if data.damage == 0 then
+    self.furtureDamageDatas[key] = nil
+  else
+    data.start = data.start or now
+    data.guid = data.guid or "all"
+    data.duration = data.duration or 1
+    data.removes = data.removes or data.start + data.duration
+    self.furtureDamageDatas[key] = data
+  end
+end
+
+function Core:GetFutureDamage(guid,time)
+  local damage = 0
+  local now = GetTime()
+  for key, data in pairs(self.furtureDamageDatas) do
+    if now > data.removes then
+      self.furtureDamageDatas[key] = nil
+    elseif data.guid == "all" or data.guid == guid then
+      local s, e = data.start
+      local d = data.duration
+      e = s + d
+      local t
+      if now + time < s then
+        t = 0
+      elseif now + time < e then
+        if now < s then
+          t = now + time - s
+        else
+          t = time
+        end
+      else
+        if now > e  then
+          t = 0
+        else
+          t = e - now
+        end
+      end
+      damage = damage + data.damage*t/data.duration
+    end
+  end
+  return damage
+end
+
+function Core:GetFutureDamageFrames(guid,time)
+  local frames = {}
+  local now = GetTime()
+  for key, data in pairs(self.furtureDamageDatas) do
+    if now > data.removes then
+      self.furtureDamageDatas[key] = nil
+    elseif data.guid == "all" or data.guid == guid then
+      if now+time > data.start and now < data.start + data.duration then
+        local dps=data.damage/data.duration
+        local s = max(data.start, now)
+        local e = min(data.start+data.duration, now+time)
+        tinsert(frames,{time=s,dps=dps})
+        tinsert(frames,{time=e,dps=-dps})
+      end
+    end
+  end
+  sort(frames, function(a,b) return a.time < b.time end)
+  return frames
+end
+
+function Core:GetDifficultyDamage(difficulty,mythic,heroic,normal,raidfinder)
+  if difficulty == 16 then
+    return mythic
+  elseif difficulty == 14 then
+    return normal or mythic and mythic*0.45
+  elseif difficulty == 17 then
+    return  raidfinder or mythic and mythic*0.25
+  else
+    return heroic or mythic and mythic*0.75
   end
 end

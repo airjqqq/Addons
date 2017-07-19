@@ -6,14 +6,14 @@ local Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
 function mod:OnInitialize()
   local data
   do
-    Core:RegisterAuraCooldowns(203096,data) --溃烂
+    Core:RegisterAuraCooldown(203096,data) --溃烂
     data = {
       color={0.2,0.5,0,0.2},
       color2={0.3,0.7,0,0.3},
       radius=8,
       duration=9,
     }
-    Core:RegisterAuraCooldowns(228796,data) --溃烂
+    Core:RegisterAuraCooldown(228796,data) --溃烂
   end
   do --test
   end
@@ -32,7 +32,7 @@ function mod:OnInitialize()
       radius=8,
       duration=9,
     }
-    Core:RegisterAuraCooldowns(203096,data) --溃烂
+    Core:RegisterAuraCooldown(203096,data) --溃烂
     data = {
       color={0.2,0.5,0,0.2},
       color2={0.3,0.7,0,0.3},
@@ -40,21 +40,21 @@ function mod:OnInitialize()
       duration=9,
     }
 
-    Core:RegisterAuraCooldowns(221028,data) --不稳定的
+    Core:RegisterAuraCooldown(221028,data) --不稳定的
     data = {
       color={0.4,0.0,0,0.2},
       color2={0.7,0.0,0,0.3},
       radius=15,
       duration=8,
     }
-    Core:RegisterAuraCooldowns(204463,data) --爆裂溃烂
+    Core:RegisterAuraCooldown(204463,data) --爆裂溃烂
     data = {
       color={0.0,0.4,0,0.2},
       color2={0.0,0.7,0,0.3},
       radius=5,
       duration=20,
     }
-    Core:RegisterAuraCooldowns(205043,data) --感染意志 205043
+    Core:RegisterAuraCooldown(205043,data) --感染意志 205043
     -- data = {
     --   color={0.2,0.1,0.5,0.2},
     --   color2={0.4,0.0,0.8,0.3},
@@ -77,7 +77,7 @@ function mod:OnInitialize()
       radius=5,
       duration=10,
     }
-    Core:RegisterAuraCooldowns(208929,data) --Spew Corruption
+    Core:RegisterAuraCooldown(208929,data) --Spew Corruption
     data = {
       width = 0.2,
       alpha = 0.3,
@@ -90,14 +90,14 @@ function mod:OnInitialize()
       radius=11,
       duration=8,
     }
-    Core:RegisterAuraCooldowns(215128,data) --Blood
+    Core:RegisterAuraCooldown(215128,data) --Blood
     data = {
       color={0.0,0.0,0.5,0.2},
       color2={0.0,0.5,0.8,0.3},
       radius=2,
       duration=40,
     }
-    Core:RegisterAuraCooldowns(209469,data) --touch
+    Core:RegisterAuraCooldown(209469,data) --touch
   end
   do
 
@@ -107,7 +107,7 @@ function mod:OnInitialize()
         radius=10,
         duration=6,
       }
-      Core:RegisterAuraCooldowns(198006,data) --Spew Corruption
+      Core:RegisterAuraCooldown(198006,data) --Spew Corruption
   end
   do --4 dragen
     data = {
@@ -116,21 +116,21 @@ function mod:OnInitialize()
       radius=8,
       duration=90,
     }
-    Core:RegisterAuraCooldowns(203787,data) --Spew Corruption
+    Core:RegisterAuraCooldown(203787,data) --Spew Corruption
     data = {
       color={0.2,0,0.5,0.1},
       color2={0.3,0,0.7,0.2},
       radius=4,
       duration=8,
     }
-    Core:RegisterAuraCooldowns(203770,data) --Spew Corruption
+    Core:RegisterAuraCooldown(203770,data) --Spew Corruption
     data = {
       color={0.2,0,0.5,0.1},
       color2={0.3,0,0.7,0.2},
       radius=4,
       duration=30,
     }
-    Core:RegisterAuraCooldowns(204044,data) --Spew Corruption
+    Core:RegisterAuraCooldown(204044,data) --Spew Corruption
   end
   do -- ER
     data = {
@@ -139,14 +139,14 @@ function mod:OnInitialize()
       radius=8,
       duration=6,
     }
-    Core:RegisterAuraCooldowns(215460,data) --Necrotic Venom
+    Core:RegisterAuraCooldown(215460,data) --Necrotic Venom
     data = {
       color={0.0,0.7,0,0.2},
       color2={0.0,0.5,0,0.3},
       radius=8,
       duration=6,
     }
-    Core:RegisterAuraCooldowns(215460,data) --Necrotic Venom
+    Core:RegisterAuraCooldown(215460,data) --Necrotic Venom
   end
   do --Cenarius
     data = {
@@ -155,14 +155,14 @@ function mod:OnInitialize()
       radius=5,
       duration=8,
     }
-    Core:RegisterAuraCooldowns(211368,data) -- Touch of Life
+    Core:RegisterAuraCooldown(211368,data) -- Touch of Life
     data = {
       color= {0.3,0.0,0.5,0.2},
       color2={0.5,0.0,0.8,0.3},
       radius=8,
       duration=8,
     }
-    Core:RegisterAuraCooldowns(211471,data) --Scroned Touch
+    Core:RegisterAuraCooldown(211471,data) --Scroned Touch
     --
     -- data = {
     --   width = 0.4,
@@ -178,30 +178,30 @@ function mod:OnInitialize()
       radius=25,
       duration=15,
     }
-    -- Core:RegisterAuraCooldowns(206651,data)
-    -- Core:RegisterAuraCooldowns(209158,data)
+    -- Core:RegisterAuraCooldown(206651,data)
+    -- Core:RegisterAuraCooldown(209158,data)
     data = {
       color={0.0,0.5,0,0.2},
       color2={0.0,0.8,0,0.3},
       radius=5,
       duration=4,
     }
-    Core:RegisterAuraCooldowns(211802,data) -- Blades
+    Core:RegisterAuraCooldown(211802,data) -- Blades
     data = {
       color={0.5,0.5,0,0.2},
       color2={0.8,0.8,0,0.3},
       radius=5,
       duration=10,
     }
-    Core:RegisterAuraCooldowns(210451,data) -- Terror
-    Core:RegisterAuraCooldowns(209034,data) -- Terror
+    Core:RegisterAuraCooldown(210451,data) -- Terror
+    Core:RegisterAuraCooldown(209034,data) -- Terror
     data = {
       color= {0.3,0.0,0.5,0.2},
       color2={0.5,0.0,0.8,0.3},
       radius=12,
       duration=5,
     }
-    Core:RegisterAuraCooldowns(224508,data)
+    Core:RegisterAuraCooldown(224508,data)
     data = {
       width = 0.2,
       alpha = 0.3,
@@ -214,7 +214,7 @@ function mod:OnInitialize()
       radius=6,
       duration=20,
     }
-    Core:RegisterAuraCooldowns(208431,data) --
+    Core:RegisterAuraCooldown(208431,data) --
     data = {
       width = 0.2,
       alpha = 0.3,

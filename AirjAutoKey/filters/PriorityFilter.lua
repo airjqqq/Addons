@@ -14,6 +14,7 @@ function F:OnInitialize()
   self:RegisterFilter("AIRRANGE",L["[P] Range (near)"],{value={}})
   self:RegisterFilter("AIRLOWHEALTH",L["[P] Health (low)"],{value={}})
   self:RegisterFilter("AIRLOWHEALTHFUTURE",L["[P] Health Future (low)"],{name={},value={}})
+  self:RegisterFilter("AIRHEALTHLOSTFUTURE",L["[P] H Lost Future (more)"],{name={},value={}})
   self:RegisterFilter("AIRHIGHHEALTH",L["[P] Health (high)"])
   self:RegisterFilter("AIRBUFF",L["[P] Buff (short)"],{name={},value={}})
   self:RegisterFilter("AIRDEBUFF",L["[P] Debuff (short)"],{name={},value={}})
@@ -230,6 +231,24 @@ function F:AIRLOWHEALTHFUTURE(filter)
   local HealthFilter = Filter:GetModule("HealthFilter")
   local value = HealthFilter:GetFutureHealth(guid,unit,filter.name[1])
   return value and exp(-value) or exp(-1)
+end
+function F:AIRHEALTHLOSTFUTURE(filter)
+  filter.name = filter.name or {5}
+  local unit = Core:GetAirUnit()
+  local guid = unit and Cache:UnitGUID(unit)
+  if not guid then return end
+
+  local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+  local id, name, description, icon, role, class = Cache:GetSpecInfo(guid)
+  local brewmaster
+  if id == 268 then
+    if health/max > 0.35 then
+      return exp(-health*2.5/max)
+    end
+  end
+  local HealthFilter = Filter:GetModule("HealthFilter")
+  local value = HealthFilter:GetFutureHealthLost(guid,unit,filter.name[1])
+  return value or 0
 end
 function F:AIRAOECOUNT(filter)
   local radius,time = unpack(Core:ToValueTable(filter.name),1,2)

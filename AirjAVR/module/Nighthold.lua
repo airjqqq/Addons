@@ -10,7 +10,7 @@ function mod:OnInitialize()
     color2={0,0.5,1,0.3},
     radius=8,
   }
-  Core:RegisterAuraCooldowns(206617,data)
+  Core:RegisterAuraCooldown(206617,data)
 
 
   -- data = {
@@ -18,16 +18,16 @@ function mod:OnInitialize()
   --   color2={0,0.5,1,0.3},
   --   radius=4,
   -- }
-  -- Core:RegisterAuraCooldowns(208915,data)
-  -- Core:RegisterAuraCooldowns(208910,data)
+  -- Core:RegisterAuraCooldown(208915,data)
+  -- Core:RegisterAuraCooldown(208910,data)
 
   data = {
     color={1,1,0,0.2},
     color2={1,0.5,0,0.3},
     radius=8,
   }
-  Core:RegisterAuraCooldowns(211615,data)
-  Core:RegisterAuraCooldowns(208499,data)
+  Core:RegisterAuraCooldown(211615,data)
+  Core:RegisterAuraCooldown(208499,data)
 
   data = {
     color={0,0.4,0,0.2},
@@ -35,22 +35,22 @@ function mod:OnInitialize()
     radius=8,
     duration = 20,
   }
-  Core:RegisterAuraCooldowns(206838,data)
+  Core:RegisterAuraCooldown(206838,data)
   --4
   data = {
     color={0,0.4,1,0.2},
     color2={0,1,1,0.3},
     radius=8,
   }
-  Core:RegisterAuraCooldowns(212531,data)
-  Core:RegisterAuraCooldowns(212587,data)
+  Core:RegisterAuraCooldown(212531,data)
+  Core:RegisterAuraCooldown(212587,data)
   data = {
     color={1,0.4,0,0.2},
     color2={1,1,0,0.3},
     radius=8,
     duration = 30,
   }
-  Core:RegisterAuraCooldowns(213166,data)
+  Core:RegisterAuraCooldown(213166,data)
 
 
   data = {
@@ -58,25 +58,25 @@ function mod:OnInitialize()
     color2={1,1,0,0.3},
     radius=8,
   }
-  Core:RegisterAuraCooldowns(212531,data)
+  Core:RegisterAuraCooldown(212531,data)
 
   data = {
     color={1,0.4,0,0.2},
     color2={1,1,0,0.3},
     radius=8,
   }
-  Core:RegisterAuraCooldowns(205344,data)
+  Core:RegisterAuraCooldown(205344,data)
   data = {
     color={1,0.4,0,0.2},
     color2={1,1,0,0.3},
     radius=8,
   }
-  Core:RegisterAuraCooldowns(218809,data)
+  Core:RegisterAuraCooldown(218809,data)
   data = {
     color={0,1,0,0.2},
     radius=5,
   }
-  Core:RegisterAuraCooldowns(218304,data)
+  Core:RegisterAuraCooldown(218304,data)
   data = {
     width = 0.2,
     alpha = 0.3,
@@ -90,7 +90,7 @@ function mod:OnInitialize()
   --   color={1,0,1,0.3},
   --   radius=5,
   -- }
-  -- Core:RegisterAuraCooldowns(206388,data)
+  -- Core:RegisterAuraCooldown(206388,data)
 
   --星术师
 
@@ -98,28 +98,28 @@ function mod:OnInitialize()
     color={0,1,1,0.3},
     radius=8,
   }
-  Core:RegisterAuraCooldowns(206936,data)
+  Core:RegisterAuraCooldown(206936,data)
 
   data = {
     color={1,0,0,0.3},
     radius=3,
   }
-  Core:RegisterAuraCooldowns(205445,data)
+  Core:RegisterAuraCooldown(205445,data)
   data = {
     color={0,1,0,0.3},
     radius=3,
   }
-  Core:RegisterAuraCooldowns(216345,data)
+  Core:RegisterAuraCooldown(216345,data)
   data = {
     color={1,1,0,0.3},
     radius=3,
   }
-  Core:RegisterAuraCooldowns(205429,data)
+  Core:RegisterAuraCooldown(205429,data)
   data = {
     color={1,0,1,0.3},
     radius=5,
   }
-  Core:RegisterAuraCooldowns(205649,data)
+  Core:RegisterAuraCooldown(205649,data)
 
 
   data = {
@@ -127,20 +127,20 @@ function mod:OnInitialize()
     color2={1,1,0,0.1},
     radius=8,
   }
-  Core:RegisterAuraCooldowns(211261,data)
+  Core:RegisterAuraCooldown(211261,data)
   data = {
     color={0,0.4,1,0.3},
     color2={0,1,1,0.1},
     radius=5,
   }
-  Core:RegisterAuraCooldowns(209973,data)
+  Core:RegisterAuraCooldown(209973,data)
   data = {
     color={1,1,0,0.3},
     color2={1,0,0,0.1},
     radius=2,
   }
-  Core:RegisterAuraCooldowns(221606,data)
-  Core:RegisterAuraCooldowns(221603,data)
+  Core:RegisterAuraCooldown(221606,data)
+  Core:RegisterAuraCooldown(221603,data)
 
   Core:RegisterCreatureBeam(109082,{
     color = {0.5,0,1,0.3},
@@ -156,13 +156,13 @@ function mod:OnInitialize()
   --   color2={1,1,0,0.3},
   --   radius=2,
   -- }
-  -- Core:RegisterAuraCooldowns(206480,data)
+  -- Core:RegisterAuraCooldown(206480,data)
   -- data = {
   --   color={0,0.5,0,0.2},
   --   color2={0,0.1,0.2,0.3},
   --   radius=8,
   -- }
-  -- Core:RegisterAuraCooldowns(212794,data)
+  -- Core:RegisterAuraCooldown(212794,data)
 
   --High
   -- M+

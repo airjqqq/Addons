@@ -227,6 +227,7 @@ function mod:Export(...)
 	group.editor:SetText(self:Serialize(...))
 	group.editor.editBox:HighlightText()
 	group.editor:SetFocus()
+	ABox = group
 end
 
 function mod:Inport()

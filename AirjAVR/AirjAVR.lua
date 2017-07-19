@@ -181,16 +181,28 @@ function Core:AIRJ_HACK_OBJECT_CREATED(event,guid,type)
 			end
       local data = self.register.onCreateAreaTriggers[spellId]
 			if data then
-				local id = self:CreateCooldown({
-					guid = guid,
-					spellId = spellId,
-					radius = radius,
-					duration = duration and duration/1000,
-					color = data.color,
-					alpha = data.color and data.color[4],
-				})
-				local key = "Create - Cooldown - " .. guid
-				self.registerCreateMeshs[key] = id
+				if not data.mine or data.mine and mine then
+					local id = self:CreateCooldown({
+						guid = guid,
+						spellId = spellId,
+						radius = radius,
+						duration = duration and duration/1000,
+						color = data.color,
+						alpha = data.color and data.color[4],
+						text = data.text,
+					})
+					local key = "Create - Cooldown - " .. guid
+					self.registerCreateMeshs[key] = id
+					if data.updateCallbacks then
+						self:ScheduleTimer(function()
+							local m = self.createdMeshs[id]
+							if m then
+								m.updateCallbacks = m.updateCallbacks or {}
+								tinsert(m.updateCallbacks,data.updateCallbacks)
+							end
+						end,0.02)
+					end
+				end
 			end
 			history.spellId = spellId
 			history.radius = radius
@@ -207,7 +219,7 @@ function Core:AIRJ_HACK_OBJECT_CREATED(event,guid,type)
 					color = data.color,
 					alpha = data.color and data.color[4],
 				})
-				local key = "Create - Cooldown - " .. guid
+				local key = "Create - Beam - " .. guid
 				self.registerCreateMeshs[key] = id
 			end
 			if self.register.onCreateCooldowns[cid] then
@@ -220,7 +232,7 @@ function Core:AIRJ_HACK_OBJECT_CREATED(event,guid,type)
 					color = data.color,
 					alpha = data.color and data.color[4],
 				})
-				local key = "Create - Beam - " .. guid
+				local key = "Create - Cooldown - " .. guid
 				self.registerCreateMeshs[key] = id
 			end
     end
@@ -299,11 +311,14 @@ function Core:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,so
 				color = data.color,
 				alpha = data.color[4],
 			})
+			local key = "Aura - Beam - " .. sourceGUID .. " - " .. destGUID .. " - " .. spellId
+			self.registerCreateMeshs[key] = id
 		end
 
   end
   if event == "SPELL_AURA_REMOVED" or event == "SPELL_AURA_BROKEN" or event =="SPELL_AURA_BROKEN_SPELL" then
 		self:RemoveCreatedMeshByKey("Aura - Cooldown - " .. sourceGUID .. " - " .. destGUID .. " - " .. spellId)
+		self:RemoveCreatedMeshByKey("Aura - Beam - " .. sourceGUID .. " - " .. destGUID .. " - " .. spellId)
   end
   if event == "SPELL_CAST_START" then
     local data = self.register.onStartCastPolygon[spellId]
@@ -344,10 +359,10 @@ function Core:AddData(data)
 end
 
 local function o2t(value)
-	if value > 0.5 then
-		return value - 0.4
+	if value > 0.2 then
+		return value - 0.2
 	else
-		return value + 0.2
+		return value + 0.1
 	end
 end
 function Core:ScanToBeCreate()
@@ -379,10 +394,10 @@ function Core:ScanToBeCreate()
 	        a = data.alpha
 					if data.reverse then
 		        m:SetColor2(r,g,b,a)
-		        m:SetColor(o2t(r),o2t(g),o2t(b),a*0.8)
+		        m:SetColor(o2t(r),o2t(g),o2t(b),a*0.5)
 					else
 		        m:SetColor(r,g,b,a)
-		        m:SetColor2(o2t(r),o2t(g),o2t(b),a*0.8)
+		        m:SetColor2(o2t(r),o2t(g),o2t(b),a*0.5)
 					end
 				end
         m.text = data.text
@@ -430,7 +445,7 @@ do --Registers
     self.register.onCreateAreaTriggers[spellId]=data
   end
 
-  function Core:RegisterAuraCooldowns(spellId,data)
+  function Core:RegisterAuraCooldown(spellId,data)
     self.register.onAuraCooldowns[spellId]=data
   end
 

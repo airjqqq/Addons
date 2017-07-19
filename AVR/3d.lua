@@ -1152,7 +1152,9 @@ end
 
 function T:Draw3DTriangle(v1,v2,v3,a,r,g,b)
 
-
+	if not v1 or not v2 or not v3 then
+		return
+	end
 ---[[
 	local z1,z2,z3=v1[5],v2[5],v3[5]
 	local d=self.projDist

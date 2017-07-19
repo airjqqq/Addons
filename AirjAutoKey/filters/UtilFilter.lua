@@ -17,6 +17,8 @@ function F:OnInitialize()
   self:RegisterFilter("ISFRAMESHOW",L["Frame Shown"],{name={}},nil,blue)
   self:RegisterFilter("PARAMVALUE",L["Check Param"],{name={}},nil,blue)
   self:RegisterFilter("PARAMVALUE2",L["Check Value"],nil,nil,blue)
+  self:RegisterFilter("PARAMVALUESTARTED",L["Param Started"],nil,nil,blue)
+  self:RegisterFilter("PARAMVALUEREMAIN",L["Param Remain"],nil,nil,blue)
   self:RegisterFilter("BURST",L["Is Bursting"],{},nil,blue)
   self:RegisterFilter("MOUNTED",L["Is Mounted"],{},nil,blue)
   self:RegisterFilter("CANLOOT",L["Can Loot"],{},nil,blue)
@@ -83,8 +85,17 @@ end
 function F:TEMPLATE(filter)
   assert(filter.name)
   for i,n in pairs(filter.name) do
-    local templateFliter = Core:FindTemplateFilter(n)
-    if not Core:CheckFilter(templateFliter,1) then
+    Core.templatePassed[n] = Core.templatePassed[n] or {}
+    local air = Core:GetAirUnit() or "NOAIR"
+    local passed
+    if Core.templatePassed[n][air] == nil then
+      local templateFliter = Core:FindTemplateFilter(n)
+      passed = Core:CheckFilter(templateFliter,1)
+      Core.templatePassed[n][air] = passed and true or false
+    else
+      passed = Core.templatePassed[n][air]
+    end
+    if not passed then
       return false
     end
   end
@@ -108,6 +119,16 @@ end
 function F:PARAMVALUE2(filter)
   local name = filter.name and filter.name[1] or "auto"
   local value = Core:GetParam(name)
+  return value or 0
+end
+function F:PARAMVALUEREMAIN(filter)
+  local name = filter.name and filter.name[1] or "auto"
+  local value = Core:GetParamTemporaryRemain(name)
+  return value or 0
+end
+function F:PARAMVALUESTARTED(filter)
+  local name = filter.name and filter.name[1] or "auto"
+  local value = Core:GetParamTemporaryStarted(name)
   return value or 0
 end
 function F:BURST(filter)
@@ -361,6 +382,8 @@ function F:TARGETNUMBER(filter)
   return value or 1
  end
 
+ local notinrangeCache = {}
+
 function F:FASTSPELL(filter)
   local spellId, cdthd, range, ishelp = unpack(filter.name,1,4)
   if not cdthd or cdthd == "" then cdthd = 0.2 end
@@ -385,6 +408,36 @@ function F:FASTSPELL(filter)
     if not exists or ishelp and not help or not ishelp and not harm then
       return false
     end
+
+    if not range then
+      range = maxRange
+    end
+    if ishelp and (range <=45) then
+      local now = GetTime()
+      if not notinrangeCache.t or now > notinrangeCache.t then
+        wipe(notinrangeCache)
+        notinrangeCache.t = now
+      end
+      local ni = notinrangeCache[guid]
+      if ni == nil then
+        local i,c = UnitInRange(filter.unit)
+        if c and not i then
+          ni = true
+        elseif c and i then
+          ni = false
+        else
+          ni = "unchecked"
+        end
+        notinrangeCache[guid] = ni
+      end
+      if ni == true then
+        return false
+      elseif ni == false then
+        if range >=40 and range <=45 then
+          -- return true
+        end
+      end
+    end
     -- local isdead = Cache:Call(UnitIsDeadOrGhost,filter.unit)
     local isdead = select(6,Cache:GetHealth(guid))
     if isdead then
@@ -393,9 +446,6 @@ function F:FASTSPELL(filter)
     end
     local x,y,z,f,d,s = Cache:GetPosition(guid)
     if not x then return false end
-    if not range then
-      range = maxRange
-    end
     assert(range)
     local mr,md = 5,1.33
     do
@@ -639,7 +689,11 @@ function F:NEXTINSANITY(filter)
   end
   data = Cache.cache.casting:find({spellId=34914})
   if data and GetTime() - data.endTime/1000 < 0.1 then
-    casting  = 15
+    casting  = 6
+  end
+  data = Cache.cache.casting:find({spellId=205351})
+  if data and GetTime() - data.endTime/1000 < 0.1 then
+    casting  = 25
   end
   if casting>0 then
     local insbuffs = Cache:GetBuffs(guid,"player",{[193223]=true})

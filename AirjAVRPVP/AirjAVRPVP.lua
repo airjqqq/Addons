@@ -48,16 +48,16 @@ function mod:OnEnable()
       -- data = root
     end
     if data then
-      Core:RegisterAuraCooldowns(spellId,data)
+      Core:RegisterAuraCooldown(spellId,data)
     end
   end
   -- for spellId, flags, providers, modifiedSpells, moreFlags in LibPlayerSpells:IterateSpells("SURVIVAL") do
   --   local data = survival
-  --   Core:RegisterAuraCooldowns(spellId,data)
+  --   Core:RegisterAuraCooldown(spellId,data)
   -- end
   -- for spellId, flags, providers, modifiedSpells, moreFlags in LibPlayerSpells:IterateSpells("BURST") do
   --   local data = burst
-  --   Core:RegisterAuraCooldowns(spellId,data)
+  --   Core:RegisterAuraCooldown(spellId,data)
   -- end
   local mdata = {
     width = 2,

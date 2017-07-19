@@ -256,13 +256,15 @@ function M:MoveTimer()
 		moveDistanceXY = 0
 		moveDistance = 0
 	end
-	if not moveDistance or moveDistance<=1 then
-		movinglast = 0
-	else
-		movinglast = movinglast + 1
-	end
 	local moveAngle
-	if not targetDistance or moveDistanceXY<0 or (moveDistanceXY < 1 and (UnitCastingInfo("player") or UnitChannelInfo("player"))) then
+	local castDontMoveRange = AirjAutoKey:GetParam("cdm") and tonumber(AirjAutoKey:GetParam("cdm")) or 1
+	-- local iscasting = UnitChannelInfo("player") or (UnitCastingInfo("player") and (select(6,UnitCastingInfo("player"))/1000 - 0.05 > GetTime()))
+	local iscasting = UnitChannelInfo("player") or UnitCastingInfo("player")
+	local castRemain = AirjAutoKey:GetMoveCastBuffRemain() or 0
+	if not targetDistance or moveDistanceXY<0 or (moveDistanceXY < castDontMoveRange and iscasting and castRemain<0.2) or
+	(moveDistanceXY < castDontMoveRange -1 and (AirjAutoKey.needbarcast and GetTime() - AirjAutoKey.needbarcast < 1) and castRemain<0.2) or
+	(moveDistanceXY < castDontMoveRange -1 and (AirjAutoKey.maybarcast and GetTime() - AirjAutoKey.maybarcast < 1) and castRemain<0.2)
+	then
 		stop = true
 		if not facingAngle then
 		elseif facingAngle < 2 then
@@ -343,6 +345,7 @@ function M:MoveTimer()
 			end
 			if moveDistance > 0 then
 				moves[1] = 1
+				stop = false
 			end
 			-- if pitch - targetPitch > 0.5 then
 			-- 	moves[7] = 1
@@ -360,6 +363,11 @@ function M:MoveTimer()
 	end
 	if targetDistanceXY and moveDistanceXY<5 and moveDistanceXY>1 and targetDistanceZ>1 or targetDistanceZ and targetDistanceZ>10 then
 		moves[7] = 1
+	end
+	if stop  and moveDistance < 5 then
+		movinglast = 0
+	else
+		movinglast = movinglast + 1
 	end
 	local stucked = self:CheckStuckedTime(1)
 	if stucked > 1 and (stucked-2)%3 <0.05 then
@@ -457,8 +465,15 @@ function M:MoveTimer()
 		local facing = playFacing + turnAngle/180*math.pi
 		facing = (facing)%(math.pi*2)
 		AirjHack:SetFacing(facing)
+	else
+		moves[5] = 0
+		moves[6] = 0
 	end
 	self:DoMove(moves)
+end
+
+function M:NeedBarCast()
+
 end
 
 function M:CheckStuckedTime2(d)

@@ -22,35 +22,35 @@ function mod:OnEnable()
     --   radius=5,
     --   duration=60,
     -- }
-    -- Core:RegisterAuraCooldowns(227500,data)
+    -- Core:RegisterAuraCooldown(227500,data)
     -- data = {
     --   color={0.4,0.2,0,0.2},
     --   color2={0.7,0.4,0,0.3},
     --   radius=5,
     --   duration=60,
     -- }
-    -- Core:RegisterAuraCooldowns(227491,data)
+    -- Core:RegisterAuraCooldown(227491,data)
     -- data = {
     --   color={0.4,0.4,0,0.2},
     --   color2={0.7,0.7,0,0.3},
     --   radius=5,
     --   duration=60,
     -- }
-    -- Core:RegisterAuraCooldowns(227498,data)
+    -- Core:RegisterAuraCooldown(227498,data)
     -- data = {
     --   color={0.4,0.0,0.3,0.2},
     --   color2={0.7,0.0,0.5,0.3},
     --   radius=5,
     --   duration=60,
     -- }
-    -- Core:RegisterAuraCooldowns(227490,data)
+    -- Core:RegisterAuraCooldown(227490,data)
     -- data = {
     --   color={0.0,0.4,0.4,0.2},
     --   color2={0.0,0.7,0.7,0.3},
     --   radius=5,
     --   duration=60,
     -- }
-    -- Core:RegisterAuraCooldowns(227499,data)
+    -- Core:RegisterAuraCooldown(227499,data)
 
     --P3 blue circle
     data = {
@@ -59,7 +59,7 @@ function mod:OnEnable()
       radius=8,
       duration=5,
     }
-    Core:RegisterAuraCooldowns(227807,data)
+    Core:RegisterAuraCooldown(227807,data)
 
     -- Hyrja's Golden Circle
     data = {
@@ -68,7 +68,7 @@ function mod:OnEnable()
       radius=8,
       duration=3,
     }
-    Core:RegisterAuraCooldowns(228029,data)
+    Core:RegisterAuraCooldown(228029,data)
 
     -- data = {
     --   width = 2,

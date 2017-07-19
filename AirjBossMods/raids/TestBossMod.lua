@@ -4,6 +4,7 @@ local R = Core:NewModule(modulename,"AceEvent-3.0")
 
 function R:OnEnable()
   local bossmod = Core:NewBoss({encounterID = 0})
+  bossmod.furtureDamage = true
 
   function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
     local now = GetTime()
@@ -11,13 +12,17 @@ function R:OnEnable()
     end
   end
   function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
-    print()
     -- AirjAVR:RegisterCreatureBeam(121227,{width = 1,alpha = 0.3,color={1,0,0,0.3},})
-    AirjAVR:RegisterCreatureBeam(88076,{width = 1,alpha = 0.3,color={1,0,0,0.3},removes = GetTime() + 1e9})
+    local now = GetTime()
+    Core:RegisterCreatureBeam(88076,{width = 1,alpha = 0.3,color={1,0,0,0.3},removes = now + 1e9})
+    local guid = Core:GetPlayerGUID()
+    -- Core:SetFurtureDamage({key="233272:"..guid,guid=guid,start=now,duration=6,damage=55e5*6*0.25})
+    ABM:SetFurtureDamage({key="1",duration=6,start = now + 20,damage=200e4})
+    -- ABM:SetFurtureDamage({key="1",duration=6,start = GetTime() + 5,damage=200e4})
   end
   function bossmod:ENCOUNTER_END(event,encounterID, name, difficulty, size)
     -- AirjAVR:RegisterCreatureBeam(121227)
-    AirjAVR:RegisterCreatureBeam(88076)
+    Core:RegisterCreatureBeam(88076)
   end
   function bossmod:UNIT_SPELLCAST_SUCCEEDED(aceEvent,uId, spellName, _, spellGUID)
     local now = GetTime()
@@ -54,20 +59,40 @@ function R:OnEnable()
       text = "Phase: 1",
       timepoints = {
         {
-          text = "末日决战",
+          text = "5",
           color = {1,0,0},
-          time = 0,
+          time = 5,
         },
         {
-          text = "大圈",
+          text = "10",
           color = {1,0.5,0},
+          time = 10,
+        },
+        {
+          text = "15",
+          color = {0.5,0,1},
           time = 15,
         },
         {
-          text = "击飞",
-          color = {0.5,0,1},
-          time = 25,
+          text = "20",
+          color = {1,0,0},
+          time = 20,
         },
+        -- {
+        --   text = "末日决战",
+        --   color = {1,0,0},
+        --   time = 0,
+        -- },
+        -- {
+        --   text = "大圈",
+        --   color = {1,0.5,0},
+        --   time = 15,
+        -- },
+        -- {
+        --   text = "击飞",
+        --   color = {0.5,0,1},
+        --   time = 25,
+        -- },
       },
     },
   }

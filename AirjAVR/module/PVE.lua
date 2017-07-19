@@ -31,7 +31,84 @@ function mod:OnEnable()
   --   duration=11,
   -- }
   -- Core:RegisterCreateAreaTrigger(242613,data)
+  --6
+  -- data = {
+  --   color={0,0,0.5,0.05},
+  --   color2={0,0,1,0.3},
+  --   radius=5,
+  -- }
+  -- Core:RegisterAuraCooldown(236361,data)
+  -- data = {
+  --   width = 4,
+  --   alpha = 0.3,
+  --   color={0,1,0,0.3},
+  --   -- classColor = true,
+  -- }
+  -- Core:RegisterAuraBeam(238018,data)
+  -- data = {
+  --   color={0,0.5,0,0.1},
+  --   color2={0,1,0.0,0.3},
+  --   radius=8,
+  -- }
+  -- Core:RegisterAuraCooldown(236515,data)
+  -- Core:RegisterAuraCooldown(235969,data)
+  -- data = {
+  --   color={0.5,0.5,0,0.1},
+  --   color2={1,1,0.0,0.3},
+  --   radius=5,
+  -- }
+  -- Core:RegisterAuraCooldown(236459,data)
+  -- data = {
+  --   color={0.5,0,0,0.1},
+  --   color2={1,0,0.0,0.3},
+  --   radius=8,
+  -- }
+  -- Core:RegisterAuraCooldown(238442,data)
+  -- --7
+  -- data = {
+  --   color={0.5,0,0,0.1},
+  --   color2={1,0,0.0,0.3},
+  --   radius=5,
+  -- }
+  -- Core:RegisterAuraCooldown(235117,data)
+  --
+  -- --8
+  -- data = {
+  --   color={0.5,0,0.5,0.1},
+  --   color2={1,0,1,0.3},
+  --   radius=8,
+  -- }
+  -- Core:RegisterAuraCooldown(239739,data)
+  -- data = {
+  --   color={0,0.5,0,0.1},
+  --   color2={0,1,0.0,0.3},
+  --   radius=10,
+  --   duration = 15,
+  --   isbuff = true,
+  -- }
+  -- Core:RegisterAuraCooldown(241008,data)
 
+  data = {
+    width = 0.5,
+    alpha = 0.7,
+    -- classColor = true,
+    color={0.8,0,0,0.6},
+  }
+  Core:RegisterAuraBeam(234425,data)
+  data = {
+    color={0.4,0.7,0,0.2},
+    color2={0.7,0.0,0,0.5},
+    line={{{-3,0,0},{3,0,0},{5,60,0},{-5,60,0}}},
+    duration=1,
+  }
+  Core:RegisterStartCastPolygon(241717,data) --Infested Breath
+  data = {
+    color={0.4,0.7,0,0.2},
+    color2={0.7,0.0,0,0.5},
+    line={{{-2,0,0},{2,0,0},{3,20,0},{-3,20,0}}},
+    duration=1,
+  }
+  Core:RegisterStartCastPolygon(236537,data) --Infested Breath
 end
 local function getClassColor(class)
 	local d = RAID_CLASS_COLORS[class]

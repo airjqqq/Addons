@@ -3,9 +3,10 @@ local AceGUI = LibStub("AceGUI-3.0")
 AirjGuild = Core
 -- local GS = LibStub("LibGuildStorage-1.2")
 
-local RAID1DETAIL = "一团 时间:星期四/一/二/三,晚上8:30-11:30.CL分配.装等要求910,当前8/9H,以后主打M,招:qs/sm/dz/dh/ss/fs"
+local RAID1DETAIL = "一团 时间:星期四/一/二/三,晚上8:30-11:30.CL分配.装等要求910,当前9/9H,主打M,招:qs/sm/dz/dh/ss/fs"
 local RAID2DETAIL = "二团 时间:星期五(/六/日),晚上8:30-11:30.CL分配.当前普通全通,以后主打H模式,小号提升团,装等要求880+"
-local WORLDMESSAGE = "<Hand Of Justice>公会,上班族,H8/9,晚上活动.M我查看招人详情"
+-- local WORLDMESSAGE = "上班族公会<Hand Of Justice> H9/9 招人,M我查详情"
+local WORLDMESSAGE = "<Hand Of Justice>公会,上班族,H9/9,晚上活动.M我查看招人详情"
 local GAMESSAGE = "要参加公会活动请m我装等,专精,经验等信息,团队列表如下:"
 
 function Core:OnInitialize()
@@ -43,7 +44,7 @@ function Core:OnEnable()
   self:RegisterEvent("CHAT_MSG_OFFICER")
   self.worldLastTime = GetTime()
   self.gaLastTime = GetTime() - 10*60
-  -- self:World(600,"大脚世界频道",WORLDMESSAGE)
+  self:World(600,"综合",WORLDMESSAGE)
   self:GuildAnnouncement(15*60,GAMESSAGE)
   self:RegisterChatCommand("ag", function(str)
     self:CheckAndTogglePointIndexSelector("ChatCommand")

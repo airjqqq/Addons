@@ -1,11 +1,13 @@
 local Core = LibStub("AceAddon-3.0"):NewAddon("AirjAutoKey", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0","AceSerializer-3.0","AceComm-3.0")
 AirjAutoKey = Core
+AAK = Core
 local Cache = LibStub("AceAddon-3.0"):GetAddon("AirjCache")
 local db
 local GUI
 function Core:OnInitialize()
   self.filterTypes = {}
   self.passedSpell = {}
+  self.templatePassed = {}
   db = self:InitializeDB()
   self.db = db
   self:InitializeParam()
@@ -287,9 +289,10 @@ do
   function Core:SetParamTemporary(key,value,time)
     local back = self.paramBack[key]
     if not back then
-      self.paramBack[key] = {value = self.param[key],expires = GetTime() + time}
+      self.paramBack[key] = {value = self.param[key],expires = GetTime() + time,start = GetTime()}
     else
       self.paramBack[key].expires = GetTime() + time
+      self.paramBack[key].start = GetTime()
     end
     self.param[key] = value
   end
@@ -309,6 +312,21 @@ do
   end
   function Core:GetParam(key)
     return self.param[key]
+  end
+
+  function Core:GetParamTemporaryRemain(key)
+    local back = self.paramBack[key]
+    if not back then
+      return 0
+    end
+    return back.expires - GetTime()
+  end
+  function Core:GetParamTemporaryStarted(key)
+    local back = self.paramBack[key]
+    if not back then
+      return 0
+    end
+    return GetTime() - back.start
   end
   function Core:GetParamNotExpired(key)
     local value = self.param[key]
@@ -493,9 +511,16 @@ do
     local passed = count <= (filter.value or 0)
     if filter.greater then passed = not passed end
     -- self:Print(passed)
-    if filter.note and strfind(filter.note,"debug") then
-      local str = string.format("%.3f",count)
-      self:Print(AirjHack:GetDebugChatFrame(),filter.note,str)
+    if filter.note and filter.note ~= "" then
+      if strfind(filter.note,"debug") then
+        local str = string.format("%.3f",count)
+        self:Print(AirjHack:GetDebugChatFrame(),filter.note,str)
+      end
+      local key,time = string.match(filter.note,"aaks (%w+) (%d+)")
+      if key then
+        -- print("aaks",key,count)
+        self:SetParamTemporary(key,count,time or 1)
+      end
     end
     return passed,priority
   end
@@ -560,7 +585,12 @@ do
         fv = fv * range
       elseif suf == "p" then
         fv = strsub(fv,1,-2)
-        fv = self:GetParam(fv) or 0
+        local k,v = strsplit("*",fv,2)
+        if v then
+          fv = (tonumber(k) or 1) * (self:GetParam(v) or 0)
+        else
+          fv = (self:GetParam(fv) or 0)
+        end
       else
         fv = tonumber(fv) or 0
       end
@@ -568,18 +598,23 @@ do
     return fv
   end
 
-  function Core:MatchValue(value,filter)
+  function Core:ParseValueMulti(value)
     local fv
-    if type(filter.value) == "string" then
-      local fvs = {strsplit(",",filter.value)}
+    if type(value) == "string" then
+      local fvs = {strsplit(",",value)}
       local total = 0
       for k,v in pairs(fvs) do
         total = total + self:ParseValue(v)
       end
       fv = total
     else
-      fv = filter.value
+      fv = value
     end
+    return fv
+  end
+
+  function Core:MatchValue(value,filter)
+    local fv = self:ParseValueMulti(filter.value)
     local passed = value <= (fv or 0)
     if filter.greater then
       passed = not passed
@@ -623,6 +658,10 @@ do
           if strfind(filter.note,"debug") then
             local str = string.format("%.3f",value)
             self:Print(AirjHack:GetDebugChatFrame(),filter.note,str)
+          end
+          local key,time = string.match(filter.note,"aaks (%w+) (%d+)")
+          if key then
+            self:SetParamTemporary(key,value,time or 1)
           end
         end
         passed = Core:MatchValue(value,filter)
@@ -744,10 +783,26 @@ do
     if self:GetParam("fc") then return false end
     local notMoving=(Cache:Call("GetUnitSpeed","player") == 0 and not Cache:Call("IsFalling"))
     if notMoving then return true end
+    -- local guid = Cache:UnitGUID("player")
+    -- local buffs = Cache:GetBuffs(guid,"player",{[108839]=true,[193223]=true,[202461]=true,[236431]=true})
+    -- return #buffs > 0
+    local movebuffremain = self:GetMoveCastBuffRemain()
+    return movebuffremain and movebuffremain>0.2 or false
+    --
+  end
+
+  function Core:GetMoveCastBuffRemain()
     local guid = Cache:UnitGUID("player")
     local buffs = Cache:GetBuffs(guid,"player",{[108839]=true,[193223]=true,[202461]=true,[236431]=true})
-    return #buffs > 0
-    --
+    local now = GetTime()
+    local maxremain
+    for i,v in pairs(buffs) do
+      local remain = v[7] == 0 and 5 or v[7] - now
+      if not maxremain or remain>maxremain then
+        maxremain = remain
+      end
+    end
+    return maxremain
   end
 
   function Core:CheckAndExecuteSequence(sequence,executed)
@@ -776,8 +831,10 @@ do
       if sequence.barcast then
         if self:Barcast() then
           execute = true
+          self.maybarcast = GetTime()
         else
           self.needbarcast = GetTime()
+          -- AirjMove:NeedBarCast()
         end
       else
         execute = true
@@ -810,6 +867,7 @@ do
     end
     self.lastScanTime=t
     wipe(self.passedSpell)
+    wipe(self.templatePassed)
     wipe(prepassed)
     wipe(found)
     groupDeep = 1

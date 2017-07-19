@@ -17,9 +17,24 @@ function F:OnInitialize()
   self:RegisterFilter("FUTUREHEALTH",L["Health Future"],{
     unit= {},name= {name=L["Time"]},greater={},value={}
   })
-  self:RegisterFilter("RAIDHEALTHLOST",L["Health Lost"],{
-    name= {name=L["Max To Ignore"]},greater={},value={}
-  },{AVERAGE = L["Average"]},"00FF00")
+  self:RegisterFilter("FUTUREHEALTHLOST",L["H Lost Future"],{
+    unit= {},name= {name=L["Time"]},greater={},value={}
+  })
+  self:RegisterFilter("FUTUREHOTUPTIME",L["HOT Uptime"],{
+    unit= {},name= {name=L["Time"]},greater={},value={}
+  })
+  self:RegisterFilter("RAIDHEALTH",L["Raid HP"],{
+    name= {name=L["Min to Ignore | Time"]},greater={},value={}
+  },nil,"40FFC0")
+  self:RegisterFilter("RAIDHEALTHLOST",L["Raid H Lost"],{
+    name= {name=L["Max to Ignore | Time"]},greater={},value={}
+  },{AVERAGE = L["Average"]},"40FFC0")
+  self:RegisterFilter("RAIDHOTUPDATETIME",L["Raid Hot Uptime"],{
+    name= {name=L["Time | Start"]},greater={},value={}
+  },{AVERAGE = L["Average"]},"40FFC0")
+  self:RegisterFilter("RAIDLOWHEALTHNUMBER",L["Low h count"],{
+    name= {name=L["Threshold | Time"]},greater={},value={}
+  },{PERCENT = L["Percent"]},"40FFC0")
   self:RegisterFilter("STAGGER",L["Stagger"],{greater={},value={}},{ABS=L["Absolute"]})
   self:RegisterFilter("POWER",L["Power"],{unit= {},greater={},value={}},{
     [SPELL_POWER_MANA]=L["Mana"],
@@ -107,12 +122,12 @@ function F:HEALTH(filter)
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
-  if health and health < 0 then
-    health = 2^32+health
-  end
-  if max and max < 0 then
-    max = 2^32+max
-  end
+  -- if health and health < 0 then
+  --   health = 2^32+health
+  -- end
+  -- if max and max < 0 then
+  --   max = 2^32+max
+  -- end
   if not health then return false end
   if isdead then return false end
   local types = Core:ToKeyTable(filter.name)
@@ -161,18 +176,185 @@ function F:STAGGER(filter)
   return toRet
 end
 
-
+local hpsMythic = 40e4
+local furtureHealthCache = {}
+Core.furtureHealthCache = furtureHealthCache
 function F:GetFutureHealth(guid,unit,time)
+  local now = GetTime()
+  if not furtureHealthCache.t or now > furtureHealthCache.t + 0.1 then
+    wipe(furtureHealthCache)
+    furtureHealthCache.t = now
+  end
+  local cache = furtureHealthCache[guid..":"..time]
+  if cache then
+    return cache
+  end
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
   if not health then return end
   if isdead then return end
-  health = health + prediction*2 - healAbsorb*2
+  health = health - healAbsorb*2
   local BuffFilter = Filter:GetModule("BuffFilter")
-  local damage = BuffFilter:GetDotDamageFurture(guid,unit,time)
-  -- health = damage
-  health = health - damage
+  local furtureDamage
+  if AirjBossMods then
+    local bossmod = AirjBossMods:GetCurrentBossMod()
+    if bossmod and bossmod.furtureDamage then
+      local hps = AirjBossMods:GetDifficultyDamage(bossmod.difficulty,hpsMythic)
+      furtureDamage = true
+      local frames = AirjBossMods:GetFutureDamageFrames(guid,time)
+      local last = GetTime()
+      local dps = 0
+      for i, f in pairs(frames) do
+        local d = f.time - last
+        if d > 0 then
+          health = min(health + (hps-dps)*d,max)
+          dps = dps + f.dps
+          last = f.time
+        end
+      end
+      if last < now + time then
+        health = min(health + (now + time - last)*hps,max)
+      end
+    end
+  end
+  if not furtureDamage then
+    local dotdamage = BuffFilter:GetDotDamageFurture(guid,unit,time)
+    health = health - dotdamage
+  end
+  furtureHealthCache[guid..":"..time] = health/max
   return health/max
 end
+function Core:GetFutureHealth(guid,time)
+  return F:GetFutureHealth(guid,nil,time)
+end
+
+local furtureHealthLostCache = {}
+Core.furtureHealthLostCache = furtureHealthLostCache
+function F:GetFutureHealthLost(guid,unit,time)
+  local now = GetTime()
+  if not furtureHealthLostCache.t or now > furtureHealthLostCache.t + 0.1 then
+    wipe(furtureHealthLostCache)
+    furtureHealthLostCache.t = now
+  end
+  local cache = furtureHealthLostCache[guid..":"..time]
+  if cache then
+    return cache
+  end
+  local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+  if not health then return end
+  if isdead then return end
+  health = health - healAbsorb*2
+  local healthLost = max - health
+  if time and time > 0 then
+    local BuffFilter = Filter:GetModule("BuffFilter")
+    local furtureDamage
+    if AirjBossMods then
+      local bossmod = AirjBossMods:GetCurrentBossMod()
+      if bossmod and bossmod.furtureDamage then
+        furtureDamage = true
+        local damage = AirjBossMods:GetFutureDamage(guid,time)
+        healthLost = healthLost + damage
+      end
+    end
+    if not furtureDamage then
+      local dotdamage = BuffFilter:GetDotDamageFurture(guid,unit,time)
+      healthLost = healthLost + dotdamage
+    end
+  end
+  furtureHealthLostCache[guid..":"..time] = healthLost/max
+  return healthLost/max
+end
+function Core:GetFutureHealthLost(guid,time)
+  return F:GetFutureHealthLost(guid,nil,time)
+end
+
+local furtureHotUptimeCache = {}
+Core.furtureHotUptimeCache = furtureHotUptimeCache
+function F:GetFutureHotUptime(guid,unit,time,start)
+  local now = GetTime()
+  if not furtureHotUptimeCache.t or now > furtureHotUptimeCache.t + 0.1 then
+    wipe(furtureHotUptimeCache)
+    furtureHotUptimeCache.t = now
+  end
+  start = start or 0
+  local cache = furtureHotUptimeCache[guid..":"..time..":"..start]
+  if cache then
+    return cache
+  end
+  local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+  if not health then return end
+  if isdead then return end
+  health = health - healAbsorb*2
+  local BuffFilter = Filter:GetModule("BuffFilter")
+  local furtureDamage
+  local uptime = 0
+  if AirjBossMods then
+    local bossmod = AirjBossMods:GetCurrentBossMod()
+    if bossmod and bossmod.furtureDamage then
+      furtureDamage = true
+      local hps = AirjBossMods:GetDifficultyDamage(bossmod.difficulty,hpsMythic)
+      local frames = AirjBossMods:GetFutureDamageFrames(guid,time+start)
+      local last = GetTime()
+      local startT = last+start
+      local dps = 0
+      for i, f in pairs(frames) do
+        local d = f.time - last
+        if d > 0 then
+          local h2 = min(health + (hps-dps)*d,max)
+          local detla = 0
+          if last >= startT then
+            if dps > 0 then
+              detla = d
+            elseif h2 < max then
+              detla = d
+            elseif health < max then
+              detla = (max-health)/hps
+            end
+          elseif f.time > startT then
+            if dps > 0 then
+              detla = f.time - startT
+            elseif h2 < max then
+              detla = f.time - startT
+            elseif health < max then
+              local notfulltime = (max-health)/hps
+              notfulltime = notfulltime - (startT - last)
+              if notfulltime > 0 then
+                detla = notfulltime
+              end
+            end
+          end
+          uptime = uptime + detla
+          -- print(dps,health,h2,detla,uptime)
+          health = h2
+        end
+        dps = dps + f.dps
+        last = f.time
+      end
+      if last < now + time + start then
+        if last >= startT then
+          uptime = uptime + min((now + time + start - last),(max-health)/hps)
+        else
+          local notfulltime = min((now + time + start - last),(max-health)/hps)
+          notfulltime = notfulltime - (startT - last)
+          if notfulltime > 0 then
+            uptime = uptime + notfulltime
+          end
+        end
+
+        -- print(uptime)
+      end
+    end
+  end
+  if not furtureDamage then
+    uptime = BuffFilter:GetDotDamageDuration(guid,unit,time+start) + (max-health)/max*20 - start
+  end
+  furtureHotUptimeCache[guid..":"..time..":"..start] = uptime
+  return uptime
+end
+function Core:GetFutureHealth(guid,time)
+  return F:GetFutureHealth(guid,nil,time)
+end
+
+
 --
 function F:FUTUREHEALTH(filter)
   filter.unit = filter.unit or "player"
@@ -184,26 +366,96 @@ function F:FUTUREHEALTH(filter)
   return F:GetFutureHealth(guid,filter.unit,time)
 end
 
-function F:RAIDHEALTHLOST(filter)
+function F:FUTUREHEALTHLOST(filter)
+  filter.unit = filter.unit or "player"
+  filter.value = filter.value or 1
+  filter.name = filter.name or {5}
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local time = unpack(Core:ToValueTable(filter.name),1,1)
+  return F:GetFutureHealthLost(guid,filter.unit,time)
+end
+
+function F:FUTUREHOTUPTIME(filter)
+  filter.unit = filter.unit or "player"
+  filter.value = filter.value or 1
+  filter.name = filter.name or {5}
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+  local time = unpack(Core:ToValueTable(filter.name),1,1)
+  return F:GetFutureHotUptime(guid,filter.unit,time)
+end
+
+function F:RAIDHEALTH(filter)
   filter.name = filter.name or {0.5}
+  local time = filter.name[2]
   local unitLst = Core:GetUnitListByAirType("help")
   local checked = {}
   local amount = 0
   local scanCount = 0
   local maxIgnore = unpack(Core:ToValueTable(filter.name),1,2)
+  local fv = Core:ParseValueMulti(filter.value)
+  maxIgnore = math.max(maxIgnore,1-(1-fv)*2.5)
+  maxIgnore = math.min(maxIgnore,1-(1-fv)*1.5)
   for _,unit in pairs(unitLst) do
     local guid = Cache:UnitGUID(unit)
     if guid and not checked[guid] then
       checked[guid] = true
       local x,y,z,f,d,s = Cache:GetPosition(guid)
       local exists,harm,help = Cache:GetExists(guid,filter.unit)
-      if d and d-s-1.5<60 and UnitIsPlayer(unit) and help then
+      local ir, cr = UnitInRange(unit)
+      if d and d-s-1.5<60 and UnitIsPlayer(unit) and help and not (cr and not ir) then
+        local value
+        local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+        if health and not isdead then
+          if time then
+            value = F:GetFutureHealth(guid,unit,time)
+          else
+            value = (health+prediction-healAbsorb)/max
+          end
+          value = math.max(value,maxIgnore)
+          scanCount = scanCount + 1
+          amount = amount + value
+        end
+      end
+    end
+  end
+  if amount == 0 then return 0 end
+  return amount/scanCount
+end
+
+function F:RAIDHEALTHLOST(filter)
+  filter.name = filter.name or {0.5}
+  local time = filter.name[2]
+  local unitLst = Core:GetUnitListByAirType("help")
+  local checked = {}
+  local amount = 0
+  local scanCount = 0
+  local maxIgnore = unpack(Core:ToValueTable(filter.name),1,2)
+
+  if filter.subtype == "AVERAGE" then
+    local fv = Core:ParseValueMulti(filter.value)
+    maxIgnore = math.min(maxIgnore,fv*2.5)
+    maxIgnore = math.max(maxIgnore,fv*1.5)
+  end
+  for _,unit in pairs(unitLst) do
+    local guid = Cache:UnitGUID(unit)
+    if guid and not checked[guid] then
+      checked[guid] = true
+      local x,y,z,f,d,s = Cache:GetPosition(guid)
+      local exists,harm,help = Cache:GetExists(guid,filter.unit)
+      local ir, cr = UnitInRange(unit)
+      if d and d-s-1.5<60 and UnitIsPlayer(unit) and help and not (cr and not ir) then
         local value
         local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
         if not health or isdead then
           value = 0
         else
-          value = 1-(health+prediction-healAbsorb)/max
+          if time then
+            value = F:GetFutureHealthLost(guid,unit,time) or 0
+          else
+            value = 1-(health+prediction-healAbsorb)/max
+          end
           value = math.min(value,maxIgnore)
           value = math.max(value,0)
           scanCount = scanCount + 1
@@ -217,6 +469,93 @@ function F:RAIDHEALTHLOST(filter)
     return amount/scanCount
   else
     return amount
+  end
+end
+
+function F:RAIDHOTUPDATETIME(filter)
+  filter.name = filter.name or {5,0}
+  local time = filter.name[1]
+  local start = filter.name[2]
+  local unitLst = Core:GetUnitListByAirType("help")
+  local checked = {}
+  local amount = 0
+  local scanCount = 0
+  local maxIgnore = unpack(Core:ToValueTable(filter.name),1,2)
+
+  if filter.subtype == "AVERAGE" then
+    local fv = Core:ParseValueMulti(filter.value)
+    maxIgnore = math.min(maxIgnore,fv*2.5)
+    maxIgnore = math.max(maxIgnore,fv*1.5)
+  end
+  for _,unit in pairs(unitLst) do
+    local guid = Cache:UnitGUID(unit)
+    if guid and not checked[guid] then
+      checked[guid] = true
+      local x,y,z,f,d,s = Cache:GetPosition(guid)
+      local exists,harm,help = Cache:GetExists(guid,filter.unit)
+      local ir, cr = UnitInRange(unit)
+
+      if d and d-s-1.5<60 and UnitIsPlayer(unit) and help and not (cr and not ir) then
+        local value
+        local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+        if not health or isdead then
+          value = 0
+        else
+          value = F:GetFutureHotUptime(guid,unit,time,start)
+          value = math.min(value,maxIgnore)
+          value = math.max(value,0)
+          scanCount = scanCount + 1
+          amount = amount + value
+        end
+      end
+    end
+  end
+  if amount == 0 then return 0 end
+  if filter.subtype == "AVERAGE" then
+    return amount/scanCount
+  else
+    return amount
+  end
+end
+
+function F:RAIDLOWHEALTHNUMBER(filter)
+  filter.name = filter.name or {0.6}
+  local threshold = filter.name[1]
+  local time = filter.name[2]
+  local unitLst = Core:GetUnitListByAirType("help")
+  local checked = {}
+  local passed = 0
+  local all = 0
+  for _,unit in pairs(unitLst) do
+    local guid = Cache:UnitGUID(unit)
+    if guid and not checked[guid] then
+      checked[guid] = true
+      local x,y,z,f,d,s = Cache:GetPosition(guid)
+      local exists,harm,help = Cache:GetExists(guid,filter.unit)
+      if d and d-s-1.5<60 and UnitIsPlayer(unit) and help then
+        local value
+        local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+        if not health or isdead then
+        else
+          if time then
+            value = F:GetFutureHealth(guid,unit,time)
+          else
+            value = (health+prediction-healAbsorb)/max
+          end
+          if value < threshold then
+            passed = passed + 1
+          end
+          all = all + 1
+        end
+      end
+    end
+  end
+  if all == 0 then return 0 end
+
+  if filter.subtype == "PERCENT" then
+    return passed
+  else
+    return passed/all
   end
 end
 

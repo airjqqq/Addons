@@ -182,7 +182,7 @@ function F:GetDotDamageFurture(guid,unit,time)
   for i,v in pairs(debuffs) do
     local tooltip = v.tooltip
     if tooltip then
-      local t,d,s = tooltip:match("每(%d+)秒[^%d]+(%d+)点(.*)伤害")
+      local t,d,s = tooltip:match("每([%d%.]*%d+)秒[^%d]+([%d%.]*%d+)点(.*)伤害")
       -- print(t,d, tooltip)
       if t and d then
         t = tonumber(t)
@@ -191,7 +191,9 @@ function F:GetDotDamageFurture(guid,unit,time)
 
           local expire = v[7]
           local duration
-          if expire > now + time then
+          if expire == 0 then
+            duration = 5
+          elseif expire > now + time then
             duration = time
           else
             duration = expire - now
@@ -222,6 +224,39 @@ function F:GetDotDamagePerSecond(guid,unit)
     end
   end
   return totalDPS
+end
+
+function F:GetDotDamageDuration(guid,unit,time)
+  local now = GetTime()
+  local debuffs = Cache:GetDebuffs(guid,unit)
+  local maxremain = 0
+  for i,v in pairs(debuffs) do
+    local tooltip = v.tooltip
+    if tooltip then
+      local t,d,s = tooltip:match("每([%d%.]*%d+)秒[^%d]+([%d%.]*%d+)点(.*)伤害")
+      -- print(t,d, tooltip)
+      if t and d then
+        t = tonumber(t)
+        d = tonumber(d)
+        if t and d then
+
+          local expire = v[7]
+          local duration
+          if expire == 0 then
+            duration = 5
+          elseif expire > now + time then
+            duration = time
+          else
+            duration = expire - now
+          end
+          if duration > maxremain then
+            maxremain = duration
+          end
+        end
+      end
+    end
+  end
+  return maxremain
 end
 
 function F:DEBUFFDOT(filter)
