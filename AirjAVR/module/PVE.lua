@@ -102,6 +102,7 @@ function mod:OnEnable()
     duration=1,
   }
   Core:RegisterStartCastPolygon(241717,data) --Infested Breath
+  Core:RegisterStartCastPolygon(234631,data) --Infested Breath
   data = {
     color={0.4,0.7,0,0.2},
     color2={0.7,0.0,0,0.5},

@@ -3,10 +3,23 @@ local AceGUI = LibStub("AceGUI-3.0")
 AirjGuild = Core
 -- local GS = LibStub("LibGuildStorage-1.2")
 
-local RAID1DETAIL = "一团 时间:星期四/一/二/三,晚上8:30-11:30.CL分配.装等要求910,当前9/9H,主打M,招:qs/sm/dz/dh/ss/fs"
-local RAID2DETAIL = "二团 时间:星期五(/六/日),晚上8:30-11:30.CL分配.当前普通全通,以后主打H模式,小号提升团,装等要求880+"
+local RAID1DETAIL = "一团:星期四/一/二/三,晚上8:30-11:30.Farm H以及开荒M. H全通,M1/9,CL拾取.要求装等915+."
+local RAID2DETAIL = "二团:星期五Farm PT模式,周六开荒H模式"
 -- local WORLDMESSAGE = "上班族公会<Hand Of Justice> H9/9 招人,M我查详情"
-local WORLDMESSAGE = "<Hand Of Justice>公会,上班族,H9/9,晚上活动.M我查看招人详情"
+local WORLDMESSAGE = {
+  "上班族休闲公会,英雄萨墓全通,招人开荒M模式,欢迎喜欢挑战的同仁加入.晚上活动",
+  "<Hand Of Justice>公会收人啦~上班族最好,晚上活动,9/9H,1/9M",
+  "还在为结合石没成就没人要而烦恼吗?来<Hand Of Justice>参加公会团吧.新手无所谓,只要稳定活动就有副本打,就有装备拿",
+  "重复刷大米太枯燥?想做些有挑战的事?来开荒M模式的萨墓吧!要求装等915+,晚上活动.",
+  "wow的精髓是什么?是史诗级团队活动!现在就加入<Hand Of Justice>公会,开启史诗模式萨墓开荒之旅吧!",
+}
+local function messageMatch(message)
+  for i,v in pairs(WORLDMESSAGE) do
+    if message == v then
+      return true
+    end
+  end
+end
 local GAMESSAGE = "要参加公会活动请m我装等,专精,经验等信息,团队列表如下:"
 
 function Core:OnInitialize()
@@ -43,8 +56,9 @@ function Core:OnEnable()
   self:RegisterEvent("CHAT_MSG_CHANNEL")
   self:RegisterEvent("CHAT_MSG_OFFICER")
   self.worldLastTime = GetTime()
+  self.worldAll = 0
   self.gaLastTime = GetTime() - 10*60
-  self:World(600,"综合",WORLDMESSAGE)
+  -- self:World(900,"大脚世界频道",WORLDMESSAGE)
   self:GuildAnnouncement(15*60,GAMESSAGE)
   self:RegisterChatCommand("ag", function(str)
     self:CheckAndTogglePointIndexSelector("ChatCommand")
@@ -54,6 +68,12 @@ end
 
 function Core:OnDisable()
 
+end
+
+function Core:SayNow()
+  self.worldLastTime = 0
+  self.worldAll = 1e9
+  self:WorldTimer()
 end
 
 local function findChannelByName(name)
@@ -66,15 +86,28 @@ local function findChannelByName(name)
   end
 end
 
+local function getRandomIndex(num)
+  return math.random(1, num)
+end
+
 function Core:WorldTimer()
   if not self.worldMessage then return end
-  if GetTime()>self.worldLastTime + self.worldInterval +(UnitIsGroupLeader("player") and 0 or 20) then
-    self.worldLastTime = GetTime()
-    local channel, message  = self.worldChannel, self.worldMessage
-    local c = findChannelByName(channel)
-    if not c then JoinPermanentChannel(channel,nil,3) end
-    c = findChannelByName(channel)
-    if c then
+
+  local channel, messages  = self.worldChannel, self.worldMessage
+  local c = findChannelByName(channel)
+  if not c then JoinPermanentChannel(channel,nil,3) end
+  c = findChannelByName(channel)
+  if c then
+    local inv = self.worldInterval +(UnitIsGroupLeader("player") and 0 or 20)
+    local dontBeKick = IsInRaid() and UnitAffectingCombat("player")
+    if (GetTime()>self.worldLastTime + inv) and self.worldAll > inv/10 and not dontBeKick then
+      self.worldLastTime = GetTime()
+      local i = getRandomIndex(#messages)
+      while messages.index == i do
+        i = getRandomIndex(#messages)
+      end
+      messages.index = i
+      local message = messages[i]
       print(c,message)
       SendChatMessage(message,"CHANNEL",nil,c)
     end
@@ -97,8 +130,13 @@ end
 function Core:CHAT_MSG_CHANNEL(event,...)
   local message = ...
   local channel = select(9,...)
-  if self.worldChannel == channel and self.worldMessage == message then
-    self.worldLastTime = GetTime()
+  channel = strsplit(" - ",channel)
+  if channel == self.worldChannel then
+    self.worldAll = self.worldAll + 1
+    if messageMatch(message) then
+      self.worldLastTime = GetTime()
+      self.worldAll = 0
+    end
   end
 end
 
@@ -221,8 +259,8 @@ function Core:CHAT_MSG_WHISPER(event,message, sender, language, channelString, t
             end,2)
             self:ScheduleTimer(function()
               if AirjHack and AirjHack:HasHacked() then
-                SendChatMessage("你好,回“JRGH”或“加入公会”自动邀请.","WHISPER",nil,sender)
-                RunMacroText("/ginvite "..sender)
+                SendChatMessage("你好,回“JRGH”或“加入公会”自动邀请.咨询其他内容请留言,看到后第一时间回复","WHISPER",nil,sender)
+                -- RunMacroText("/ginvite "..sender)
               end
             end,3)
           end,3)

@@ -141,7 +141,7 @@ function mod:OnEnable()
     self:ScheduleRepeatingTimer(function() pcall(fcn) end,0.01)
   end
   local data
-  Core:RegisterCreateAreaTrigger(191034,{color={0.0,0.7,0.7,0.2}})
+  -- Core:RegisterCreateAreaTrigger(191034,{color={0.0,0.7,0.7,0.2}})
   Core:RegisterCreateAreaTrigger(187651,{color={0.0,0.7,0.7,0.2}})
   Core:RegisterCreateAreaTrigger(194278,{color={0.8,0.8,0,0.2}})
   Core:RegisterCreatureCooldown(100943,{color={0,1,0.5,0.2},spellId=198838})

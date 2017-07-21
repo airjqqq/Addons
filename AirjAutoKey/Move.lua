@@ -79,6 +79,43 @@ function M:OnInitialize()
 		end
 		self:DrawCruiseData()
 	end)
+	self:RegisterChatCommand("aakmap", function(str,...)
+		if WorldMapDetailFrame:IsMouseOver() then
+			local z = select(3,self:GetPlayPosition())
+			local l,b,w,h = WorldMapDetailFrame:GetRect()
+			local s = WorldMapDetailFrame:GetScale()*UIParent:GetScale()
+			local cx,cy = GetCursorPosition()
+			cx,cy = cx/s,cy/s
+			local x,y = (cx-l)/w, (cy-b)/h
+			-- print(x,y)
+	    local mapId = GetCurrentMapAreaID()
+	    local _,_,_,l,r,t,b = GetAreaMapInfo(mapId)
+	    l = -l
+	    r = -r
+	    local px = l+(r-l)*x
+	    local py = b+(t-b)*y
+			local pitch = AirjHack:GetPitch()
+			local d = self:GetDistanceFromPlayer(px,py,z)
+			z = z + d*math.tan(pitch)
+	    AirjMove:MoveTo({px,py,z})
+		end
+	end)
+	self:RegisterChatCommand("aakmu", function(str,...)
+		local args = {strsplit(" ",str)}
+		if args[1] and args[1] ~= "" then
+			local unit = args[1]
+			local x,y = GetPlayerMapPosition(unit)
+			-- print(x,y)
+	    local mapId = GetCurrentMapAreaID()
+	    local _,_,_,l,r,t,b = GetAreaMapInfo(mapId)
+	    l = -l
+	    r = -r
+	    local px = l+(r-l)*x
+	    local py = t-(t-b)*y
+			local z = select(3,self:GetPlayPosition())
+	    AirjMove:MoveTo({px,py,z})
+		end
+	end)
 	self:RegisterChatCommand("aakw", function(str,...)
 		local args = {strsplit(" ",str)}
 		if args[1] then
@@ -89,6 +126,10 @@ function M:OnInitialize()
 			elseif args[1] == "r" then
 				local i = tonumber(args[2] or #data)
 				tremove(data,i)
+			elseif args[1] == "rall" then
+				while data[1] do
+					tremove(data,1)
+				end
 			elseif args[1] == "x" then
 				local i = tonumber(args[2] or #data)
 				local v = tonumber(args[3] or 10)
@@ -101,6 +142,36 @@ function M:OnInitialize()
 				local i = tonumber(args[2] or #data)
 				local v = tonumber(args[3] or 10)
 				data[i][3] = data[i][3] + v
+			elseif args[1] == "s" then
+				local i = tonumber(args[2] or #data)
+				local v = tonumber(args[3] or 1)
+				data[i].stop = v == 1 or nil
+			elseif args[1] == "w" then
+				local i = tonumber(args[2] or #data)
+				local v = tonumber(args[3] or 5)
+				data[i].wait = v > 0 and v or nil
+				data[i].stop = v == 1 or nil
+			elseif args[1] == "noloop" then
+				local v = tonumber(args[2] or 1)
+				data.noloop = v > 0 and v or nil
+			elseif args[1] == "am" then
+				if WorldMapDetailFrame:IsMouseOver() then
+					local z = select(3,self:GetPlayPosition())
+					local l,b,w,h = WorldMapDetailFrame:GetRect()
+					local s = WorldMapDetailFrame:GetScale()*UIParent:GetScale()
+					local cx,cy = GetCursorPosition()
+					cx,cy = cx/s,cy/s
+					local x,y = (cx-l)/w, (cy-b)/h
+					-- print(x,y)
+			    local mapId = GetCurrentMapAreaID()
+			    local _,_,_,l,r,t,b = GetAreaMapInfo(mapId)
+			    l = -l
+			    r = -r
+			    local px = l+(r-l)*x
+			    local py = b+(t-b)*y
+					local i = tonumber(args[2] or (#data+1))
+					tinsert(data,i,{px,py,z})
+				end
 			end
 		end
 		self:DrawCruiseData()
@@ -191,6 +262,12 @@ function M:MoveTimer()
 		movinglast = 0
 		return
 	end
+
+	if UnitIsDeadOrGhost("player") then
+		self:MoveAsHard()
+		movinglast = 0
+		return
+	end
 	-- if jumped and GetTime() - jumped < 1 then
 	-- 	self:StopMoving()
 	-- 	return
@@ -218,8 +295,23 @@ function M:MoveTimer()
 			end
 		end
 		if type then
-			local x, y, z, _, s = self:GetPositionForType(type,data)
+			local x, y, z, f, s = self:GetPositionForType(type,data)
 			if x and y and z then
+
+				local offset = AirjAutoKey:GetParam("fof")
+				if offset then
+					local ox,oy = strsplit(":",offset)
+					-- print(offset,ox,oy)
+					if ox and oy then
+						ox,oy = tonumber(ox), tonumber(oy)
+						if ox and oy then
+							local a = f
+							local sin,cos = math.sin,math.cos
+							x = x + ox*cos(a) - oy*sin(a)
+							y = y + oy*cos(a) + ox*sin(a)
+						end
+					end
+				end
 				local px, py, pz = self:GetPlayPosition()
 				targetDistanceXY = self:GetDistanceFromPlayer(x,y,pz)
 				targetDistanceZ = z - pz
@@ -364,7 +456,7 @@ function M:MoveTimer()
 	if targetDistanceXY and moveDistanceXY<5 and moveDistanceXY>1 and targetDistanceZ>1 or targetDistanceZ and targetDistanceZ>10 then
 		moves[7] = 1
 	end
-	if stop  and moveDistance < 5 then
+	if stop  and moveDistance < 15 then
 		movinglast = 0
 	else
 		movinglast = movinglast + 1
@@ -917,68 +1009,127 @@ function M:DrawCruiseData()
 	if not data then return end
 	local j = #data
 	for i = 1,#data do
+
 		local scene = AVR:GetTempScene(200)
 		local m=AVRUnitMesh:New()
 		m:SetFollowUnit(false)
 		m:SetFollowRotation(false)
 		m:SetMeshTranslate(unpack(data[i]))
-		m:SetText(i.."")
+		local text = i..""
+		if data[i].wait then
+			text = text.." - w("..data[i].wait..")"
+		end
+		m:SetText(text)
+		if data[i].stop then
+			m:SetColor(1,0,0,0.2)
+			m:SetColor2(1,0,0,0.4)
+		end
 		m:SetTimer(120)
     scene:AddMesh(m,false,false)
-		local l = AVRPolygonMesh:New({
-			{data[i][1],data[i][2],data[i][3]-1},
-			{data[i][1],data[i][2],data[i][3]+1},
-			{data[j][1],data[j][2],data[j][3]+1},
-			{data[j][1],data[j][2],data[j][3]-1},
-		})
-    scene:AddMesh(l,false,false)
+		if i ~= 1 or not data.noloop then
+			local l = AVRPolygonMesh:New({{
+				{data[i][1],data[i][2],data[i][3]-1},
+				{data[i][1],data[i][2],data[i][3]+1},
+				{data[j][1],data[j][2],data[j][3]+1},
+				{data[j][1],data[j][2],data[j][3]-1},
+			}})
+
+			l:SetColor(1,1,1,0.2)
+	    scene:AddMesh(l,false,false)
+			tinsert(meshs,l)
+		end
 		j = i
 		tinsert(meshs,m)
-		tinsert(meshs,l)
 	end
 end
 
+local lastI
+local waitTo
 function M:CruiseTimer()
 	if self:IsHardMoving() then
+		lastI = nil
 		self.isCruise = nil
+	end
+	if not self.isCruise then
+		return
 	end
 	local data = self:GetCruiseDate()
 	if not data then return end
 	local j = #data
-	local minDistance,minDistanceT,minDistanceI,minDistanceJ
+	local minDistance,minDistanceT,minDistanceI,minDistanceJ,minDistanceData,minDistance2
 	-- local dd={}
 	for i = 1,#data do
-		local d,t = self:GetDistanceToLine(data[i],data[j],nil,true)
-		-- dd[i] = d
-		if not minDistance or d<minDistance then
-			minDistance = d
-			minDistanceT = t
-			minDistanceI = i
-			minDistanceJ = j
+		if i ~= 1 or not data.noloop then
+			local d,t = self:GetDistanceToLine(data[i],data[j],nil,true)
+			-- dd[i] = d
+			local continueOffset = 0
+			if lastI then
+				if i == lastI then
+					continueOffset = 4
+				elseif i == lastI + 1 then
+					continueOffset = 2
+				end
+			end
+			if not minDistance2 or (d - continueOffset<minDistance2) then
+				minDistance = d
+				minDistance2 = d - continueOffset
+				minDistanceT = t
+				minDistanceI = i
+				minDistanceJ = j
+				minDistanceData = data[i]
+			end
 		end
 		j = i
 	end
+	-- print(minDistanceI,lastI,minDistance)
 	-- dump (dd)
 	-- print()
 	if minDistance then
 		local lastD = self.lastMinDistance or 1000
 		if minDistance < 5 and lastD<4 or minDistance<2 then
 			self.lastMinDistance = minDistance
-			-- in cruise
-			local targetPoint = data[minDistanceI]
-			local toTdistance = self:GetDistanceFromPlayer(unpack(targetPoint))
-				local i = minDistanceI
-			if toTdistance<2 then
-				i = minDistanceI + 1
-				if i>#data then
-					i = 1
+			local i = minDistanceI
+			if lastI then
+				local lastData = data[lastI]
+				if lastData then
+					local toTdistance = self:GetDistanceFromPlayer(unpack(lastData))
+					if toTdistance<2 then
+						i = minDistanceI + 1
+					end
 				end
-				targetPoint = data[i]
 			end
-			if self.isCruise then
-				self:SetMoveTarget("point",targetPoint)
+			if i ~= lastI then
+				local lastData = lastI and data[lastI]
+				local checkWait = lastData and lastI == i - 1
+				if checkWait then
+					if lastData.wait then
+						if not lastData.waitTriggered or GetTime() - lastData.waitTriggered > lastData.wait + 10 then
+							waitTo = lastData.wait + GetTime()
+							lastData.waitTriggered = GetTime()
+						end
+					end
+				end
+				if self.cruiseName == "wq" and lastI and lastI == i - 1 then
+					data[lastI] = nil
+				end
+				if i>#data then
+					if not data.noloop then
+						i = 1
+					else
+						i = nil
+					end
+				end
+				lastI = i
 			end
-			self.lastCruisePoint = {self:GetPlayPosition()}
+
+			local	targetPoint = data[i]
+			if self.isCruise and targetPoint then
+				-- print(i,waitTo and GetTime()-waitTo or "nowait")
+				if not waitTo or GetTime()>waitTo then
+					self:SetMoveTarget("point",targetPoint)
+				end
+			end
+			-- self.lastCruisePoint = {self:GetPlayPosition()}
 		else
 			self.lastMinDistance = nil
 			local pi,pj = data[minDistanceI],data[minDistanceJ]

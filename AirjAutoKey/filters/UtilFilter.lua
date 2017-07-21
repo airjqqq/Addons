@@ -53,6 +53,7 @@ function F:OnInitialize()
   self:RegisterFilter("UACOUNT",L["UA Count"],{value={},greater={},unit={}})
   self:RegisterFilter("PMULTIPLIER",L["P multiplier"],{value={},greater={},unit={},name={}})
   self:RegisterFilter("NEXTINSANITY",L["Next Insanity"])
+  self:RegisterFilter("LUNAPOWER",L["Luna Power"])
   self:RegisterFilter("INSANITYDRAINSTACK",L["Insanity Drain"])
   -- self:RegisterFilter("FOCUSTTM",L["Focus TTM"])
   self:RegisterFilter("TOTEMTIME",L["Totem Time"],{name={},value={},greater={}},{
@@ -704,6 +705,40 @@ function F:NEXTINSANITY(filter)
     end
   end
   power = math.floor(power)
+  return power
+end
+
+function F:LUNAPOWER(filter)
+  filter.value = filter.value or 10
+  local power = Cache:Call("UnitPower","player",SPELL_POWER_LUNAR_POWER)
+
+  local cps = {
+    [202768] = 20,
+    [202767] = 10,
+    [202771] = 40,
+    [194153] = 12,
+    [109984] = 8,
+  }
+  local cpms = {
+    [194153] = 12,
+    [109984] = 8,
+  }
+  local castSpellId
+  local data = Cache.cache.casting:find({})
+  if data and GetTime() - data.endTime/1000 < 0.3 then
+    castSpellId  = data.spellId
+  end
+  if castSpellId then
+    local buffs = Cache:GetBuffs(UnitGUID("player"),"player",{[202737]=true})
+    local cp = cps[castSpellId]
+    if cp then
+      if cpms[castSpellId] and #buffs > 0 then
+        cp = cp*1.25
+      end
+      power = power + cp
+      -- print(cp,power)
+    end
+  end
   return power
 end
 

@@ -124,7 +124,7 @@ local FAR_AWAY = 1000
 function F:AAKFASTCORPSE(filter)
   local h = filter.name and filter.name[1]
   local cx,cy = GetCorpseMapPosition()
-  if cx and cy then
+  if cx and cx>0 and cy and cy>0 then
     local mapId = GetCurrentMapAreaID()
     local _,_,_,l,r,t,b = GetAreaMapInfo(mapId)
     l = -l
@@ -452,14 +452,9 @@ function F:INCIRCLE(filter)
   filter.unit = filter.unit or "target"
   filter.value = filter.value or 15
   local x2,y2,z2 = Cache:GetPosition(Cache:PlayerGUID())
-  --AirjCache:GetPosition(AirjCache:PlayerGUID())
-  -- dump({"INCIRCLE",filter})
+  -- dump(filter)
   filter.name = filter.name or x2 and {x2,y2,z2}
-  -- local name = {x2,y2,z2}
-  -- x2,y2,z2 = unpack(Core:ToValueTable(filter.name),1,3)
-  -- if not y2 or y2 == "" then
-  --   filter.name = name
-  -- end
+  x2,y2,z2 = unpack(filter.name,1,3)
   local guid1 = Cache:UnitGUID(filter.unit)
   local x1,y1,z1,_,distance = Cache:GetPosition(guid1)
   if not x1 then return FAR_AWAY end

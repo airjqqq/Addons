@@ -1446,6 +1446,7 @@ function R:OnEnable()
           m:SetColor(0,1,0,0.2)
           demonicObelisk[guid] = m
           Core:SetIconT({index = 10, texture = GetSpellTexture(239785), duration = 9, size = 1, name = "", reverse = false})
+          Core:SetFurtureDamage({key="239785",duration=0.1,start = GetTime() + 9,damage=Core:GetDifficultyDamage(self.difficulty,100e4)})
         end
       end
     end
@@ -1461,18 +1462,26 @@ function R:OnEnable()
         --p1
         if spellId == 234310 and Core:GetPlayerGUID() == destGUID then
           local count = select(2,...)
+          count = count or 1
           Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 60, expires = now + 60, name = GetSpellInfo(spellId), count = count, scale = false})
+          Core:SetFurtureDamage({key=spellId..":"..destGUID,duration=60,guid=destGUID,damage=Core:GetDifficultyDamage(self.difficulty,count*30*65e4)})
         end
         if spellId == 236710 and Core:GetPlayerGUID() == destGUID then
           Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 8, start = nil, expires = nil, size = 2, name = "映像", reverse = false})
           Core:SetVoice("gather")
           Core:SetScreen(0.5,0,1)
           Core:SetTextT({text1 = "|cffff0000映像点你: |cff00ffff{number}|r", text2 = "|cff00ff00映像结束|r",start = nil,expires = now+8})
+          Core:SetFurtureDamage({key=spellId..":1",duration=0.1,start=now+11,damage=Core:GetDifficultyDamage(self.difficulty,50e4)})
+          Core:SetFurtureDamage({key=spellId..":2",duration=0.1,start=now+14,damage=Core:GetDifficultyDamage(self.difficulty,200e4)})
           for i = 0,3 do
             Core:SetSay(""..i,now + 8 - i)
           end
         end
         if spellId == 239932 then
+          local guid = UnitGUID("boss1target")
+          if guid then
+            Core:SetFurtureDamage({key=spellId,guid=guid,duration=9,damage=Core:GetDifficultyDamage(self.difficulty,300e4*5)})
+          end
           if UnitIsUnit("boss1target","player") then
             Core:SetVoice("defensive",now+6)
             Core:SetTextT({text1 = "|cffffff00邪爪开始|r", text2 = "",start = nil,expires = now+2})
@@ -1524,6 +1533,7 @@ function R:OnEnable()
           self.phase = 3
           self.basetime = now
           Core:SetVoice("pthree")
+          Core:SetFurtureDamage({key="241983"..":dot",start=now+7.5,duration=60,damage=0})
         end
       end
       if event == "SPELL_CAST_START" then
@@ -1541,6 +1551,7 @@ function R:OnEnable()
           self.phase = 2.5
           self.basetime = now
           Core:SetVoice("phasechange")
+          Core:SetFurtureDamage({key=spellId..":dot",start=now+7.5,duration=60,damage=Core:GetDifficultyDamage(self.difficulty,30e4*60)})
         end
         if spellId == 238999 then
           p3aoecount = p3aoecount + 1
@@ -1551,6 +1562,8 @@ function R:OnEnable()
             Core:SetVoice("justrun",now+7)
           else
             Core:SetVoice("defensive",now+5)
+            Core:SetFurtureDamage({key=spellId,start=now+9,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,450e4)})
+            Core:SetFurtureDamage({key=spellId..":dot",start=now+9,duration=400,damage=Core:GetDifficultyDamage(self.difficulty,30e4*400)})
           end
           Core:SetVoice("safenow",now+9)
         end
@@ -1558,6 +1571,7 @@ function R:OnEnable()
       if event == "SPELL_CAST_SUCCESS" then
         if spellId == 238430 then
           Core:CreateCooldown({guid = destGUID,spellId = spellId,radius = 5,duration = 5,color = {1,1,0},alpha = 0.15,})
+          Core:SetFurtureDamage({key=spellId..":"..destGUID,start=now+5,guid = destGUID,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,200e4)})
           if Core:GetPlayerGUID() == destGUID then
             Core:SetIcon(1,GetSpellTexture(spellId),2,5)
             -- Core:SetIcon(1,GetSpellTexture(238430),2,5)
@@ -1594,6 +1608,7 @@ function R:OnEnable()
         Core:SetTextT({text1 = "|cffffff00准备击飞: |cff00ffff{number}|r", text2 = "|cff00ff00击飞...|r",expires = now+10,start = now+5})
         Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 10, name = "奇点", reverse = false})
         Core:SetScreen(0,1,1)
+        Core:SetFurtureDamage({key=spellId,start=now+10,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,80e4)})
       end
       if msg:find("238502") then
         local spellId = 238502
@@ -1618,6 +1633,8 @@ function R:OnEnable()
         if unit then
           Core:CreateBeam({fromUnit= "boss1",toGUID = UnitGUID(unit),width = 6,length = 100,color = {1,0,0},alpha = 0.2,removes = now + 5})
           Core:CreateCooldown({guid = UnitGUID(unit),spellId = spellId,radius = 8,duration = 5,color = {1,0,0},alpha = 0.2})
+          local guid = UnitGUID(unit)
+          Core:SetFurtureDamage({key=spellId..":"..guid,start=now+5,duration=0.1,guid=guid,damage=Core:GetDifficultyDamage(self.difficulty,200e4)})
         end
       end
     end

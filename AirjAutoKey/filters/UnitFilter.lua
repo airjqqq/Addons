@@ -103,6 +103,13 @@ function F:PVEATTACK(filter)
       return false
     end
   end
+  if #Cache:GetBuffs(guid,filter.unit,{
+    [235308] = true,
+    [235306] = true,
+    [235089] = true,
+  })>0 then
+    return false
+  end
 
   return true
 end

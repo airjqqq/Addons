@@ -178,6 +178,7 @@ end
 
 local hpsMythic = 40e4
 local function getHPS(guid)
+  local bossmod = AirjBossMods:GetCurrentBossMod()
   local hps = AirjBossMods:GetDifficultyDamage(bossmod.difficulty,hpsMythic)
   local id, name, description, icon, role, class = Cache:GetSpecInfo(guid)
   if role == "TANK" then

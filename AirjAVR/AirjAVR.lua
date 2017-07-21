@@ -150,7 +150,17 @@ function Core:GetUnitList()
 	self.unitListCache=list
 	return list
 end
-
+local hlti = 0
+local hltc = {
+	{1,0,0},
+	{1,1,0},
+	{0,1,0},
+	{0,1,1},
+	{0,0,1},
+	{1,0,1},
+	{1,1,1},
+	{0,0,0},
+}
 function Core:AIRJ_HACK_OBJECT_CREATED(event,guid,type)
   if bit.band(type,0x2)==0 then
     local objectType,serverId,instanceId,zone,cid,spawn = self:GetGUIDInfo(guid)
@@ -242,21 +252,39 @@ function Core:AIRJ_HACK_OBJECT_CREATED(event,guid,type)
 			self.objectHistory:push(history)
 		end
   end
+	if 1 then
+    local objectType,serverId,instanceId,zone,cid,spawn = self:GetGUIDInfo(guid)
+		if cid == 115947 then
+			hlti = hlti + 1
 
-	if self.debug then
-    -- local objectType,serverId,instanceId,zone,cid,spawn = self:GetGUIDInfo(guid)
-		-- local id = self:CreateCooldown({
-		-- 	guid = guid,
-		-- 	radius = 10,
-		-- 	duration = 5,
-		-- 	color = {0,1,0},
-		-- 	alpha = 0.5,
-		-- 	text = guid,
-		-- })
-		-- print(guid)
-		-- local key = "Create - Cooldown - " .. guid
-		-- self.registerCreateMeshs[key] = id
+			local id = self:CreateCooldown({
+				guid = guid,
+				radius = 2,
+				duration = 3600,
+				color = hltc[hlti%8],
+				alpha = 0.2,
+				text = "",
+			})
+			-- print(guid)
+			local key = "Create - Cooldown - " .. guid
+			self.registerCreateMeshs[key] = id
+		end
 	end
+
+	-- if self.debug then
+  --   local objectType,serverId,instanceId,zone,cid,spawn = self:GetGUIDInfo(guid)
+	-- 	local id = self:CreateCooldown({
+	-- 		guid = guid,
+	-- 		radius = 3,
+	-- 		duration = 15,
+	-- 		color = {0,1,0},
+	-- 		alpha = 0.1,
+	-- 		text = guid,
+	-- 	})
+	-- 	-- print(guid)
+	-- 	local key = "Create - Cooldown - " .. guid
+	-- 	self.registerCreateMeshs[key] = id
+	-- end
 end
 
 function Core:AIRJ_HACK_OBJECT_DESTROYED(event,guid,type)
