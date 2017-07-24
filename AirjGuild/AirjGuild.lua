@@ -63,6 +63,10 @@ function Core:OnEnable()
   self:RegisterChatCommand("ag", function(str)
     self:CheckAndTogglePointIndexSelector("ChatCommand")
   end)
+  self:RegisterChatCommand("agw", function(str)
+    str = str or WORLDMESSAGE
+    self:World(600,"大脚世界频道",str)
+  end)
   self:UpdateGuildRosterInfo()
 end
 
@@ -102,14 +106,20 @@ function Core:WorldTimer()
     local dontBeKick = IsInRaid() and UnitAffectingCombat("player")
     if (GetTime()>self.worldLastTime + inv) and self.worldAll > inv/10 and not dontBeKick then
       self.worldLastTime = GetTime()
-      local i = getRandomIndex(#messages)
-      while messages.index == i do
-        i = getRandomIndex(#messages)
+      local message
+      if type(messages) == "type" then
+        local i = getRandomIndex(#messages)
+        while messages.index == i do
+          i = getRandomIndex(#messages)
+        end
+        messages.index = i
+        message = messages[i]
+      else
+        message = messages
       end
-      messages.index = i
-      local message = messages[i]
       print(c,message)
       SendChatMessage(message,"CHANNEL",nil,c)
+      self.worldInterval = self.worldIntervalBase * (1+math.random())/2
     end
   end
 end
@@ -224,7 +234,8 @@ end
 
 function Core:World(interval,channel,message)
   -- dump(self)
-  self.worldInterval,self.worldChannel,self.worldMessage = interval,channel,message
+  self.worldIntervalBase = interval
+  self.worldInterval,self.worldChannel,self.worldMessage = interval*(1+math.random())/2,channel,message
 end
 function Core:GuildAnnouncement(interval,message)
   self.gaInterval,self.gaMessage = interval,message
@@ -237,6 +248,7 @@ local nameToFullName = {}
 function Core:CHAT_MSG_WHISPER(event,message, sender, language, channelString, target, flags, unknown, channelNumber, channelName, unknown, counter, guid)
   local playerRealm = GetRealmName()
   local senderRealm = select(2,strsplit("-",sender))
+  local nrname = select(1,strsplit("-",sender))
   if not senderRealm or senderRealm == playerRealm then
     if message:upper() == "TB" or message:upper() == "STANDBY" or message == "替补" then
       self.db.standbyList[sender] = GetTime()+15*60
@@ -249,7 +261,7 @@ function Core:CHAT_MSG_WHISPER(event,message, sender, language, channelString, t
     else
       self:UpdateGuildRosterInfo()
       if not guildRosterInfo[sender] and not nameToFullName[sender] then
-        if not nextAutoGuildInfo[sender] or nextAutoGuildInfo[sender]<GetTime() then
+        if not nextAutoGuildInfo[nrname] or nextAutoGuildInfo[nrname]<GetTime() then
           self:ScheduleTimer(function()
             self:ScheduleTimer(function()
               SendChatMessage(RAID1DETAIL,"WHISPER",nil,sender)
@@ -264,7 +276,7 @@ function Core:CHAT_MSG_WHISPER(event,message, sender, language, channelString, t
               end
             end,3)
           end,3)
-          nextAutoGuildInfo[sender] = GetTime()+900
+          nextAutoGuildInfo[nrname] = GetTime()+900
         end
       end
     end

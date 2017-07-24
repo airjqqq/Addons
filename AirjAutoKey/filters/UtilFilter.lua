@@ -34,6 +34,7 @@ function F:OnInitialize()
   self:RegisterFilter("SPELLCOUNT",L["Spell Count"])
   self:RegisterFilter("ICD",L["Item Cooldown"])
   self:RegisterFilter("ECD",L["Equipt Cooldown"])
+  self:RegisterFilter("SCANBAG",L["Scan Bag"],{unit={},name={name="lua string"},greater={},value={}})
   self:RegisterFilter("EITEM",L["Equipt Item"])
   self:RegisterFilter("CHARGE",L["Spell Charge"])
   self:RegisterFilter("SPELLCOST",L["Spell Cost"])
@@ -68,6 +69,19 @@ function F:OnInitialize()
   self:ScheduleRepeatingTimer(function()
     self:InsanityTimer()
   end,0.01)
+end
+
+function F:OnEnable()
+  local button=AAKItemButton
+  if not button then
+    button = CreateFrame("Button","AAKItemButton",nil,"SecureActionButtonTemplate")
+    button:SetAttribute("type","macro")
+  end
+  local tooltip=AAKTooltip
+  if not tooltip then
+    tooltip = CreateFrame("GameTooltip","AAKTooltip",UIParent,"GameTooltipTemplate")
+    tooltip:SetOwner(UIParent,"ANCHOR_NONE")
+  end
 end
 
 function F:RegisterFilter(key,name,keys,subtypes,c)
@@ -182,7 +196,7 @@ local function checkEnemyInRange (radius,unit)
   for guid,data in pairs(Cache.exists) do
     if data[2] then
       local health,_,_,_,_,isdead = Cache:GetHealth(guid)
-      if health > 100 and isdead==false then
+      if health and health > 100 and isdead==false then
         local x,y,z,f,d,s = Cache:GetPosition(guid)
         if x then
           if not unit then
@@ -739,6 +753,10 @@ function F:LUNAPOWER(filter)
       -- print(cp,power)
     end
   end
+  if filter.value < 0 then
+    local max = Cache:Call("UnitPowerMax","player",SPELL_POWER_LUNAR_POWER)
+    power = power - max
+  end
   return power
 end
 
@@ -781,6 +799,34 @@ function F:ECD(filter)
   if enable~=1 then return 300 end
   if start == 0 then return 0 end
   return (duration - (GetTime() - start))
+end
+function F:SCANBAG(filter)
+  local luas = [[
+  local filter,toRet = ...
+  for bag=0,4 do
+    for slot=1,GetContainerNumSlots(bag)do
+      local infos={GetItemInfo(GetContainerItemLink(bag,slot)or 0)}
+      if infos[1] then
+        AAKTooltip:SetBagItem(bag,slot)
+        local tooltips = {}
+        local ln = AAKTooltip:NumLines()
+        for i=1,ln do
+          local text=_G["AAKTooltipTextLeft"..i]:GetText()
+          tinsert(tooltips,text)
+        end
+        toRet[1] = infos[1]
+  ]]..table.concat(filter.name,",")..[[
+        toRet[1] = nil
+      end
+    end
+  end
+  ]]
+  local toRet = {}
+  local tr = loadstring(luas)(filter,toRet)
+  if toRet[1] then
+    AAKItemButton:SetAttribute("macrotext","/use "..toRet[1])
+  end
+  return tr
 end
 function F:EITEM(filter)
   assert(type(filter.name)=="table")

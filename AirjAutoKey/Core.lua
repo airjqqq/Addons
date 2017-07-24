@@ -21,7 +21,10 @@ function Core:OnEnable()
 
 	self:SecureHook("UseAction", function(slot, target, button)
 		-- self:SetParamTemporary("auto",false,0.4)
+    -- print(slot, target, button)
+    if slot == 169 and button == "RightButton" then return end
     self:OnChatCommmand("onceGCD",-0.4)
+
 	end)
 
   self.paramTimer = self:ScheduleRepeatingTimer(function()
@@ -148,8 +151,18 @@ do
 
   function Core:SelectRotation(index)
     self.param.selectedRotationIndex = index
+    self.param.editingRotationIndex = index
     self.rotationDB = self.rotationDataBaseArray[index]
     return self.rotationDB
+  end
+
+  function Core:SetEditingRotation(index)
+    self.param.editingRotationIndex = index
+  end
+
+  function Core:GetEidtingRotation()
+    local index = self.param.editingRotationIndex
+    return index and self.rotationDataBaseArray[index]
   end
 
   function Core:SelectSuitableRotation(defaultIndex)
@@ -346,6 +359,8 @@ do
     petattack = "/petattack _air_",
     petfollow = "/petfollow",
     loot = "/run AirjHack:Loot()",
+    clicki = "/click AAKItemButton",
+    extra = "/click ExtraActionButton1 RightButton",
   }
   local found = {}
   local groupDeep = 1
@@ -398,6 +413,27 @@ do
       for i,sequence in ipairs(sequenceArray) do
         if sequence.spell == name or sequence.note == name then
           return self:ExecuteSequence(sequence,unit)
+        end
+      end
+    end
+  end
+  function Core:ExecuteSpecificRotation(name,unit)
+    -- print("ExecuteSpecificRotation",name)
+    -- unit = unit or self:GetAirUnit()
+
+    local sequenceArray = self.rotationDB.spellArray
+    for i,rotation in ipairs(self.rotationDataBaseArray) do
+      -- dump(rotation)
+      if rotation.class == "_TEMPLATE" and rotation.note == name then
+        -- print("ExecuteSpecificRotation",name)
+        -- dump(rotation)
+        return self:ExecuteGroupSequence(rotation.spellArray,unit)
+      end
+      if rotation.class == "_TEMPLATE" and rotation.note == "all" then
+        for i,sequence in ipairs(rotation.spellArray) do
+          if sequence.spell == name or sequence.note == name then
+            return self:ExecuteSequence(sequence,unit)
+          end
         end
       end
     end
@@ -469,6 +505,13 @@ do
     local m,s,u = strsplit(" ",sequence.spell or "")
     if m == "runs" then
       local f = self:ExecuteSpecificSequence(s,u or unit)
+      if f and not sequence.continue then
+        found[groupDeep] = true
+        self:SetAirUnit()
+        return true
+      end
+    elseif m == "runr" then
+      local f = self:ExecuteSpecificRotation(s,u or unit)
       if f and not sequence.continue then
         found[groupDeep] = true
         self:SetAirUnit()

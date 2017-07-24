@@ -251,25 +251,25 @@ function Core:AIRJ_HACK_OBJECT_CREATED(event,guid,type)
 		if objectHistory then
 			self.objectHistory:push(history)
 		end
-  end
-	if 1 then
-    local objectType,serverId,instanceId,zone,cid,spawn = self:GetGUIDInfo(guid)
-		if cid == 115947 then
-			hlti = hlti + 1
+		if 1 then
+	    local objectType,serverId,instanceId,zone,cid,spawn = self:GetGUIDInfo(guid)
+			if cid == 115947 then
+				hlti = hlti + 1
 
-			local id = self:CreateCooldown({
-				guid = guid,
-				radius = 2,
-				duration = 3600,
-				color = hltc[hlti%8],
-				alpha = 0.2,
-				text = "",
-			})
-			-- print(guid)
-			local key = "Create - Cooldown - " .. guid
-			self.registerCreateMeshs[key] = id
+				local id = self:CreateCooldown({
+					guid = guid,
+					radius = 2,
+					duration = 3600,
+					color = hltc[hlti%8],
+					alpha = 0.2,
+					text = "",
+				})
+				-- print(guid)
+				local key = "Create - Cooldown - " .. guid
+				self.registerCreateMeshs[key] = id
+			end
 		end
-	end
+  end
 
 	-- if self.debug then
   --   local objectType,serverId,instanceId,zone,cid,spawn = self:GetGUIDInfo(guid)

@@ -132,6 +132,7 @@ function F:AAKFASTCORPSE(filter)
     cx = l+(r-l)*cx
     cy = t+(b-t)*cy
     AirjMove:MoveTo({cx,cy,-10000},h)
+    print(cx,cy,h)
     return true
   end
 end

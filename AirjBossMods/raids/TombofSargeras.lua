@@ -482,6 +482,7 @@ function R:OnEnable()
       Core:RegisterAuraBeam(241600,{width = 0.2, alpha = 0.2, color = {0,1,0,0.2}})
       Core:RegisterAuraCooldown(241600,{radius = 5, color = {0,1,0,0.2}})
       Core:RegisterAuraCooldown(231729,{radius = 6, color = {0,1,1,0.2}})
+      -- Core:RegisterCreatureBeam(120545,{width = 1,alpha = 0.3,color={1,0,0,0.3},removes = GetTime() + 1e9})
     end
     function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
       local now = GetTime()
@@ -498,7 +499,7 @@ function R:OnEnable()
         if Core:GetPlayerGUID() == destGUID then
           Core:SetTextT({text1 = "|cffffff00流血 - |cff00ffff"..count.."|cffffff00层|r", expires = now+2, removes = now+2})
           Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 30, name = GetSpellInfo(spellId), count = count, scale = false})
-          Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 30, removes = now + 2, name = GetSpellInfo(spellId), size = 2, count = count})
+          -- Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 30, removes = now + 2, name = GetSpellInfo(spellId), size = 2, count = count})
         else
           if Core:GetPlayerRole() == "TANK" then
             local hasDebuff,rank, icon, count, dispelType, duration, expires = UnitDebuff("player",spellName)

@@ -26,8 +26,10 @@ function mod:OnInitialize()
 	local tabGroup = AceGUI:Create("TabGroup")
 	tabGroup:SetTabs(self.tabs)
 	tabGroup:SetCallback("OnGroupSelected",function(widget,event,value)
-		self[self.tabOnSelectMethod[value]](self)
+		self.currentTab = self.tabOnSelectMethod[value]
+		self[self.currentTab](self)
 	end)
+	self.currentTab = "RotationSelect"
 	mainFrame:SetLayout("Fill")
 	mainFrame:AddChild(tabGroup)
 	self.tabGroup = tabGroup
@@ -50,6 +52,7 @@ function mod:OnInitialize()
 			mainFrame:SetPoint("CENTER",UIParent)
 			-- mainFrame:
 		else
+			self[self.currentTab](self)
 			mod:Toggle()
 		end
 	end)

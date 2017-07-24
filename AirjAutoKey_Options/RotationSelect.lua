@@ -4,6 +4,7 @@ local AirjAutoKey = AirjAutoKey
 local AceGUI = LibStub("AceGUI-3.0")
 local f2n = {}
 FillLocalizedClassList(f2n)
+f2n._TEMPLATE = "模版"
 local specId = {}
 for i = 1,1000 do
 	local _,specName,_,_,_,class = GetSpecializationInfoByID(i)
@@ -77,9 +78,9 @@ function mod:CreateMainConfigGroup()
 			width = 160,
 		},
 		{
-			key = "send",
+			key = "edit",
 			widget = "Button",
-			text = "发送",
+			text = "编辑",
 			desc = "",
 			width = 160,
 		},
@@ -115,10 +116,32 @@ function mod:CreateMainConfigGroup()
 			desc = "按住Ctrl",
 		},
 		{
+			key = "send",
+			widget = "Button",
+			text = "发送",
+			desc = "",
+			width = 160,
+		},
+		{
+			key = "heading1",
+			widget = "SimpleGroup",
+			text = "",
+			desc = "",
+			width = "fill",
+		},
+		{
 			key = "showotherclass",
 			widget = "CheckBox",
 			text = "显示其他职业",
 			desc = "",
+			width = 240,
+		},
+		{
+			key = "sort",
+			widget = "Button",
+			text = "排序",
+			desc = "按住Shift+Alt",
+			width = 240,
 		},
 		{
 			key = "heading1",
@@ -167,7 +190,7 @@ function mod:CreateMainConfigGroup()
 	group.class:SetCallback("OnValueChanged",function(widget,event,key)
 		local currentRotation = self:GetCurrentRotation()
 		currentRotation.class = key
-		local specList = specId[key]
+		local specList = key and specId[key] or {}
 		group.spec:SetText("")
 		group.spec:SetList(specList)
 		currentRotation.spec = nil
@@ -189,6 +212,10 @@ function mod:CreateMainConfigGroup()
 
 	group.select:SetCallback("OnClick", function(widget,event)
 		AirjAutoKey:SelectRotation(self.currentRotationIndex)
+		self:UpdateRotationTreeGroup()
+	end)
+	group.edit:SetCallback("OnClick", function(widget,event)
+		AirjAutoKey:SetEditingRotation(self.currentRotationIndex)
 		self:UpdateRotationTreeGroup()
 	end)
 	group.autoSwap:SetCallback("OnValueChanged", function(widget,event,key)
@@ -225,13 +252,38 @@ function mod:CreateMainConfigGroup()
 	group.delete:SetCallback("OnClick", function(widget,event)
 		if not IsControlKeyDown() then return end
 		tremove(AirjAutoKey.rotationDataBaseArray,self.currentRotationIndex)
-		if self.currentRotationIndex < AirjAutoKey:GetParam("selectedRotationIndex") then
-			AirjAutoKey:SetParam("selectedRotationIndex", AirjAutoKey:GetParam("selectedRotationIndex") - 1)
-		elseif self.currentRotationIndex == AirjAutoKey:GetParam("selectedRotationIndex") then
-			AirjAutoKey:SelectRotation(AirjAutoKey:GetParam("selectedRotationIndex") - 1)
+		local sri = AirjAutoKey:GetParam("selectedRotationIndex")
+		if self.currentRotationIndex <= sri then
+			AirjAutoKey:SelectRotation(sri - 1)
 		end
 		if self.currentRotationIndex and self.currentRotationIndex>1 then
 			self.currentRotationIndex = self.currentRotationIndex - 1
+		end
+		self:UpdateRotationTreeGroup()
+	end)
+	group.sort:SetCallback("OnClick", function(widget,event)
+		if not IsAltKeyDown() then return end
+		if not IsShiftKeyDown() then return end
+		local srindex = AirjAutoKey:GetParam("selectedRotationIndex")
+		local sa = AirjAutoKey.rotationDataBaseArray[srindex]
+		table.sort(AirjAutoKey.rotationDataBaseArray,function(a,b)
+      if a == nil or b == nil then
+        return false
+      end
+      if a == b then
+				return false
+			end
+			if (a.spec or 0) ~= (b.spec or 0) then
+				return (a.spec or 0)<=(b.spec or 0)
+			end
+			return (a.note or "")<=(b.note or "")
+		end)
+		for i,v in ipairs(AirjAutoKey.rotationDataBaseArray) do
+			if v == sa then
+				self.currentRotationIndex = i
+				AirjAutoKey:SelectRotation(i)
+				break
+			end
 		end
 		self:UpdateRotationTreeGroup()
 	end)
@@ -262,6 +314,7 @@ function mod:UpdateMainConfigGroup()
 	group.note:SetText(rotation.note)
 	group.note:SetDisabled(rotation.isDefault)
 	group.select:SetDisabled(AirjAutoKey:GetParam("selectedRotationIndex") == self.currentRotationIndex)
+	group.edit:SetDisabled(AirjAutoKey:GetParam("editingRotationIndex") == self.currentRotationIndex)
 	group.autoSwap:SetValue(rotation.autoSwap)
 	group.delete:SetDisabled(rotation.isDefault)
 	group.inst:SetDisabled(rotation.isDefault)
@@ -310,11 +363,12 @@ function mod:UpdateRotationTreeGroup()
 			name = "Undefined"
 		end
 		if AirjAutoKey:GetParam("selectedRotationIndex") == i then
-			name = "[|cff00ff00"..name.."|r]"
-		elseif v.isDefault then
-			name = "|cff00ffff"..name.."|r"
+			name = "|cff00ff00"..name.."|r"
 		end
-		if(self.showotherclass or class == playerClass or not class) then
+		if AirjAutoKey:GetParam("editingRotationIndex") == i then
+			name = "[|cff00ffff"..name.."|r]"
+		end
+		if(self.showotherclass or class == playerClass or class == "_TEMPLATE" or not class) then
 			tinsert(tree,{value = i,icon = icon,text = name})
 		end
 	end

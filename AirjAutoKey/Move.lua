@@ -263,7 +263,7 @@ function M:MoveTimer()
 		return
 	end
 
-	if UnitIsDeadOrGhost("player") then
+	if UnitIsDead("player") then
 		self:MoveAsHard()
 		movinglast = 0
 		return
@@ -453,7 +453,8 @@ function M:MoveTimer()
 		-- 	end
 		-- end
 	end
-	if targetDistanceXY and moveDistanceXY<5 and moveDistanceXY>1 and targetDistanceZ>1 or targetDistanceZ and targetDistanceZ>10 then
+	-- print(moveDistanceXY,targetDistanceZ)
+	if targetDistanceXY and moveDistanceXY<5 and targetDistanceZ>1 and (self.goto.targetType == "point" or moveDistanceXY>1) or targetDistanceZ and targetDistanceZ>10 then
 		moves[7] = 1
 	end
 	if stop  and moveDistance < 15 then
@@ -1056,11 +1057,11 @@ function M:CruiseTimer()
 	local data = self:GetCruiseDate()
 	if not data then return end
 	local j = #data
-	local minDistance,minDistanceT,minDistanceI,minDistanceJ,minDistanceData,minDistance2
+	local minDistance,minDistanceT,minDistanceI,minDistanceJ,minDistanceData,minDistance2,minDistanceXY,minDistanceZ
 	-- local dd={}
 	for i = 1,#data do
 		if i ~= 1 or not data.noloop then
-			local d,t = self:GetDistanceToLine(data[i],data[j],nil,true)
+			local d,t,d2,dz = self:GetDistanceToLine(data[i],data[j],nil,true)
 			-- dd[i] = d
 			local continueOffset = 0
 			if lastI then
@@ -1072,6 +1073,8 @@ function M:CruiseTimer()
 			end
 			if not minDistance2 or (d - continueOffset<minDistance2) then
 				minDistance = d
+				minDistanceXY = d2
+				minDistanceZ = dz
 				minDistance2 = d - continueOffset
 				minDistanceT = t
 				minDistanceI = i
@@ -1086,7 +1089,7 @@ function M:CruiseTimer()
 	-- print()
 	if minDistance then
 		local lastD = self.lastMinDistance or 1000
-		if minDistance < 5 and lastD<4 or minDistance<2 then
+		if (minDistance < 5 and lastD<4 or minDistance<2) or (minDistanceXY and minDistanceXY<2 and not IsFlying() and minDistanceZ and minDistanceZ < 2) then
 			self.lastMinDistance = minDistance
 			local i = minDistanceI
 			if lastI then
@@ -1103,9 +1106,11 @@ function M:CruiseTimer()
 				local checkWait = lastData and lastI == i - 1
 				if checkWait then
 					if lastData.wait then
-						if not lastData.waitTriggered or GetTime() - lastData.waitTriggered > lastData.wait + 10 then
+						-- print(GetTime() - (lastData.waitTriggered or 0))
+						if not lastData.waitTriggered or GetTime() - lastData.waitTriggered > lastData.wait + 10 or GetTime() - lastData.waitTriggered <0 then
 							waitTo = lastData.wait + GetTime()
 							lastData.waitTriggered = GetTime()
+							-- print("wait "..lastData.wait)
 						end
 					end
 				end
@@ -1144,6 +1149,7 @@ function M:CruiseTimer()
 					p[2] = py
 				end
 					self:SetMoveTarget("point",p)
+					-- print(p[1],p[2],p[3])
 			end
 			-- out of cruise
 		end
@@ -1177,7 +1183,12 @@ function M:GetDistanceToLine(p1,p2,p,inline)
 		d = d + ((p1[i]-p[i])+(p2[i]-p1[i])*t)^2
 	end
 	d = sqrt(d)
-	return d,t
+	local d2 = 0
+	for i=1,2 do
+		d2 = d2 + ((p1[i]-p[i])+(p2[i]-p1[i])*t)^2
+	end
+	d2 = sqrt(d2)
+	return d,t,d2,(p1[3]-p[3])+(p2[3]-p1[3])*t
 end
 
 

@@ -1117,7 +1117,7 @@ function mod:GetSpellTreeElement(spell)
 	end
 	if v.disable then
 		text = "|cff7f00ff" .. text .. "|r"
-	elseif AirjAutoKey.rotationDB.macroArray[v.spell or "_"] or AirjAutoKey:GetPresetMacro(v.spell or "_") then
+	elseif AirjAutoKey:GetEidtingRotation().macroArray[v.spell or "_"] or AirjAutoKey:GetPresetMacro(v.spell or "_") then
 		text = "|cff00ff00" .. text .. "|r"
 	end
 
@@ -1756,13 +1756,13 @@ end
 
 function parent:SpellSetting()
 	setupTypeList()
-	if mod.currentSpellArray ~= AirjAutoKey.rotationDB.spellArray then
-		mod.currentSpellArray = AirjAutoKey.rotationDB.spellArray
+	if mod.currentSpellArray ~= AirjAutoKey:GetEidtingRotation().spellArray then
+		mod.currentSpellArray = AirjAutoKey:GetEidtingRotation().spellArray
 		local spell
 		mod.currentSpellPath,spell = next(mod.currentSpellArray)
 		local filterArray = spell and spell.filter or {}
 		mod.currentFilterPath = next(filterArray)
-		mod.isDefault = AirjAutoKey.rotationDB.isDefault
+		mod.isDefault = AirjAutoKey:GetEidtingRotation().isDefault
 	end
 	mod:SpellSetting()
 end

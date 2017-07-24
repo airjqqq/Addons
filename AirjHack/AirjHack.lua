@@ -254,6 +254,10 @@ function mod:Interact(guid)
 	end
 end
 ---/run AirjHack:InteractUID(94194)
+local ignores = {
+	[91983] = true,
+	[92017] = true,
+}
 function mod:InteractUID(uid)
   if not self:HasHacked() then return end
 	local guids = self:GetObjects()
@@ -264,9 +268,9 @@ function mod:InteractUID(uid)
 		if ot == "Creature" or ot == "GameObject" then
 		-- print(oid)
 			local interact
-			if not uid and not self:UnitCanAttack(playerGUID,guid) then
+			if not uid and not self:UnitCanAttack(playerGUID,guid) and not ignores[oid] then
 				local x1,y1,z1,_,distance = AirjCache:GetPosition(guid)
-				if distance and distance <= 20 then
+				if distance and distance <= 15 then
 					interact = true
 				end
 			end

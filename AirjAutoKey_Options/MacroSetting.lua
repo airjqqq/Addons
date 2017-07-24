@@ -213,10 +213,10 @@ function mod:MacroSetting()
 end
 
 function parent:MacroSetting()
-	if mod.currentMacroArray ~= AirjAutoKey.rotationDB.macroArray then
-		mod.currentMacroArray = AirjAutoKey.rotationDB.macroArray
+	if mod.currentMacroArray ~= AirjAutoKey:GetEidtingRotation().macroArray then
+		mod.currentMacroArray = AirjAutoKey:GetEidtingRotation().macroArray
 		mod.currentMacroIndex = next(mod.currentMacroArray)
-		mod.isDefault = AirjAutoKey.rotationDB.isDefault
+		mod.isDefault = AirjAutoKey:GetEidtingRotation().isDefault
 	end
 	mod:MacroSetting()
 end

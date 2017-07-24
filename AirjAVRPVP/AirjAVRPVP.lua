@@ -10,12 +10,12 @@ AirjAVRPVP = mod
 function mod:OnEnable()
   --constants
   local stun = {
-    color={1,0.0,0,0.3},
-    radius=4,
+    color={1,0.0,0,0.2},
+    radius=3,
   }
   local cc = {
-    color={1,1,0,0.1},
-    radius=5,
+    color={1,1,0,0.2},
+    radius=4,
   }
   local root = {
     color={0.0,0.2,0.5,0.05},
@@ -376,10 +376,10 @@ function mod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sou
       Core:CreateCooldown({
 				guid = destGUID,
 				spellId = spellId,
-				radius = 5,
+				radius = 2,
 				duration = d,
 				color = {0.3,0.7,0},
-				alpha = 0.3,
+				alpha = 0.2,
 			})
     end
   end
