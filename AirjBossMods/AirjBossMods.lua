@@ -720,6 +720,18 @@ function Core:GetPlayerRole()
   return i and GetSpecializationRole(i)
 end
 
+function Core:GetCid(guid)
+  if not guid then return end
+  local guids = {string.split("-",guid)}
+  local objectType,serverId,instanceId,zone,id,spawn
+  objectType = guids[1]
+  if objectType == "Player" then
+  elseif objectType == "Creature" or objectType == "GameObject" or objectType == "AreaTrigger" or objectType == "Pet" then
+    objectType,_,serverId,instanceId,zone,id,spawn = unpack(guids)
+		id = tonumber(id)
+  end
+  return id,objectType
+end
 function Core:GetTestBossMod()
   return self.bossMods[0]
 end

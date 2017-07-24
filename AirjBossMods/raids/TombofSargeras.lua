@@ -208,7 +208,7 @@ function R:OnEnable()
       for i = 1,40 do
         local unit = "raid"..i
         local guid = UnitGUID(unit)
-        if guid and (not comets[guid] or now - comets[guid] > 10) then
+        if guid and (not comets[guid] or (now - comets[guid] > 10)) then
           local hasDebuff, _, _, _, _, _, _, _, _, _, spellId = UnitDebuff(unit, cometName)
           if hasDebuff and spellId == 232249 then
             comets[guid] = now
@@ -242,7 +242,7 @@ function R:OnEnable()
               color = {1,0,0},
             },
             {
-              text = "分担",
+              text = "踩圈",
               time = 12,
               color = {0,1,1},
               disabled = difficulty ~= 16,
@@ -277,7 +277,7 @@ function R:OnEnable()
               color = {0,1,0},
             },
             {
-              text = "分担",
+              text = "踩圈",
               time = 22,
               color = {0,1,1},
               disabled = difficulty ~= 16,
@@ -467,6 +467,7 @@ function R:OnEnable()
     bossmod.furtureDamage = true
     local uncheckedRageCnt = 0
     local aoeCnt = 0
+    local mobiconindex = 0
     local function initDamage()
       local now = GetTime()
       uncheckedRageCnt = 0
@@ -476,13 +477,18 @@ function R:OnEnable()
     function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
       uncheckedRageCnt = 0
       aoeCnt = 0
+      mobiconindex = 0
       initDamage()
-      Core:RegisterAuraBeam(234016,{width = 0.2, alpha = 0.2, color = {1,0,0,0.2}})
+      Core:RegisterAuraBeam(234016,{width = 0.5, alpha = 0.2, color = {1,0,0,0.2}})
       Core:RegisterAuraCooldown(234016,{radius = 5, color = {1,0,0,0.2}})
       Core:RegisterAuraBeam(241600,{width = 0.2, alpha = 0.2, color = {0,1,0,0.2}})
-      Core:RegisterAuraCooldown(241600,{radius = 5, color = {0,1,0,0.2}})
+      -- Core:RegisterAuraCooldown(241600,{radius = 5, color = {0,1,0,0.2}})
       Core:RegisterAuraCooldown(231729,{radius = 6, color = {0,1,1,0.2}})
+<<<<<<< HEAD
       -- Core:RegisterCreatureBeam(120545,{width = 1,alpha = 0.3,color={1,0,0,0.3},removes = GetTime() + 1e9})
+=======
+      Core:RegisterCreatureBeam(120545,{width = 0.5,alpha = 0.3,color={0,0,1,0.3}})
+>>>>>>> origin/master
     end
     function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
       local now = GetTime()
@@ -521,7 +527,7 @@ function R:OnEnable()
           Core:SetVoice("scatter",now+7)
           Core:SetVoice("watchstep",now+10)
           Core:SetTextT({text1 = "|cffffff00快分散|r", text2 = "|cff00ff00注意脚下|r", start = now+7,expires = now+10})
-          Core:SetScreen(1,0,0,0.5,now+7)
+          Core:SetScreen(0,0,1,0.5,now+7)
 
           Core:SetFurtureDamage({key="233520"..":"..(aoeCnt),start=now+10,duration=(aoeCnt)*7.5,damage=Core:GetDifficultyDamage(bossmod.difficulty,(aoeCnt)*5*44e4+140e4)})
         end
@@ -529,35 +535,40 @@ function R:OnEnable()
           Core:SetFurtureDamage({start=now+6,duration=0.1,guid=destGUID,damage=Core:GetDifficultyDamage(bossmod.difficulty,70e4)})
           if Core:GetPlayerGUID() == destGUID then
             Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 6, name = GetSpellInfo(spellId), size = 2})
-            Core:SetVoice("runout")
+            -- Core:SetVoice("runout")
+            Core:SetVoiceT({str="lan2       quan1      dian3      ni3",time=now+0})
             Core:SetTextT({text1 = "|cffffff00蓝圈点你|r", text2 = "|cff00ff00注意脚下|r", expires = now+6})
             Core:SetScreen(0,1,1,0.5)
+            for i = 0,3 do
+              Core:SetSay(""..i,now + 6 - i)
+            end
           end
         end
-        if spellId == 231729 then
+        if spellId == 234016 then
           Core:SetFurtureDamage({start=now+4,duration=6,guid=destGUID,damage=Core:GetDifficultyDamage(bossmod.difficulty,70e4)})
           if Core:GetPlayerGUID() == destGUID then
             Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 10, name = GetSpellInfo(spellId), size = 1})
-            Core:SetVoice("justrun")
-            Core:SetTextT({text1 = "|cffffff00角斗锁定你|r", text2 = "|cff00ff00锁定结束|r", expires = now+1})
-            Core:SetScreen(0.5,0,1,0.5)
+            -- Core:SetVoice("justrun")
+            Core:SetVoiceT({str="jiao3       dou4      suo3      ding4",time=now+0})
+            Core:SetTextT({text1 = "|cffffff00角斗锁定你|r", text2 = "|cff00ff00锁定结束|r", expires = now+10,removes = now + 2})
+            Core:SetScreen(1,1,0,0.5)
           end
         end
         if spellId == 241600 then
           if Core:GetPlayerGUID() == destGUID then
-            Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 10, name = GetSpellInfo(spellId), size = 1})
-            Core:SetVoice("justrun")
-            Core:SetTextT({text1 = "|cffffff00蝌蚪锁定你|r", text2 = "|cff00ff00锁定结束|r", expires = now+1})
-            Core:SetScreen(0.5,0,1,0.5)
+            -- Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 10, name = GetSpellInfo(spellId), size = 1})
+            -- Core:SetVoice("justrun")
+            -- Core:SetTextT({text1 = "|cffffff00蝌蚪锁定你|r", text2 = "|cff00ff00锁定结束|r", expires = now+1})
+            -- Core:SetScreen(0.5,0,1,0.5)
           end
         end
 
       end
       if event == "SPELL_AURA_REMOVED" then
-        if spellId == 231729 or spellId == 241600 then
+        if spellId == 234016 then
           if Core:GetPlayerGUID() == destGUID then
             Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 0, name = GetSpellInfo(spellId), size = 1})
-            Core:SetVoice("safenow")
+            -- Core:SetVoice("safenow")
             Core:SetTextT({text1 = "|cff00ff00锁定结束|r", expires = now+0})
           end
         end
@@ -568,17 +579,30 @@ function R:OnEnable()
         if event == "SPELL_AURA_REMOVED_DOSE" and count < 3 then
           Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 30, removes = now + 1, name = GetSpellInfo(spellId), size = 2, count = count})
           Core:SetTextT({text1 = "|cffffff00 P2即将结束:|cff00ffff{number}|r",text2 = "|cff00ff00P2结束|r", expires = now+count*1.5})
+          if count == 2 then
+            if UnitHealth("player")<200e4 then
+              Core:SetScreen(1,0,0,0.5)
+              -- Core:SetVoice("defensive")
+              Core:SetVoice("holdit")
+            end
+          end
         end
       end
       if event == "SPELL_CAST_START" then
+        if spellId == 231904 then
+          if Core:GetPlayerRole() ~= "HEALER" then
+            Core:SetVoice("kickcast")
+
+          end
+        end
         if spellId == 231854 then
           uncheckedRageCnt = uncheckedRageCnt + 1
-          Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 0.7, name = "集合分担", size = 1, reverse = false})
-          Core:SetTextT({text1 = "|cffff0000集合分担: |cff00ffff{number}|r", text2 = "|cff00ff00分担结束|r", expires = now+0.7})
-          Core:SetVoice("gathershare")
+          -- Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 0.7, name = "集合分担", size = 1, reverse = false})
           Core:SetFurtureDamage({key=spellId..":"..uncheckedRageCnt,start=now+0.7,duration=0.1,damage=Core:GetDifficultyDamage(bossmod.difficulty,200e4)})
           if uncheckedRageCnt == 1 then
             Core:SetFurtureDamage({key=spellId..":"..2,start=now+22.7,duration=0.1,damage=Core:GetDifficultyDamage(bossmod.difficulty,200e4)})
+          else
+            Core:SetVoice("killbigmob")
           end
         end
         if spellId == 232174 then
@@ -593,18 +617,50 @@ function R:OnEnable()
     function bossmod:UNIT_SPELLCAST_SUCCEEDED(aceEvent, uId, spellName, _, spellGUID)
     	local spellId = tonumber(select(5, strsplit("-", spellGUID)), 10)
       local now = GetTime()
+      if spellId == 240347 then
+        if UnitIsUnit("boss1target","player") then
+          Core:SetVoice("moveboss")
+          Core:SetScreen(0,1,1,0.5)
+        else
+          Core:SetVoice("bigmobsoon")
+        end
+      end
     end
-
-
-
     function bossmod:CHAT_MSG_RAID_BOSS_EMOTE(event, msg, sender, _, _, target)
       if msg:find("123456") then
       end
     end
 
-    local lastCometTime
+    local gatherTime
+    local seenMobs = {}
+    local mobtime
     function bossmod:Timer10ms()
       local now = GetTime()
+      local power = UnitPower("boss1")
+      if power >= 90 and (not gatherTime or (now - gatherTime > 10)) and bossmod.phase == 1 and (now - bossmod.basetime > 10) then
+        Core:SetTextT({text1 = "|cffff0000集合分担: |cff00ffff{number}|r", text2 = "|cff00ff00分担结束|r", expires = now+3})
+        Core:SetVoice("gathershare")
+        gatherTime = now
+      end
+
+    	for i = 1, 5 do
+    		local unit = "boss"..i
+    		local guid = UnitGUID(unit)
+    		if guid and not seenMobs[guid] then
+          seenMobs[guid] = true
+          local cid = Core:GetCid(guid)
+          if cid == 116569 then
+            if not mobtime or (now-mobtime>5) then
+              Core:SetVoice("killmob")
+              mobtime = now
+            end
+            if UnitIsGroupLeader("player") then
+              mobiconindex = mobiconindex + 1
+              SetRaidTarget(unit,7 + mobiconindex%2)
+            end
+          end
+        end
+      end
     end
     local timeline = {
       {
