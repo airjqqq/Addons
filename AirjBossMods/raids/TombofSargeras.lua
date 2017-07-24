@@ -484,11 +484,8 @@ function R:OnEnable()
       Core:RegisterAuraBeam(241600,{width = 0.2, alpha = 0.2, color = {0,1,0,0.2}})
       -- Core:RegisterAuraCooldown(241600,{radius = 5, color = {0,1,0,0.2}})
       Core:RegisterAuraCooldown(231729,{radius = 6, color = {0,1,1,0.2}})
-<<<<<<< HEAD
-      -- Core:RegisterCreatureBeam(120545,{width = 1,alpha = 0.3,color={1,0,0,0.3},removes = GetTime() + 1e9})
-=======
-      Core:RegisterCreatureBeam(120545,{width = 0.5,alpha = 0.3,color={0,0,1,0.3}})
->>>>>>> origin/master
+      -- Core:RegisterCreatureBeam(120545,{width = 0.5,alpha = 0.3,color={0,0,1,0.3}})
+      Core:RegisterAuraBeam(240315,{width = 0.5,alpha = 0.3,color={0,0,1,0.3}})
     end
     function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
       local now = GetTime()
@@ -619,7 +616,7 @@ function R:OnEnable()
       local now = GetTime()
       if spellId == 240347 then
         if UnitIsUnit("boss1target","player") then
-          Core:SetVoice("moveboss")
+          Core:SetVoice("bigmobsoon")
           Core:SetScreen(0,1,1,0.5)
         else
           Core:SetVoice("bigmobsoon")
