@@ -252,7 +252,7 @@ function Profile:SortSpamWord()
     sort(self.gdb.global.spamWord, sortSpamWord)
 end
 
-function Profile:AddSpamWord(word, delay, silence)
+function Profile:AddSpamWord(word, delay)
     if type(word) ~= 'table'  then
         System:Log(L['添加失败，未输入关键字。'])
         return
@@ -263,10 +263,10 @@ function Profile:AddSpamWord(word, delay, silence)
     end
 
     if self:GetSpamWordIndex(word) then
-        if not silence then System:Logf(L['添加失败，关键字“%s”已存在。'], word.text) end
+        System:Logf(L['添加失败，关键字“%s”已存在。'], word.text)
     else
         tinsert(self.gdb.global.spamWord, word)
-        if not silence then System:Logf(L['添加成功，关键字“%s”已添加。'], word.text) end
+        System:Logf(L['添加成功，关键字“%s”已添加。'], word.text)
         if not delay then
             ClearSpamWordCache()
             self:SortSpamWord()
@@ -296,7 +296,7 @@ function Profile:GetSpamWords()
     return self.gdb.global.spamWord
 end
 
-function Profile:SaveImportSpamWord(text, silence)
+function Profile:SaveImportSpamWord(text)
     if type(text) ~= 'string' then
         return
     end
@@ -312,7 +312,7 @@ function Profile:SaveImportSpamWord(text, silence)
         if text then
             enable = enable == '' and true or nil
             local word = { text = text, pain = enable }
-            self:AddSpamWord(word, true, silence)
+            self:AddSpamWord(word, true)
         end
     end
 
@@ -325,7 +325,7 @@ function Profile:ImportDefaultSpamWord()
         return
     end
     self.gdb.global.spamWord.default = true
-    self:SaveImportSpamWord(DEFAULT_SPAMWORD, true)
+    self:SaveImportSpamWord(DEFAULT_SPAMWORD)
     self:SendMessage('MEETINGSTONE_SPAMWORD_UPDATE')
 end
 

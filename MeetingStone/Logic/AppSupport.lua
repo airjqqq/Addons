@@ -147,9 +147,11 @@ function AppSupport:DataInit()
         end
     end
 
-    local function GetLegendaryItem(_, msg)
+    local function GetLegendaryItem(_, msg, _, _, _, unit)
+        if not UnitIsUnit('player', unit) then
+            return
+        end
         local item = msg:match('(|cff%x%x%x%x%x%x|Hitem:.+|r)')
-        
         if not item then
             return
         end
@@ -157,12 +159,11 @@ function AppSupport:DataInit()
         if not name then
             return
         end
-        
         return quality == LE_ITEM_QUALITY_LEGENDARY and itemLevel >= 940 and IsEquippableItem(item) and item
     end
 
     RegisterData('Zone', {'ZONE_CHANGED_NEW_AREA', 'ZONE_CHANGED_INDOORS', 'ZONE_CHANGED'}, GetZoneText, COMMIT_INTERVAL)
-    RegisterData('ItemPush', 'CHAT_MSG_LOOT', GetLegendaryItem, 0, true)
+    RegisterData('ItemPush2', 'CHAT_MSG_LOOT', GetLegendaryItem, 0, true)
 end
 
 ---- Group Member
