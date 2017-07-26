@@ -76,6 +76,17 @@ function R:OnEnable()
       end
       Core:SetFutureDamage({key="233062"..":"..(aoeCnt+1),start=self.basetime+60,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,200e4,0,0,0)})
 
+      if aoeCnt >= 4 and difficulty == 16 then
+        Core:SetTimeline({text = "火球",color = {0,1,0}, expires = self.basetime + 10})
+        Core:SetTimeline({text = "踩圈",color = {0,1,1}, expires = self.basetime + 22})
+        Core:SetTimeline({text = "火球",color = {0,1,0}, expires = self.basetime + 40})
+      else
+        if difficulty == 16 then
+          Core:SetTimeline({text = "踩圈",color = {0,1,1}, expires = self.basetime + 12})
+        end
+        Core:SetTimeline({text = "火球",color = {0,1,0}, expires = self.basetime + (difficulty == 16 and 34 or 24)})
+      end
+      Core:SetTimeline({text = "AOE - "..aoeCnt, expires = self.basetime + 54, color = {1,0,0}})
     end
 
     function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
@@ -156,14 +167,6 @@ function R:OnEnable()
           Core:SetFutureDamage({key=spellId..":"..(aoeCnt),start=now+6,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,200e4,0,0,0)})
           resetTimeLine(6)
         end
-        -- if spellId == 8936 then
-        --   Core:SetText("|cffff0000即将 AOE：{number}|r","|cff00ff00AOE 结束...|r",now+6,now+7.5)
-        --   Core:SetVoice("findshelter")
-        --   Core:SetVoice("safenow",now+6)
-        --   self.basetime = GetTime() + 6
-        --   aoeCnt = aoeCnt + 1
-        --   self.timelineChanged = true
-        -- end
       end
     end
     function bossmod:UNIT_SPELLCAST_SUCCEEDED(aceEvent, uId, spellName, _, spellGUID)
@@ -171,11 +174,11 @@ function R:OnEnable()
       local now = GetTime()
     	if spellId == 233050 then--Infernal Spike
         -- Core:SetVoice("watchstep")
-        Core:SetVoiceT({str="zhu4       yi4      jian1      ci4",time=now+0})
+        Core:SetVoiceT({str="zhu4       yi4      jian1      ci4"})
         Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 2.5, size = 1, name = "尖刺", reverse = false})
         Core:SetTextT({text1 = "|cffff0000尖刺: |cff00ffff{number}|r", text2 = "|cff00ff00尖刺|r",expires = now+2.5})
+        Core:SetTimeline({key=spellId,expires = now+17,text = "尖刺",color = {1,1,0}})
     	elseif spellId == 233285 then--Rain of Brimston
-
         Core:SetVoice("stepring")
         Core:SetIconT({index = 10, texture = GetSpellTexture(spellId), duration = 9, size = 1, name = "踩圈", reverse = false})
         Core:SetTextT({text1 = "|cffff0000踩圈: |cff00ffff{number}|r", text2 = "|cff00ff00踩圈结束|r",expires = now+9})
@@ -183,6 +186,7 @@ function R:OnEnable()
         Core:SetPlayerAlpha({alpha = 0.5,start=now+0,removes=now+9})
         Core:SetScreen(0,1,1,0.5)
     	elseif spellId == 232249 then
+        Core:SetTimeline({key=spellId,expires = now+18,text = "小圈",color = {0,0,1}})
     	end
     end
     local cometName = GetSpellInfo(232249)
@@ -191,7 +195,7 @@ function R:OnEnable()
     function bossmod:Timer10ms()
       local now = GetTime()
     	local hasDebuff, _, _, _, _, _, _, _, _, _, spellId = UnitDebuff("player", cometName)
-    	if hasDebuff and spellId == 232249 and (not lastCometTime or now - lastCometTime > 10) then
+    	if hasDebuff and spellId == 232249 and (not lastCometTime or now - lastCometTime > 6) then
     		lastCometTime = now
         Core:SetIconT({index = 13, texture = GetSpellTexture(spellId), duration = 5, start = nil, expires = nil, size = 1, name = "小圈", reverse = false})
         Core:SetScreen(1,0,0,0.5)
@@ -208,7 +212,7 @@ function R:OnEnable()
       for i = 1,40 do
         local unit = "raid"..i
         local guid = UnitGUID(unit)
-        if guid and (not comets[guid] or (now - comets[guid] > 10)) then
+        if guid and (not comets[guid] or (now - comets[guid] > 6)) then
           local hasDebuff, _, _, _, _, _, _, _, _, _, spellId = UnitDebuff(unit, cometName)
           if hasDebuff and spellId == 232249 then
             comets[guid] = now
@@ -226,80 +230,10 @@ function R:OnEnable()
           end
         end
       end
-
-    end
-    function bossmod:GetTimeline()
-      local difficulty = self.difficulty
-
-      local timeline1 = {
-        {
-          phase = 1,
-          text = "阶段1",
-          timepoints = {
-            {
-              text = "AOE 结束",
-              time = 0,
-              color = {1,0,0},
-            },
-            {
-              text = "踩圈",
-              time = 12,
-              color = {0,1,1},
-              disabled = difficulty ~= 16,
-            },
-            {
-              text = "火球",
-              time = difficulty == 16 and 34 or 24,
-              color = {0,1,0},
-            },
-            {
-              text = "AOE",
-              time = 54,
-              color = {1,0,0},
-            },
-
-          },
-        },
-      }
-      local timeline2 = {
-        {
-          phase = 1,
-          text = "阶段1",
-          timepoints = {
-            {
-              text = "AOE 结束",
-              time = 0,
-              color = {1,0,0},
-            },
-            {
-              text = "火球",
-              time = 10,
-              color = {0,1,0},
-            },
-            {
-              text = "踩圈",
-              time = 22,
-              color = {0,1,1},
-              disabled = difficulty ~= 16,
-            },
-            {
-              text = "火球",
-              time = 40,
-              color = {0,1,0},
-            },
-            {
-              text = "AOE",
-              time = 54,
-              color = {1,0,0},
-            },
-          },
-        },
-      }
-      return aoeCnt>=4 and timeline2 or timeline1
     end
   end
 
-  do --2
+  do --2    aoeing | aaa | qusan | bbb | inside Dot
     local bossmod = Core:NewBoss({encounterID = 2048})
     bossmod.furtureDamage = true
     local aoe1cnt, aoe2cnt = 0,0
@@ -310,12 +244,11 @@ function R:OnEnable()
       Core:SetFutureDamage({key="235230:1",duration=16, start = now + 35, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
       Core:SetFutureDamage({key=234015,duration=0.1, start = now + 12, damage=Core:GetDifficultyDamage(self.difficulty,110e4)})
       Core:RegisterAuraCooldown(233983,{radius = 10, color = {0.5,0,1,0.2}})
-      Core:SetTimeline({key="233441",expires = now+60,text = "Left AOE",color = {1,0.5,0}})
-      Core:SetTimeline({key="235230",expires = now+35,text = "Right AOE",color = {1,0,0.5}})
+      Core:SetTimeline({key=233441,expires = now+60,text = "斧头怪AOE",color = {1,0.5,0}})
+      Core:SetTimeline({key=235230,expires = now+35,text = "法系怪AOE",color = {1,0,0.5}})
     end
     function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
       local now = GetTime()
-
       if (event == "SPELL_AURA_APPLIED" or event == "SPELL_PERIODIC_DAMAGE" or event == "SPELL_PERIODIC_MISSED") and Core:GetPlayerGUID() == destGUID and spellId == 233901 then
         R:GroundEffectDamage(spellId)
       end
@@ -371,6 +304,7 @@ function R:OnEnable()
         if spellId == 234015 then
           -- B aoe
           Core:SetFutureDamage({key=spellId,duration=0.1, start = now + 2, damage=Core:GetDifficultyDamage(self.difficulty,110e4)})
+          Core:SetTimeline({key=spellId,expires = now+17,text = "AOE",color = {0,1,1}})
         end
       end
       if event == "SPELL_CAST_SUCCESS" then
@@ -379,50 +313,64 @@ function R:OnEnable()
           -- B aoe
         end
         if spellId == 233431 then
+          local unit = Core:FindHarmUnitByName(sourceName)
+          local guid = UnitGUID(unit .."target")
           Core:CreateCooldown({
-            unit = "boss2target",
+            guid = guid,
             spellId = spellId,
             radius = 8,
             duration = 4,
             color = {1,1,0},
             alpha = 0.4,
           })
-          Core:CreateBeam({fromUnit= "boss2",toUnit = "boss2target",width = 6,length = 40,color = {1,1,0},alpha = 0.2,removes = now + 4})
-          Core:SetFutureDamage({key=spellId,duration=0.1, start=now+4, guid = UnitGUID("boss2target"), damage=Core:GetDifficultyDamage(self.difficulty,250e4)})
-          if UnitIsUnit("boss2target","player") then
-            Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 4, start = nil, expires = nil, size = 2, name = "驱散", reverse = true})
+          Core:CreateBeam({fromUnit= unit,toGUID = guid,width = 6,length = 40,color = {1,1,0},alpha = 0.2,removes = now + 4})
+          Core:SetFutureDamage({key=spellId,duration=0.1, start=now+4, guid = guid, damage=Core:GetDifficultyDamage(self.difficulty,250e4)})
+          if UnitIsUnit(unit .."target","player") then
+            Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 4, size = 2, name = "钙化尖刺", reverse = true})
             Core:SetScreen(1,1,0)
             Core:SetTextT({text1 = "|cffff0000尖刺点你: |cff00ffff{number}|r", text2 = "|cff00ff00尖刺结束|r",start = nil,expires = now+4})
             Core:SetVoice("bombrun")
           end
+          Core:SetTimeline({key=spellId,expires = now+21,text = "钙化尖刺",color = {1,1,0}})
+
         end
         if spellId == 233441 then
-          if UnitIsUnit("boss2","target") then
-            Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 0, start = nil, expires = nil, size = 2, name = "停手", removes = now + 2, reverse = true})
+          if UnitGUID("target") == destGUID then
+            -- Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 0, start = nil, expires = nil, size = 2, name = "停手", removes = now + 2, reverse = true})
             Core:SetScreen(1,0,0)
-            Core:SetTextT({text1 = "|cffff0000停手|r", text2 = "",start = nil,expires = now+2})
+            Core:SetTextT({text1 = "|cffff0000停手|r", text2 = "",start = nil,expires = now+1})
             Core:SetVoice("stopattack")
           end
           aoe2cnt = aoe2cnt + 1
+          Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 16, size = 1, name = ""})
           Core:SetFutureDamage({key=spellId..":"..aoe2cnt,duration=16, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
           Core:SetFutureDamage({key=spellId..":"..(aoe2cnt+1),duration=16, start = now + 60, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
+          Core:SetTimeline({key=spellId,expires = now+60,text = "斧头怪AOE",color = {1,0.5,0}})
         end
         if spellId == 235230 then
-          if UnitIsUnit("boss1","target") then
-            Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 0, start = nil, expires = nil, size = 2, name = "停手", removes = now + 2, reverse = true})
+          if UnitGUID("target") == destGUID then
+            -- Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 0, start = nil, expires = nil, size = 2, name = "停手", removes = now + 2, reverse = true})
             Core:SetScreen(1,0,0)
-            Core:SetTextT({text1 = "|cffff0000停手|r", text2 = "",start = nil,expires = now+2})
+            Core:SetTextT({text1 = "|cffff0000停手|r", text2 = "",start = nil,expires = now+1})
             Core:SetVoice("stopattack")
           end
           aoe1cnt = aoe1cnt + 1
           Core:SetFutureDamage({key=spellId..":"..aoe1cnt,duration=16, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
           Core:SetFutureDamage({key=spellId..":"..(aoe1cnt+1),duration=16, start = now + 60, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
+          Core:SetTimeline({key=spellId,expires = now+35,text = "法系怪AOE",color = {1,0,0.5}})
         end
       end
     end
+
     function bossmod:UNIT_SPELLCAST_SUCCEEDED(aceEvent, uId, spellName, _, spellGUID)
     	local spellId = tonumber(select(5, strsplit("-", spellGUID)), 10)
       local now = GetTime()
+    	if spellId == 233895 then -- Suffocating Dark
+        Core:SetTimeline({key=spellId,expires = now+25,text = "驱散",color = {1,0.5,1}})
+        if Core:GetPlayerRole() == "HEALER" then
+          Core:SetVoice("dispelnow")
+        end
+    	end
     end
     local lastPowerTime
     local lastTargetPowerTime
@@ -436,10 +384,10 @@ function R:OnEnable()
         Core:SetVoice("energyhigh")
       end
       power = UnitPower("target") -- SPELL_POWER_ALTERNATE_POWER = 10
-      if (UnitIsUnit("target","boss1") and power > 95 or UnitIsUnit("target","boss2") and power > 85) and (not lastTargetPowerTime or (now - lastTargetPowerTime) > 5) then
+      if (UnitIsUnit("target","boss1") and power > 95 or UnitIsUnit("target","boss2") and power > 95) and (not lastTargetPowerTime or (now - lastTargetPowerTime) > 5) then
         lastTargetPowerTime = now
         local text = string.format("|cffff0000准备转火|r")
-        Core:SetTextT({text1 = text, removes = now+2, expires = now+2})
+        Core:SetTextT({text1 = text, removes = now+1, expires = now+1})
         Core:SetVoice("changetarget")
       end
     end
@@ -451,24 +399,74 @@ function R:OnEnable()
     local uncheckedRageCnt = 0
     local aoeCnt = 0
     local mobiconindex = 0
-    local function initDamage()
+
+    local timeline = {
+      {
+        phase = 1,
+        text = "阶段1",
+        timepoints = {
+          {
+            text = "正面分担 1",
+            time = 20,
+            color = {1,0,0},
+          },
+          {
+            text = "孵化",
+            time = 32,
+            color = {1,1,0},
+          },
+          {
+            text = "正面分担 2",
+            time = 40,
+            color = {1,0,0},
+          },
+          {
+            text = "转 P2",
+            time = 58,
+            color = {0,1,0},
+          },
+        },
+      },
+    }
+    local function p1start()
+      local self = bossmod
       local now = GetTime()
       uncheckedRageCnt = 0
       Core:SetFutureDamage({key="231854"..":"..1,start=now+23,duration=0.1,damage=Core:GetDifficultyDamage(bossmod.difficulty,200e4)})
       Core:SetFutureDamage({key="233520"..":"..(aoeCnt+1),start=now+67,duration=(aoeCnt+1)*7.5,damage=Core:GetDifficultyDamage(bossmod.difficulty,(aoeCnt+1)*5*44e4+140e4)})
+      Core:SetTimeline({expires = now+23,text = "正面分担 - 1",color = {1,0,0}})
+      if self.difficulty == 16 then
+        Core:SetTimeline({expires = now+32,text = "腐化",color = {1,1,0}})
+      end
+      Core:SetTimeline({expires = now+58,text = "P2",color = {0,1,0}})
+    end
+    local function p2start()
+      local self = bossmod
+      local now = GetTime()
+      bossmod.phase = 2
+      bossmod.basetime = now
 
+      Core:SetTextT({text1 = "|cff00ffff P2开始|r", expires = now})
+      Core:SetVoice("ptwo")
+      aoeCnt = aoeCnt + 1
+      Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 10, name = GetSpellInfo(spellId)})
+      Core:SetVoice("scatter",now+7)
+      Core:SetVoice("watchstep",now+10)
+      Core:SetTextT({text1 = "|cffffff00快分散|r", text2 = "|cff00ff00注意脚下|r", start = now+7,expires = now+10})
+      Core:SetScreen(0,0,1,0.5,now+7)
+
+      Core:SetFutureDamage({key="233520"..":"..(aoeCnt),start=now+10,duration=(aoeCnt)*7.5,damage=Core:GetDifficultyDamage(bossmod.difficulty,(aoeCnt)*5*44e4+140e4)})
+
+      Core:SetTimeline({expires = now+10+aoeCnt*6,text = "P1",color = {0,1,1}})
     end
     function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
-      uncheckedRageCnt = 0
       aoeCnt = 0
       mobiconindex = 0
-      initDamage()
+      p1start()
       Core:RegisterAuraBeam(234016,{width = 0.5, alpha = 0.2, color = {1,0,0,0.2}})
       Core:RegisterAuraCooldown(234016,{radius = 5, color = {1,0,0,0.2}})
       Core:RegisterAuraBeam(241600,{width = 0.2, alpha = 0.2, color = {0,1,0,0.2}})
-      -- Core:RegisterAuraCooldown(241600,{radius = 5, color = {0,1,0,0.2}})
       Core:RegisterAuraCooldown(231729,{radius = 6, color = {0,1,1,0.2}})
-      -- Core:RegisterCreatureBeam(120545,{width = 0.5,alpha = 0.3,color={0,0,1,0.3}})
       Core:RegisterAuraBeam(240315,{width = 0.5,alpha = 0.3,color={0,0,1,0.3}})
     end
     function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
@@ -476,15 +474,13 @@ function R:OnEnable()
       if (event == "SPELL_AURA_APPLIED" or event == "SPELL_PERIODIC_DAMAGE" or event == "SPELL_PERIODIC_MISSED") and spellId == 231768 and destGUID == Core:GetPlayerGUID() then
         R:GroundEffectDamage(spellId)
       end
-
-
       if (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_APPLIED_DOSE") and spellId == 231998 then -- JaggedAbrasion
         local _,count = ...
         count = count or 1
         local damage = Core:GetDifficultyDamage(self.difficulty,count*15*40e4)
         Core:SetFutureDamage({key=spellId..":"..destGUID,duration=30,damage=damage,guid = destGUID})
         if Core:GetPlayerGUID() == destGUID then
-          Core:SetTextT({text1 = "|cffffff00流血 - |cff00ffff"..count.."|cffffff00层|r", expires = now+2, removes = now+2})
+          Core:SetTextT({text1 = "|cffffff00流血 - |cff00ffff"..count.."|cffffff00层|r", expires = now+1, removes = now+1})
           Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 30, name = GetSpellInfo(spellId), count = count, scale = false})
           -- Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 30, removes = now + 2, name = GetSpellInfo(spellId), size = 2, count = count})
         else
@@ -499,18 +495,7 @@ function R:OnEnable()
       end
       if event == "SPELL_AURA_APPLIED" then
         if spellId == 232061 then
-          bossmod.phase = 2
-          bossmod.basetime = now
-          Core:SetTextT({text1 = "|cff00ffff P2开始|r", expires = now})
-          Core:SetVoice("ptwo")
-          aoeCnt = aoeCnt + 1
-          Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 10, name = GetSpellInfo(spellId)})
-          Core:SetVoice("scatter",now+7)
-          Core:SetVoice("watchstep",now+10)
-          Core:SetTextT({text1 = "|cffffff00快分散|r", text2 = "|cff00ff00注意脚下|r", start = now+7,expires = now+10})
-          Core:SetScreen(0,0,1,0.5,now+7)
-
-          Core:SetFutureDamage({key="233520"..":"..(aoeCnt),start=now+10,duration=(aoeCnt)*7.5,damage=Core:GetDifficultyDamage(bossmod.difficulty,(aoeCnt)*5*44e4+140e4)})
+          p2start()
         end
         if spellId == 231729 then
           Core:SetFutureDamage({start=now+6,duration=0.1,guid=destGUID,damage=Core:GetDifficultyDamage(bossmod.difficulty,70e4)})
@@ -581,6 +566,7 @@ function R:OnEnable()
           -- Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 0.7, name = "集合分担", size = 1, reverse = false})
           Core:SetFutureDamage({key=spellId..":"..uncheckedRageCnt,start=now+0.7,duration=0.1,damage=Core:GetDifficultyDamage(bossmod.difficulty,200e4)})
           if uncheckedRageCnt == 1 then
+            Core:SetTimeline({expires = now+21,text = "正面分担 - 2",color = {1,0,0}})
             Core:SetFutureDamage({key=spellId..":"..2,start=now+22.7,duration=0.1,damage=Core:GetDifficultyDamage(bossmod.difficulty,200e4)})
           else
             Core:SetVoice("killbigmob")
@@ -591,7 +577,7 @@ function R:OnEnable()
           bossmod.basetime = now
           Core:SetTextT({text1 = "|cff00ffff 返回P1|r", expires = now})
           Core:SetVoice("phasechange")
-          initDamage()
+          p1start()
         end
       end
     end
@@ -643,34 +629,6 @@ function R:OnEnable()
         end
       end
     end
-    local timeline = {
-      {
-        phase = 1,
-        text = "阶段1",
-        timepoints = {
-          {
-            text = "正面分担 1",
-            time = 20,
-            color = {1,0,0},
-          },
-          {
-            text = "孵化",
-            time = 32,
-            color = {1,1,0},
-          },
-          {
-            text = "正面分担 2",
-            time = 40,
-            color = {1,0,0},
-          },
-          {
-            text = "转 P2",
-            time = 58,
-            color = {0,1,0},
-          },
-        },
-      },
-    }
     function bossmod:GetTimeline(difficulty)
       return timeline
     end
@@ -680,6 +638,8 @@ function R:OnEnable()
     -- shot all  |  wind/shark  |   shot/tank swip  |  ink debuff  |  2min debuff
     local bossmod = Core:NewBoss({encounterID = 2037})
     local shotCnt = 0
+    local windCnt = 0
+    local chargeCnt = 0
     local sharkCnt = 0
     local lastShotTime
     function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
@@ -688,11 +648,14 @@ function R:OnEnable()
       Core:RegisterAuraCooldown(230139,{radius = 5, color = {0,1,0,0.3}})
       Core:RegisterAuraCooldown(232913,{radius = 5, color = {0.5,0,1,0.3}})
       shotCnt = 0
+      windCnt = 0
+      chargeCnt = 0
       sharkCnt = 0
       lastShotTime = nil
       if bossMod.difficulty ~= 17 then
         Core:SetFutureDamage({key="230139"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,180e4),start = now + 6 + 25, duration = 0.1})
         Core:SetFutureDamage({key="232754"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,232e4),start = now + 6 + 25, duration = 6})
+        Core:SetTimeline({expires = now+26,text = "多头蛇射击",color = {0,1,0},phase=bossMod.phase})
       end
     end
     function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
@@ -729,6 +692,7 @@ function R:OnEnable()
           if Core:GetPlayerGUID() == destGUID then
             Core:SetIconT({index = 13, texture = GetSpellTexture(spellId), duration = 6, name = GetSpellInfo(spellId), size = 1})
           end
+          Core:SetTimeline({expires = now+30,text = "多头蛇射击",color = {0,1,0},phase=bossMod.phase})
           Core:SetFutureDamage({key=spellId..":"..destGUID, guid = destGUID,damage = Core:GetDifficultyDamage(bossmod.difficulty,55e4*6), duration = 6})
         end
       end
@@ -758,16 +722,25 @@ function R:OnEnable()
           end
         end
         if spellId == 232722 then
+          windCnt = windCnt + 1
           Core:SetTextT({text1 = "|cffffff00注意旋风:|cff00ffff{number}|r", text2 = "|cffffff00旋风出现|r", expires = now+4})
           Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 4, name = GetSpellInfo(spellId), size = 1, reverse = false})
           Core:SetScreen(1,0,0,0.5)
           Core:SetVoice("wwsoon")
+          if bossMod.phase ~= 3 then
+            Core:SetTimeline({expires = now+35,text = "旋风",color = {1,1,0},phase=bossMod.phase})
+          end
         end
         if spellId == 232827 then
+          chargeCnt = chargeCnt + 1
           Core:SetTextT({text1 = "|cffffff00注意波浪:|cff00ffff{number}|r", text2 = "|cffffff00波浪出现|r", expires = now+2})
           Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 6, name = GetSpellInfo(spellId), size = 1, reverse = false})
           Core:SetScreen(0,1,1,0.5)
           Core:SetVoice("watchwave")
+          if bossMod.phase == 2 then
+            Core:SetTimeline({expires = now+42,text = "波浪",color = {0,1,1},phase=bossMod.phase})
+            Core:SetTimeline({expires = now+10,text = "吸人",color = {1,0,0.5},phase=bossMod.phase})
+          end
         end
         if spellId == 232746 then
           sharkCnt = sharkCnt + 1
@@ -777,6 +750,7 @@ function R:OnEnable()
           Core:SetVoice("inktoshark")
           Core:SetFutureDamage({key=spellId..":"..sharkCnt,damage = Core:GetDifficultyDamage(bossmod.difficulty,300e4),start = now + 4, duration = 6})
           Core:SetFutureDamage({key=spellId..":"..(sharkCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,300e4),start = now + 4, duration = 6})
+          Core:SetTimeline({expires = now+42,text = "吸人",color = {1,0,0.5},phase=bossMod.phase})
         end
         if spellId == 230358 then
           Core:SetTextT({text1 = "|cffffff00注意白圈:|cff00ffff{number}|r", text2 = "|cffffff00白圈出现|r", expires = now+2})
@@ -811,6 +785,7 @@ function R:OnEnable()
             Core:SetFutureDamage({key="230139"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,180e4),start = now + 20, duration = 0.1})
             Core:SetFutureDamage({key="232754"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,232e4),start = now + 20, duration = 6})
           end
+          Core:SetTimeline({expires = now+14,text = "多头蛇射击",color = {0,1,0},phase=bossMod.phase})
         elseif bossmod.phase == 2 and health/max < 0.40 then
           bossmod.phase = 3
           bossmod.basetime = now
@@ -820,207 +795,38 @@ function R:OnEnable()
             Core:SetFutureDamage({key="230139"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,180e4),start = now + 23, duration = 0.1})
             Core:SetFutureDamage({key="232754"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,232e4),start = now + 23, duration = 6})
           end
+          Core:SetTimeline({expires = now+17,text = "多头蛇射击",color = {0,1,0},phase=bossMod.phase})
+          local chargeTimes = {32,103,149}
+          for i,v in ipairs(chargeTimes) do
+            Core:SetTimeline({key = "232827:"..i,expires = now+v,text = "波浪",color = {0,1,1},phase=bossMod.phase})
+          end
+          local windTimes = {54,93,127,170}
+          for i,v in ipairs(windTimes) do
+            Core:SetTimeline({key = "232722:"..i,expires = now+v,text = "旋风",color = {1,1,0},phase=bossMod.phase})
+          end
         end
       end
-    end
-    local timeline = {
-      {
-        phase = 1,
-        text = "阶段1",
-        timepoints = {
-          {
-            text = "多头蛇",
-            time = 26,
-            color = {0,1,0},
-          },
-          {
-            text = "旋风",
-            time = 30,
-            color = {1,1,0},
-          },
-          {
-            text = "多头蛇",
-            time = 56,
-            color = {0,1,0},
-          },
-          {
-            text = "旋风",
-            time = 65,
-            color = {1,1,0},
-          },
-          {
-            text = "多头蛇",
-            time = 86,
-            color = {0,1,0},
-          },
-          {
-            text = "旋风",
-            time = 100,
-            color = {1,1,0},
-          },
-          {
-            text = "多头蛇",
-            time = 116,
-            color = {0,1,0},
-          },
-        },
-      },
-      {
-        phase = 2,
-        text = "阶段2",
-        timepoints = {
-          {
-            text = "多头蛇",
-            time = 14,
-            color = {0,1,0},
-          },
-          {
-            text = "波浪",
-            time = 29,
-            color = {0,1,1},
-          },
-          {
-            text = "吸人",
-            time = 39,
-            color = {0.5,0,1},
-          },
-          {
-            text = "多头蛇",
-            time = 44,
-            color = {0,1,0},
-          },
-          {
-            text = "波浪",
-            time = 71,
-            color = {0,1,1},
-          },
-          {
-            text = "多头蛇",
-            time = 74,
-            color = {0,1,0},
-          },
-          {
-            text = "吸人",
-            time = 81,
-            color = {0.5,0,1},
-          },
-          {
-            text = "多头蛇",
-            time = 104,
-            color = {0,1,0},
-          },
-          {
-            text = "波浪",
-            time = 113,
-            color = {0,1,1},
-          },
-          {
-            text = "吸人",
-            time = 123,
-            color = {0.5,0,1},
-          },
-          {
-            text = "多头蛇",
-            time = 134,
-            color = {0,1,0},
-          },
-          {
-            text = "波浪",
-            time = 155,
-            color = {0,1,1},
-          },
-          {
-            text = "多头蛇 -- 避免",
-            time = 164,
-            color = {0,1,0},
-          },
-          {
-            text = "吸人",
-            time = 165,
-            color = {0.5,0,1},
-          },
-        },
-      },
-      {
-        phase = 3,
-        text = "阶段3",
-        timepoints = {
-          {
-            text = "多头蛇",
-            time = 17,
-            color = {0,1,0},
-          },
-          {
-            text = "波浪",
-            time = 32,
-            color = {0,1,1},
-          },
-          {
-            text = "多头蛇",
-            time = 49,
-            color = {0,1,0},
-          },
-          {
-            text = "旋风",
-            time = 54,
-            color = {1,1,0},
-          },
-          {
-            text = "多头蛇",
-            time = 81,
-            color = {0,1,0},
-          },
-          {
-            text = "旋风",
-            time = 93,
-            color = {1,1,0},
-          },
-          {
-            text = "波浪",
-            time = 103,
-            color = {0,1,1},
-          },
-          {
-            text = "多头蛇",
-            time = 113,
-            color = {0,1,0},
-          },
-          {
-            text = "旋风",
-            time = 127,
-            color = {1,1,0},
-          },
-          {
-            text = "多头蛇",
-            time = 143,
-            color = {0,1,0},
-          },
-          {
-            text = "波浪",
-            time = 149,
-            color = {0,1,1},
-          },
-          {
-            text = "旋风",
-            time = 170,
-            color = {1,1,0},
-          },
-          {
-            text = "多头蛇",
-            time = 175,
-            color = {0,1,0},
-          },
-        },
-      },
-    }
-    function bossmod:GetTimeline(difficulty)
-      return timeline
     end
   end
   do --7
     local bossmod = Core:NewBoss({encounterID = 2052})
     local fi = GetSpellInfo(235240)
     local li = GetSpellInfo(235213)
+    local changeColorCnt = 0
+    local function changeColor()
+      local now = GetTime()
+      Core:SetTimeline({expires = now+6,text = "奇数球",color = {0,1,1}})
+      Core:SetTimeline({key="orb1",expires = now+12,text = "光明锤",color = {1,1,0}})
+      Core:SetTimeline({key="orb2",expires = now+14,text = "偶数球",color = {0,1,1}})
+      Core:SetTimeline({key="orb3",expires = now+22,text = "奇数球",color = {0,1,1}})
+      Core:SetTimeline({expires = now+30,text = "邪能锤",color = {0,1,0}})
+      Core:SetTimeline({key="orb4",expires = now+32,text = "偶数球",color = {0,1,1}})
+      if changeColorCnt == 2 then
+        Core:SetTimeline({expires = now+38,text = "转阶段",color = {1,0,0}})
+      else
+        Core:SetTimeline({expires = now+38,text = "换色",color = {1,0,0}})
+      end
+    end
     function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
       local now = GetTime()
       if event == "SPELL_AURA_APPLIED" then
@@ -1068,6 +874,7 @@ function R:OnEnable()
           Core:SetVoice("kickcast")
         elseif spellId == 234891 then--Wrath Interrupted
           if self.phase == 2 then
+            changeColorCnt = 0
             self.phase = 1
             self.basetime = GetTime()
           end
@@ -1077,6 +884,8 @@ function R:OnEnable()
         if spellId == 235271 then -- p1
           Core:SetText("|cffff0000颜色转化：{number}|r","",now+3,now+3)
           Core:SetVoice("runin")
+          changeColorCnt = changeColorCnt + 1
+          changeColor()
         elseif spellId == 241635 then--Light Hammer
           if UnitDebuff("player",li) then
             Core:SetText("|cffff0000集合分担：{number}|r","|cff00ff00分担结束|r",now+2.5,now+3)
@@ -1116,107 +925,12 @@ function R:OnEnable()
     function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
       local now = GetTime()
       self.basetime = now - 38
+      changeColorCnt = 1
+      Core:SetTimeline({expires = now+2,text = "换色",color = {1,0,0}})
     end
     local lastCometTime
     function bossmod:Timer10ms()
       local now = GetTime()
-    end
-    local timeline = {
-      {
-        phase = 1,
-        text = "阶段1",
-        timepoints = {
-          {
-            text = "换色",
-            time = 2,
-            color = {1,0,0},
-          },
-          {
-            text = "奇数球",
-            time = 8,
-            color = {0,0.5,0.5},
-          },
-          {
-            text = "光明锤",
-            time = 14,
-            color = {1,1,0},
-          },
-          {
-            text = "偶数球",
-            time = 16,
-            color = {0,0.5,0.5},
-          },
-          {
-            text = "奇数球",
-            time = 24,
-            color = {0,0.5,0.5},
-          },
-          {
-            text = "邪能锤",
-            time = 32,
-            color = {0,1,0},
-          },
-          {
-            text = "偶数球",
-            time = 34,
-            color = {0,0.5,0.5},
-          },
-          {
-            text = "换色",
-            time = 40,
-            color = {1,0,0},
-          },
-          {
-            text = "奇数球",
-            time = 46,
-            color = {0,0.5,0.5},
-          },
-          {
-            text = "光明锤",
-            time = 50,
-            color = {1,1,0},
-          },
-          {
-            text = "偶数球",
-            time = 54,
-            color = {0,0.5,0.5},
-          },
-          {
-            text = "奇数球",
-            time = 62,
-            color = {0,0.5,0.5},
-          },
-          {
-            text = "邪能锤",
-            time = 68,
-            color = {0,1,0},
-          },
-          {
-            text = "偶数球",
-            time = 70,
-            color = {0,0.5,0.5},
-          },
-          {
-            text = "转P2",
-            time = 82,
-            color = {0.5,1,1},
-          },
-        },
-      },
-      {
-        phase = 1,
-        text = "阶段2",
-        timepoints = {
-          {
-            text = "球结束",
-            time = 20,
-            color = {0,0.5,0.5},
-          },
-        },
-      },
-    }
-    function bossmod:GetTimeline(difficulty)
-      return timeline
     end
   end
   do --8
@@ -1340,7 +1054,7 @@ function R:OnEnable()
     end
 
     function bossmod:CHAT_MSG_RAID_BOSS_EMOTE(event, msg, sender, _, _, target)
-    	if msg:find("234418") then -- Rain of the Destroyer
+    	if msg:find("234418") then
         local spellId = 234418
         Core:SetVoice("runout")
         Core:SetIcon(1,GetSpellTexture(spellId),5)

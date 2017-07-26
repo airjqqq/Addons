@@ -19,6 +19,8 @@ function R:OnEnable()
     -- Core:SetFutureDamage({key="233272:"..guid,guid=guid,start=now,duration=6,damage=55e5*6*0.25})
     ABM:SetFutureDamage({key="1",duration=6,start = now + 20,damage=200e4})
     -- ABM:SetFutureDamage({key="1",duration=6,start = GetTime() + 5,damage=200e4})
+    Core:SetTimeline({key="abc",text = "Test",color = {1,0.5,0},color2 = {0,1,0,1}})
+
   end
   function bossmod:ENCOUNTER_END(event,encounterID, name, difficulty, size)
     -- AirjAVR:RegisterCreatureBeam(121227)

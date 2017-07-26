@@ -707,6 +707,34 @@ function Core:FindHelpUnitByName(name)
   end
 end
 
+function Core:FindHarmUnitByName(name)
+  self.an2u = self.an2u or {}
+  local n2u = self.an2u
+  local unit = n2u[name]
+  if unit then
+    if UnitName(unit) == name then
+      return unit
+    else
+      n2u[name] = nil
+    end
+  end
+  local units = {}
+  for i = 1,5 do
+    local u = "boss"..i
+    tinsert(units,u)
+  end
+  tinsert(units,"player")
+  for i,u in ipairs(units) do
+    local n = UnitName(u)
+    if n then
+      n2u[n] = u
+      if n == name then
+        return u
+      end
+    end
+  end
+end
+
 function Core:GetPlayerGUID()
   if self.playerGUID then
     return self.playerGUID
@@ -1383,12 +1411,17 @@ function Core:SetTimeline(data)
   local text = data.text or ""
   local expires = data.expires or now + 15
   local removes = data.removes or expires + 10
-  local start = data.start or expires - 20
+  local start = data.start or expires - 15
   local preshow = data.pershow or expires - 60
   local color = data.color or {1,0,0,1}
   local color2 = data.color2 or {0,1,0,0.2}
   local phase = data.phase
-  local key = data.key or getId()
+  local key
+  if not data.key and data.text then
+    key = strsplit(" ",data.text)
+  else
+    key = data.key or getId()
+  end
   datas[key] = {text = text, expires = expires, removes = removes, start = start, preshow = preshow,
    color = color, color2 = color2, phase = phase}
 end
@@ -1416,6 +1449,8 @@ function Core:UpdateTimeline()
 
   local rowdata = {}
   local rownum = 0
+  local width = anchor:GetWidth()
+  local height = width/12
   for k,v in pairs(self.timelineDatas) do
     if now > v.removes then
       self.timelineDatas[k] = nil
@@ -1427,7 +1462,6 @@ function Core:UpdateTimeline()
       end
     end
   end
-
   sort(rowdata,function(a,b)
     if a == nil or b == nil then
       return false
@@ -1437,6 +1471,7 @@ function Core:UpdateTimeline()
     end
     return a.expires < b.expires
   end)
+  -- dump(rowdata)
 
   for i = 1,rownum do
     local row = self.timelineRows[i]
@@ -1463,8 +1498,9 @@ function Core:UpdateTimeline()
       fontstring:SetJustifyH("RIGHT")
       row.time = fontstring
       self.timelineRows[i] = row
+      row:Hide()
     end
-    if resized then
+    if resized or not row:IsShown() then
       row:SetSize(width,height)
       row:SetPoint("TOP",anchor,"BOTTOM",0,-(i-1)*height)
       row.name:SetFont("Fonts\\ARKai_C.TTF",height*0.5,"OUTLINE")
@@ -1487,7 +1523,7 @@ function Core:UpdateTimeline()
       local a1 = data.color[4] or 1
       local a2 = data.color2[4] or 0.2
       alpha = p * a2 + (1-p) * a1
-    elseif
+    else
       percent = 1
       color = data.color2
       alpha = color[4] or 0.2
@@ -1502,9 +1538,10 @@ function Core:UpdateTimeline()
     row.name:SetText(text)
     row.time:SetText(timeString or "")
     row.bar:SetValue(percent)
-    row.bar:SetAlpha(alpha or 0)
-    row.bar:SetStatusBarColor(unpack(color or {1,1,0.5}))
+    row.bar:SetAlpha(alpha or 1)
+    row.bar:SetStatusBarColor(unpack(color or {1,1,0.5},1,3))
     row:Show()
+    -- print(text,percent,alpha,now - data.expires)
   end
   for i = rownum+1,#self.timelineRows do
     self.timelineRows[i]:Hide()
