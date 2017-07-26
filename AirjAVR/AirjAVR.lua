@@ -387,11 +387,7 @@ function Core:AddData(data)
 end
 
 local function o2t(value)
-	if value > 0.2 then
-		return value - 0.2
-	else
-		return value + 0.1
-	end
+	return value * 0.2
 end
 function Core:ScanToBeCreate()
   local now = GetTime()
@@ -422,10 +418,10 @@ function Core:ScanToBeCreate()
 	        a = data.alpha
 					if data.reverse then
 		        m:SetColor2(r,g,b,a)
-		        m:SetColor(o2t(r),o2t(g),o2t(b),a*0.5)
+		        m:SetColor(o2t(r),o2t(g),o2t(b),a)
 					else
 		        m:SetColor(r,g,b,a)
-		        m:SetColor2(o2t(r),o2t(g),o2t(b),a*0.5)
+		        m:SetColor2(o2t(r),o2t(g),o2t(b),a)
 					end
 				end
         m.text = data.text

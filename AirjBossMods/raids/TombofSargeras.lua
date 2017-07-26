@@ -68,13 +68,13 @@ function R:OnEnable()
 
       local damage = Core:GetDifficultyDamage(self.difficulty,200e4,133e4,133e4,133e4)
       if aoeCnt>=4 then
-        Core:SetFurtureDamage({key="233272"..":"..(fireBallCnt+1),start=self.basetime+16,duration=0.1,damage=damage})
-        Core:SetFurtureDamage({key="233272"..":"..(fireBallCnt+1),start=self.basetime+46,duration=0.1,damage=damage})
+        Core:SetFutureDamage({key="233272"..":"..(fireBallCnt+1),start=self.basetime+16,duration=0.1,damage=damage})
+        Core:SetFutureDamage({key="233272"..":"..(fireBallCnt+1),start=self.basetime+46,duration=0.1,damage=damage})
       else
-        Core:SetFurtureDamage({key="233272"..":"..(fireBallCnt+1),start=self.basetime+(bossmod.difficulty==16 and 40 or 30),duration=0.1,damage=damage})
-        -- Core:SetFurtureDamage({key="233272"..":"..(fireBallCnt+1),start=self.basetime+10,duration=0.1,damage=damage})
+        Core:SetFutureDamage({key="233272"..":"..(fireBallCnt+1),start=self.basetime+(bossmod.difficulty==16 and 40 or 30),duration=0.1,damage=damage})
+        -- Core:SetFutureDamage({key="233272"..":"..(fireBallCnt+1),start=self.basetime+10,duration=0.1,damage=damage})
       end
-      Core:SetFurtureDamage({key="233062"..":"..(aoeCnt+1),start=self.basetime+60,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,200e4,0,0,0)})
+      Core:SetFutureDamage({key="233062"..":"..(aoeCnt+1),start=self.basetime+60,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,200e4,0,0,0)})
 
     end
 
@@ -101,7 +101,7 @@ function R:OnEnable()
             Core:SetVoice("safenow",now+7.5)
           end
           fireBallCnt = fireBallCnt + 1
-          Core:SetFurtureDamage({key=spellId..":"..(fireBallCnt),start=now+7,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,200e4,133e4,133e4,133e4)})
+          Core:SetFutureDamage({key=spellId..":"..(fireBallCnt),start=now+7,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,200e4,133e4,133e4,133e4)})
           Core:CreateCooldown({
     				guid = destGUID,
     				spellId = spellId,
@@ -113,8 +113,8 @@ function R:OnEnable()
         end
         --Buring Armor
         if spellId == 231363 then
-          Core:SetFurtureDamage({key=spellId..":"..destGUID,duration=6,damage=Core:GetDifficultyDamage(self.difficulty,450e4),guid = destGUID})
-          Core:SetFurtureDamage({key=spellId..":"..destGUID..":e",duration=0.1,start = now + 6,damage=Core:GetDifficultyDamage(self.difficulty,300e4),guid = destGUID})
+          Core:SetFutureDamage({key=spellId..":"..destGUID,duration=6,damage=Core:GetDifficultyDamage(self.difficulty,450e4),guid = destGUID})
+          Core:SetFutureDamage({key=spellId..":"..destGUID..":e",duration=0.1,start = now + 6,damage=Core:GetDifficultyDamage(self.difficulty,300e4),guid = destGUID})
           if destGUID == Core:GetPlayerGUID() then
             Core:SetIconT({index = 13, texture = GetSpellTexture(spellId), duration = 6, start = nil, expires = nil, size = 1, name = "破甲", reverse = false})
             Core:SetScreen(1,0,0,0.5)
@@ -139,7 +139,7 @@ function R:OnEnable()
         --Crashing Comet
         if spellId == 230345 then
           local damage = Core:GetDifficultyDamage(self.difficulty,800e4,440e4,400e4,200e4)
-          Core:SetFurtureDamage({key=spellId..":"..destGUID,duration=16,damage=damage,guid = destGUID})
+          Core:SetFutureDamage({key=spellId..":"..destGUID,duration=16,damage=damage,guid = destGUID})
           if destGUID == Core:GetPlayerGUID() then
             Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 16, name = GetSpellInfo(spellId), count = count, scale = false})
           end
@@ -153,7 +153,7 @@ function R:OnEnable()
           Core:SetVoice("findshelter")
           Core:SetVoice("safenow",now+6)
           aoeCnt = aoeCnt + 1
-          Core:SetFurtureDamage({key=spellId..":"..(aoeCnt),start=now+6,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,200e4,0,0,0)})
+          Core:SetFutureDamage({key=spellId..":"..(aoeCnt),start=now+6,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,200e4,0,0,0)})
           resetTimeLine(6)
         end
         -- if spellId == 8936 then
@@ -222,7 +222,7 @@ function R:OnEnable()
             })
 
             local damage = Core:GetDifficultyDamage(self.difficulty,800e4,440e4,400e4,200e4)
-            Core:SetFurtureDamage({key="230345"..":"..guid,duration=16,damage=damage,guid = guid,start=now+5})
+            Core:SetFutureDamage({key="230345"..":"..guid,duration=16,damage=damage,guid = guid,start=now+5})
           end
         end
       end
@@ -306,10 +306,12 @@ function R:OnEnable()
     function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
       local now = GetTime()
       aoe1cnt, aoe2cnt = 0,0
-      Core:SetFurtureDamage({key="233441:1",duration=16, start = now + 60, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
-      Core:SetFurtureDamage({key="235230:1",duration=16, start = now + 35, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
-      Core:SetFurtureDamage({key=234015,duration=0.1, start = now + 12, damage=Core:GetDifficultyDamage(self.difficulty,110e4)})
+      Core:SetFutureDamage({key="233441:1",duration=16, start = now + 60, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
+      Core:SetFutureDamage({key="235230:1",duration=16, start = now + 35, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
+      Core:SetFutureDamage({key=234015,duration=0.1, start = now + 12, damage=Core:GetDifficultyDamage(self.difficulty,110e4)})
       Core:RegisterAuraCooldown(233983,{radius = 10, color = {0.5,0,1,0.2}})
+      Core:SetTimeline({key="233441",expires = now+60,text = "Left AOE",color = {1,0.5,0}})
+      Core:SetTimeline({key="235230",expires = now+35,text = "Right AOE",color = {1,0,0.5}})
     end
     function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
       local now = GetTime()
@@ -330,19 +332,11 @@ function R:OnEnable()
             Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 9, start = nil, expires = nil, size = 2, name = "驱散", reverse = true})
             Core:SetScreen(0.5,0,1)
             Core:SetTextT({text1 = "|cffff0000等待驱散: |cff00ffff{number}|r", text2 = "|cff00ff00驱散结束...|r",start = nil,expires = now+9})
-            Core:SetVoice("runout")
+            -- Core:SetVoice("runout")
             Core:SetVoiceT({str="deng3          dai4          qu1        san4",time = now + 1})
             Core:SetPlayerAlpha({alpha = 0.5,start=now+0,removes=now+9})
           end
-          Core:CreateCooldown({
-            guid = destGUID,
-            spellId = spellId,
-            radius = 8,
-            duration = 9,
-            color = {0.5,0,1},
-            alpha = 0.4,
-          })
-          Core:SetFurtureDamage({key=spellId..":"..destGUID,duration=9, guid = destGUID, damage=Core:GetDifficultyDamage(self.difficulty,408e4)})
+          Core:SetFutureDamage({key=spellId..":"..destGUID,duration=9, guid = destGUID, damage=Core:GetDifficultyDamage(self.difficulty,408e4)})
         end
         if spellId == 236283 then
           if destGUID == Core:GetPlayerGUID() then
@@ -361,7 +355,7 @@ function R:OnEnable()
             end
             Core:SetPlayerAlpha({alpha = 0,start=now+0,removes=now+9})
           end
-          Core:SetFurtureDamage({key=spellId..":"..destGUID, guid = destGUID, damage=0})
+          Core:SetFutureDamage({key=spellId..":"..destGUID, guid = destGUID, damage=0})
         end
       end
       if event == "SPELL_CAST_START" then
@@ -376,12 +370,12 @@ function R:OnEnable()
 
         if spellId == 234015 then
           -- B aoe
-          Core:SetFurtureDamage({key=spellId,duration=0.1, start = now + 2, damage=Core:GetDifficultyDamage(self.difficulty,110e4)})
+          Core:SetFutureDamage({key=spellId,duration=0.1, start = now + 2, damage=Core:GetDifficultyDamage(self.difficulty,110e4)})
         end
       end
       if event == "SPELL_CAST_SUCCESS" then
         if spellId == 234015 then
-          Core:SetFurtureDamage({key=spellId,duration=0.1, start = now + 20, damage=Core:GetDifficultyDamage(self.difficulty,110e4)})
+          Core:SetFutureDamage({key=spellId,duration=0.1, start = now + 20, damage=Core:GetDifficultyDamage(self.difficulty,110e4)})
           -- B aoe
         end
         if spellId == 233431 then
@@ -394,7 +388,7 @@ function R:OnEnable()
             alpha = 0.4,
           })
           Core:CreateBeam({fromUnit= "boss2",toUnit = "boss2target",width = 6,length = 40,color = {1,1,0},alpha = 0.2,removes = now + 4})
-          Core:SetFurtureDamage({key=spellId,duration=0.1, start=now+4, guid = UnitGUID("boss2target"), damage=Core:GetDifficultyDamage(self.difficulty,250e4)})
+          Core:SetFutureDamage({key=spellId,duration=0.1, start=now+4, guid = UnitGUID("boss2target"), damage=Core:GetDifficultyDamage(self.difficulty,250e4)})
           if UnitIsUnit("boss2target","player") then
             Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 4, start = nil, expires = nil, size = 2, name = "驱散", reverse = true})
             Core:SetScreen(1,1,0)
@@ -410,8 +404,8 @@ function R:OnEnable()
             Core:SetVoice("stopattack")
           end
           aoe2cnt = aoe2cnt + 1
-          Core:SetFurtureDamage({key=spellId..":"..aoe2cnt,duration=16, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
-          Core:SetFurtureDamage({key=spellId..":"..(aoe2cnt+1),duration=16, start = now + 60, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
+          Core:SetFutureDamage({key=spellId..":"..aoe2cnt,duration=16, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
+          Core:SetFutureDamage({key=spellId..":"..(aoe2cnt+1),duration=16, start = now + 60, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
         end
         if spellId == 235230 then
           if UnitIsUnit("boss1","target") then
@@ -421,8 +415,8 @@ function R:OnEnable()
             Core:SetVoice("stopattack")
           end
           aoe1cnt = aoe1cnt + 1
-          Core:SetFurtureDamage({key=spellId..":"..aoe1cnt,duration=16, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
-          Core:SetFurtureDamage({key=spellId..":"..(aoe1cnt+1),duration=16, start = now + 60, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
+          Core:SetFutureDamage({key=spellId..":"..aoe1cnt,duration=16, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
+          Core:SetFutureDamage({key=spellId..":"..(aoe1cnt+1),duration=16, start = now + 60, damage=Core:GetDifficultyDamage(self.difficulty,486e4)})
         end
       end
     end
@@ -449,17 +443,6 @@ function R:OnEnable()
         Core:SetVoice("changetarget")
       end
     end
-    local timeline = {
-      {
-        phase = 1,
-        text = "阶段1",
-        timepoints = {
-        },
-      },
-    }
-    function bossmod:GetTimeline(difficulty)
-      return timeline
-    end
   end
 
   do --3
@@ -471,8 +454,9 @@ function R:OnEnable()
     local function initDamage()
       local now = GetTime()
       uncheckedRageCnt = 0
-      Core:SetFurtureDamage({key="231854"..":"..1,start=now+23,duration=0.1,damage=Core:GetDifficultyDamage(bossmod.difficulty,200e4)})
-      Core:SetFurtureDamage({key="233520"..":"..(aoeCnt+1),start=now+67,duration=(aoeCnt+1)*7.5,damage=Core:GetDifficultyDamage(bossmod.difficulty,(aoeCnt+1)*5*44e4+140e4)})
+      Core:SetFutureDamage({key="231854"..":"..1,start=now+23,duration=0.1,damage=Core:GetDifficultyDamage(bossmod.difficulty,200e4)})
+      Core:SetFutureDamage({key="233520"..":"..(aoeCnt+1),start=now+67,duration=(aoeCnt+1)*7.5,damage=Core:GetDifficultyDamage(bossmod.difficulty,(aoeCnt+1)*5*44e4+140e4)})
+
     end
     function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
       uncheckedRageCnt = 0
@@ -498,7 +482,7 @@ function R:OnEnable()
         local _,count = ...
         count = count or 1
         local damage = Core:GetDifficultyDamage(self.difficulty,count*15*40e4)
-        Core:SetFurtureDamage({key=spellId..":"..destGUID,duration=30,damage=damage,guid = destGUID})
+        Core:SetFutureDamage({key=spellId..":"..destGUID,duration=30,damage=damage,guid = destGUID})
         if Core:GetPlayerGUID() == destGUID then
           Core:SetTextT({text1 = "|cffffff00流血 - |cff00ffff"..count.."|cffffff00层|r", expires = now+2, removes = now+2})
           Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 30, name = GetSpellInfo(spellId), count = count, scale = false})
@@ -526,10 +510,10 @@ function R:OnEnable()
           Core:SetTextT({text1 = "|cffffff00快分散|r", text2 = "|cff00ff00注意脚下|r", start = now+7,expires = now+10})
           Core:SetScreen(0,0,1,0.5,now+7)
 
-          Core:SetFurtureDamage({key="233520"..":"..(aoeCnt),start=now+10,duration=(aoeCnt)*7.5,damage=Core:GetDifficultyDamage(bossmod.difficulty,(aoeCnt)*5*44e4+140e4)})
+          Core:SetFutureDamage({key="233520"..":"..(aoeCnt),start=now+10,duration=(aoeCnt)*7.5,damage=Core:GetDifficultyDamage(bossmod.difficulty,(aoeCnt)*5*44e4+140e4)})
         end
         if spellId == 231729 then
-          Core:SetFurtureDamage({start=now+6,duration=0.1,guid=destGUID,damage=Core:GetDifficultyDamage(bossmod.difficulty,70e4)})
+          Core:SetFutureDamage({start=now+6,duration=0.1,guid=destGUID,damage=Core:GetDifficultyDamage(bossmod.difficulty,70e4)})
           if Core:GetPlayerGUID() == destGUID then
             Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 6, name = GetSpellInfo(spellId), size = 2})
             -- Core:SetVoice("runout")
@@ -542,7 +526,7 @@ function R:OnEnable()
           end
         end
         if spellId == 234016 then
-          Core:SetFurtureDamage({start=now+4,duration=6,guid=destGUID,damage=Core:GetDifficultyDamage(bossmod.difficulty,70e4)})
+          Core:SetFutureDamage({start=now+4,duration=6,guid=destGUID,damage=Core:GetDifficultyDamage(bossmod.difficulty,70e4)})
           if Core:GetPlayerGUID() == destGUID then
             Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 10, name = GetSpellInfo(spellId), size = 1})
             -- Core:SetVoice("justrun")
@@ -595,9 +579,9 @@ function R:OnEnable()
         if spellId == 231854 then
           uncheckedRageCnt = uncheckedRageCnt + 1
           -- Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 0.7, name = "集合分担", size = 1, reverse = false})
-          Core:SetFurtureDamage({key=spellId..":"..uncheckedRageCnt,start=now+0.7,duration=0.1,damage=Core:GetDifficultyDamage(bossmod.difficulty,200e4)})
+          Core:SetFutureDamage({key=spellId..":"..uncheckedRageCnt,start=now+0.7,duration=0.1,damage=Core:GetDifficultyDamage(bossmod.difficulty,200e4)})
           if uncheckedRageCnt == 1 then
-            Core:SetFurtureDamage({key=spellId..":"..2,start=now+22.7,duration=0.1,damage=Core:GetDifficultyDamage(bossmod.difficulty,200e4)})
+            Core:SetFutureDamage({key=spellId..":"..2,start=now+22.7,duration=0.1,damage=Core:GetDifficultyDamage(bossmod.difficulty,200e4)})
           else
             Core:SetVoice("killbigmob")
           end
@@ -707,8 +691,8 @@ function R:OnEnable()
       sharkCnt = 0
       lastShotTime = nil
       if bossMod.difficulty ~= 17 then
-        Core:SetFurtureDamage({key="230139"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,180e4),start = now + 6 + 25, duration = 0.1})
-        Core:SetFurtureDamage({key="232754"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,232e4),start = now + 6 + 25, duration = 6})
+        Core:SetFutureDamage({key="230139"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,180e4),start = now + 6 + 25, duration = 0.1})
+        Core:SetFutureDamage({key="232754"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,232e4),start = now + 6 + 25, duration = 6})
       end
     end
     function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
@@ -722,11 +706,11 @@ function R:OnEnable()
             lastShotTime = now
             shotCnt = shotCnt + 1
             Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 6, name = GetSpellInfo(spellId), size = 1, scale = false, reverse = false})
-            Core:SetFurtureDamage({key=spellId..":"..shotCnt,damage = Core:GetDifficultyDamage(bossmod.difficulty,180e4),start = now + 6, duration = 0.1})
-            Core:SetFurtureDamage({key="232754"..":"..shotCnt,damage = Core:GetDifficultyDamage(bossmod.difficulty,232e4),start = now + 6, duration = 6})
+            Core:SetFutureDamage({key=spellId..":"..shotCnt,damage = Core:GetDifficultyDamage(bossmod.difficulty,180e4),start = now + 6, duration = 0.1})
+            Core:SetFutureDamage({key="232754"..":"..shotCnt,damage = Core:GetDifficultyDamage(bossmod.difficulty,232e4),start = now + 6, duration = 6})
             local interval = bossmod.phase == 2 and 30 or bossmod.difficulty == 16 and 30 or 40
-            Core:SetFurtureDamage({key=spellId..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,180e4),start = now + 6 + interval, duration = 0.1})
-            Core:SetFurtureDamage({key="232754"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,232e4),start = now + 6 + interval, duration = 6})
+            Core:SetFutureDamage({key=spellId..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,180e4),start = now + 6 + interval, duration = 0.1})
+            Core:SetFutureDamage({key="232754"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,232e4),start = now + 6 + interval, duration = 6})
           end
           if Core:GetPlayerGUID() == destGUID then
             Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 6, name = GetSpellInfo(spellId), size = 2})
@@ -739,13 +723,13 @@ function R:OnEnable()
           if Core:GetPlayerGUID() == destGUID then
             Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 120, name = GetSpellInfo(spellId), size = 1, scale = false})
           end
-          Core:SetFurtureDamage({key=spellId..":"..destGUID, guid = destGUID,damage = Core:GetDifficultyDamage(bossmod.difficulty,80e4*60), duration = 120})
+          Core:SetFutureDamage({key=spellId..":"..destGUID, guid = destGUID,damage = Core:GetDifficultyDamage(bossmod.difficulty,80e4*60), duration = 120})
         end
         if spellId == 232913 then
           if Core:GetPlayerGUID() == destGUID then
             Core:SetIconT({index = 13, texture = GetSpellTexture(spellId), duration = 6, name = GetSpellInfo(spellId), size = 1})
           end
-          Core:SetFurtureDamage({key=spellId..":"..destGUID, guid = destGUID,damage = Core:GetDifficultyDamage(bossmod.difficulty,55e4*6), duration = 6})
+          Core:SetFutureDamage({key=spellId..":"..destGUID, guid = destGUID,damage = Core:GetDifficultyDamage(bossmod.difficulty,55e4*6), duration = 6})
         end
       end
       if event == "SPELL_AURA_REMOVED" then
@@ -753,13 +737,13 @@ function R:OnEnable()
           if Core:GetPlayerGUID() == destGUID then
             Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 0, name = GetSpellInfo(spellId), size = 1, scale = false})
           end
-          Core:SetFurtureDamage({key=spellId..":"..destGUID,damage = 0, guid = destGUID, duration = 120})
+          Core:SetFutureDamage({key=spellId..":"..destGUID,damage = 0, guid = destGUID, duration = 120})
         end
         if spellId == 232913 then
           if Core:GetPlayerGUID() == destGUID then
             Core:SetIconT({index = 13, texture = GetSpellTexture(spellId), duration = 0, name = GetSpellInfo(spellId), size = 1, scale = false})
           end
-          Core:SetFurtureDamage({key=spellId..":"..destGUID,damage = 0, guid = destGUID, duration = 6})
+          Core:SetFutureDamage({key=spellId..":"..destGUID,damage = 0, guid = destGUID, duration = 6})
         end
       end
       if event == "SPELL_CAST_START" then
@@ -791,8 +775,8 @@ function R:OnEnable()
           Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 2, name = GetSpellInfo(spellId), size = 1, reverse = false})
           Core:SetScreen(0.5,0,1,0.5)
           Core:SetVoice("inktoshark")
-          Core:SetFurtureDamage({key=spellId..":"..sharkCnt,damage = Core:GetDifficultyDamage(bossmod.difficulty,300e4),start = now + 4, duration = 6})
-          Core:SetFurtureDamage({key=spellId..":"..(sharkCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,300e4),start = now + 4, duration = 6})
+          Core:SetFutureDamage({key=spellId..":"..sharkCnt,damage = Core:GetDifficultyDamage(bossmod.difficulty,300e4),start = now + 4, duration = 6})
+          Core:SetFutureDamage({key=spellId..":"..(sharkCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,300e4),start = now + 4, duration = 6})
         end
         if spellId == 230358 then
           Core:SetTextT({text1 = "|cffffff00注意白圈:|cff00ffff{number}|r", text2 = "|cffffff00白圈出现|r", expires = now+2})
@@ -822,19 +806,19 @@ function R:OnEnable()
           bossmod.phase = 2
           bossmod.basetime = now
           Core:SetVoice("ptwo")
-          Core:SetFurtureDamage({key="232746"..":"..1,damage = Core:GetDifficultyDamage(bossmod.difficulty,300e4),start = now + 40, duration = 6})
+          Core:SetFutureDamage({key="232746"..":"..1,damage = Core:GetDifficultyDamage(bossmod.difficulty,300e4),start = now + 40, duration = 6})
           if bossMod.difficulty ~= 17 then
-            Core:SetFurtureDamage({key="230139"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,180e4),start = now + 20, duration = 0.1})
-            Core:SetFurtureDamage({key="232754"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,232e4),start = now + 20, duration = 6})
+            Core:SetFutureDamage({key="230139"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,180e4),start = now + 20, duration = 0.1})
+            Core:SetFutureDamage({key="232754"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,232e4),start = now + 20, duration = 6})
           end
         elseif bossmod.phase == 2 and health/max < 0.40 then
           bossmod.phase = 3
           bossmod.basetime = now
           Core:SetVoice("pthree")
-          Core:SetFurtureDamage({key="232746"..":"..(sharkCnt+1),damage = 0})
+          Core:SetFutureDamage({key="232746"..":"..(sharkCnt+1),damage = 0})
           if bossMod.difficulty ~= 17 then
-            Core:SetFurtureDamage({key="230139"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,180e4),start = now + 23, duration = 0.1})
-            Core:SetFurtureDamage({key="232754"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,232e4),start = now + 23, duration = 6})
+            Core:SetFutureDamage({key="230139"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,180e4),start = now + 23, duration = 0.1})
+            Core:SetFutureDamage({key="232754"..":"..(shotCnt+1),damage = Core:GetDifficultyDamage(bossmod.difficulty,232e4),start = now + 23, duration = 6})
           end
         end
       end
@@ -1238,6 +1222,9 @@ function R:OnEnable()
   do --8
     local bossmod = Core:NewBoss({encounterID = 2038})
     local sheildtimer
+    function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
+      Core:RegisterAuraCooldown(239739,{color = {1,0,0.5,0.2}, radius = 8})
+    end
     function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
       local now = GetTime()
       if event == "SPELL_AURA_APPLIED" then
@@ -1250,15 +1237,17 @@ function R:OnEnable()
           end
           Core:SetText("|cffff0000躲避小圈:{number}|r","|cff00ff00躲圈结束|r",now+4,now+5)
         end
-        if spellId == 239739 and Core:GetPlayerGUID() == destGUID then -- UnboundChaos
-          local hasDebuff,rank, icon, count, dispelType, duration, expires = UnitDebuff("player",spellName)
-          Core:SetIcon(1,GetSpellTexture(spellId),2,duration)
-          for i = 0,4 do
-            Core:SetSay(""..i,expires-i)
+        if spellId == 239739 then
+          if Core:GetPlayerGUID() == destGUID then -- UnboundChaos
+            local hasDebuff,rank, icon, count, dispelType, duration, expires = UnitDebuff("player",spellName)
+            Core:SetIcon(1,GetSpellTexture(spellId),2,duration)
+            for i = 0,4 do
+              Core:SetSay(""..i,expires-i)
+            end
+            Core:SetText("|cffff0000紫圈点你:{number}|r","|cff00ff00紫圈结束|r",now+duration,now+duration+1)
+            Core:SetScreen(0.5,0,1,0.5)
+            Core:SetVoice("targetyou")
           end
-          Core:SetText("|cffff0000紫圈点你:{number}|r","|cff00ff00紫圈结束|r",now+duration,now+duration+1)
-          Core:SetScreen(0.5,0,1,0.5)
-          Core:SetVoice("targetyou")
         end
       end
       if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_APPLIED_DOSE" then
@@ -1312,7 +1301,7 @@ function R:OnEnable()
             Core:SetVoice("defensive")
           end
         end
-        if spellId == 233856 and Core:GetPlayerRole() == "DAMAGEER" then
+        if spellId == 233856 and Core:GetPlayerRole() ~= "HEALER" then
           Core:SetVoice("bigmob")
           Core:SetScreen(1,1,0,0.5)
           Core:SetText("|cffffff00快打侍女|r","",now + 2)
@@ -1348,9 +1337,6 @@ function R:OnEnable()
     function bossmod:UNIT_SPELLCAST_SUCCEEDED(aceEvent, uId, spellName, _, spellGUID)
     	local spellId = tonumber(select(5, strsplit("-", spellGUID)), 10)
       local now = GetTime()
-    end
-
-    function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
     end
 
     function bossmod:CHAT_MSG_RAID_BOSS_EMOTE(event, msg, sender, _, _, target)
@@ -1500,7 +1486,7 @@ function R:OnEnable()
           m:SetColor(0,1,0,0.2)
           demonicObelisk[guid] = m
           Core:SetIconT({index = 10, texture = GetSpellTexture(239785), duration = 9, size = 1, name = "", reverse = false})
-          Core:SetFurtureDamage({key="239785",duration=0.1,start = GetTime() + 9,damage=Core:GetDifficultyDamage(self.difficulty,100e4)})
+          Core:SetFutureDamage({key="239785",duration=0.1,start = GetTime() + 9,damage=Core:GetDifficultyDamage(self.difficulty,100e4)})
         end
       end
     end
@@ -1518,15 +1504,15 @@ function R:OnEnable()
           local count = select(2,...)
           count = count or 1
           Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 60, expires = now + 60, name = GetSpellInfo(spellId), count = count, scale = false})
-          Core:SetFurtureDamage({key=spellId..":"..destGUID,duration=60,guid=destGUID,damage=Core:GetDifficultyDamage(self.difficulty,count*30*65e4)})
+          Core:SetFutureDamage({key=spellId..":"..destGUID,duration=60,guid=destGUID,damage=Core:GetDifficultyDamage(self.difficulty,count*30*65e4)})
         end
         if spellId == 236710 and Core:GetPlayerGUID() == destGUID then
           Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 8, start = nil, expires = nil, size = 2, name = "映像", reverse = false})
           Core:SetVoice("gather")
           Core:SetScreen(0.5,0,1)
           Core:SetTextT({text1 = "|cffff0000映像点你: |cff00ffff{number}|r", text2 = "|cff00ff00映像结束|r",start = nil,expires = now+8})
-          Core:SetFurtureDamage({key=spellId..":1",duration=0.1,start=now+11,damage=Core:GetDifficultyDamage(self.difficulty,50e4)})
-          Core:SetFurtureDamage({key=spellId..":2",duration=0.1,start=now+14,damage=Core:GetDifficultyDamage(self.difficulty,200e4)})
+          Core:SetFutureDamage({key=spellId..":1",duration=0.1,start=now+11,damage=Core:GetDifficultyDamage(self.difficulty,50e4)})
+          Core:SetFutureDamage({key=spellId..":2",duration=0.1,start=now+14,damage=Core:GetDifficultyDamage(self.difficulty,200e4)})
           for i = 0,3 do
             Core:SetSay(""..i,now + 8 - i)
           end
@@ -1534,7 +1520,7 @@ function R:OnEnable()
         if spellId == 239932 then
           local guid = UnitGUID("boss1target")
           if guid then
-            Core:SetFurtureDamage({key=spellId,guid=guid,duration=9,damage=Core:GetDifficultyDamage(self.difficulty,300e4*5)})
+            Core:SetFutureDamage({key=spellId,guid=guid,duration=9,damage=Core:GetDifficultyDamage(self.difficulty,300e4*5)})
           end
           if UnitIsUnit("boss1target","player") then
             Core:SetVoice("defensive",now+6)
@@ -1587,7 +1573,7 @@ function R:OnEnable()
           self.phase = 3
           self.basetime = now
           Core:SetVoice("pthree")
-          Core:SetFurtureDamage({key="241983"..":dot",start=now+7.5,duration=60,damage=0})
+          Core:SetFutureDamage({key="241983"..":dot",start=now+7.5,duration=60,damage=0})
         end
       end
       if event == "SPELL_CAST_START" then
@@ -1605,7 +1591,7 @@ function R:OnEnable()
           self.phase = 2.5
           self.basetime = now
           Core:SetVoice("phasechange")
-          Core:SetFurtureDamage({key=spellId..":dot",start=now+7.5,duration=60,damage=Core:GetDifficultyDamage(self.difficulty,30e4*60)})
+          Core:SetFutureDamage({key=spellId..":dot",start=now+7.5,duration=60,damage=Core:GetDifficultyDamage(self.difficulty,30e4*60)})
         end
         if spellId == 238999 then
           p3aoecount = p3aoecount + 1
@@ -1616,8 +1602,8 @@ function R:OnEnable()
             Core:SetVoice("justrun",now+7)
           else
             Core:SetVoice("defensive",now+5)
-            Core:SetFurtureDamage({key=spellId,start=now+9,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,450e4)})
-            Core:SetFurtureDamage({key=spellId..":dot",start=now+9,duration=400,damage=Core:GetDifficultyDamage(self.difficulty,30e4*400)})
+            Core:SetFutureDamage({key=spellId,start=now+9,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,450e4)})
+            Core:SetFutureDamage({key=spellId..":dot",start=now+9,duration=400,damage=Core:GetDifficultyDamage(self.difficulty,30e4*400)})
           end
           Core:SetVoice("safenow",now+9)
         end
@@ -1625,7 +1611,7 @@ function R:OnEnable()
       if event == "SPELL_CAST_SUCCESS" then
         if spellId == 238430 then
           Core:CreateCooldown({guid = destGUID,spellId = spellId,radius = 5,duration = 5,color = {1,1,0},alpha = 0.15,})
-          Core:SetFurtureDamage({key=spellId..":"..destGUID,start=now+5,guid = destGUID,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,200e4)})
+          Core:SetFutureDamage({key=spellId..":"..destGUID,start=now+5,guid = destGUID,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,200e4)})
           if Core:GetPlayerGUID() == destGUID then
             Core:SetIcon(1,GetSpellTexture(spellId),2,5)
             -- Core:SetIcon(1,GetSpellTexture(238430),2,5)
@@ -1662,7 +1648,7 @@ function R:OnEnable()
         Core:SetTextT({text1 = "|cffffff00准备击飞: |cff00ffff{number}|r", text2 = "|cff00ff00击飞...|r",expires = now+10,start = now+5})
         Core:SetIconT({index = 0, texture = GetSpellTexture(spellId), duration = 10, name = "奇点", reverse = false})
         Core:SetScreen(0,1,1)
-        Core:SetFurtureDamage({key=spellId,start=now+10,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,80e4)})
+        Core:SetFutureDamage({key=spellId,start=now+10,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,80e4)})
       end
       if msg:find("238502") then
         local spellId = 238502
@@ -1688,7 +1674,7 @@ function R:OnEnable()
           Core:CreateBeam({fromUnit= "boss1",toGUID = UnitGUID(unit),width = 6,length = 100,color = {1,0,0},alpha = 0.2,removes = now + 5})
           Core:CreateCooldown({guid = UnitGUID(unit),spellId = spellId,radius = 8,duration = 5,color = {1,0,0},alpha = 0.2})
           local guid = UnitGUID(unit)
-          Core:SetFurtureDamage({key=spellId..":"..guid,start=now+5,duration=0.1,guid=guid,damage=Core:GetDifficultyDamage(self.difficulty,200e4)})
+          Core:SetFutureDamage({key=spellId..":"..guid,start=now+5,duration=0.1,guid=guid,damage=Core:GetDifficultyDamage(self.difficulty,200e4)})
         end
       end
     end

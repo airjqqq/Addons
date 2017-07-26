@@ -361,7 +361,8 @@ function Core:ResetDatas()
   self.screenDatas = {}
   self.playerAlphaDatas = {}
   self.textDatas = {}
-  self.furtureDamageDatas = {}
+  self.timelineDatas = {}
+  self.futureDamageDatas = {}
   self.testing = nil
 end
 
@@ -732,6 +733,13 @@ function Core:GetCid(guid)
   end
   return id,objectType
 end
+
+local idg = 0
+local function getId ()
+  idg = idg + 1
+  return idg
+end
+
 function Core:GetTestBossMod()
   return self.bossMods[0]
 end
@@ -880,6 +888,10 @@ function Core:SetIcon(index,texture,size,duration,expires,removes,reverse,count)
     justSetUp = true,
   }
   return self.iconDatas[index]
+end
+
+function Core:ClearIcon(index)
+  self.iconDatas[index] = nil
 end
 
 local scaleDuration = 0.3
@@ -1253,7 +1265,30 @@ function Core:PlayChar(c)
   -- print("play",c)
   PlaySoundFile("Interface\\AddOns\\AirjBossMods\\sounds\\pinyin\\"..c..".gsm", "Master")
 end
+
 function Core:PlayString(str,interval)
+  local cs = {strsplit(" ",str)}
+  if #cs<1 then
+    return
+  end
+  local played = 0
+  interval = interval or 0.1
+  for i,c in ipairs(cs) do
+    if c ~= "" then
+      local delay = (played*0.8 + (i-1)*0.2) * interval
+      if delay > 0 then
+        self:ScheduleTimer(function()
+          Core:PlayChar(c)
+        end,delay)
+      else
+        Core:PlayChar(c)
+      end
+      played = played + 1
+    end
+  end
+end
+
+function Core:PlayStringB(str,interval)
   local cs = {strsplit(" ",str)}
   if #cs<1 then
     return
@@ -1342,7 +1377,141 @@ function Core:UpdatePlayerAlpha()
 end
 
 -- timeline
+function Core:SetTimeline(data)
+  local now = GetTime()
+  local datas = self.timelineDatas
+  local text = data.text or ""
+  local expires = data.expires or now + 15
+  local removes = data.removes or expires + 10
+  local start = data.start or expires - 20
+  local preshow = data.pershow or expires - 60
+  local color = data.color or {1,0,0,1}
+  local color2 = data.color2 or {0,1,0,0.2}
+  local phase = data.phase
+  local key = data.key or getId()
+  datas[key] = {text = text, expires = expires, removes = removes, start = start, preshow = preshow,
+   color = color, color2 = color2, phase = phase}
+end
+
+function Core:ClearTimeline(key)
+  self.timelineDatas[key] = nil
+end
+
 function Core:UpdateTimeline()
+  local disable = db.anchorDisables and db.anchorDisables.timeline
+  if disable then
+    for i = 1,#self.timelineRows do
+      self.timelineRows[i]:Hide()
+    end
+    return
+  end
+  local now = GetTime()
+  local anchor = self.anchors.timeline
+  local resized = anchor.resizing
+  if resized then anchor.resizing = nil end
+
+  local bossMod = self:GetCurrentBossMod()
+  local phase = bossMod and bossMod.phase
+  local basetime = bossMod and bossMod.basetime
+
+  local rowdata = {}
+  local rownum = 0
+  for k,v in pairs(self.timelineDatas) do
+    if now > v.removes then
+      self.timelineDatas[k] = nil
+    elseif not v.phase or v.phase == phase then
+      -- tinsert(datas,v)
+      if now > v.preshow then
+        rownum = rownum + 1
+        rowdata[rownum] = v
+      end
+    end
+  end
+
+  sort(rowdata,function(a,b)
+    if a == nil or b == nil then
+      return false
+    end
+    if a == b then
+      return false
+    end
+    return a.expires < b.expires
+  end)
+
+  for i = 1,rownum do
+    local row = self.timelineRows[i]
+    local data = rowdata[i]
+    if not row then
+      row = CreateFrame("Frame")
+      local texture = row:CreateTexture()
+      texture:SetAllPoints()
+      texture:SetColorTexture(0,0,0,1)
+      local bar = CreateFrame("StatusBar",nil,row)
+      bar:SetPoint("TOPLEFT",row,"TOPLEFT",2,-2)
+      bar:SetPoint("BOTTOMRIGHT",row,"BOTTOMRIGHT",-2,2)
+      bar:SetMinMaxValues(0,1)
+      bar:SetStatusBarTexture([[Interface\Buttons\WHITE8X8]])
+      row.bar = bar
+      local fontstring = bar:CreateFontString(nil,"OVERLAY","GameFontHighlight")
+      fontstring:SetFont("Fonts\\ARKai_C.TTF",72,"MONOCHROME")
+    	fontstring:SetAllPoints()
+      fontstring:SetJustifyH("LEFT")
+      row.name = fontstring
+      fontstring = bar:CreateFontString(nil,"OVERLAY","GameFontHighlight")
+      fontstring:SetFont("Fonts\\ARKai_C.TTF",72,"MONOCHROME")
+    	fontstring:SetAllPoints()
+      fontstring:SetJustifyH("RIGHT")
+      row.time = fontstring
+      self.timelineRows[i] = row
+    end
+    if resized then
+      row:SetSize(width,height)
+      row:SetPoint("TOP",anchor,"BOTTOM",0,-(i-1)*height)
+      row.name:SetFont("Fonts\\ARKai_C.TTF",height*0.5,"OUTLINE")
+      row.time:SetFont("Fonts\\ARKai_C.TTF",height*0.8,"OUTLINE")
+    end
+    local color, percent, alpha, timeString
+    if now <data.start then
+      percent = 0
+      color = data.color
+      alpha = color[4] or 1
+    elseif now < data.expires then
+      local duration = data.expires - data.start
+      percent = (now - data.start)/duration
+      color = data.color
+      alpha = color[4] or 1
+    elseif now < data.expires + 10 then
+      percent = 1
+      color = data.color2
+      local p = (now - data.expires)/10
+      local a1 = data.color[4] or 1
+      local a2 = data.color2[4] or 0.2
+      alpha = p * a2 + (1-p) * a1
+    elseif
+      percent = 1
+      color = data.color2
+      alpha = color[4] or 0.2
+    end
+    if now < data.expires then
+      timeString = "|cffffff00 -"..self:GetTimeString(data.expires - now).."|r"
+    else
+      timeString = "|cffffffff -"..self:GetTimeString(-(data.expires - now)).."|r"
+    end
+    local text = data.text or ""
+    text = self:FormatString(text)
+    row.name:SetText(text)
+    row.time:SetText(timeString or "")
+    row.bar:SetValue(percent)
+    row.bar:SetAlpha(alpha or 0)
+    row.bar:SetStatusBarColor(unpack(color or {1,1,0.5}))
+    row:Show()
+  end
+  for i = rownum+1,#self.timelineRows do
+    self.timelineRows[i]:Hide()
+  end
+end
+
+function Core:UpdateTimelineB()
   local bossMod = self:GetCurrentBossMod()
 
   local disable = db.anchorDisables and db.anchorDisables.timeline
@@ -1480,33 +1649,32 @@ end
 
 
 -- furture damage
-local idg = 0
-local function getId ()
-  idg = idg + 1
-  return idg
-end
 
-function Core:SetFurtureDamage(data)
+function Core:SetFutureDamage(data)
   local now = GetTime()
   local key = data.key or getId()
   data.damage = data.damage or 0
   if data.damage == 0 then
-    self.furtureDamageDatas[key] = nil
+    self.futureDamageDatas[key] = nil
   else
     data.start = data.start or now
     data.guid = data.guid or "all"
     data.duration = data.duration or 1
     data.removes = data.removes or data.start + data.duration
-    self.furtureDamageDatas[key] = data
+    self.futureDamageDatas[key] = data
   end
+end
+
+function Core:ClearFutureDamage(key)
+  self.futureDamageDatas[key] = nil
 end
 
 function Core:GetFutureDamage(guid,time)
   local damage = 0
   local now = GetTime()
-  for key, data in pairs(self.furtureDamageDatas) do
+  for key, data in pairs(self.futureDamageDatas) do
     if now > data.removes then
-      self.furtureDamageDatas[key] = nil
+      self.futureDamageDatas[key] = nil
     elseif data.guid == "all" or data.guid == guid then
       local s, e = data.start
       local d = data.duration
@@ -1536,9 +1704,9 @@ end
 function Core:GetFutureDamageFrames(guid,time)
   local frames = {}
   local now = GetTime()
-  for key, data in pairs(self.furtureDamageDatas) do
+  for key, data in pairs(self.futureDamageDatas) do
     if now > data.removes then
-      self.furtureDamageDatas[key] = nil
+      self.futureDamageDatas[key] = nil
     elseif data.guid == "all" or data.guid == guid then
       if now+time > data.start and now < data.start + data.duration then
         local dps=data.damage/data.duration
