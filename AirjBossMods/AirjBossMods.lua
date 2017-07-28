@@ -723,7 +723,6 @@ function Core:FindHarmUnitByName(name)
     local u = "boss"..i
     tinsert(units,u)
   end
-  tinsert(units,"player")
   for i,u in ipairs(units) do
     local n = UnitName(u)
     if n then
@@ -733,6 +732,52 @@ function Core:FindHarmUnitByName(name)
       end
     end
   end
+end
+function Core:FindHarmUnitByGuid(guid)
+  self.ag2u = self.ag2u or {}
+  local map = self.ag2u
+  local unit = map[name]
+  if unit then
+    if UnitGUID(unit) == guid then
+      return unit
+    else
+      map[guid] = nil
+    end
+  end
+  local units = {}
+  for i = 1,5 do
+    local u = "boss"..i
+    tinsert(units,u)
+  end
+  for i,u in ipairs(units) do
+    local g = UnitGUID(u)
+    if g then
+      map[g] = u
+      if g == guid then
+        return u
+      end
+    end
+  end
+end
+
+function Core:ScanBossTarget(guid,func,includeTank,time)
+  local now = GetTime()
+  local expires = now + (time or 1)
+  local timer
+  timer = self:ScheduleRepeatingTimer(function()
+    if GetTime() > expires then
+      self:CancelTimer(timer)
+      return
+    end
+    local unit = self:FindHarmUnitByGuid(guid)
+    if unit then
+      local target = unit.."target"
+      if not UnitDetailedThreatSituation(unit,target) or includeTank then
+        func(unit,target)
+        self:CancelTimer(timer)
+      end
+    end
+  ,0.05)
 end
 
 function Core:GetPlayerGUID()
