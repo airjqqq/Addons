@@ -17,6 +17,8 @@ function R:OnEnable()
 
   do --template
     local bossmod = Core:NewBoss({encounterID = 1})
+    function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
+    end
     function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
       local now = GetTime()
       if event == "SPELL_AURA_APPLIED" then
@@ -24,33 +26,20 @@ function R:OnEnable()
       if event == "SPELL_CAST_START" then
       end
     end
+    function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
+      local now = GetTime()
+    end
     function bossmod:UNIT_SPELLCAST_SUCCEEDED(aceEvent, uId, spellName, _, spellGUID)
     	local spellId = tonumber(select(5, strsplit("-", spellGUID)), 10)
       local now = GetTime()
     end
-
-    function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
-    end
-
     function bossmod:CHAT_MSG_RAID_BOSS_EMOTE(event, msg, sender, _, _, target)
+      local now = GetTime()
       if msg:find("123456") then
       end
     end
-
-    local lastCometTime
     function bossmod:Timer10ms()
       local now = GetTime()
-    end
-    local timeline = {
-      {
-        phase = 1,
-        text = "阶段1",
-        timepoints = {
-        },
-      },
-    }
-    function bossmod:GetTimeline(difficulty)
-      return timeline
     end
   end
 
@@ -86,7 +75,7 @@ function R:OnEnable()
         end
         Core:SetTimeline({text = "火球",color = {0,1,0}, expires = self.basetime + (difficulty == 16 and 34 or 24)})
       end
-      Core:SetTimeline({text = "AOE - "..aoeCnt, expires = self.basetime + 54, color = {1,0,0}})
+      Core:SetTimeline({text = "AOE - "..(aoeCnt+1), expires = self.basetime + 54, color = {1,0,0}})
     end
 
     function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
@@ -631,6 +620,67 @@ function R:OnEnable()
     end
     function bossmod:GetTimeline(difficulty)
       return timeline
+    end
+  end
+
+  do --4
+    local bossmod = Core:NewBoss({encounterID = 2050})
+    local aoeCnt = 0
+    function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
+      local now = GetTime()
+      aoeCnt = 0
+      Core:SetTimeline({text = "满月 - "..(aoeCnt+1), expires = now+48.3, color = {0,1,1}})
+      Core:SetFutureDamage({key="aoe"..":"..(aoeCnt+1),start=now+48.3,duration=12,damage=Core:GetDifficultyDamage(self.difficulty,600e4)})
+
+      Core:RegisterAuraCooldown(236519,{color={0,0,1,0.2},radius=8})
+      Core:RegisterAuraCooldown(236550,{color={0,0,1,0.2},radius=8})
+      Core:RegisterAuraBeam(236541,{width=4,color={1,0,0,0.3}})
+      Core:RegisterAuraCooldown(236712,{color={1,0,0.5,0.2},radius=8})
+      Core:RegisterAuraCooldown(236541,{color={1,0,0.5,0.2},radius=8})
+      Core:RegisterAuraBeam(236305,{width=4,color={0.5,0,1,0.3}})
+
+
+
+    end
+    local function aoe()
+      local now = GetTime()
+      aoeCnt = aoeCnt + 1
+      Core:SetTimeline({text = "满月 - "..(aoeCnt+1), expires = now+54.7, color = {0,1,1}})
+      Core:SetFutureDamage({key="aoe"..":"..(aoeCnt+0),start=now+0,duration=12,damage=Core:GetDifficultyDamage(self.difficulty,600e4)})
+      Core:SetFutureDamage({key="aoe"..":"..(aoeCnt+1),start=now+54.7,duration=12,damage=Core:GetDifficultyDamage(self.difficulty,600e4)})
+    end
+    function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
+      local now = GetTime()
+      if event == "SPELL_AURA_APPLIED" then
+        if spellId == 236305 then
+          aoe()
+        end
+      end
+      if event == "SPELL_CAST_START" then
+        if spellId == 239379 then
+          aoe()
+        end
+      end
+      if event == "SPELL_CAST_SUCCESS" then
+        if spellId == 233263 then
+          aoe()
+        end
+      end
+    end
+    function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
+      local now = GetTime()
+    end
+    function bossmod:UNIT_SPELLCAST_SUCCEEDED(aceEvent, uId, spellName, _, spellGUID)
+    	local spellId = tonumber(select(5, strsplit("-", spellGUID)), 10)
+      local now = GetTime()
+    end
+    function bossmod:CHAT_MSG_RAID_BOSS_EMOTE(event, msg, sender, _, _, target)
+      local now = GetTime()
+      if msg:find("123456") then
+      end
+    end
+    function bossmod:Timer10ms()
+      local now = GetTime()
     end
   end
 
