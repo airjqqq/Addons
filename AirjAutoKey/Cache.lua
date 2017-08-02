@@ -837,6 +837,7 @@ do
 	function Cache:ScanAllSpell(t)
 		wipe(spells)
 		wipe(knows)
+		local plevel = UnitLevel("player")
 		for i=1,200 do
 			-- local name, rank, icon, castingTime, minRange, maxRange, spellID = GetSpellInfo(i, "spell")
 			local t,spellID = GetSpellBookItemInfo(i,"spell")
@@ -851,7 +852,7 @@ do
 					usable = {IsUsableSpell(spellID)},
 				}
 				spells[spellID] = data
-				knows[spellID] = true
+				knows[spellID] = GetSpellLevelLearned(spellID)<= plevel --true --IsPlayerSpell(spellID)
 				if offId then
 					local data = {
 						charge = {GetSpellCharges(offId)},
@@ -859,7 +860,7 @@ do
 						usable = {IsUsableSpell(offId)},
 					}
 					spells[offId] = data
-					knows[offId] = true
+					knows[offId] = GetSpellLevelLearned(offId)<= plevel -- true -- IsPlayerSpell(offId)
 				end
 				Cache.testspells1[spellID] = data
 			end
@@ -877,7 +878,7 @@ do
 					usable = {IsUsableSpell(spellID)},
 				}
 				spells[spellID] = data
-				knows[spellID] = true
+				knows[spellID] = true --spellID and IsSpellKnown(spellID,true)
 			end
 		end
 		for spellID in pairs(externSpellIDs) do
