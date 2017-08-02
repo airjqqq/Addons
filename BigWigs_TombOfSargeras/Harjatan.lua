@@ -1,8 +1,5 @@
 
 --------------------------------------------------------------------------------
--- TODO List:
-
---------------------------------------------------------------------------------
 -- Module Declaration
 --
 
@@ -18,6 +15,7 @@ mod.respawnTime = 30
 
 local rageCounter = 0
 local roarCounter = 0
+local skipDrawIn = true
 
 --------------------------------------------------------------------------------
 -- Localization
@@ -76,6 +74,7 @@ function mod:OnBossEnable()
 
 	-- Adds
 	self:Log("SPELL_AURA_APPLIED", "AqueousBurst", 231729)
+	self:Log("SPELL_AURA_REMOVED", "AqueousBurstRemoved", 231729)
 	self:Log("SPELL_AURA_APPLIED", "DrivenAssault", 234016)
 	self:Log("SPELL_AURA_REMOVED", "DrivenAssaultRemoved", 234016)
 
@@ -91,6 +90,7 @@ end
 function mod:OnEngage()
 	roarCounter = 1
 	rageCounter = 1
+	skipDrawIn = true -- True until you get Drenching Waters on the floor
 
 	self:CDBar(232192, 17.5) -- Commanding Roar
 	self:CDBar(231854, 20.7) -- Unchecked Rage
@@ -110,18 +110,18 @@ end
 --------------------------------------------------------------------------------
 -- Event Handlers
 --
-function mod:UNIT_SPELLCAST_SUCCEEDED(unit, spellName, _, _, spellId)
+function mod:UNIT_SPELLCAST_SUCCEEDED(_, spellName, _, _, spellId)
 	if spellId == 232192 then -- Commanding Roar
-		roarCounter = roarCounter + 1
 		self:Message(spellId, "Important", "Alert", spellName)
-		if roarCounter == 2 then
+		roarCounter = roarCounter + 1
+		if roarCounter == 2 or skipDrawIn then
 			self:Bar(spellId, 32.8)
 		end
 	end
 end
 
 function mod:RAID_BOSS_WHISPER(event, msg)
-	if msg:find("240319", nil, true) then -- Hatching
+	if msg:find("240319", nil, true) then -- Hatching XXX Need a log where it skips it on mythic for timers (if any)
 		self:Message(240319, "Important", "Warning")
 	end
 end
@@ -129,6 +129,7 @@ end
 do
 	local prev = 0
 	function mod:GroundEffectDamage(args)
+		skipDrawIn = false -- Drenching Waters confirmed, no more skipping
 		local t = GetTime()
 		if self:Me(args.destGUID) and t-prev > 1.5 then
 			prev = t
@@ -143,16 +144,22 @@ function mod:JaggedAbrasion(args)
 end
 
 function mod:UncheckedRage(args)
-	rageCounter = rageCounter + 1
 	self:Message(args.spellId, "Urgent", "Warning")
-	if rageCounter <= 2 then
+	rageCounter = rageCounter + 1
+	if rageCounter <= 2 or skipDrawIn then
 		self:Bar(args.spellId, 20.5)
 	end
 end
 
 function mod:DrawIn(args)
 	self:Message(args.spellId, "Important", "Alert", CL.casting:format(args.spellName))
-	self:CastBar(args.spellId, 10)
+	if skipDrawIn then -- Reset counters so bars keep rolling for another round
+		roarCounter = 1
+		rageCounter = 1
+		self:Bar(args.spellId, 58.4) -- Draw In
+	else
+		self:CastBar(args.spellId, 10)
+	end
 end
 
 function mod:FrigidBlows(args)
@@ -188,6 +195,10 @@ do
 			self:ScheduleTimer("TargetMessage", 0.3, args.spellId, playerList, "Important", "Alarm")
 		end
 	end
+end
+
+function mod:AqueousBurstRemoved()
+	skipDrawIn = false -- Drenching Waters confirmed, no more skipping
 end
 
 function mod:DrivenAssault(args)

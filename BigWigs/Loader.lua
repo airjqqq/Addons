@@ -7,7 +7,7 @@ local bwFrame = CreateFrame("Frame")
 -- Generate our version variables
 --
 
-local BIGWIGS_VERSION = 62
+local BIGWIGS_VERSION = 67
 local BIGWIGS_RELEASE_STRING = ""
 local versionQueryString, versionResponseString = "Q^%d^%s", "V^%d^%s"
 
@@ -18,7 +18,7 @@ do
 	local RELEASE = "RELEASE"
 
 	local releaseType = RELEASE
-	local myGitHash = "72a7b03" -- The ZIP packager will replace this with the Git hash.
+	local myGitHash = "2b63387" -- The ZIP packager will replace this with the Git hash.
 	local releaseString = ""
 	--[===[@alpha@
 	-- The following code will only be present in alpha ZIPs.
@@ -77,18 +77,18 @@ local highestFoundVersion = BIGWIGS_VERSION
 -- Loading
 local loadOnCoreEnabled = {} -- BigWigs modulepacks that should load when a hostile zone is entered or the core is manually enabled, this would be the default plugins Bars, Messages etc
 local loadOnZone = {} -- BigWigs modulepack that should load on a specific zone
-local loadOnSubMenu = {} -- BigWigs modulepack that should load on a specific zone and display inside a specific menu
 local loadOnSlash = {} -- BigWigs modulepacks that can load from a chat command
 local menus = {} -- contains the menus for BigWigs, once the core is loaded they will get injected
 local enableZones = {} -- contains the zones in which BigWigs will enable
 local disabledZones -- contains the zones in which BigWigs will enable, but the user has disabled the addon
 local worldBosses = {} -- contains the list of world bosses per zone that should enable the core
 local fakeWorldZones = { -- Fake world zones used for world boss translations and loading
-	[466]=true, -- Outland
-	[862]=true, -- Pandaria
-	[962]=true, -- Draenor
-	[1007]=true, -- Broken Isles
-	[1021]=true, -- Broken Shore
+	[-466]=true, -- Outland
+	[-862]=true, -- Pandaria
+	[-962]=true, -- Draenor
+	[-1007]=true, -- Broken Isles
+	[-1021]=true, -- Broken Shore
+	--1184
 }
 
 do
@@ -109,12 +109,12 @@ do
 
 	local tbl = {
 		[696]=c, [755]=c, [766]=c, [717]=c,
-		[775]=bc, [780]=bc, [779]=bc, [776]=bc, [796]=bc, [799]=bc, [782]=bc, [466]=bc,
+		[775]=bc, [780]=bc, [779]=bc, [776]=bc, [796]=bc, [799]=bc, [782]=bc, [-466]=bc,
 		[604]=wotlk, [543]=wotlk, [535]=wotlk, [529]=wotlk, [527]=wotlk, [532]=wotlk, [531]=wotlk, [609]=wotlk, [718]=wotlk,
 		[752]=cata, [758]=cata, [754]=cata, [824]=cata, [800]=cata, [773]=cata,
-		[896]=mop, [897]=mop, [886]=mop, [930]=mop, [953]=mop, [862]=mop,
-		[994]=wod, [988]=wod, [1026]=wod, [962]=wod,
-		[1094]=l, [1088]=l, [1007]=l, [1114]=l, [1147]=l,
+		[896]=mop, [897]=mop, [886]=mop, [930]=mop, [953]=mop, [-862]=mop,
+		[994]=wod, [988]=wod, [1026]=wod, [-962]=wod,
+		[1094]=l, [1088]=l, [-1007]=l, [1114]=l, [1147]=l,
 
 		[756]=lw_c, -- Classic
 		[710]=lw_bc, [722]=lw_bc, [723]=lw_bc, [724]=lw_bc, [725]=lw_bc, [726]=lw_bc, [727]=lw_bc, [728]=lw_bc, [729]=lw_bc, [730]=lw_bc, [731]=lw_bc, [732]=lw_bc, [733]=lw_bc, [734]=lw_bc, [797]=lw_bc, [798]=lw_bc, -- TBC
@@ -122,18 +122,18 @@ do
 		[747]=lw_cata, [757]=lw_cata, [767]=lw_cata, [768]=lw_cata, [769]=lw_cata, [820]=lw_cata, -- Cataclysm
 		[877]=lw_mop, [871]=lw_mop, [874]=lw_mop, [885]=lw_mop, [867]=lw_mop, [919]=lw_mop, -- MoP
 		[964]=lw_wod, [969]=lw_wod, [984]=lw_wod, [987]=lw_wod, [989]=lw_wod, [993]=lw_wod, [995]=lw_wod, [1008]=lw_wod, -- WoD
-		[1041]=lw_l, [1042]=lw_l, [1045]=lw_l, [1046]=lw_l, [1065]=lw_l, [1066]=lw_l, [1067]=lw_l, [1079]=lw_l, [1081]=lw_l, [1087]=lw_l, [1115]=lw_l, [1146]=lw_l, -- Legion
-		[1021]=lw_l, [1129]=lw_l, -- Legion Scenarios
+		[1041]=lw_l, [1042]=lw_l, [1045]=lw_l, [1046]=lw_l, [1065]=lw_l, [1066]=lw_l, [1067]=lw_l, [1079]=lw_l, [1081]=lw_l, [1087]=lw_l, [1115]=lw_l, [1146]=lw_l, [1178]=lw_l, -- Legion
+		[-1021]=lw_l, -- Legion Scenarios
 	}
 
 	public.zoneTblWorld = {
-		[-473] = 466, [-465] = 466, -- Outland
-		[-807] = 862, [-809] = 862, [-928] = 862, [-929] = 862, [-951] = 862, -- Pandaria
-		[-948] = 962, [-949] = 962, [-949] = 962, [-945] = 962, -- Draenor
-		[-1015] = 1007, [-1017] = 1007, [-1018] = 1007, [-1024] = 1007, [-1033] = 1007, -- Broken Isles
+		[-473] = -466, [-465] = -466, -- Outland
+		[-807] = -862, [-809] = -862, [-928] = -862, [-929] = -862, [-951] = -862, -- Pandaria
+		[-948] = -962, [-949] = -962, [-945] = -962, -- Draenor
+		[-1015] = -1007, [-1017] = -1007, [-1018] = -1007, [-1024] = -1007, [-1033] = -1007, -- Broken Isles
 	}
 	public.fakeWorldZones = fakeWorldZones
-	public.zoneTbl = {}
+	public.zoneTbl = {[1712]=l} -- Antorus
 	for k,v in next, tbl do
 		if fakeWorldZones[k] then
 			public.zoneTbl[k] = v
@@ -149,7 +149,7 @@ end
 -- GLOBALS: _G, ADDON_LOAD_FAILED, BigWigs, BigWigs3DB, BigWigs3IconDB, BigWigsLoader, BigWigsOptions, CreateFrame, CUSTOM_CLASS_COLORS, error, GetAddOnEnableState, GetAddOnInfo
 -- GLOBALS: GetAddOnMetadata, GetLocale, GetNumGroupMembers, GetRealmName, GetSpecialization, GetSpecializationRole, GetSpellInfo, GetTime, GRAY_FONT_COLOR, InCombatLockdown
 -- GLOBALS: InterfaceOptionsFrameOkay, IsAddOnLoaded, IsAltKeyDown, IsControlKeyDown, IsEncounterInProgress, IsInGroup, IsInRaid, IsLoggedIn, IsPartyLFG, IsSpellKnown, LFGDungeonReadyPopup
--- GLOBALS: LibStub, LoadAddOn, message, PlaySoundFile, print, RAID_CLASS_COLORS, RaidNotice_AddMessage, RaidWarningFrame, RegisterAddonMessagePrefix, RolePollPopup, select
+-- GLOBALS: LibStub, LoadAddOn, message, PlaySound, print, RAID_CLASS_COLORS, RaidNotice_AddMessage, RaidWarningFrame, RegisterAddonMessagePrefix, RolePollPopup, select, StopSound
 -- GLOBALS: tostring, tremove, type, UnitAffectingCombat, UnitClass, UnitGroupRolesAssigned, UnitIsConnected, UnitIsDeadOrGhost, UnitName, UnitSetRole, unpack, SLASH_BigWigs1, SLASH_BigWigs2
 -- GLOBALS: SLASH_BigWigsVersion1, UnitBuff, wipe
 
@@ -227,7 +227,7 @@ end
 
 tooltipFunctions[#tooltipFunctions+1] = function(tt)
 	local add, i = nil, 0
-	for player, version in next, usersVersion do
+	for _, version in next, usersVersion do
 		i = i + 1
 		if version < highestFoundVersion then
 			add = true
@@ -253,7 +253,11 @@ do
 		BigWigs_Plugins = true,
 	}
 	local loadOnZoneAddons = {} -- Will contain all names of addons with an X-BigWigs-LoadOn-ZoneId directive
-	local loadOnWorldBoss = {} -- Packs that should load when targetting a specific mob
+	local loadOnInstanceAddons = {} -- Will contain all names of addons with an X-BigWigs-LoadOn-InstanceId directive
+	local loadOnWorldBoss = {} -- Addons that should load when targetting a specific mob
+	local extraMenus = {} -- Addons that contain extra zone menus to appear in the GUI
+	local noMenus = {} -- Addons that contain zones that shouldn't create a menu
+	local blockedMenus = {} -- Zones that shouldn't create a menu
 
 	for i = 1, GetNumAddOns() do
 		local name = GetAddOnInfo(i)
@@ -266,13 +270,21 @@ do
 			if meta then
 				loadOnZoneAddons[#loadOnZoneAddons + 1] = i
 			end
+			meta = GetAddOnMetadata(i, "X-BigWigs-LoadOn-InstanceId")
+			if meta then
+				loadOnInstanceAddons[#loadOnInstanceAddons + 1] = i
+			end
+			meta = GetAddOnMetadata(i, "X-BigWigs-ExtraMenu")
+			if meta then
+				extraMenus[#extraMenus + 1] = i
+			end
+			meta = GetAddOnMetadata(i, "X-BigWigs-NoMenu")
+			if meta then
+				noMenus[#noMenus + 1] = i
+			end
 			meta = GetAddOnMetadata(i, "X-BigWigs-LoadOn-WorldBoss")
 			if meta then
 				loadOnWorldBoss[#loadOnWorldBoss + 1] = i
-			end
-			meta = GetAddOnMetadata(i, "X-BigWigs-LoadOn-SubMenu")
-			if meta then
-				loadOnSubMenu[#loadOnSubMenu + 1] = i
 			end
 			meta = GetAddOnMetadata(i, "X-BigWigs-LoadOn-Slash")
 			if meta then
@@ -314,9 +326,23 @@ do
 					local id = tonumber(rawId:trim())
 					if id and id > 0 then
 						local instanceId = GetAreaMapInfo(id) -- convert map id to instance id
-						if not fakeWorldZones[id] and public.zoneTbl[instanceId] then
+						if public.zoneTbl[instanceId] then
 							if not disabledZones then disabledZones = {} end
 							disabledZones[instanceId] = name
+						end
+					end
+				end
+			end
+
+			meta = GetAddOnMetadata(i, "X-BigWigs-LoadOn-InstanceId")
+			if meta then -- Disabled content
+				for j = 1, select("#", strsplit(",", meta)) do
+					local rawId = select(j, strsplit(",", meta))
+					local id = tonumber(rawId:trim())
+					if id and id > 0 then
+						if public.zoneTbl[id] then
+							if not disabledZones then disabledZones = {} end
+							disabledZones[id] = name
 						end
 					end
 				end
@@ -328,7 +354,8 @@ do
 		end
 	end
 
-	local function iterateZones(addon, override, ...)
+	--[[ DEPRECATED ]]--
+	local function iterateZones(addon, ...)
 		for i = 1, select("#", ...) do
 			local rawZone = select(i, ...)
 			local zone = tonumber(rawZone:trim())
@@ -341,11 +368,7 @@ do
 					if not loadOnZone[instanceId] then loadOnZone[instanceId] = {} end
 					loadOnZone[instanceId][#loadOnZone[instanceId] + 1] = addon
 
-					if override then
-						loadOnZone[override][#loadOnZone[override] + 1] = addon
-					else
-						if not menus[zone] then menus[zone] = true end
-					end
+					if not menus[instanceId] and not blockedMenus[instanceId] then menus[instanceId] = true end
 				end
 			else
 				local name = GetAddOnInfo(addon)
@@ -353,9 +376,32 @@ do
 			end
 		end
 	end
+	--
+
+	local function iterateInstanceIds(addon, ...)
+		for i = 1, select("#", ...) do
+			local rawId = select(i, ...)
+			local id = tonumber(rawId:trim())
+			if id then
+				local instanceName = GetRealZoneText(id)
+				-- register the instance id for enabling.
+				if instanceName and instanceName ~= "" then -- Protect live client from beta client ids
+					enableZones[id] = true
+
+					if not loadOnZone[id] then loadOnZone[id] = {} end
+					loadOnZone[id][#loadOnZone[id] + 1] = addon
+
+					if not menus[id] and not blockedMenus[id] then menus[id] = true end
+				end
+			else
+				local name = GetAddOnInfo(addon)
+				sysprint(("The instance ID %q from the addon %q was not parsable."):format(tostring(rawId), name))
+			end
+		end
+	end
 
 	local currentZone = nil
-	local function iterateWorldBosses(addon, override, ...)
+	local function iterateWorldBosses(addon, ...)
 		for i = 1, select("#", ...) do
 			local rawZoneOrBoss = select(i, ...)
 			local zoneOrBoss = tonumber(rawZoneOrBoss:trim())
@@ -368,10 +414,6 @@ do
 
 					if not loadOnZone[currentZone] then loadOnZone[currentZone] = {} end
 					loadOnZone[currentZone][#loadOnZone[currentZone] + 1] = addon
-
-					if override then
-						loadOnZone[override][#loadOnZone[override] + 1] = addon
-					end
 				else
 					worldBosses[zoneOrBoss] = currentZone
 					currentZone = nil
@@ -383,59 +425,79 @@ do
 		end
 	end
 
-	local function iterateSubMenus(addon, override, ...)
+	local function addExtraMenus(addon, ...)
 		for i = 1, select("#", ...) do
-			local rawZone = select(i, ...)
-			local menu = tonumber(override:trim())
-			local zone = tonumber(rawZone:trim())
-			if zone then
-				-- register the zone for enabling.
-				local instanceId = fakeWorldZones[zone] and zone or zone < 0 and -zone or GetAreaMapInfo(zone)
-				if instanceId then -- Protect live client from beta client ids
-					enableZones[instanceId] = true
+			local rawMenu = select(i, ...)
+			local id = tonumber(rawMenu:trim())
+			if id then
+				local name = id < 0 and GetMapNameByID(-id) or GetRealZoneText(id)
+				if name and name ~= "" then -- Protect live client from beta client ids
+					if not loadOnZone[id] then loadOnZone[id] = {} end
+					loadOnZone[id][#loadOnZone[id] + 1] = addon
 
-					if not loadOnZone[instanceId] then loadOnZone[instanceId] = {} end
-					loadOnZone[instanceId][#loadOnZone[instanceId] + 1] = addon
-
-					if not loadOnZone[menu] then loadOnZone[menu] = {} end
-					if not menus[menu] then menus[menu] = true end
-					loadOnZone[menu][#loadOnZone[menu] + 1] = addon
+					if not menus[id] then menus[id] = true end
 				end
 			else
 				local name = GetAddOnInfo(addon)
-				sysprint(("The zone ID %q from the addon %q was not parsable."):format(tostring(rawZone), name))
+				sysprint(("The extra menu ID %q from the addon %q was not parsable."):format(tostring(rawMenu), name))
 			end
 		end
 	end
 
-	for _, index in next, loadOnZoneAddons do
-		local menu = tonumber(GetAddOnMetadata(index, "X-BigWigs-Menu"))
-		if menu then
-			if not loadOnZone[menu] then loadOnZone[menu] = {} end
-			if not menus[menu] then menus[menu] = true end
+	local function blockMenus(addon, ...)
+		for i = 1, select("#", ...) do
+			local rawMenu = select(i, ...)
+			local id = tonumber(rawMenu:trim())
+			if id then
+				local name = id < 0 and GetMapNameByID(-id) or GetRealZoneText(id)
+				if name and name ~= "" and not blockedMenus[id] then -- Protect live client from beta client ids
+					blockedMenus[id] = true
+				end
+			else
+				local name = GetAddOnInfo(addon)
+				sysprint(("The block menu ID %q from the addon %q was not parsable."):format(tostring(rawMenu), name))
+			end
 		end
+	end
+
+	for i = 1, #extraMenus do
+		local index = extraMenus[i]
+		local data = GetAddOnMetadata(index, "X-BigWigs-ExtraMenu")
+		if data then
+			addExtraMenus(index, strsplit(",", data))
+		end
+	end
+
+	for i = 1, #noMenus do
+		local index = noMenus[i]
+		local data = GetAddOnMetadata(index, "X-BigWigs-NoMenu")
+		if data then
+			blockMenus(index, strsplit(",", data))
+		end
+	end
+
+	--[[ DEPRECATED ]]--
+	for i = 1, #loadOnZoneAddons do
+		local index = loadOnZoneAddons[i]
 		local zones = GetAddOnMetadata(index, "X-BigWigs-LoadOn-ZoneId")
 		if zones then
-			iterateZones(index, menu, strsplit(",", zones))
+			iterateZones(index, strsplit(",", zones))
+		end
+	end
+	--
+
+	for i = 1, #loadOnInstanceAddons do
+		local index = loadOnInstanceAddons[i]
+		local instancesIds = GetAddOnMetadata(index, "X-BigWigs-LoadOn-InstanceId")
+		if instancesIds then
+			iterateInstanceIds(index, strsplit(",", instancesIds))
 		end
 	end
 
 	for _, index in next, loadOnWorldBoss do
-		local menu = tonumber(GetAddOnMetadata(index, "X-BigWigs-Menu"))
-		if menu then
-			if not loadOnZone[menu] then loadOnZone[menu] = {} end
-			if not menus[menu] then menus[menu] = true end
-		end
 		local zones = GetAddOnMetadata(index, "X-BigWigs-LoadOn-WorldBoss")
 		if zones then
-			iterateWorldBosses(index, menu, strsplit(",", zones))
-		end
-	end
-
-	for _, index in next, loadOnSubMenu do
-		local zones = GetAddOnMetadata(index, "X-BigWigs-LoadOn-SubMenu")
-		if zones then
-			iterateSubMenus(index, strsplit(",", zones))
+			iterateWorldBosses(index, strsplit(",", zones))
 		end
 	end
 end
@@ -486,6 +548,10 @@ function mod:ADDON_LOADED(addon)
 					BigWigs3DB.namespaces[k] = nil
 				end
 			end
+		end
+		if not BigWigs3DB.discord or BigWigs3DB.discord < 15 then
+			BigWigs3DB.discord = (BigWigs3DB.discord or 0) + 1
+			CTimerAfter(11, function() sysprint("We are now on Discord: https://discord.gg/jGveg85") end)
 		end
 	end
 	self:BigWigs_CoreOptionToggled(nil, "fakeDBMVersion", self.isFakingDBM)
@@ -582,6 +648,7 @@ do
 		BigWigs_LeiShi_Marker = "BigWigs",
 		BigWigs_NoPluginWarnings = "BigWigs",
 		LFG_ProposalTime = "BigWigs",
+		CourtOfStarsGossipHelper = "LittleWigs",
 		BigWigs_DispelResist = "",
 	}
 	local delayedMessages = {}
@@ -615,13 +682,9 @@ do
 		delayedMessages[#delayedMessages+1] = "BigWigs needs translations. Can you translate BigWigs into Brazilian Portugese (ptBR)? Check out our GitHub page!"
 	elseif L == "itIT" then
 		delayedMessages[#delayedMessages+1] = "BigWigs needs translations. Can you translate BigWigs into Italian (itIT)? Check out our GitHub page!"
-	elseif L == "frFR" then
-		delayedMessages[#delayedMessages+1] = "BigWigs needs translations. Can you translate BigWigs into French (frFR)? Check out our GitHub page!"
 	elseif L == "esES" or L == "esMX" then
 		delayedMessages[#delayedMessages+1] = "BigWigs needs translations. Can you translate BigWigs into Spanish (esES)? Check out our GitHub page!"
 	end
-
-	delayedMessages[#delayedMessages+1] = "We are now on Discord: https://discord.gg/jGveg85"
 
 	CTimerAfter(11, function()
 		--local _, _, _, _, month, _, year = GetAchievementInfo(10043) -- Mythic Archimonde
@@ -697,8 +760,8 @@ end
 
 do
 	-- This is a crapfest mainly because DBM's actual handling of versions is a crapfest, I'll try explain how this works...
-	local DBMdotRevision = "16352" -- The changing version of the local client, changes with every alpha revision using an SVN keyword.
-	local DBMdotDisplayVersion = "7.2.11" -- "N.N.N" for a release and "N.N.N alpha" for the alpha duration. Unless they fuck up their release and leave the alpha text in it.
+	local DBMdotRevision = "16445" -- The changing version of the local client, changes with every alpha revision using an SVN keyword.
+	local DBMdotDisplayVersion = "7.2.15" -- "N.N.N" for a release and "N.N.N alpha" for the alpha duration. Unless they fuck up their release and leave the alpha text in it.
 	local DBMdotReleaseRevision = DBMdotRevision -- This is manually changed by them every release, they use it to track the highest release version, a new DBM release is the only time it will change.
 
 	local timer, prevUpgradedUser = nil, nil
@@ -744,7 +807,7 @@ end
 -- Events
 --
 
-bwFrame:SetScript("OnEvent", function(frame, event, ...)
+bwFrame:SetScript("OnEvent", function(_, event, ...)
 	mod[event](mod, ...)
 end)
 bwFrame:RegisterEvent("ADDON_LOADED")
@@ -753,7 +816,7 @@ bwFrame:RegisterEvent("UPDATE_FLOATING_CHAT_WINDOWS")
 do
 	-- Role Updating
 	local prev = 0
-	function mod:ACTIVE_TALENT_GROUP_CHANGED(player)
+	function mod:ACTIVE_TALENT_GROUP_CHANGED()
 		if IsInGroup() then
 			if IsPartyLFG() then return end
 
@@ -816,10 +879,13 @@ do
 			self.LFG_PROPOSAL_SHOW = function()
 				prev = GetTime() + 40
 				-- Play in Master for those that have SFX off or very low.
-				-- We can't do PlaySound("ReadyCheck", "Master") as PlaySound is throttled, and Blizz already plays it.
+				-- Using false as third arg to avoid the "only one of each sound at a time" throttle.
 				-- Only play via the "Master" channel if we have sounds turned on
 				if (BigWigs and BigWigs:GetPlugin("Sounds") and BigWigs:GetPlugin("Sounds").db.profile.sound) or self.isSoundOn ~= false then
-					PlaySoundFile("Sound\\Interface\\levelup2.ogg", "Master")
+					local _, id = PlaySound(PlaySoundKitID and "ReadyCheck" or 8960, "Master", false) -- SOUNDKIT.READY_CHECK
+					if id then
+						StopSound(id-1) -- Should work most of the time to stop the blizz sound
+					end
 				end
 			end
 			self:LFG_PROPOSAL_SHOW()
@@ -1078,7 +1144,7 @@ do
 				warnedThisZone[id] = true
 				local msg = L.missingAddOn:format(zoneAddon)
 				sysprint(msg)
-				RaidNotice_AddMessage(RaidWarningFrame, msg, {r=1,g=1,b=1})
+				RaidNotice_AddMessage(RaidWarningFrame, msg, {r=1,g=1,b=1}, 15)
 			end
 		end
 	end
@@ -1113,7 +1179,7 @@ function mod:BigWigs_BossModuleRegistered(_, _, module)
 		enableZones[module.instanceId or GetAreaMapInfo(module.zoneId)] = true
 	end
 
-	local id = module.otherMenu or module.zoneId
+	local id = module.otherMenu or module.instanceId or module.zoneId > 0 and GetAreaMapInfo(module.zoneId) or module.zoneId
 	if type(menus[id]) ~= "table" then menus[id] = {} end
 	menus[id][#menus[id]+1] = module
 end
@@ -1150,8 +1216,8 @@ public.RegisterMessage(mod, "BigWigs_CoreDisabled")
 --
 
 function public:RegisterTooltipInfo(func)
-	for i, v in next, tooltipFunctions do
-		if v == func then
+	for i = 1, #tooltipFunctions do
+		if tooltipFunctions[i] == func then
 			error(("The function %q has already been registered."):format(func))
 		end
 	end
@@ -1220,8 +1286,8 @@ do
 					end
 				end
 			end
-			for i, v in next, tooltipFunctions do
-				v(tt)
+			for i = 1, #tooltipFunctions do
+				tooltipFunctions[i](tt)
 			end
 			tt:AddLine(L.tooltipHint, 0.2, 1, 0.2, 1)
 		end
@@ -1256,10 +1322,10 @@ SlashCmdList.BigWigsVersion = function()
 		return ("|cFF%02x%02x%02x%s|r%s"):format(tbl.r*255, tbl.g*255, tbl.b*255, name, version)
 	end
 
-	local m = {}
+	local list = {}
 	local unit
 	if not IsInRaid() then
-		m[1] = UnitName("player")
+		list[1] = UnitName("player")
 		unit = "party%d"
 	else
 		unit = "raid%d"
@@ -1267,7 +1333,7 @@ SlashCmdList.BigWigsVersion = function()
 	for i = 1, GetNumGroupMembers() do
 		local n, s = UnitName((unit):format(i))
 		if n and s and s ~= "" then n = n.."-"..s end
-		if n then m[#m+1] = n end
+		if n then list[#list+1] = n end
 	end
 
 	local good = {} -- highest release users
@@ -1275,7 +1341,8 @@ SlashCmdList.BigWigsVersion = function()
 	local bad = {} -- no boss mod
 	local crazy = {} -- DBM users
 
-	for i, player in next, m do
+	for i = 1, #list do
+		local player = list[i]
 		local usesBossMod = nil
 		if usersVersion[player] then
 			if usersVersion[player] < highestFoundVersion then

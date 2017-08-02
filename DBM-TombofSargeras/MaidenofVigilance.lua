@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(1897, "DBM-TombofSargeras", nil, 875)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 16382 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 16464 $"):sub(12, -3))
 mod:SetCreatureID(118289)
 mod:SetEncounterID(2052)
 mod:SetZone()
@@ -14,9 +14,9 @@ mod:RegisterCombat("combat")
 mod:RegisterEventsInCombat(
 	"SPELL_CAST_START 235271 241635 241636 235267",
 	"SPELL_CAST_SUCCESS 239153 237722",
-	"SPELL_AURA_APPLIED 235240 235213 235117 240209 235028 236061 234891",
+	"SPELL_AURA_APPLIED 235240 235213 235117 240209 235028 236061 234891 243276",
 	"SPELL_AURA_REFRESH 235240 235213",
-	"SPELL_AURA_REMOVED 235117 240209 235028 234891",
+	"SPELL_AURA_REMOVED 235117 240209 235028 234891 243276",
 	"SPELL_PERIODIC_DAMAGE 238408 238028",
 	"SPELL_PERIODIC_MISSED 238408 238028",
 	"UNIT_SPELLCAST_SUCCEEDED boss1"
@@ -42,6 +42,7 @@ local warnEssenceFragments			= mod:NewSpellAnnounce(236061, 2)
 
 --Stage One: Divide and Conquer
 local specWarnInfusion				= mod:NewSpecialWarningSpell(235271, nil, nil, nil, 2, 2)
+local yellInfusion					= mod:NewPosYell(235271, DBM_CORE_AUTO_YELL_CUSTOM_POSITION)
 local specWarnFelInfusion			= mod:NewSpecialWarningYou(235240, nil, nil, nil, 1, 7)
 local specWarnLightInfusion			= mod:NewSpecialWarningYou(235213, nil, nil, nil, 1, 7)
 local specWarnUnstableSoul			= mod:NewSpecialWarningMoveTo(235117, nil, nil, nil, 3, 7)
@@ -58,10 +59,10 @@ local timerLightHammerCD			= mod:NewNextCountTimer(18, 241635, nil, nil, nil, 5,
 local timerFelHammerCD				= mod:NewNextCountTimer(18, 241636, nil, nil, nil, 5, nil, DBM_CORE_TANK_ICON)
 local timerMassInstabilityCD		= mod:NewNextCountTimer(31, 235267, nil, nil, nil, 3)
 local timerBlowbackCD				= mod:NewNextTimer(81.1, 237722, nil, nil, nil, 6)--81-82
---Mythic
-local timerSpontFragmentationCD		= mod:NewNextTimer(8, 239153, nil, nil, nil, 5, nil, DBM_CORE_HEROIC_ICON)
-
 local berserkTimer					= mod:NewBerserkTimer(480)
+--Mythic
+mod:AddTimerLine(ENCOUNTER_JOURNAL_SECTION_FLAG12)
+local timerSpontFragmentationCD		= mod:NewCDTimer(8, 239153, nil, nil, nil, 5, nil, DBM_CORE_HEROIC_ICON)
 
 --Stage One: Divide and Conquer
 local countdownInfusion				= mod:NewCountdown("AltTwo", 235271)
@@ -174,6 +175,7 @@ function mod:SPELL_AURA_APPLIED(args)
 		if args:IsPlayer() then
 			specWarnFelInfusion:Show()
 			voiceFelInfusion:Play("felinfusion")
+			yellInfusion:Yell(4, "", 4)
 		end
 		local uId = DBM:GetRaidUnitId(args.destName)
 		if self.Options.SetIconOnInfusion and self:IsTanking(uId) then
@@ -183,12 +185,13 @@ function mod:SPELL_AURA_APPLIED(args)
 		if args:IsPlayer() then
 			specWarnLightInfusion:Show()
 			voiceLightInfusion:Play("lightinfusion")
+			yellInfusion:Yell(1, "", 1)
 		end
 		local uId = DBM:GetRaidUnitId(args.destName)
 		if self.Options.SetIconOnInfusion and self:IsTanking(uId) then
 			self:SetIcon(args.destName, 1)
 		end
-	elseif spellId == 235117 or spellId == 240209 then
+	elseif spellId == 235117 or spellId == 240209 or spellId == 243276 then
 		self.vb.unstableSoulCount = self.vb.unstableSoulCount + 1
 		warnUnstableSoul:CombinedShow(1, args.destName)
 		if args:IsPlayer() then
@@ -243,7 +246,7 @@ function mod:SPELL_AURA_REMOVED(args)
 				self:SetIcon(args.destName, 0)
 			end
 		end-]]
-	elseif spellId == 235117 or spellId == 240209 then
+	elseif spellId == 235117 or spellId == 240209 or spellId == 243276 then
 		self.vb.unstableSoulCount = self.vb.unstableSoulCount - 1
 		if args:IsPlayer() then
 			yellUnstableSoul:Cancel()

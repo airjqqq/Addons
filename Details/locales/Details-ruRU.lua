@@ -336,6 +336,8 @@ L["STRING_GLANCING"] = "Вскользь"
 -- L["STRING_GUILDDAMAGERANK_SYNCBUTTONTEXT"] = ""
 --Translation missing 
 -- L["STRING_GUILDDAMAGERANK_TUTORIAL_DESC"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_WINDOWALERT"] = ""
 L["STRING_HEAL"] = "Исцеление"
 L["STRING_HEAL_ABSORBED"] = "Исцеления поглощено"
 L["STRING_HEAL_CRIT"] = "Критическое исцеление"

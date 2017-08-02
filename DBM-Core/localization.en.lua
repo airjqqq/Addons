@@ -19,7 +19,7 @@ DBM_CORE_LOAD_MOD_DISABLED			= "%s is installed but currently disabled. This mod
 DBM_CORE_LOAD_MOD_DISABLED_PLURAL	= "%s are installed but currently disabled. These mods will not be loaded unless you enable them."
 
 DBM_CORE_WHATS_NEW					= "The Overwatch & Heroes of the Storm countdown sounds have been split from DBM core and moved to a seperate optional downloads. To get these counts back, just install DBM-CountPack-Overwatch & DBM-CountPack-HoTS. This was done to significantly reduce the pointless redownloading of media files, especially with a LOT of additional counts having just been added. There is also a new setting to hide notes like this from ever being shown again."
-DBM_CORE_WHATS_NEW_LINK				= "The recommended way to use DBM is with a voice pack. Read more on why and how this helps you by |HDBM:forumsnews|h|cff3588ffclicking here|r"
+DBM_CORE_WHATS_NEW_LINK				= "Remember: You can report bugs, give feedback, or just hang out in DBM Discord. |HDBM:forumsnews|h|cff3588ffDiscord Link|r"
 
 --Post Patch 7.1
 DBM_CORE_NO_RANGE					= "Range Radar can not be used in instances. Legacy text range frame used instead"
@@ -59,7 +59,7 @@ DBM_CORE_COMBAT_STATE_RECOVERED		= "%s was engaged %s ago, recovering timers..."
 DBM_CORE_TRANSCRIPTOR_LOG_START		= "Transcriptor logging started."
 DBM_CORE_TRANSCRIPTOR_LOG_END		= "Transcriptor logging ended."
 
-DBM_CORE_MOVIE_SKIPPED				= "A cut scene has automatically been skipped."
+DBM_CORE_MOVIE_SKIPPED				= "DBM has attempted to skip a cut scene automatically."
 
 DBM_CORE_AFK_WARNING				= "You are AFK and in combat (%d percent health remaining), firing sound alert. If you are not AFK, clear your AFK flag or disable this option in 'extra features'."
 
@@ -459,12 +459,12 @@ DBM_CORE_AUTO_YELL_OPTION_TEXT = {
 	shortyell	= "Yell when you are affected by $spell:%s",
 	yell		= "Yell (with player name) when you are affected by $spell:%s",
 	count		= "Yell (with count) when you are affected by $spell:%s",
-	fade		= "Yell (with countdown & spell name) when $spell:%s is fading",
+	fade		= "Yell (with countdown and spell name) when $spell:%s is fading",
 	shortfade	= "Yell (with countdown) when $spell:%s is fading",
 	position	= "Yell (with position) when you are affected by $spell:%s"
 }
 DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT = {
-	shortyell	= "%%s",
+	shortyell	= "%s",
 	yell		= "%s on " .. UnitName("player") .. "!",
 	count		= "%s on " .. UnitName("player") .. "! (%%d)",
 	fade		= "%s fading in %%d",

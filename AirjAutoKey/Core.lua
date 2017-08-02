@@ -67,6 +67,12 @@ function Core:OnEnable()
     end
     AirjHack:InteractUID(keys)
   end)
+  self:RegisterChatCommand("aakiu", function(str)
+    local guid = UnitGUID(str and str~="" and str or "target")
+    if guid then
+      AirjHack:Interact(guid)
+    end
+  end)
   self:RegisterChatCommand("aaks", function(str)
     local key,value,time = strsplit(" ",str)
     if value == "nil" then
@@ -109,6 +115,7 @@ function Core:OnEnable()
     self:ExecuteSpecificSequence(name,unit)
   end)
   -- starttest
+
 end
 
 function Core:OnDisable()
@@ -596,7 +603,7 @@ do
         unit= {},
       }
     end
-    self:Print(AirjHack:GetDebugChatFrame(),"Register Filter:",data.name)
+    -- self:Print(AirjHack:GetDebugChatFrame(),"Register Filter:",data.name)
   end
 
   function Core:ParseValue(fv)

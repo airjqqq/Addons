@@ -747,7 +747,7 @@ function F:LUNAPOWER(filter)
     local cp = cps[castSpellId]
     if cp then
       if cpms[castSpellId] and #buffs > 0 then
-        cp = cp*1.25
+        cp = cp*1.5
       end
       power = power + cp
       -- print(cp,power)
@@ -1011,5 +1011,5 @@ end
 
 function F:INWORLD(filter)
   local a,b = IsInInstance()
-  return b=="none"
+  return b~="raid"
 end

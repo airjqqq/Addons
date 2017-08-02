@@ -1,19 +1,20 @@
  
 do
 
+	local L = LibStub ("AceLocale-3.0"):GetLocale ("DetailsTargetCaller")
+
 	local Details = Details
 	if (not Details) then
-		print ("Target Caller cannot be installed: Details! not found.")
+		print (L["STRING_INSTALL_ERROR1"])
 		return
 	end
-
-	local L = LibStub ("AceLocale-3.0"):GetLocale ("DetailsTargetCaller")
+	
 	local _
-
+	
 	--> minimal details version required to run this plugin
 	local MINIMAL_DETAILS_VERSION_REQUIRED = 75
 	local DETAILS_ATTRIBUTE_DAMAGE = DETAILS_ATTRIBUTE_DAMAGE
-	local TCALLER_VERSION = "v1.2"
+	local TCALLER_VERSION = "v1.2.3"
 	
 	--> keeps the information which details window the plugin is being shown
 	local attachedInstance
@@ -176,7 +177,7 @@ do
 		if (currentTarget ~= "") then
 			attachedInstance:SetTitleBarText (L ["STRING_PLUGIN_NAME"] .. ": " .. targetCaller:GetOnlyName (currentTarget))
 		else
-			attachedInstance:SetTitleBarText (L ["STRING_PLUGIN_NAME"] .. ": |cFFFFAA00Overall|r")
+			attachedInstance:SetTitleBarText (L ["STRING_PLUGIN_NAME"] .. ": |cFFFFAA00" .. L["STRING_OVERALL"] .. "|r")
 		end
 	end
 	

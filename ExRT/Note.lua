@@ -33,7 +33,7 @@ module.db.otherIconsList = {
 	{"{sc2}","|TInterface\\FriendsFrame\\Battlenet-Sc2icon:16|t","Interface\\FriendsFrame\\Battlenet-Sc2icon"},
 	{"{bnet}","|TInterface\\FriendsFrame\\Battlenet-Portrait:16|t","Interface\\FriendsFrame\\Battlenet-Portrait"},
 	{"{alliance}","|TInterface\\FriendsFrame\\PlusManz-Alliance:16|t","Interface\\FriendsFrame\\PlusManz-Alliance"},
-	{"{horde}","|TInterface\\FriendsFrame\\PlusManz-Horde:16|t","Interface\\FriendsFrame\\PlusManz-Horde"},
+	{"{horde}","|TInterface\\FriendsFrame\\PlusManz-Horde:16|t","Interface\\FriendsFrame\\PlusManz-Horde"},	
 	{"{T}","|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:16:16:0:0:64:64:0:19:22:41|t","Interface\\LFGFrame\\UI-LFG-ICON-ROLES",0,0.26171875,0.26171875,0.5234375},
 	{"{H}","|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:16:16:0:0:64:64:20:39:1:20|t","Interface\\LFGFrame\\UI-LFG-ICON-ROLES",0.26171875,0.5234375,0,0.26171875},
 	{"{D}","|TInterface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES:16:16:0:0:64:64:20:39:22:41|t","Interface\\LFGFrame\\UI-LFG-ICON-ROLES",0.26171875,0.5234375,0.26171875,0.5234375},
@@ -76,7 +76,7 @@ local function txtWithIcons(t)
 	for i=1,#module.db.otherIconsList do
 		t = string_gsub(t,module.db.otherIconsList[i][1],module.db.otherIconsList[i][2])
 	end
-
+	
 	local spellLastPos = t:find("{spell:%d+}")
 	while spellLastPos do
 		local template,spell = t:match("({spell:(%d+)})")
@@ -87,20 +87,20 @@ local function txtWithIcons(t)
 			spellTexture = "|T"..(spellTexture or "Interface\\Icons\\INV_MISC_QUESTIONMARK")..":16|t"
 		end
 		spellTexture = spellTexture or ""
-
+		
 		if template:find("%-") then
 			template = string_gsub(template,"%-","%%%-")
 		end
-
+		
 		t = string_gsub(t,template,spellTexture)
-
+		
 		local spellNewPos = t:find("{spell:%d+}")
 		if spellLastPos == spellNewPos then
 			break
 		end
 		spellLastPos = spellNewPos
 	end
-
+	
 	t = string_gsub(t,"%b{}","")
 	return t
 end
@@ -144,7 +144,7 @@ function module.options:Load()
 		229582,229583,227498,229579,229580,228012,228162,231350,227807,228914,228007,0,
 		]]
 	}
-
+	
 	module.db.encountersList = {
 		{1147,2032,2048,2036,2037,2050,2054,2052,2038,2051},
 		{1088,1849,1865,1867,1871,1862,1886,1842,1863,1872,1866},
@@ -158,7 +158,7 @@ function module.options:Load()
 	local BlackNoteNow = nil
 	local NoteIsSelfNow = nil
 	self.IsMainNoteNow = true
-
+	
 	self.decorationLine = CreateFrame("Frame",nil,self)
 	self.decorationLine.texture = self.decorationLine:CreateTexture(nil, "BACKGROUND", nil, -5)
 	self.decorationLine:SetPoint("TOPLEFT",self,-8,-25)
@@ -170,15 +170,15 @@ function module.options:Load()
 	self.tab = ELib:Tabs(self,0,L.message,L.minimapmenuset):Point(0,-45):Size(660,570):SetTo(1)
 	self.tab:SetBackdropBorderColor(0,0,0,0)
 	self.tab:SetBackdropColor(0,0,0,0)
-
+	
 	self.tab.tabs[1]:SetPoint("TOPLEFT",0,20)
 
 	self.NotesList = ELib:ScrollList(self.tab.tabs[1]):Size(175,435):Point(5,-130)
 	self.NotesList.selected = 1
-
+	
 	local function NotesListUpdateNames()
 		self.NotesList.L = {}
-
+		
 		self.NotesList.L[1] = "|cff55ee55"..L.messageTab1
 		self.NotesList.L[2] = L.NoteSelf
 		for i=1,#VExRT.Note.Black do
@@ -189,7 +189,7 @@ function module.options:Load()
 	end
 	NotesListUpdateNames()
 	self.NotesListUpdateNames = NotesListUpdateNames
-
+	
 	local function UpdatePageAfterGettingNote()
 		if NoteIsSelfNow then
 			self.NotesList:SetListValue(2)
@@ -200,16 +200,16 @@ function module.options:Load()
 		end
 	end
 	self.UpdatePageAfterGettingNote = UpdatePageAfterGettingNote
-
+	
 	function self.NotesList:SetListValue(index)
 		ExRT.lib.ShowOrHide(module.options.buttonsend,index == 1)
 		ExRT.lib.ShowOrHide(module.options.textCancel,index == 1)
 		ExRT.lib.ShowOrHide(module.options.buttoncopy,index > 2)
-
+		
 		BlackNoteNow = nil
 		NoteIsSelfNow = nil
 		module.options.IsMainNoteNow = nil
-
+		
 		if index == 1 then
 			module.options.DraftName:Enable()
 			module.options.RemoveDraft:Disable()
@@ -223,49 +223,49 @@ function module.options:Load()
 			module.options.RemoveDraft:Disable()
 			module.options.autoLoadDropdown:Disable()
 		end
-
+		
 		if index == 1 then
 			module.options.NoteEditBox.EditBox:SetText(VExRT.Note.Text1 or "")
 			--module.options.DraftName:SetText( L.messageTab1 )
-
+			
 			module.options.IsMainNoteNow = true
-
+			
 			module.options.DraftName:SetText( VExRT.Note.DefName or "" )
-
+			
 			module.options.autoLoadDropdown:SetText(VExRT.Note.AutoLoad[0] and L.bossName[ VExRT.Note.AutoLoad[0] ] or "-")
 		elseif index == 2 then
 			module.options.NoteEditBox.EditBox:SetText(VExRT.Note.SelfText or "")
 			module.options.DraftName:SetText( L.NoteSelf )
-
+			
 			module.options.autoLoadDropdown:SetText("-")
-
+			
 			NoteIsSelfNow = true
 		elseif index == #self.L then
 			VExRT.Note.Black[#VExRT.Note.Black + 1] = ""
 			tinsert(self.L,#self.L - 1,#VExRT.Note.Black)
 			module.options.NoteEditBox.EditBox:SetText("")
 			self:Update()
-
+			
 			BlackNoteNow = #VExRT.Note.Black
 			module.options.DraftName:SetText( BlackNoteNow )
-
+			
 			NotesListUpdateNames()
-
+			
 			module.options.autoLoadDropdown:SetText("-")
 		else
 			index = index - 2
 			if IsShiftKeyDown() then
-				-- VExRT.Note.Black[index] = VExRT.Note.Text1
+				VExRT.Note.Black[index] = VExRT.Note.Text1
 			end
 			module.options.NoteEditBox.EditBox:SetText(VExRT.Note.Black[index] or "")
-
+			
 			BlackNoteNow = index
 			module.options.DraftName:SetText( VExRT.Note.BlackNames[index] or index )
-
+			
 			module.options.autoLoadDropdown:SetText(VExRT.Note.AutoLoad[index] and L.bossName[ VExRT.Note.AutoLoad[index] ] or "-")
 		end
 	end
-
+	
 	function self.NotesList:HoverListValue(isHover,index)
 		if not isHover then
 			GameTooltip_Hide()
@@ -280,7 +280,7 @@ function module.options:Load()
 			GameTooltip:Show()
 		end
 	end
-
+	
 	self.RemoveDraft = ELib:Button(self.tab.tabs[1],L.NoteRemove):Size(150,20):Point("RIGHT",0,0):Point("TOP",self.NotesList,0,1):Disable():OnClick(function (self)
 		if not BlackNoteNow then
 			return
@@ -305,7 +305,7 @@ function module.options:Load()
 		module.options.NotesList.selected = 2+BlackNoteNow
 		module.options.NotesList:Update()
 	end)
-
+	
 	self.DraftName = ELib:Edit(self.tab.tabs[1]):Size(0,18):Tooltip(L.NoteDraftName):Text(VExRT.Note.DefName or L.messageTab1):Point("TOPLEFT",self.NotesList,"TOPRIGHT",8,0):Point("RIGHT",self.RemoveDraft,"LEFT",-5,0):OnChange(function(self,isUser)
 		if not isUser then return end
 		if BlackNoteNow then
@@ -315,16 +315,16 @@ function module.options:Load()
 			VExRT.Note.DefName = self:GetText()
 		end
 	end)
-
+	
 	local function autoLoadDropdown_SetValue(self,encounterID)
 		local index = BlackNoteNow or 0
-
+		
 		VExRT.Note.AutoLoad[index] = encounterID
-
+		
 		module.options.autoLoadDropdown:SetText(encounterID and L.bossName[ encounterID ] or "-")
 		ELib:DropDownClose()
 	end
-
+	
 	self.autoLoadDropdown = ELib:DropDown(self.tab.tabs[1],300,15):AddText(L.NoteAutoloadOnBoss):Point("TOPRIGHT",self.RemoveDraft,"BOTTOMRIGHT",-2,-5):Size(300):SetText(VExRT.Note.AutoLoad[0] and L.bossName[ VExRT.Note.AutoLoad[0] ] or "-")
 	do
 		local List = self.autoLoadDropdown.List
@@ -347,16 +347,16 @@ function module.options:Load()
 			end
 		end
 	end
-
+	
 	self.NoteEditBox = ELib:MultiEdit(self.tab.tabs[1]):Point("TOPLEFT",self.NotesList,"TOPRIGHT",9,-75):Size(469,294+91-25)
-
+	
 	self.textClear = ELib:Text(self.NoteEditBox,"["..L.messagebutclear.."]"):Point("RIGHT",self.NoteEditBox,"BOTTOMRIGHT",-22,-6):Color()
 	self.textClear:SetShadowColor(1,1,1,0)
 	self.textClear:SetShadowOffset(1,-1)
 	self.buttonClear = CreateFrame("Button",nil,self.NoteEditBox)
 	self.buttonClear:SetAllPoints(self.textClear)
 	self.buttonClear:SetScript("OnClick",function()
-		module.frame:Clear()
+		module.frame:Clear() 
 		module.options.NoteEditBox.EditBox:SetText("")
 	end)
 	self.buttonClear:SetScript("OnEnter",function()
@@ -365,7 +365,7 @@ function module.options:Load()
 	self.buttonClear:SetScript("OnLeave",function()
 		self.textClear:SetShadowColor(1,1,1,0)
 	end)
-
+	
 	self.textCancel = ELib:Text(self.NoteEditBox,"["..CANCEL.."]"):Point("RIGHT",self.textClear,"LEFT",-5,0):Color()
 	self.textCancel:SetShadowColor(1,1,1,0)
 	self.textCancel:SetShadowOffset(1,-1)
@@ -383,7 +383,7 @@ function module.options:Load()
 	self.buttonCuncel:SetScript("OnLeave",function()
 		self.textCancel:SetShadowColor(1,1,1,0)
 	end)
-
+		
 	function self.NoteEditBox.EditBox:OnTextChanged()
 		if NoteIsSelfNow then
 			VExRT.Note.SelfText = self:GetText()
@@ -398,17 +398,17 @@ function module.options:Load()
 			end
 		end
 	end
-
+	
 	self.buttonsend = ELib:Button(self.tab.tabs[1],L.messagebutsend):Size(469,20):Point("TOPLEFT",self.NotesList,"TOPRIGHT",9,-50):Tooltip(L.messagebutsendtooltip):OnClick(function (self)
-		module.frame:Save()
-
+		module.frame:Save() 
+		
 		if IsShiftKeyDown() then
 			local text = VExRT.Note.Text1 or ""
 			text = text:gsub("||c........","")
 			text = text:gsub("||r","")
 			text = text:gsub("||T.-:0||t ","")
 			text = text:gsub("%b{}","")
-
+			
 			local lines = {strsplit("\n", text)}
 			for i=1,#lines do
 				if lines[i] ~= "" then
@@ -416,18 +416,18 @@ function module.options:Load()
 				end
 			end
 		end
-
+		
 		module.options.buttonsend:Anim(false)
-	end)
-
+	end) 
+	
 	function self.buttonsend:Anim(on)
 		if on then
 			self.t = self.t or 0
 			self:SetScript("OnUpdate",function(self,elapsed)
 				self.t = (self.t + elapsed) % 4
-
+				
 				local c = 0.05 * (self.t > 2 and (4-self.t) or self.t)
-
+				
 				self.Texture:SetGradientAlpha("VERTICAL",0.0+c,0.06+c,0.0+c,1, 0.05+c,0.21+c,0.05+c,1)
 			end)
 		else
@@ -435,7 +435,7 @@ function module.options:Load()
 			self.Texture:SetGradientAlpha("VERTICAL",0.05,0.06,0.09,1, 0.20,0.21,0.25,1)
 		end
 	end
-
+	
 	self.buttoncopy = ELib:Button(self.tab.tabs[1],L.messageButCopy):Size(469,20):Point("TOPLEFT",self.NotesList,"TOPRIGHT",9,-50):OnClick(function (self)
 		if not BlackNoteNow then
 			return
@@ -443,15 +443,15 @@ function module.options:Load()
 		--VExRT.Note.Text1 = VExRT.Note.Black[BlackNoteNow] or ""
 		--VExRT.Note.DefName = VExRT.Note.BlackNames[BlackNoteNow] or ""
 		--VExRT.Note.AutoLoad[0] = VExRT.Note.AutoLoad[BlackNoteNow]
-		module.frame:Save(BlackNoteNow)
-
+		module.frame:Save(BlackNoteNow) 
+		
 		module.options.NotesList:SetListValue(1)
-
+		
 		module.options.NotesList.selected = 1
 		module.options.NotesList:Update()
-	end)
+	end) 
 	self.buttoncopy:Hide()
-
+	
 	local function AddTextToEditBox(self,text,mypos)
 		local addedText = nil
 		if not self then
@@ -498,14 +498,14 @@ function module.options:Load()
 		self.buttonicons[i].iconText = module.db.otherIconsList[i][1]
 		self.buttonicons[i]:SetScript("OnClick", AddTextToEditBox)
 	end
-
+	
 	self.OtherIconsButton = ELib:Button(self.tab.tabs[1],L.NoteOtherIcons):Size(120,20):Point("TOPLEFT",self.buttonicons[#self.buttonicons],"TOPRIGHT",5,1):OnClick(function()
 		module.options.OtherIconsFrame:ShowClick()
 	end)
-
+	
 	self.OtherIconsFrame = ELib:Popup(L.NoteOtherIcons):Size(250,225)
 	self.OtherIconsFrame.ScrollFrame = ELib:ScrollFrame(self.OtherIconsFrame):Size(self.OtherIconsFrame:GetWidth()-10,self.OtherIconsFrame:GetHeight()-25):Point("TOP",0,-20):Height(500)
-
+	
 	local function CreateOtherIcon(pointX,pointY,texture,iconText)
 		local self = CreateFrame("Button", nil,self.OtherIconsFrame.ScrollFrame.C)
 		self:SetSize(18,18)
@@ -518,7 +518,7 @@ function module.options:Load()
 		self:SetScript("OnClick", AddTextToEditBox)
 		return self
 	end
-
+	
 	for i=12,20 do
 		local icon = CreateOtherIcon(5+(i-12)*20,-2,module.db.otherIconsList[i][3],module.db.otherIconsList[i][1])
 		if module.db.otherIconsList[i][4] then
@@ -543,7 +543,7 @@ function module.options:Load()
 				end
 			else
 				local _,_,spellTexture = GetSpellInfo( spellID )
-
+				
 				CreateOtherIcon(5+inLine*20,-2-(line-1)*20,spellTexture,"{spell:"..spellID.."}")
 				inLine = inLine + 1
 				if inLine > 10 and (not module.db.otherIconsAdditionalList[i+1] or module.db.otherIconsAdditionalList[i+1]~=0) then
@@ -554,11 +554,11 @@ function module.options:Load()
 		end
 		self.OtherIconsFrame.ScrollFrame:SetNewHeight( max(self.OtherIconsFrame:GetHeight()-40 , line * 20 + 4) )
 	end
-
+	
 	self:SetScript("OnHide",function (self)
 		self.OtherIconsFrame:Hide()
 	end)
-
+	
 	self.dropDownColor = ELib:DropDown(self.tab.tabs[1],170,10):Point(558,-30):Size(100):SetText(L.NoteColor)
 	self.dropDownColor.list = {
 		{L.NoteColorRed,"|cffff0000"},
@@ -631,21 +631,21 @@ function module.options:Load()
 		self.raidnames[i]:SetScript("OnEnter", RaidNamesOnEnter)
 		self.raidnames[i]:SetScript("OnLeave", RaidNamesOnLeave)
 	end
-
+	
 	self.lastUpdate = ELib:Text(self.tab.tabs[1],"",11):Size(600,20):Point("TOPLEFT",self.NotesList,"BOTTOMLEFT",3,-6):Top():Color()
 	if VExRT.Note.LastUpdateName and VExRT.Note.LastUpdateTime then
 		self.lastUpdate:SetText( L.NoteLastUpdate..": "..VExRT.Note.LastUpdateName.." ("..date("%H:%M:%S %d.%m.%Y",VExRT.Note.LastUpdateTime)..")" )
 	end
 
-	self.chkEnable = ELib:Check(self,L.senable,VExRT.Note.enabled):Point(560,-26):Tooltip('/rt note'):Size(18,18):OnClick(function(self)
+	self.chkEnable = ELib:Check(self,L.senable,VExRT.Note.enabled):Point(560,-26):Tooltip('/rt note'):Size(18,18):OnClick(function(self) 
 		if self:GetChecked() then
 			module:Enable()
 		else
 			module:Disable()
 		end
-	end)
-
-	self.chkFix = ELib:Check(self,L.messagebutfix,VExRT.Note.Fix):Point(430,-26):Tooltip(L.messagebutfixtooltip):Size(18,18):OnClick(function(self)
+	end)  
+	
+	self.chkFix = ELib:Check(self,L.messagebutfix,VExRT.Note.Fix):Point(430,-26):Tooltip(L.messagebutfixtooltip):Size(18,18):OnClick(function(self) 
 		if self:GetChecked() then
 			VExRT.Note.Fix = true
 			module.frame:SetMovable(false)
@@ -659,27 +659,27 @@ function module.options:Load()
 			module.frame.buttonResize:Show()
 			ExRT.lib.AddShadowComment(module.frame,nil,L.message)
 		end
-	end)
+	end) 
 
-	self.chkOnlyPromoted = ELib:Check(self.tab.tabs[2],L.NoteOnlyPromoted,VExRT.Note.OnlyPromoted):Point(10,-15):Tooltip(L.NoteOnlyPromotedTooltip):OnClick(function(self)
+	self.chkOnlyPromoted = ELib:Check(self.tab.tabs[2],L.NoteOnlyPromoted,VExRT.Note.OnlyPromoted):Point(10,-15):Tooltip(L.NoteOnlyPromotedTooltip):OnClick(function(self) 
 		if self:GetChecked() then
 			VExRT.Note.OnlyPromoted = true
 		else
 			VExRT.Note.OnlyPromoted = nil
 		end
-	end)
-
-
-	self.chkOnlyInRaid = ELib:Check(self.tab.tabs[2],L.MarksBarDisableInRaid,VExRT.Note.HideOutsideRaid):Point(10,-40):OnClick(function(self)
+	end)  
+	
+	
+	self.chkOnlyInRaid = ELib:Check(self.tab.tabs[2],L.MarksBarDisableInRaid,VExRT.Note.HideOutsideRaid):Point(10,-40):OnClick(function(self) 
 		if self:GetChecked() then
 			VExRT.Note.HideOutsideRaid = true
 		else
 			VExRT.Note.HideOutsideRaid = nil
 		end
 		module:Visibility()
-	end)
-
-	self.chkOnlyInRaidKInstance = ELib:Check(self.tab.tabs[2],L.NoteShowOnlyInRaid,VExRT.Note.ShowOnlyInRaid):Point(10,-65):OnClick(function(self)
+	end) 
+	
+	self.chkOnlyInRaidKInstance = ELib:Check(self.tab.tabs[2],L.NoteShowOnlyInRaid,VExRT.Note.ShowOnlyInRaid):Point(10,-65):OnClick(function(self) 
 		if self:GetChecked() then
 			VExRT.Note.ShowOnlyInRaid = true
 			module:RegisterEvents('ZONE_CHANGED_NEW_AREA')
@@ -688,18 +688,18 @@ function module.options:Load()
 			module:UnregisterEvents('ZONE_CHANGED_NEW_AREA')
 		end
 		module:Visibility()
-	end)
-
-	self.chkOnlySelf = ELib:Check(self.tab.tabs[2],L.NoteShowOnlyPersonal,VExRT.Note.ShowOnlyPersonal):Point(10,-90):OnClick(function(self)
+	end) 
+	
+	self.chkOnlySelf = ELib:Check(self.tab.tabs[2],L.NoteShowOnlyPersonal,VExRT.Note.ShowOnlyPersonal):Point(10,-90):OnClick(function(self) 
 		if self:GetChecked() then
 			VExRT.Note.ShowOnlyPersonal = true
 		else
 			VExRT.Note.ShowOnlyPersonal = nil
 		end
 		module.frame:UpdateText()
-	end)
-
-	self.chkHideInCombat = ELib:Check(self.tab.tabs[2],L.NoteHideInCombat,VExRT.Note.HideInCombat):Point(10,-115):OnClick(function(self)
+	end) 
+	
+	self.chkHideInCombat = ELib:Check(self.tab.tabs[2],L.NoteHideInCombat,VExRT.Note.HideInCombat):Point(10,-115):OnClick(function(self) 
 		if self:GetChecked() then
 			VExRT.Note.HideInCombat = true
 			module:RegisterEvents('PLAYER_REGEN_DISABLED','PLAYER_REGEN_ENABLED')
@@ -708,32 +708,32 @@ function module.options:Load()
 			module:UnregisterEvents('PLAYER_REGEN_DISABLED','PLAYER_REGEN_ENABLED')
 		end
 		module:Visibility()
-	end)
-
-	self.chkSaveAllNew = ELib:Check(self.tab.tabs[2],L.NoteSaveAllNew,VExRT.Note.SaveAllNew):Point(10,-140):OnClick(function(self)
+	end) 
+	
+	self.chkSaveAllNew = ELib:Check(self.tab.tabs[2],L.NoteSaveAllNew,VExRT.Note.SaveAllNew):Point(10,-140):OnClick(function(self) 
 		if self:GetChecked() then
 			VExRT.Note.SaveAllNew = true
 		else
 			VExRT.Note.SaveAllNew = nil
 		end
-	end)
-
-	self.chkSaveAllNew = ELib:Check(self.tab.tabs[2],L.NoteEnableWhenReceive,VExRT.Note.EnableWhenReceive):Point(10,-165):OnClick(function(self)
+	end) 
+	
+	self.chkSaveAllNew = ELib:Check(self.tab.tabs[2],L.NoteEnableWhenReceive,VExRT.Note.EnableWhenReceive):Point(10,-165):OnClick(function(self) 
 		if self:GetChecked() then
 			VExRT.Note.EnableWhenReceive = true
 		else
 			VExRT.Note.EnableWhenReceive = nil
 		end
-	end)
-
-	self.sliderFontSize = ELib:Slider(self.tab.tabs[2],L.NoteFontSize):Size(300):Point(11,-200):Range(6,72):SetTo(VExRT.Note.FontSize or 12):OnChange(function(self,event)
+	end) 
+	
+	self.sliderFontSize = ELib:Slider(self.tab.tabs[2],L.NoteFontSize):Size(300):Point(11,-200):Range(6,72):SetTo(VExRT.Note.FontSize or 12):OnChange(function(self,event) 
 		event = event - event%1
 		VExRT.Note.FontSize = event
 		module.frame:UpdateFont()
 		self.tooltipText = event
 		self:tooltipReload(self)
 	end)
-
+	
 	local function DropDownFont_Click(_,arg)
 		VExRT.Note.FontName = arg
 		local FontNameForDropDown = arg:match("\\([^\\]*)$")
@@ -751,7 +751,7 @@ function module.options:Load()
 		info.arg2 = i
 		info.func = DropDownFont_Click
 		info.font = ExRT.F.fontList[i]
-		info.justifyH = "CENTER"
+		info.justifyH = "CENTER" 
 	end
 	if LibStub then
 		local loaded,media = pcall(LibStub,"LibSharedMedia-3.0")
@@ -763,13 +763,13 @@ function module.options:Load()
 					count = count + 1
 					self.dropDownFont.List[count] = {}
 					local info = self.dropDownFont.List[count]
-
+					
 					info.text = font
 					info.arg1 = font
 					info.arg2 = count
 					info.func = DropDownFont_Click
 					info.font = font
-					info.justifyH = "CENTER"
+					info.justifyH = "CENTER" 
 				end
 			end
 		end
@@ -779,25 +779,25 @@ function module.options:Load()
 		local FontNameForDropDown = arg:match("\\([^\\]*)$")
 		self.dropDownFont:SetText(FontNameForDropDown or arg)
 	end
-
-	self.chkOutline = ELib:Check(self.tab.tabs[2],L.messageOutline,VExRT.Note.Outline):Point("LEFT",self.dropDownFont,"RIGHT",10,0):OnClick(function(self)
+	
+	self.chkOutline = ELib:Check(self.tab.tabs[2],L.messageOutline,VExRT.Note.Outline):Point("LEFT",self.dropDownFont,"RIGHT",10,0):OnClick(function(self) 
 		if self:GetChecked() then
 			VExRT.Note.Outline = true
 		else
 			VExRT.Note.Outline = nil
 		end
 		module.frame:UpdateFont()
-	end)
-
-	self.slideralpha = ELib:Slider(self.tab.tabs[2],L.messagebutalpha):Size(300):Point(11,-275):Range(0,100):SetTo(VExRT.Note.Alpha or 100):OnChange(function(self,event)
+	end) 
+	
+	self.slideralpha = ELib:Slider(self.tab.tabs[2],L.messagebutalpha):Size(300):Point(11,-275):Range(0,100):SetTo(VExRT.Note.Alpha or 100):OnChange(function(self,event) 
 		event = event - event%1
 		VExRT.Note.Alpha = event
 		module.frame:SetAlpha(event/100)
 		self.tooltipText = event
 		self:tooltipReload(self)
 	end)
-
-	self.sliderscale = ELib:Slider(self.tab.tabs[2],L.messagebutscale):Size(300):Point(11,-345):Range(5,200):SetTo(VExRT.Note.Scale or 100):OnChange(function(self,event)
+	
+	self.sliderscale = ELib:Slider(self.tab.tabs[2],L.messagebutscale):Size(300):Point(11,-345):Range(5,200):SetTo(VExRT.Note.Scale or 100):OnChange(function(self,event) 
 		event = event - event%1
 		VExRT.Note.Scale = event
 		ExRT.F.SetScaleFix(module.frame,event/100)
@@ -805,16 +805,16 @@ function module.options:Load()
 		self:tooltipReload(self)
 	end)
 
-	self.slideralphaback = ELib:Slider(self.tab.tabs[2],L.messageBackAlpha):Size(300):Point(11,-310):Range(0,100):SetTo(VExRT.Note.ScaleBack or 100):OnChange(function(self,event)
+	self.slideralphaback = ELib:Slider(self.tab.tabs[2],L.messageBackAlpha):Size(300):Point(11,-310):Range(0,100):SetTo(VExRT.Note.ScaleBack or 100):OnChange(function(self,event) 
 		event = event - event%1
 		VExRT.Note.ScaleBack = event
 		module.frame.background:SetColorTexture(0, 0, 0, event/100)
 		self.tooltipText = event
 		self:tooltipReload(self)
 	end)
-
+	
 	self.moreOptionsDropDown = ELib:DropDown(self.tab.tabs[2],275,#frameStrataList+1):Point(10,-380):Size(300):SetText(L.NoteFrameStrata)
-
+	
 	local function moreOptionsDropDown_SetVaule(_,arg)
 		VExRT.Note.Strata = arg
 		ELib:DropDownClose()
@@ -823,7 +823,7 @@ function module.options:Load()
 		end
 		module.frame:SetFrameStrata(arg)
 	end
-
+	
 	for i=1,#frameStrataList do
 		self.moreOptionsDropDown.List[i] = {
 			text = frameStrataList[i],
@@ -836,17 +836,17 @@ function module.options:Load()
 	tinsert(self.moreOptionsDropDown.List,{text = L.minimapmenuclose, func = function()
 		ELib:DropDownClose()
 	end})
-
+	
 	self.ButtonToCenter = ELib:Button(self.tab.tabs[2],L.MarksBarResetPos):Size(300,20):Point(10,-410):Tooltip(L.MarksBarResetPosTooltip):OnClick(function()
 		VExRT.Note.Left = nil
 		VExRT.Note.Top = nil
 
 		module.frame:ClearAllPoints()
 		module.frame:SetPoint("CENTER",UIParent, "CENTER", 0, 0)
-	end)
-
-	if VExRT.Note.Text1 then
-		self.NoteEditBox.EditBox:SetText(VExRT.Note.Text1)
+	end) 
+	
+	if VExRT.Note.Text1 then 
+		self.NoteEditBox.EditBox:SetText(VExRT.Note.Text1) 
 	end
 
 	module:RegisterEvents("GROUP_ROSTER_UPDATE")
@@ -879,14 +879,14 @@ module.frame:SetScript("OnSizeChanged", function (self, width, height)
 	VExRT.Note.Height = height
 	module.frame:UpdateText()
 end)
-module.frame:Hide()
+module.frame:Hide() 
 
 function module.frame:UpdateFont()
 	local font = VExRT and VExRT.Note and VExRT.Note.FontName or ExRT.F.defFont
 	local size = VExRT and VExRT.Note and VExRT.Note.FontSize or 12
 	local outline = VExRT and VExRT.Note and VExRT.Note.Outline and "OUTLINE"
 	local isValidFont = self.text:SetFont(font,size,outline)
-	if not isValidFont then
+	if not isValidFont then 
 		self.text:SetFont(GameFontNormal:GetFont(),size,outline)
 	end
 end
@@ -897,10 +897,10 @@ function module.frame:UpdateText()
 		self.text:SetText(txtWithIcons(selfText))
 	else
 		local text = VExRT.Note.Text1 or ""
-		if text ~= "" and selfText ~= "" then
-			text = text .. "\n"
+		if text ~= "" and selfText ~= "" then 
+			text = text .. "\n" 
 		end
-		self.text:SetText(txtWithIcons(text..selfText))
+		self.text:SetText(txtWithIcons(text..selfText)) 
 	end
 end
 
@@ -975,11 +975,11 @@ function module.frame:Save(blackNoteID)
 		ExRT.F.SendExMsg("multiline",indextosnd.."\t"..arrtosand[i])
 	end
 	ExRT.F.SendExMsg("multiline_add",ExRT.F.CreateAddonMsg(indextosnd,VExRT.Note.AutoLoad[blackNoteID or 0] or "-",blackNoteID and VExRT.Note.BlackNames[blackNoteID] or VExRT.Note.DefName or ""))
-end
+end 
 
-function module.frame:Clear()
-	module.options.NoteEditBox.EditBox:SetText("")
-end
+function module.frame:Clear() 
+	module.options.NoteEditBox.EditBox:SetText("") 
+end 
 
 local function GetPlayerRankInRaid(unit)
 	local rank = tonumber( ExRT.F.IsPlayerRLorOfficer(unit) )
@@ -1001,10 +1001,10 @@ function module:addonMessage(sender, prefix, ...)
 		if VExRT.Note.OnlyPromoted and IsInRaid() and not ExRT.F.IsPlayerRLorOfficer(sender) then
 			return
 		end
-
+	
 		VExRT.Note.LastUpdateName = sender
 		VExRT.Note.LastUpdateTime = time()
-
+	
 		local msgnowindex,lastnowtext = ...
 		if tostring(msgnowindex) == tostring(module.db.msgindex) then
 			module.db.lasttext = module.db.lasttext .. lastnowtext
@@ -1018,7 +1018,7 @@ function module:addonMessage(sender, prefix, ...)
 			if module.options.IsMainNoteNow then
 				module.options.NoteEditBox.EditBox:SetText(VExRT.Note.Text1)
 			end
-
+			
 			module.options.lastUpdate:SetText( L.NoteLastUpdate..": "..VExRT.Note.LastUpdateName.." ("..date("%H:%M:%S %d.%m.%Y",VExRT.Note.LastUpdateTime)..")" )
 		end
 		VExRT.Note.AutoLoad[0] = nil
@@ -1063,7 +1063,7 @@ function module:addonMessage(sender, prefix, ...)
 					module.options.NotesListUpdateNames()
 				end
 			end
-		end
+		end 
 		if module.options.UpdatePageAfterGettingNote then
 			module.options.UpdatePageAfterGettingNote()
 		end
@@ -1079,8 +1079,8 @@ function module:addonMessage(sender, prefix, ...)
 				end
 			end
 		end
-	end
-end
+	end 
+end 
 
 local gruevent = {}
 
@@ -1090,32 +1090,32 @@ function module.main:ADDON_LOADED()
 	VExRT.Note.Black = VExRT.Note.Black or {}
 	VExRT.Note.AutoLoad = VExRT.Note.AutoLoad or {}
 
-	if VExRT.Note.Left and VExRT.Note.Top then
+	if VExRT.Note.Left and VExRT.Note.Top then 
 		module.frame:ClearAllPoints()
 		module.frame:SetPoint("TOPLEFT",UIParent,"BOTTOMLEFT",VExRT.Note.Left,VExRT.Note.Top)
 	end
-
+	
 	VExRT.Note.FontSize = VExRT.Note.FontSize or 12
 
-	if VExRT.Note.Width then
-		module.frame:SetWidth(VExRT.Note.Width)
+	if VExRT.Note.Width then 
+		module.frame:SetWidth(VExRT.Note.Width) 
 	end
-	if VExRT.Note.Height then
-		module.frame:SetHeight(VExRT.Note.Height)
+	if VExRT.Note.Height then 
+		module.frame:SetHeight(VExRT.Note.Height) 
 	end
 
-	if VExRT.Note.enabled then
+	if VExRT.Note.enabled then 
 		module:Enable()
 	end
 
-	if VExRT.Note.Text1 then
+	if VExRT.Note.Text1 then 
 		module.frame:UpdateText()
 	end
-	if VExRT.Note.Alpha then
-		module.frame:SetAlpha(VExRT.Note.Alpha/100)
+	if VExRT.Note.Alpha then 
+		module.frame:SetAlpha(VExRT.Note.Alpha/100) 
 	end
-	if VExRT.Note.Scale then
-		module.frame:SetScale(VExRT.Note.Scale/100)
+	if VExRT.Note.Scale then 
+		module.frame:SetScale(VExRT.Note.Scale/100) 
 	end
 	if VExRT.Note.ScaleBack then
 		module.frame.background:SetColorTexture(0, 0, 0, VExRT.Note.ScaleBack/100)
@@ -1130,7 +1130,7 @@ function module.main:ADDON_LOADED()
 	else
 		ExRT.lib.AddShadowComment(module.frame,nil,L.message)
 	end
-
+	
 	if VExRT.Addon.Version < 3225 then
 		for i=1,12 do
 			if not VExRT.Note.Black[i] then
@@ -1142,19 +1142,19 @@ function module.main:ADDON_LOADED()
 	end
 	if VExRT.Addon.Version < 3865 then
 		--VExRT.Note.EnableWhenReceive = true
-	end
-
+	end	
+	
 	VExRT.Note.BlackNames = VExRT.Note.BlackNames or {}
-
+	
 	for i=1,3 do
 		VExRT.Note.Black[i] = VExRT.Note.Black[i] or ""
 	end
-
+	
 	VExRT.Note.Strata = VExRT.Note.Strata or "HIGH"
-
+	
 	module:RegisterAddonMessage()
 	module:RegisterSlash()
-
+	
 	module.frame:UpdateFont()
 	module.frame:SetFrameStrata(VExRT.Note.Strata)
 end
@@ -1228,7 +1228,7 @@ function module.main:GROUP_ROSTER_UPDATE()
 	C_Timer.After(1, module.Visibility)
 	if not module.options.raidnames then
 		return
-	end
+	end	
 	local n = GetNumGroupMembers() or 0
 	local gMax = ExRT.F.GetRaidDiffMaxGroup()
 	for i=1,8 do gruevent[i] = 0 end
@@ -1240,7 +1240,7 @@ function module.main:GROUP_ROSTER_UPDATE()
 
 			local POS = gruevent[subgroup] + (subgroup - 1) * 5
 			local obj = module.options.raidnames[POS]
-
+			
 			if obj then
 				name = ExRT.F.delUnitNameServer(name)
 				local colorCode = ExRT.F.classColor(class)
@@ -1259,7 +1259,7 @@ function module.main:GROUP_ROSTER_UPDATE()
 			frame.html:SetText("")
 		end
 	end
-end
+end 
 function module.main:PLAYER_REGEN_DISABLED()
 	Note_CombatState = true
 	module:Visibility()
@@ -1310,7 +1310,7 @@ end
 
 function module:slash(arg)
 	if arg == "note" then
-		if VExRT.Note.enabled then
+		if VExRT.Note.enabled then 
 			module:Disable()
 		else
 			module:Enable()

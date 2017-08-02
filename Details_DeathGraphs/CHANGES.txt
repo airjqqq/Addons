@@ -1,7 +1,7 @@
-changeset:   56:79225c1d61ab
-tag:         a56-alpha
+changeset:   62:5d95cf5b0237
+tag:         v62-release
 user:        Tercio
-date:        Mon May 08 17:01:16 2017 -0300
-summary:     - localization is now handled on curseforge.
+date:        Tue Jul 25 14:20:35 2017 -0300
+summary:     - added all options panel string to be localized.
 
 

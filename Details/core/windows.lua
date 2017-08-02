@@ -359,7 +359,7 @@
 			self.ponto4.y = _y + metade_altura + (statusbar_y_mod*-1)
 		end
 		
-		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaï¿½o para o final da janela
+		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
 		
 		return {altura = self.baseframe:GetHeight(), largura = self.baseframe:GetWidth(), x = _x, y = _y}
 	end
@@ -422,7 +422,7 @@
 			self.ponto4.y = _y + metade_altura + (statusbar_y_mod*-1)
 		end
 		
-		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaï¿½o para o final da janela
+		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
 
 		return {altura = self.baseframe:GetHeight(), largura = self.baseframe:GetWidth(), x = _x, y = _y}
 	end
@@ -438,7 +438,7 @@
 			self.baseframe:SetHeight (self.posicao[self.mostrando].h)
 			
 			self:RestoreLibWindow()
-			self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaï¿½o para o final da janela
+			self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
 			return
 		end
 	
@@ -490,7 +490,7 @@
 
 		self.baseframe:ClearAllPoints()
 		self.baseframe:SetPoint ("CENTER", _UIParent, "CENTER", novo_x + x, novo_y + y)
-		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaï¿½o para o final da janela
+		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
 	end
 	
 	function _detalhes:CreatePositionTable()
@@ -553,9 +553,9 @@
 		end
 
 		instancia.barraS = {nil, nil} --> zera o iterator
-		instancia.rows_showing = 0 --> resetou, entï¿½o nï¿½o esta mostranho nenhuma barra
+		instancia.rows_showing = 0 --> resetou, então não esta mostranho nenhuma barra
 		
-		for i = 1, instancia.rows_created, 1 do --> limpa a referï¿½ncia do que estava sendo mostrado na barra
+		for i = 1, instancia.rows_created, 1 do --> limpa a referência do que estava sendo mostrado na barra
 			local esta_barra= instancia.barras[i]
 			esta_barra.minha_tabela = nil
 			esta_barra.animacao_fim = 0
@@ -624,7 +624,7 @@
 				_detalhes:Freeze (self)
 			end
 		
-			-- -4 difere a precisï¿½o de quando a barra serï¿½ adicionada ou apagada da barra
+			-- -4 difere a precisão de quando a barra será adicionada ou apagada da barra
 			self.baseframe.BoxBarrasAltura = (self.baseframe:GetHeight()) - end_window_spacement
 
 			local T = self.rows_fit_in_window
@@ -632,7 +632,7 @@
 				T = _math_floor (self.baseframe.BoxBarrasAltura / self.row_height)
 			end
 			
-			--> reajustar o local do relï¿½gio
+			--> reajustar o local do relógio
 			local meio = self.baseframe:GetWidth() / 2
 			local novo_local = meio - 25
 			
@@ -662,8 +662,8 @@
 
 			--> verifica se precisa esconder ou mostrar alguma barra
 			local A = self.barraS[1]
-			if (not A) then --> primeira vez que o resize esta sendo usado, no caso no startup do addon ou ao criar uma nova instï¿½ncia
-				--> hida as barras nï¿½o usadas
+			if (not A) then --> primeira vez que o resize esta sendo usado, no caso no startup do addon ou ao criar uma nova instância
+				--> hida as barras não usadas
 				for i = 1, self.rows_created, 1 do
 					gump:Fade (self.barras [i], 1)
 					self.barras [i].on = false
@@ -677,8 +677,8 @@
 			--> novo iterator
 			local barras_diff = C - T --> aqui pega a quantidade de barras, se aumentou ou diminuiu
 			if (barras_diff > 0) then --> ganhou barras_diff novas barras
-				local fim_iterator = self.barraS[2] --> posiï¿½ï¿½o atual
-				fim_iterator = fim_iterator+barras_diff --> nova posiï¿½ï¿½o
+				local fim_iterator = self.barraS[2] --> posição atual
+				fim_iterator = fim_iterator+barras_diff --> nova posição
 				local excedeu_iterator = fim_iterator - X --> total que ta sendo mostrado - fim do iterator
 				if (excedeu_iterator > 0) then --> extrapolou
 					fim_iterator = X --> seta o fim do iterator pra ser na ultima barra
@@ -689,10 +689,10 @@
 						inicio_iterator = inicio_iterator-excedeu_iterator --> pega o novo valor do iterator
 						self.barraS[1] = inicio_iterator
 					else
-						self.barraS[1] = 1 --> se ganhou mais barras pra cima, ignorar elas e mover o iterator para a pociï¿½ï¿½o inicial
+						self.barraS[1] = 1 --> se ganhou mais barras pra cima, ignorar elas e mover o iterator para a pocição inicial
 					end
 				else
-					--> se nï¿½o extrapolou esta okey e esta mostrando a quantidade de barras correta
+					--> se não extrapolou esta okey e esta mostrando a quantidade de barras correta
 					self.barraS[2] = fim_iterator
 				end
 				
@@ -713,12 +713,12 @@
 				end
 				
 			elseif (barras_diff < 0) then --> perdeu barras_diff barras
-				local fim_iterator = self.barraS[2] --> posiï¿½ï¿½o atual
-				if (not (fim_iterator == X and fim_iterator < C)) then --> calcula primeiro as barras que foram perdidas sï¿½o barras que nï¿½o estavam sendo usadas
-					--> perdi X barras, diminui X posiï¿½ï¿½es no iterator
+				local fim_iterator = self.barraS[2] --> posição atual
+				if (not (fim_iterator == X and fim_iterator < C)) then --> calcula primeiro as barras que foram perdidas são barras que não estavam sendo usadas
+					--> perdi X barras, diminui X posições no iterator
 					local perdeu = _math_abs (barras_diff)
 					
-					if (fim_iterator == X) then --> se o iterator tiver na ultima posiï¿½ï¿½o
+					if (fim_iterator == X) then --> se o iterator tiver na ultima posição
 						perdeu = perdeu - (C - X)
 					end
 					
@@ -777,7 +777,7 @@
 				qual_barra = qual_barra+1
 			end
 			
-			--> forï¿½a o prï¿½ximo refresh
+			--> força o próximo refresh
 			self.showing[self.atributo].need_refresh = true
 
 		end	
@@ -1109,7 +1109,7 @@
 			f:SetHeight (500)
 			tinsert (UISpecialFrames, "DetailsRaidHistoryWindow")
 			
-			f.Mode = 1
+			f.Mode = 2
 			
 			if (not _detalhes:GetTutorialCVar ("HISTORYPANEL_TUTORIAL")) then
 				local tutorialFrame = CreateFrame ("frame", "$parentTutorialFrame", f)
@@ -1165,6 +1165,7 @@
 				f.HistoryCheckBox:SetValue (true)
 				f.Mode = 1
 				_G.DetailsRaidHistoryWindow:Refresh()
+				f.ReportButton:Hide()
 			end
 			local select_guildrank = function()
 				f.HistoryCheckBox:SetValue (false)
@@ -1174,16 +1175,17 @@
 				f.select_player2_label:Hide()
 				f.Mode = 2
 				_G.DetailsRaidHistoryWindow:Refresh()
+				f.ReportButton:Show()
 			end
 
-			local HistoryCheckBox, HistoryLabel = _detalhes.gump:CreateSwitch (f, select_history, true, 18, 18, "", "", "HistoryCheckBox", nil, nil, nil, nil, Loc ["STRING_GUILDDAMAGERANK_SHOWHISTORY"], options_switch_template) --, options_text_template
+			local HistoryCheckBox, HistoryLabel = _detalhes.gump:CreateSwitch (f, select_history, false, 18, 18, "", "", "HistoryCheckBox", nil, nil, nil, nil, Loc ["STRING_GUILDDAMAGERANK_SHOWHISTORY"], options_switch_template) --, options_text_template
 			HistoryLabel:ClearAllPoints()
 			HistoryCheckBox:ClearAllPoints()
 			HistoryCheckBox:SetPoint ("topleft", f, "topleft", 100, -34)
 			HistoryLabel:SetPoint ("left", HistoryCheckBox, "right", 2, 0)
 			HistoryCheckBox:SetAsCheckBox()
 			
-			local GuildRankCheckBox, GuildRankLabel = _detalhes.gump:CreateSwitch (f, select_guildrank, false, 18, 18, "", "", "GuildRankCheckBox", nil, nil, nil, nil, Loc ["STRING_GUILDDAMAGERANK_SHOWRANK"], options_switch_template) --, options_text_template
+			local GuildRankCheckBox, GuildRankLabel = _detalhes.gump:CreateSwitch (f, select_guildrank, true, 18, 18, "", "", "GuildRankCheckBox", nil, nil, nil, nil, Loc ["STRING_GUILDDAMAGERANK_SHOWRANK"], options_switch_template) --, options_text_template
 			GuildRankLabel:ClearAllPoints()
 			GuildRankCheckBox:ClearAllPoints()
 			GuildRankCheckBox:SetPoint ("topleft", f, "topleft", 240, -34)
@@ -1248,6 +1250,34 @@
 			GuildSyncButton:SetPoint ("topright", f, "topright", -20, -34)
 			GuildSyncButton:SetIcon ([[Interface\GLUES\CharacterSelect\RestoreButton]], 12, 12, "overlay", {0.2, .8, 0.2, .8}, nil, 4)
 			
+			
+			function f.BuildReport()
+				if (f.LatestResourceTable) then
+					local reportFunc = function (IsCurrent, IsReverse, AmtLines)
+						local result = {}
+						
+						local bossName = f.select_boss.label:GetText()
+						
+						tinsert (result, "Details!: Damage Rank for: " .. (bossName or "--x--x--"))
+						for i = 1, AmtLines do
+							if (f.LatestResourceTable[i]) then
+								tinsert (result, f.LatestResourceTable[i][1] .. ": " .. f.LatestResourceTable[i][2])
+							else
+								break
+							end
+						end
+					
+						Details:SendReportLines (result)
+					end
+					
+					Details:SendReportWindow (reportFunc, nil, nil, true)
+				end
+			end
+			
+			local ReportButton = _detalhes.gump:CreateButton (f, f.BuildReport, 130, 20, Loc ["STRING_OPTIONS_REPORT_ANCHOR"]:gsub (":", ""), nil, nil, nil, "ReportButton", nil, nil, options_button_template, options_text_template)
+			ReportButton:SetPoint ("right", GuildSyncButton, "left", -2, 0)
+			ReportButton:SetIcon ([[Interface\GLUES\CharacterSelect\RestoreButton]], 12, 12, "overlay", {0.2, .8, 0.2, .8}, nil, 4)			
+
 			--
 			function f:SetBackgroundImage (encounterId)
 				local instanceId = _detalhes:GetInstanceIdFromEncounterId (encounterId)
@@ -1277,8 +1307,10 @@
 			end)
 			
 			f.TitleText:SetText ("Details! Raid Ranking")
-			f.portrait:SetTexture ([[Interface\AddOns\Details\images\icons2]])
-			f.portrait:SetTexCoord (192/512, 258/512, 322/512, 388/512)
+			--f.portrait:SetTexture ([[Interface\AddOns\Details\images\icons2]])
+			f.portrait:SetTexture ([[Interface\PVPFrame\PvPPrestigeIcons]])
+			f.portrait:SetTexCoord (270/1024, 384/1024, 128/512, 256/512)
+			--f.portrait:SetTexCoord (192/512, 258/512, 322/512, 388/512)
 			
 			local dropdown_size = 160
 			local icon = [[Interface\FriendsFrame\battlenet-status-offline]]
@@ -1413,11 +1445,28 @@
 				
 					if (type (difficulty) == "number") then
 						if (difficulty == 14) then
-							tinsert (diff_list, {value = 14, label = "Normal", icon = icon, onclick = on_diff_select})
+							--tinsert (diff_list, {value = 14, label = "Normal", icon = icon, onclick = on_diff_select})
+							--print ("has normal encounter")
 						elseif (difficulty == 15) then
-							tinsert (diff_list, {value = 15, label = "Heroic", icon = icon, onclick = on_diff_select})
+							local alreadyHave = false
+							for i, t in ipairs (diff_list) do
+								if (t.label == "Heroic") then
+									alreadyHave = true
+								end
+							end
+							if (not alreadyHave) then
+								tinsert (diff_list, 1, {value = 15, label = "Heroic", icon = icon, onclick = on_diff_select})
+							end
 						elseif (difficulty == 16) then
-							tinsert (diff_list, {value = 16, label = "Mythic", icon = icon, onclick = on_diff_select})
+							local alreadyHave = false
+							for i, t in ipairs (diff_list) do
+								if (t.label == "Mythic") then
+									alreadyHave = true
+								end
+							end
+							if (not alreadyHave) then
+								tinsert (diff_list, {value = 16, label = "Mythic", icon = icon, onclick = on_diff_select})
+							end
 						end
 
 						for encounterId, encounterTable in pairs (encounterIdTable) do 
@@ -1450,6 +1499,9 @@
 					end
 				end
 				
+				table.sort (boss_list, function (t1, t2) return t1.label < t2.label end)
+				
+				
 				diff_dropdown:Refresh()
 				diff_dropdown:Select (1, true)
 				boss_dropdown:Refresh()
@@ -1472,11 +1524,28 @@
 				for difficulty, encounterIdTable in pairs (db) do
 					if (type (difficulty) == "number") then
 						if (difficulty == 14) then
-							tinsert (diff_list, {value = 14, label = "Normal", icon = icon, onclick = on_diff_select})
+							--tinsert (diff_list, {value = 14, label = "Normal", icon = icon, onclick = on_diff_select})
+							--print ("has normal encounter")
 						elseif (difficulty == 15) then
-							tinsert (diff_list, {value = 15, label = "Heroic", icon = icon, onclick = on_diff_select})
+							local alreadyHave = false
+							for i, t in ipairs (diff_list) do
+								if (t.label == "Heroic") then
+									alreadyHave = true
+								end
+							end
+							if (not alreadyHave) then
+								tinsert (diff_list, 1, {value = 15, label = "Heroic", icon = icon, onclick = on_diff_select})
+							end
 						elseif (difficulty == 16) then
-							tinsert (diff_list, {value = 16, label = "Mythic", icon = icon, onclick = on_diff_select})
+							local alreadyHave = false
+							for i, t in ipairs (diff_list) do
+								if (t.label == "Mythic") then
+									alreadyHave = true
+								end
+							end
+							if (not alreadyHave) then
+								tinsert (diff_list, {value = 16, label = "Mythic", icon = icon, onclick = on_diff_select})
+							end
 						end
 
 						for encounterId, encounterTable in pairs (encounterIdTable) do 
@@ -1494,6 +1563,7 @@
 					end
 				end
 				
+				table.sort (boss_list, function (t1, t2) return t1.label < t2.label end)
 				boss_dropdown:Refresh()
 			end
 			
@@ -1596,7 +1666,7 @@
 			
 			function f:BuildGuildRankTable (encounterTable, guild, role)
 				
-				local header = {{name = "Player Name", type = "text"}, {name = "Total", type = "text"}, {name = "Per Second", type = "text"}, {name = "Length", type = "text"}, {name = "Item Level", type = "text"}, {name = "Date", type = "text"}}
+				local header = {{name = "Player Name", type = "text"}, {name = "Per Second", type = "text"}, {name = "Total", type = "text"}, {name = "Length", type = "text"}, {name = "Item Level", type = "text"}, {name = "Date", type = "text"}}
 				local players = {}
 				local players_index = {}
 				
@@ -1625,7 +1695,10 @@
 							end
 						
 							local total = playerTable [1]
-							if (total > playerScore [playerName].total) then
+							local dps = total / encounter.elapsed
+							
+							--if (total > playerScore [playerName].total) then
+							if (dps > playerScore [playerName].ps) then
 								playerScore [playerName].total = total
 								playerScore [playerName].ps = total / encounter.elapsed
 								playerScore [playerName].ilvl = playerTable [2]
@@ -1647,20 +1720,23 @@
 				
 					tinsert (sortTable, {
 						"|c" .. classColor .. playerName .. "|r",
-						_detalhes:comma_value (t.total),
-						_detalhes:ToK2 (t.ps),
+						_detalhes:comma_value (t.ps),
+						_detalhes:ToK2 (t.total),
 						_detalhes.gump:IntegerToTimer (t.length),
 						floor (t.ilvl),
 						t.date,
 						t.total,
+						t.ps,
 					})
 				end
-				table.sort (sortTable, function(a, b) return a[7] > b[7] end)
+				table.sort (sortTable, function(a, b) return a[8] > b[8] end)
 				
 				fillpanel:SetFillFunction (function (index) return sortTable [index] end)
 				fillpanel:SetTotalFunction (function() return #sortTable end)
 				fillpanel:UpdateRows (header)
 				fillpanel:Refresh()
+				
+				f.LatestResourceTable = sortTable
 			end
 			
 			function f:BuildRaidTable (encounterTable, guild, role)
@@ -1728,10 +1804,11 @@
 				
 				fillpanel:SetFillFunction (function (index) return players [index] end)
 				fillpanel:SetTotalFunction (function() return #players end)
-
+				
 				fillpanel:UpdateRows (header)
 				
 				fillpanel:Refresh()
+				fillpanel:SetPoint ("topleft", f, "topleft", 200, -65)
 			end
 			
 			function f:Refresh (player_name)
@@ -2120,7 +2197,7 @@
 					if (bookmark and bookmark.atributo and bookmark.sub_atributo) then
 						if (bookmark.atributo == 5) then --> custom
 							local CustomObject = _detalhes.custom [bookmark.sub_atributo]
-							if (not CustomObject) then --> ele jï¿½ foi deletado
+							if (not CustomObject) then --> ele já foi deletado
 								this_block.label.text = "-- x -- x --"
 								this_block.icon.texture = "Interface\\ICONS\\Ability_DualWield"
 								this_block.icon.texcoord = normal_coords
@@ -4082,6 +4159,288 @@ this is automatically performed when the search script runs.
 		
 		DetailsAPIPanel:Show()
 	end
+	
+	
+function Details.OpenDpsBenchmark()
+	
+	--main frame
+		
+		local DF = _detalhes.gump
+		local _ = nil
+		
+		--declaration
+		local f = CreateFrame ("frame", "DetailsBenchmark", UIParent)
+		f:SetSize (800, 600)
+		f:SetPoint ("left", UIParent, "left")
+		f:SetFrameStrata ("LOW")
+		f:EnableMouse (true)
+		f:SetMovable (true)
+		f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+		f:SetBackdropColor (0, 0, 0, 0.9)
+		f:SetBackdropBorderColor (0, 0, 0, 1)
+		
+		--register to libwindow
+		local LibWindow = LibStub ("LibWindow-1.1")
+		LibWindow.RegisterConfig (f, _detalhes.benchmark_db.frame)
+		LibWindow.RestorePosition (f)
+		LibWindow.MakeDraggable (f)
+		LibWindow.SavePosition (f)
+		
+		--titlebar
+		f.TitleBar = CreateFrame ("frame", "$parentTitleBar", f)
+		f.TitleBar:SetPoint ("topleft", f, "topleft", 2, -3)
+		f.TitleBar:SetPoint ("topright", f, "topright", -2, -3)
+		f.TitleBar:SetHeight (20)
+		f.TitleBar:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+		f.TitleBar:SetBackdropColor (.2, .2, .2, 1)
+		f.TitleBar:SetBackdropBorderColor (0, 0, 0, 1)
+		
+		--close button
+		f.Close = CreateFrame ("button", "$parentCloseButton", f)
+		f.Close:SetPoint ("right", f.TitleBar, "right", -2, 0)
+		f.Close:SetSize (16, 16)
+		f.Close:SetNormalTexture (_detalhes.gump.folder .. "icons")
+		f.Close:SetHighlightTexture (_detalhes.gump.folder .. "icons")
+		f.Close:SetPushedTexture (_detalhes.gump.folder .. "icons")
+		f.Close:GetNormalTexture():SetTexCoord (0, 16/128, 0, 1)
+		f.Close:GetHighlightTexture():SetTexCoord (0, 16/128, 0, 1)
+		f.Close:GetPushedTexture():SetTexCoord (0, 16/128, 0, 1)
+		f.Close:SetAlpha (0.7)
+		f.Close:SetScript ("OnClick", function() f:Hide() end)
+		
+		--title
+		f.Title = f.TitleBar:CreateFontString ("$parentTitle", "overlay", "GameFontNormal")
+		f.Title:SetPoint ("center", f.TitleBar, "center")
+		f.Title:SetTextColor (.8, .8, .8, 1)
+		f.Title:SetText ("Details! Benchmark")
+		
+		DF:InstallTemplate ("font", "DETAILS_BENCHMARK_NORMAL", {color = "white", size = 10, font = "Friz Quadrata TT"})
+		
+		function f.CreateCombatObject()
+			local t = {}
+			
+			return t
+		end
+		
+		function f.StartNewBenchmark()
+			
+		end
+		
+		function f.StopCurrentBenchmark()
+			
+		end
+		
+		
+		f.OnTickInterval = 0
+		function f.UpdateOnTick (self, deltaTime)
+			f.OnTickInterval = f.OnTickInterval + deltaTime
+			if (f.OnTickInterval >= 0.024) then
+				--do the update
+				
+				--reset the interval
+				f.OnTickInterval = 0
+			end
+		end
+		function f.StartUpdateOnTick()
+			f:SetScript ("OnUpdate", f.UpdateOnTick)
+		end
+		
+		--events
+		f:RegisterEvent ("PLAYER_REGEN_DISABLED")
+		f:RegisterEvent ("PLAYER_REGEN_ENABLED")
+		
+		f:SetScript ("OnEvent", function (self, event, ...)
+			if (event == "PLAYER_REGEN_DISABLED") then
+				f.StartNewBenchmark()
+				
+			elseif (event == "PLAYER_REGEN_ENABLED") then
+				f.StopCurrentBenchmark()
+				
+			end
+		end)
+		
+		local normal_text_template = DF:GetTemplate ("font", "DETAILS_BENCHMARK_NORMAL")
+		local options_dropdown_template = DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+		local options_switch_template = DF:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE")
+		local options_slider_template = DF:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE")
+		local options_button_template = DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
+		
+	--locations
+		f.FrameLocations = {
+			summary = {10, -30},
+			auras = {10, -120},
+			spells = {10, -180},
+			history = {10, -280},
+		}
+		f.FrameSizes = {
+			default = {300, 200},
+		}
+		
+	--summary block
+	
+		--declaration
+			local summaryFrame = CreateFrame ("frame", "$parentSummaryFrame", f)
+			summaryFrame:SetPoint ("topleft", f, "topleft", unpack (f.FrameLocations.summary))
+			summaryFrame:SetSize (unpack (f.FrameSizes.default))
+			summaryFrame:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+			summaryFrame:SetBackdropColor (0, 0, 0, 0.9)
+			summaryFrame:SetBackdropBorderColor (0, 0, 0, 1)
+			
+		--time to test string and dropdown
+			local build_time_list = function()
+				local t = {
+					{value = 40, label = "40 seconds"},
+					{value = 60, label = "60 seconds"},
+					{value = 90, label = "90 seconds"},
+					{value = 120, label = "2 minutes"},
+					{value = 180, label = "3 minutes"},
+					{value = 300, label = "5 minutes"},
+				}
+				return t
+			end
+			
+			summaryFrame.TimeToTestLabel = DF:CreateLabel (summaryFrame, "Amount of Time", normal_text_template)
+			summaryFrame.TimeToTestDropdown = DF:CreateDropDown (summaryFrame, build_time_list, default, 150, 20, _, _, options_dropdown_template)
+			
+		--description string and text entry
+			summaryFrame.DescriptionLabel = DF:CreateLabel (summaryFrame, "Description", normal_text_template)
+			summaryFrame.DescriptionEntry = DF:CreateTextEntry (summaryFrame, function()end, 120, 20, nil, _, nil, options_dropdown_template)
+			
+		--DPS Amount string
+			summaryFrame.DPSLabel = DF:CreateLabel (summaryFrame, "100K", normal_text_template)
+			
+		--TIME ELAPSED string
+			summaryFrame.TimeElapsedLabel = DF:CreateLabel (summaryFrame, "01:00", normal_text_template)
+		
+		--boss simulation string and dropdown
+			local build_bosssimulation_list, default = function()
+				local t = {
+					{value = "patchwerk", label = "Patchwerk"},
+				}
+				return t
+			end
+			summaryFrame.BossSimulationLabel = DF:CreateLabel (summaryFrame, "Boss Simulation", normal_text_template)
+			summaryFrame.BossSimulationDropdown = DF:CreateDropDown (summaryFrame, build_bosssimulation_list, default, 150, 20, _, _, options_dropdown_template)
+			
+		--boss records line with a tooltip importing data from the storage
+			summaryFrame.BossRecordsFrame = CreateFrame ("frame", nil, summaryFrame)
+			summaryFrame.BossRecordsFrame:SetSize (f.FrameSizes.default[1]-20, 20)
+			summaryFrame.BossRecordsFrame:SetBackdropColor (0, 0, 0, 0.3)
+			summaryFrame.BossRecordsFrame:SetScript ("OnEnter", function()
+				
+			end)
+			summaryFrame.BossRecordsFrame:SetScript ("OnLeave", function()
+			
+			end)
+			
+		--set the points
+			do
+				local x, y = 10, -10
+				summaryFrame.TimeToTestLabel:SetPoint ("topleft", summaryFrame, "topleft", x, y)
+				summaryFrame.TimeToTestDropdown:SetPoint ("topleft", summaryFrame.TimeToTestLabel, "bottomleft", 0, -2)
+				
+				--y = y - 40
+				summaryFrame.DescriptionLabel:SetPoint ("topleft", summaryFrame, "topleft", x+160, y)
+				summaryFrame.DescriptionEntry:SetPoint ("topleft", summaryFrame.DescriptionLabel, "bottomleft", 0, -2)
+				
+				y = y - 40
+				summaryFrame.DPSLabel:SetPoint ("topleft", summaryFrame, "topleft", x, y)
+				summaryFrame.TimeElapsedLabel:SetPoint ("topleft", summaryFrame, "topleft", x + 100, y)
+				
+				y = y - 40
+				summaryFrame.BossSimulationLabel:SetPoint ("topleft", summaryFrame, "topleft", x, y)
+				summaryFrame.BossSimulationDropdown:SetPoint ("topleft", summaryFrame.BossSimulationLabel, "bottomleft", 0, -2)
+				
+				y = y - 40
+				summaryFrame.BossRecordsFrame:SetPoint ("topleft", summaryFrame, "topleft", 0, 0)
+			end
+			
+			
+			
+			
+	--spells block
+		
+		--declaration
+			local spellsFrame = CreateFrame ("frame", "$parentSpellsFrame", f)
+			spellsFrame:SetPoint ("topleft", f, "topleft", unpack (f.FrameLocations.spells))
+			spellsFrame:SetSize (unpack (f.FrameSizes.default))
+			spellsFrame:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+			spellsFrame:SetBackdropColor (0, 0, 0, 0.9)
+			spellsFrame:SetBackdropBorderColor (0, 0, 0, 1)
+			
+		--header with the string titles:
+			--Spell Icon | DPS | Damage | Casts | Criticals | Highest Damage
+			
+		--scrollpanel 
+			--each line with:
+				--Texture for the icon
+				--5 strings for the data
+				--hover over scripts
+		
+	--auras block
+		
+		--declaration
+			local aurasFrame = CreateFrame ("frame", "$parentAurasFrame", f)
+			aurasFrame:SetPoint ("topleft", f, "topleft", unpack (f.FrameLocations.auras))
+			aurasFrame:SetSize (unpack (f.FrameSizes.default))
+			aurasFrame:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+			aurasFrame:SetBackdropColor (0, 0, 0, 0.9)
+			aurasFrame:SetBackdropBorderColor (0, 0, 0, 1)
+		
+		--will be 9 blocks? 
+		
+		--each block with:
+			--Texture for the icon
+			--3 strings for Total Update, Applications and Refreshes
+			
+			
+	--history block
+			
+		--declaration
+			local historyFrame = CreateFrame ("frame", "$parentHistoryFrame", f)
+			historyFrame:SetPoint ("topleft", f, "topleft", unpack (f.FrameLocations.history))
+			historyFrame:SetSize (unpack (f.FrameSizes.default))
+			historyFrame:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+			historyFrame:SetBackdropColor (0, 0, 0, 0.9)
+			historyFrame:SetBackdropBorderColor (0, 0, 0, 1)
+			
+		--header with the string titles:
+			--Spec | ILevel | DPS | Time | Talents | Crit | Haste | Versatility | Mastery | Int | Description
+			
+		--scrollpanel 
+			--each line with:
+				--7 Textures for talent icons
+				--10 strings for the data
+				--hover over scripts
+	
+	
+	
+	--mechanics
+	
+	--to open the window
+		--on target a training dummy
+		--need to be on a specific map / sanctuary
+	
+	--on start a new combat:
+		--start the timer
+		--start the boss script if not patchwerk
+		--create the graphic tables for *player total damage and *spell damage
+		--create aura tables / grab auras already applied to the player / auras with no duration wont be added
+
+	--on tick: 
+		--*check if the time is gone *update the time string *update the graphic *update the spells *upate the auras
+		
+		
+	--on finishes:
+		--stop the timer and check if the elapsed time is done
+		--create a new benchmark object to store the test
+		--export the data to this new object
+		--add this new object to the benchmark storage table
+		--update the history scrollbar
+		
+	
+end	
+	
 	
 	--old versions dialog
 	--[[

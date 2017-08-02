@@ -33,6 +33,7 @@
 			_newMiscSpell.uptime = 0
 			_newMiscSpell.actived = false
 			_newMiscSpell.activedamt = 0
+			_newMiscSpell.refreshamt = 0
 		elseif (token == "SPELL_INTERRUPT") then
 			_newMiscSpell.interrompeu_oque = {}
 		elseif (token == "SPELL_DISPEL" or token == "SPELL_STOLEN") then
@@ -56,8 +57,8 @@
 			elseif (spellName == "BUFF_UPTIME_REFRESH") then
 				if (self.actived_at and self.actived) then
 					self.uptime = self.uptime + _detalhes._tempo - self.actived_at
+					self.refreshamt = self.refreshamt + 1
 					token.buff_uptime = token.buff_uptime + _detalhes._tempo - self.actived_at --> token = actor misc object
-					
 				end
 				self.actived_at = _detalhes._tempo
 				self.actived = true
@@ -85,6 +86,7 @@
 			elseif (spellName == "DEBUFF_UPTIME_REFRESH") then
 				if (self.actived_at and self.actived) then
 					self.uptime = self.uptime + _detalhes._tempo - self.actived_at
+					self.refreshamt = self.refreshamt + 1
 					token.debuff_uptime = token.debuff_uptime + _detalhes._tempo - self.actived_at
 				end
 				self.actived_at = _detalhes._tempo

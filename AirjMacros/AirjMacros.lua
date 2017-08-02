@@ -54,8 +54,10 @@ function mod:OnInitialize()
 	local tabGroup = AceGUI:Create("TabGroup")
 	tabGroup:SetTabs(self.tabs)
 	tabGroup:SetCallback("OnGroupSelected",function(widget,event,value)
+		self.currentTab = self.tabOnSelectMethod[value]
 		self[self.tabOnSelectMethod[value] ](self)
 	end)
+	self.currentTab = "SettingSelect"
 	mainFrame:SetLayout("Fill")
 	mainFrame:AddChild(tabGroup)
 	self.tabGroup = tabGroup
@@ -80,6 +82,7 @@ function mod:OnInitialize()
 	self:UpdateRealButtons()
 
 	self:RegisterChatCommand("amo", function(str,...)
+		self[self.currentTab](self)
 		self:Toggle()
 		self.modChildren.DataSelect:UpdateDataTreeGroup()
 	end)
@@ -176,10 +179,11 @@ function mod:OnEnable()
 	end)
 	self:RegisterEvent("UNIT_EXITED_VEHICLE",self.Reload,self)
 
-	if not (self.selectedIndex) then
-		self:LoadAutoData()
-		self:UpdateRealButtons()
-	end
+	-- if not (self.selectedIndex) then
+	-- 	self:UpdateRealButtons()
+	-- end
+	self:LoadAutoData()
+	self:UpdateRealButtons()
 end
 
 function mod:Reload()
@@ -252,8 +256,13 @@ function mod:CreateRealButtons()
 						if keyIndex and keyIndex<=3 then
 							--AirjAutoKey:SetConfigValue("target", keyIndex*2-1)
 						end
-						local datas = mod.macroDataBaseArray[mod.selectedIndex].macroArray
-						local data = datas[self.key] or {}
+						local datas = mod.selectedIndex and mod.macroDataBaseArray[mod.selectedIndex].macroArray or {}
+						local defaultdatas = mod:GetDefaultData()
+						defaultdatas = defaultdatas and defaultdatas.macroArray or {}
+						local data = datas[self.key]
+						if not data or not mod:GetMacroText(data) then
+						  data = defaultdatas[self.key] or {}
+						end
 						-- dump(data)
 						if not data.dontStopAuto then
 							AirjAutoKey:OnChatCommmand("onceGCD",-0.4)
@@ -270,9 +279,9 @@ end
 
 function mod:UpdateRealButtons()
 	-- self:Print("UpdateRealButtons",self.selectedIndex)
-	if not self.selectedIndex or self.selectedIndex==0 then
-		return
-	end
+	-- if not self.selectedIndex or self.selectedIndex==0 then
+	-- 	return
+	-- end
 
 	if InCombatLockdown() then
 		self.UpdateWhileCombat = true
@@ -286,12 +295,17 @@ function mod:UpdateRealButtons()
 	end
 
 	local pres = {"","SHIFT-","ALT-","CTRL-"}
-	local datas = self.macroDataBaseArray[self.selectedIndex].macroArray
+	local datas = self.selectedIndex and self.selectedIndex >0 and self.macroDataBaseArray[self.selectedIndex].macroArray or {}
+	local defaultdatas = self:GetDefaultData()
+	defaultdatas = defaultdatas and defaultdatas.macroArray or {}
 	for _,keys in pairs(self.keyArray) do
 		for _,nomodkey in pairs(keys) do
 			for _,pre in pairs(pres) do
 				local key = pre..nomodkey
-				local data = datas[key] or {}
+				local data = datas[key]
+				if not data or not self:GetMacroText(data) then
+				  data = defaultdatas[key] or {}
+				end
 				if type(key) == "string" then
 					local real = _G["AirjMacros_"..key]
 					if real then
@@ -399,14 +413,36 @@ function mod:BlizzardActionBar(on)
 	end
 end
 
+function mod:GetDefaultData()
+	for i,v in ipairs(self.macroDataBaseArray) do
+		if v.class == "DEFAULT" then
+			return v
+		end
+	end
+end
+
 function mod:LoadAutoData()
 	local selfspec = GetSpecializationInfo(GetSpecialization() or 0) or 0
-	for k,data in pairs(self.macroDataBaseArray) do
+	for k,data in ipairs(self.macroDataBaseArray) do
 		if data.autoSwap then
 			if floor(selfspec - (data.spec or 0)+0.5) == 0 then
 				self:SelectDataDB(k)
-				break;
+				return
 			end
+		end
+	end
+	local _,class = UnitClass("player")
+	-- print(class)
+	for k,data in ipairs(self.macroDataBaseArray) do
+		if data.autoSwap and data.class == class then
+			self:SelectDataDB(k)
+			return
+		end
+	end
+	for k,data in ipairs(self.macroDataBaseArray) do
+		if data.class == "DEFAULT" then
+			self:SelectDataDB(k)
+			return
 		end
 	end
 end

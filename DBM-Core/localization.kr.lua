@@ -20,7 +20,7 @@ DBM_CORE_LOAD_MOD_DISABLED			= "%s|1이;가; 설치는 돼있지만 켜져있질
 DBM_CORE_LOAD_MOD_DISABLED_PLURAL	= "%s|1이;가; 설치는 돼있지만 켜져있질 않습니다. 직접 켜기 전까진 모드들이 로딩되지 않습니다."
 
 DBM_CORE_WHATS_NEW					= "오버워치와 히어로즈 오브 더 스톰 초읽기 효과음이 DBM 핵심 모듈에서 분리되어 별도의 다운로드 파일로 옮겨졌습니다. 초읽기 팩을 다시 설치하려면 DBM-CountPack-Overwatch와 DBM-CountPack-HoTS를 다운로드 받으세요. 분리 작업을 통해 이들 게임에 캐릭터가 새로 추가될 떄마다 미디어 파일이 DBM에 추가되어 번번히 다시 다운로드 받는 일이 현저히 줄어들 것입니다. 또한 지금 보시는 메시지 같은게 다시 표시되지 않도록 숨기는 설정도 추가되었습니다."
-DBM_CORE_WHATS_NEW_LINK				= "DBM은 음성팩과 함께 이용하는 걸 권장하고 있습니다. 그 이유와 사용 방법에 대한 도움말은 |HDBM:forumsnews|h|cff3588ff이곳을 클릭|r해서 알아보세요"
+DBM_CORE_WHATS_NEW_LINK				= "정보: DBM 디스코드 채널에 오셔서 버그 제보나 피드백을 해주세요. 아니면 그냥 놀러 오셔도 됩니다. |HDBM:forumsnews|h|cff3588ff디스코드 채널 링크|r"
 
 --Post Patch 7.1
 DBM_CORE_NO_RANGE					= "거리 레이더를 인스턴스 던전에서 사용할 수 없습니다. 예전의 텍스트 방식 거리창으로 대체됩니다."
@@ -60,7 +60,7 @@ DBM_CORE_COMBAT_STATE_RECOVERED		= "%s 전투가 %s전에 시작됐습니다. �
 DBM_CORE_TRANSCRIPTOR_LOG_START		= "Transcriptor 기록이 시작됐습니다."
 DBM_CORE_TRANSCRIPTOR_LOG_END		= "Transcriptor 기록이 종료됐습니다."
 
-DBM_CORE_MOVIE_SKIPPED				= "동영상이 자동으로 생략되었습니다."
+DBM_CORE_MOVIE_SKIPPED				= "DBM이 동영상 자동 생략 기능을 작동시켰습니다."
 
 DBM_CORE_AFK_WARNING				= "자리 비움 상태에서 전투에 돌입하여 (남은 생명력 %d퍼센트) 경고음을 재생중입니다. 자리를 비우고 있는게 아니라면 자리 비움 상태를 해제하거나 '기타 기능' 항목에서 해당 설정을 비활성화 해주세요."
 
@@ -448,7 +448,7 @@ DBM_CORE_AUTO_YELL_OPTION_TEXT.count		= "$spell:%s 대상일 때 대화로 알�
 DBM_CORE_AUTO_YELL_OPTION_TEXT.fade		= "$spell:%s 지속시간이 끝나갈 때 대화로 알리기 (주문 이름 및 초읽기 포함)"
 DBM_CORE_AUTO_YELL_OPTION_TEXT.shortfade	= "$spell:%s 지속시간이 끝나갈 때 대화로 알리기 (초읽기 포함)"
 DBM_CORE_AUTO_YELL_OPTION_TEXT.position	= "$spell:%s 대상일 때 대화로 알리기 (위치 포함)"
-DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.shortyell	= "%%s"
+DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.shortyell	= "%s"
 DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.yell	= UnitName("player") .. "에게 %s!"
 DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.count	= UnitName("player") .. "에게 %s! (%%d)"
 DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.fade	= "%s %%d초 후 사라짐!"

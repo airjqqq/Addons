@@ -325,6 +325,8 @@ L["STRING_GLANCING"] = "Glancing"
 -- L["STRING_GUILDDAMAGERANK_SYNCBUTTONTEXT"] = ""
 --Translation missing 
 -- L["STRING_GUILDDAMAGERANK_TUTORIAL_DESC"] = ""
+--Translation missing 
+-- L["STRING_GUILDDAMAGERANK_WINDOWALERT"] = ""
 L["STRING_HEAL"] = "Cura"
 L["STRING_HEAL_ABSORBED"] = "Cura absorvida"
 L["STRING_HEAL_CRIT"] = "Cura Critica"

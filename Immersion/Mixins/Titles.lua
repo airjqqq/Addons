@@ -60,14 +60,15 @@ function Titles:OnUpdateOffset()
 			self:SetScript('OnUpdate', nil)
 		end
 	else
-		self:SetPoint(anchor, relativeRegion, relativeKey, x, offset + (diff / ANI_DIVISOR))
+		self:SetPoint(anchor, relativeRegion, relativeKey, x, offset + (ANI_DIVISOR > 0 and (diff / ANI_DIVISOR) or 0))
 	end
 end
 
 function Titles:StopMoving()
 	self:StopMovingOrSizing()
 	local centerX, centerY = self:GetCenter()
-	local uiX, uiY = UIParent:GetCenter()
+	local scaleOffset = self:GetScale() * self:GetParent():GetScale()
+	local uiX, uiY = GetScreenWidth() / 2 / scaleOffset, GetScreenHeight() / 2 / scaleOffset
 	local newHorzVal, newVertVal = (centerX - uiX), (centerY - uiY)
 	-- Horizontal clip fix
 	if self:GetLeft() < 0 then
@@ -96,7 +97,6 @@ end
 function Titles:ResetPosition()
 	self.offset = 0
 	self.ignoreAtCursor = false
-	self:SetScript('OnUpdate', self.OnUpdateOffset)
 end
 
 function Titles:OnEvent(event, ...)

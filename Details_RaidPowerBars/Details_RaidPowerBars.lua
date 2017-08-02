@@ -27,9 +27,9 @@ local RaidPowerBars = _detalhes:NewPluginObject ("Details_PowerBar")
 --> Main Frame
 local RaidPowerBarsFrame = RaidPowerBars.Frame
 
-RaidPowerBars:SetPluginDescription ("Alternative or Raid Power Bar are the special power bars present on specified encounters like The Stone Guard on Mogu'shan Vaults, Norushen on Siege or Orgrimmar and others.")
+RaidPowerBars:SetPluginDescription (Loc ["STRING_PLUGIN_DESC"])
 
-RaidPowerBars.version_string = "v1.7"
+RaidPowerBars.version_string = "v1.8"
 local TrackingDebuff = false
 
 local function CreatePluginFrames (data)
@@ -120,7 +120,7 @@ local function CreatePluginFrames (data)
 	
 	RaidPowerBarsFrame:SetWidth (300)
 	RaidPowerBarsFrame:SetHeight (100)
-
+	
 	function RaidPowerBars:UpdateContainers()
 		for _, row in _ipairs (RaidPowerBars.Rows) do 
 			row:SetContainer (instance.baseframe)
@@ -192,7 +192,7 @@ local function CreatePluginFrames (data)
 		newrow:Hide()
 		newrow:SetHook ("OnEnter", function()
 			GameCooltip2:Preset (2)
-			GameCooltip2:AddLine ("right click to set a debuff")
+			GameCooltip2:AddLine (Loc ["STRING_SETDEBUFF"])
 			GameCooltip2:Show (newrow, "tooltip")
 			
 		end)
@@ -215,7 +215,7 @@ local function CreatePluginFrames (data)
 					if (not debuff or debuff == "") then
 						TrackingDebuff = false
 						RaidPowerBars.OptionsPanel:Hide()
-						print ("now tracking: |cFFFF8800 [Power Bars]|r.")
+						print (Loc ["STRING_TRACKING_DEFAULT"])
 						return
 					end
 					TrackingDebuff = debuff

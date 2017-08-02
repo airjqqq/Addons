@@ -20,7 +20,7 @@ DBM_CORE_LOAD_MOD_DISABLED			= "%s已安裝但目前停用中。此模組不會�
 DBM_CORE_LOAD_MOD_DISABLED_PLURAL	= "%s已安裝但目前停用中。這些模組不會載入除非你啟用它們。"
 
 DBM_CORE_WHATS_NEW					= "鬥陣特攻和暴雪英霸倒數音效已經從DBM核心分離而且有獨立的插件包下載。想重新取得這些音效。請安裝插件DBM-CountPack-Overwatch和DBM-CountPack-HoTS。也有新功能可關閉類似更新註釋再次提示。"
-DBM_CORE_WHATS_NEW_LINK				= "推薦使用DBM加上語音包。想知道為什麼而且如何可以幫助你：|HDBM:forumsnews|h|cff3588ff點擊這裡|r"
+DBM_CORE_WHATS_NEW_LINK				= "記得：你可以到DBM Discord裡回報臭蟲，給些回饋或是只是到這看看：|HDBM:forumsnews|h|cff3588ffDiscord連結|r"
 
 --Post Patch 7.1
 DBM_CORE_NO_RANGE					= "距離雷達不能在副本中使用，使用傳統文字距離框架取代"
@@ -60,7 +60,7 @@ DBM_CORE_COMBAT_STATE_RECOVERED		= "%s的戰鬥在%s前開始，恢復計時器�
 DBM_CORE_TRANSCRIPTOR_LOG_START		= "Transcriptor開始記錄。"
 DBM_CORE_TRANSCRIPTOR_LOG_END		= "Transcriptor結束紀錄。"
 
-DBM_CORE_MOVIE_SKIPPED				= "一個過場動畫已被自動地略過。"
+DBM_CORE_MOVIE_SKIPPED				= "DBM已嘗試自動略過場動畫。"
 
 DBM_CORE_AFK_WARNING				= "你正在AFK和戰鬥中(血量還剩餘%d百分比)所以發出警告。如果你沒在AFK，請清除AFK的標籤或是在額外功能禁用此選項。"
 
@@ -255,6 +255,10 @@ DBM_CORE_RIGHT						= "右"
 DBM_CORE_BACK						= "後"
 DBM_CORE_MIDDLE						= "中"
 DBM_CORE_FRONT						= "前"
+DBM_CORE_EAST						= "東"
+DBM_CORE_WEST						= "西"
+DBM_CORE_NORTH						= "北"
+DBM_CORE_SOUTH						= "南"
 DBM_CORE_INTERMISSION				= "中場時間"
 DBM_CORE_ORB						= "球"
 DBM_CHEST							= "獎勵箱"
@@ -262,6 +266,7 @@ DBM_NO_DEBUFF						= "沒有%s"
 DBM_ALLY							= "隊友"
 DBM_ADDS							= "小怪"
 DBM_CORE_ROOM_EDGE					= "房間邊緣"
+DBM_CORE_SAFE						= "安全"
 --Common Locals end
 
 DBM_CORE_BREAK_USAGE				= "休息時間不能長於60分鐘。請確定你輸入的時間是分鐘不是秒。"
@@ -346,6 +351,7 @@ DBM_CORE_AUTO_SPEC_WARN_TEXTS.switch		= "%s - 快更換目標!"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.switchcount	= "%s - 快更換目標!(%%s)"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.gtfo			= "注意腳下 - 快移動"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.Adds			= "小怪來了 - 快更換目標!"
+DBM_CORE_AUTO_SPEC_WARN_TEXTS.Addscustom	= "小怪來了 - %s"
 
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.spell		= "為$spell:%s顯示特別警告"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.ends 		= "為$spell:%s結束顯示特別警告"
@@ -378,6 +384,7 @@ DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switch		= "為$spell:%s顯示特別警告去更�
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switchcount = "為$spell:%s顯示特別警告(次數)去更換目標"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.gtfo 		= "為離開地上危險的技能時顯示特別警告"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.Adds		= "為到來的小怪更換目標時顯示特別警告"
+DBM_CORE_AUTO_SPEC_WARN_OPTIONS.Addscustom	= "為到來的小怪顯示特別警告"
 
 DBM_CORE_AUTO_TIMER_TEXTS.target			= "%s:%%s"
 DBM_CORE_AUTO_TIMER_TEXTS.cast				= "%s"
@@ -396,6 +403,7 @@ DBM_CORE_AUTO_TIMER_TEXTS.nextspecial		= "下一次特別技能"
 DBM_CORE_AUTO_TIMER_TEXTS.achievement		= "%s"
 DBM_CORE_AUTO_TIMER_TEXTS.phase				= "下一個階段"
 DBM_CORE_AUTO_TIMER_TEXTS.adds				= "下一次小怪到來"
+DBM_CORE_AUTO_TIMER_TEXTS.addscustom  		= "小怪到來(%s)"
 DBM_CORE_AUTO_TIMER_TEXTS.roleplay			= GUILD_INTEREST_RP
 
 DBM_CORE_AUTO_TIMER_OPTIONS.target			= "為$spell:%s顯示減益計時器"
@@ -415,6 +423,7 @@ DBM_CORE_AUTO_TIMER_OPTIONS.nextspecial		= "為下一次特別技能顯示計時
 DBM_CORE_AUTO_TIMER_OPTIONS.achievement		= "為成就:%s顯示計時器"
 DBM_CORE_AUTO_TIMER_OPTIONS.phase			= "為下一個階段顯示計時器"
 DBM_CORE_AUTO_TIMER_OPTIONS.adds			= "為到來的小怪顯示計時器"
+DBM_CORE_AUTO_TIMER_OPTIONS.addscustom		= "為到來的小怪顯示計時器"
 DBM_CORE_AUTO_TIMER_OPTIONS.roleplay		= "為角色扮演持續時間顯示計時器"
 
 DBM_CORE_AUTO_ICONS_OPTION_TEXT			= "為$spell:%s的目標設置標記"
@@ -435,7 +444,7 @@ DBM_CORE_AUTO_YELL_OPTION_TEXT.count	= "當你中了$spell:%s時大喊(次數)"
 DBM_CORE_AUTO_YELL_OPTION_TEXT.fade		= "當$spell:%s正消退時大喊(倒數和技能名稱)"
 DBM_CORE_AUTO_YELL_OPTION_TEXT.shortfade	= "當$spell:%s正消退時大喊(倒數)"
 DBM_CORE_AUTO_YELL_OPTION_TEXT.position	= "當你中了$spell:%s時大喊(位置)"
-DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.shortyell	= "%%s"
+DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.shortyell	= "%s"
 DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.yell	= "" .. UnitName("player") .. "中了%s!"
 DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.count	= "" .. UnitName("player") .. "中了%s!(%%d)"
 DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT.fade	= "%s在%%d秒後消退!"

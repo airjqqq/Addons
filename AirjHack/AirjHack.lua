@@ -190,7 +190,7 @@ function mod:TerrainClick(x,y,z)
 end
 
 local casted = {}
-function mod:GreenCast(spell,unit,maxrange,minrange)
+function mod:GreenCast(spell,unit,maxrange,minrange,delta)
 	local spellName = GetSpellInfo(spell)
 	if not spellName then return end
 	local guid = UnitGUID(unit)
@@ -205,19 +205,51 @@ function mod:GreenCast(spell,unit,maxrange,minrange)
 	end
 	ced.c = (ced.c or 0) + 1
 	ced.t = GetTime() + 2
-	local tx,ty,tz = self:Position(guid)
+	local tx,ty,tz,_,ts = self:Position(guid)
+	local x,y,z = AirjHack:Position(UnitGUID("player"))
+	delta = delta or 0
+	local dx,dy,dz = tx-x,ty-y,tz-z
+	local d = sqrt(dx*dx+dy*dy+dz*dz)
+	local a,b,c = dx/d,dy/d,dz/d
+	local m = (d-ts+delta)
+	maxrange = maxrange or select(6,GetSpellInfo(spell)) or 35
+	if minrange then
+		m = math.max(m,minrange+0.5)
+	end
+	m = math.min(m,maxrange-0.5)
+	x,y,z = x+m*a,y+m*b,z+m*c
+	self:RunMacroText("/cast "..spellName)
+	AirjHack:TerrainClick(x,y,z)
+	self:RunMacroText("/cancelspelltarget")
+end
+function mod:GreenCast2(spell,unit,maxrange,minrange)
+	local spellName = GetSpellInfo(spell)
+	if not spellName then return end
+	local guid = UnitGUID(unit)
+	if not guid then return end
+	casted[spellName] = casted[spellName] or {}
+	local ced = casted[spellName]
+	if ced.t and ced.t < GetTime() then
+		ced.c = 0
+	end
+	if ced.c and ced.c > 5 then
+		return
+	end
+	ced.c = (ced.c or 0) + 1
+	ced.t = GetTime() + 2
+	local tx,ty,tz,_,ts = self:Position(guid)
 	local x,y,z = AirjHack:Position(UnitGUID("player"))
 	local dx,dy,dz = tx-x,ty-y,tz-z
 	local d = sqrt(dx*dx+dy*dy+dz*dz)
+	local a,b,c = dx/d,dy/d,dz/d
+	local m = (d-ts)/2
 	maxrange = maxrange or select(6,GetSpellInfo(spell)) or 35
-	local r = maxrange
-	if d>maxrange-0.5 then
-		x,y,z=x+dx*maxrange/d,y+dy*maxrange/d,z+dz*maxrange/d
-	elseif minrange and d>minrange+0.5 then
-		x,y,z=x+dx*minrange/d,y+dy*minrange/d,z+dz*minrange/d
-	else
-		x,y,z = tx,ty,tz
+	if minrange then
+		m = math.max(m,minrange+0.5)
 	end
+	m = math.min(m,maxrange-0.5)
+	x,y,z = x+m*a,y+m*b,z+m*c
+	-- print(x,y,z)
 	self:RunMacroText("/cast "..spellName)
 	AirjHack:TerrainClick(x,y,z)
 	self:RunMacroText("/cancelspelltarget")
@@ -269,8 +301,9 @@ function mod:InteractUID(uid)
 		-- print(oid)
 			local interact
 			if not uid and not self:UnitCanAttack(playerGUID,guid) and not ignores[oid] then
-				local x1,y1,z1,_,distance = AirjCache:GetPosition(guid)
-				if distance and distance <= 15 then
+				local x1,y1,z1,_,distance,s = AirjCache:GetPosition(guid)
+				s = s or 0
+				if distance and distance-s <= 15 then
 					interact = true
 				end
 			end

@@ -62,6 +62,8 @@ PVPTooltips_Data = {
 	[5487]   = {         2,     0.7272,       -104,    7850 }, -- Bear Form (health)
 	[238122] = {         1,    0.57143,        nil,     nil }, -- Deep Rooted
 	[18562]  = {         1,       1.40,        nil,     nil }, -- Swiftmend
+	[202302] = {         1,       0.50,        nil,     nil }, -- Bladed Feathers
+	[24858]  = {         2,      0.625,        nil,   58453 }, -- Moonkin Form (armor)
 
 	-- @Hunter
 	[131894] = {         1,       0.65,        nil,     nil }, -- Murder of Crows (Beast Mastery, Marksmanship)
@@ -96,6 +98,8 @@ PVPTooltips_Data = {
 	[153561] = {    {2, 4},       0.70,        nil,     nil }, -- Meteor
 	[214634] = {         1,       0.90,        nil,     nil }, -- Ebonbolt
 	[44614]  = {         2,       0.95,        nil,     nil }, -- Flurry
+	[235224] = {         1,    0.66666,        nil,     nil }, -- Frigid Winds
+	[205708] = {         1,       0.80,        nil,     nil }, -- Chilled
 
 	-- @Monk
 	[113656] = {         1,       0.85,        nil,     nil }, -- Fists of Fury
@@ -120,6 +124,7 @@ PVPTooltips_Data = {
 	[215661] = {         2,       0.50,        nil,     nil }, -- Justicar's Vengeance (stun bonus)
 	[19750]  = {         1,       1.50,        nil,     nil }, -- Flash of Light
 	[82326]  = {         1,       1.60,        nil,     nil }, -- Holy Light
+	[184575] = {         1,    0.90909,        nil,     nil }, -- Blade of Justice
 	
 	-- @Priest
 	[17]     = {         2,       1.10,        256,     nil }, -- Power Word: Shield
@@ -129,7 +134,7 @@ PVPTooltips_Data = {
 	[34914]  = {         1,       0.85,        nil,     nil }, -- Vampiric Touch
 	[2061]   = {         1,       1.60,        nil,     nil }, -- Flash Heal
 	[207946] = {        {},       0.50,        nil,  223166 }, -- Light's Wrath (Overloaded with Light)
-	[139]    = {         2,       2.00,        nil,     nil }, -- Renew
+	[139]    = {         2,       1.75,        nil,     nil }, -- Renew
 	[8092]   = {         1,       1.30,        nil,     nil }, -- Mind Blast
 	[15407]  = {         1,       1.40,        nil,     nil }, -- Mind Flay
 	[589]    = {    {1, 2},       0.80,        258,     nil }, -- Shadow Word: Pain
@@ -169,7 +174,7 @@ PVPTooltips_Data = {
 	[210714] = {         1,       0.65,        nil,     nil }, -- Icefury
 	[196840] = {        {},       0.80,        nil,  210714 }, -- Frost Shock (Icefury bonus)
 	[117014] = {         1,       0.85,        nil,     nil }, -- Elemental Blast
-	[61295]  = {    {1, 2},       1.30,        nil,     nil }, -- Riptide
+	[61295]  = {    {1, 2},       1.15,        nil,     nil }, -- Riptide
 	[114051] = {         2,      0.625,        nil,     nil }, -- Ascendance
 	[188089] = {         2,    0.66666,        nil,     nil }, -- Earthen Spike
 

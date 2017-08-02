@@ -3,6 +3,7 @@ local mod = {}
 local AceGUI = LibStub("AceGUI-3.0")
 local f2n = {}
 FillLocalizedClassList(f2n)
+f2n.DEFAULT = "默认"
 local specId = {}
 for i = 1,1000 do
 	local _,specName,_,_,_,class = GetSpecializationInfoByID(i)
@@ -114,10 +115,25 @@ function mod:CreateMainConfigGroup()
 			desc = "按住Ctrl",
 		},
 		{
+			key = "heading1",
+			widget = "SimpleGroup",
+			text = "",
+			desc = "",
+			width = "fill",
+		},
+		{
 			key = "showotherclass",
 			widget = "CheckBox",
 			text = "显示其他职业",
 			desc = "",
+			width = 240,
+		},
+		{
+			key = "sort",
+			widget = "Button",
+			text = "排序",
+			desc = "按住Shift+Alt",
+			width = 240,
 		},
 		{
 			key = "heading1",
@@ -224,13 +240,42 @@ function mod:CreateMainConfigGroup()
 	group.delete:SetCallback("OnClick", function(widget,event)
 		if not IsControlKeyDown() then return end
 		tremove(parent.macroDataBaseArray,self.currentDataIndex)
-		if self.currentDataIndex < parent.selectedIndex then
-			parent.selectedIndex = parent.selectedIndex - 1
-		elseif self.currentDataIndex == parent.selectedIndex then
-			parent:SelectDataDB(parent.selectedIndex - 1)
+		if parent.selectedIndex then
+			if self.currentDataIndex < parent.selectedIndex then
+				parent.selectedIndex = parent.selectedIndex - 1
+			elseif self.currentDataIndex == parent.selectedIndex then
+				parent:SelectDataDB(parent.selectedIndex - 1)
+			end
 		end
 		if self.currentDataIndex and self.currentDataIndex>1 then
 			self.currentDataIndex = self.currentDataIndex - 1
+		end
+		self:UpdateDataTreeGroup()
+	end)
+
+	group.sort:SetCallback("OnClick", function(widget,event)
+		if not IsAltKeyDown() then return end
+		if not IsShiftKeyDown() then return end
+		local srindex = parent.selectedIndex
+		local sa = parent.macroDataBaseArray[sri]
+		table.sort(parent.macroDataBaseArray,function(a,b)
+      if a == nil or b == nil then
+        return false
+      end
+      if a == b then
+				return false
+			end
+			if (a.spec or 0) ~= (b.spec or 0) then
+				return (a.spec or 0)<=(b.spec or 0)
+			end
+			return (a.note or "")<=(b.note or "")
+		end)
+		for i,v in ipairs(parent.macroDataBaseArray) do
+			if sa and v == sa then
+				self.currentDataIndex = i
+				parent:SelectDataDB(self.currentDataIndex)
+				break
+			end
 		end
 		self:UpdateDataTreeGroup()
 	end)
@@ -311,7 +356,7 @@ function mod:UpdateDataTreeGroup()
 		if parent.selectedIndex == i then
 			name = "[|cff00ff00"..name.."|r]"
 		end
-		if(self.showotherclass or class == playerClass) then
+		if(self.showotherclass or class == playerClass or class == "DEFAULT" or not class) then
 			tinsert(tree,{value = i,icon = icon,text = name})
 		end
 	end

@@ -13,9 +13,9 @@ local ChartViewer = _detalhes:NewPluginObject ("Details_ChartViewer", DETAILSPLU
 local CVF = ChartViewer.Frame
 
 --> desc
-ChartViewer:SetPluginDescription ("View data collected by Details! on simple line charts.")
+ChartViewer:SetPluginDescription (Loc ["STRING_PLUGIN_DESC"])
 
-local plugin_version = "v2.5" 
+local plugin_version = "v2.8" 
 
 local function CreatePluginFrames (data)
 
@@ -165,7 +165,7 @@ end
 ----------> Tabs
 		
 	--new tab
-		ChartViewer.tab_prototype = {name = "New Tab", segment_type = 1, data = "", texture = "line", version = "v2.0"}
+		ChartViewer.tab_prototype = {name = Loc ["STRING_NEWTAB"], segment_type = 1, data = "", texture = "line", version = "v2.0"}
 		
 		function ChartViewer:GetAllTabs()
 			return ipairs (self.tabs)
@@ -181,7 +181,7 @@ end
 				return false
 				
 			elseif (_string_len (tabname) < 2) then
-				ChartViewer:Msg ("The name is too short.")
+				ChartViewer:Msg (Loc ["STRING_TOOSHORTNAME"])
 				return false
 				
 			end
@@ -190,7 +190,7 @@ end
 				segment_type = 1
 			end
 			
-			if (tabname == "New Tab" and data_preset_name and data_preset_name ~= "") then
+			if (tabname == Loc ["STRING_NEWTAB"] and data_preset_name and data_preset_name ~= "") then
 				tabname = data_preset_name
 			end
 			
@@ -253,7 +253,7 @@ end
 			ChartViewer.type_dropdown:Disable()
 			ChartViewer.data_dropdown:Disable()
 			
-			ChartViewer.create_button.text = "Confirm"
+			ChartViewer.create_button.text = Loc ["STRING_CONFIRM"]
 			
 			ChartViewer.name_textentry.text = tab.name
 			ChartViewer.texture_dropdown:Select (tab.texture)
@@ -299,7 +299,7 @@ end
 			
 			--check if there is at least 1 tab
 			if (#ChartViewer.tabs == 0) then
-				ChartViewer.tabs [1] = {name = "New Tab", captures = {}, segment_type = 1, data = "", texture = "line"}
+				ChartViewer.tabs [1] = {name = Loc ["STRING_NEWTAB"], captures = {}, segment_type = 1, data = "", texture = "line"}
 				new_selected_tab = 1
 			end
 			
@@ -450,7 +450,7 @@ end
 				if (type (result) == "string") then
 					ChartViewer:Msg (result)
 				else
-					ChartViewer:Msg ("Successfully added.")
+					ChartViewer:Msg (Loc ["STRING_ADDEDOKAY"])
 				end
 			end
 		end
@@ -714,7 +714,7 @@ end
 
 local build_options_panel = function()
 
-	local options_frame = ChartViewer:CreatePluginOptionsFrame ("ChartViewerOptionsWindow", "Chart Viewer Options", 2)
+	local options_frame = ChartViewer:CreatePluginOptionsFrame ("ChartViewerOptionsWindow", Loc ["STRING_OPTIONS"], 2)
 	
 	local set = function (_, _, value) 
 		ChartViewer.options.show_method = value 
@@ -733,7 +733,7 @@ local build_options_panel = function()
 			get = function() return ChartViewer.options.show_method end,
 			values = function() return on_show_menu end,
 			desc = "When the icon is shown over Details! toolbar.",
-			name = "Show Icon"
+			name = Loc ["STRING_OPTIONS_SHOWICON"]
 		},
 		{
 			type = "range",
@@ -743,7 +743,7 @@ local build_options_panel = function()
 			max = 1.50,
 			step = 0.1,
 			desc = "Set the window size",
-			name = "Window Scale",
+			name = Loc ["STRING_OPTIONS_WINDOWSCALE"],
 			usedecimals = true,
 		},
 	}

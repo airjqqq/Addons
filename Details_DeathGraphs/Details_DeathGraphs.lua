@@ -12,12 +12,12 @@ local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 --> main frame (shortcut)
 	local DeathGraphsFrame = DeathGraphs.Frame
 
-DeathGraphs.version_string = "v3.3"
+DeathGraphs.version_string = "v3.4"
 
 local CONST_DBTYPE_DEATH = "deaths"
 local CONST_DBTYPE_ENDURANCE = "endurance"
 
-DeathGraphs:SetPluginDescription ("During boss encounters, capture raid members deaths and build statistics from it.\n\n- |cFFFFFFFFCurrent Encounter|r: |cFFFF9900show deaths for the latest segments.\n\n- |cFFFFFFFFTimeline|r: |cFFFF9900show a graph telling when debuffs and spells from the boss are casted on raid members and draw lines representing where deaths are happening.\n\n- |cFFFFFFFFEndurance|r: |cFFFF9900show a list of players with a percentage indicating how much tries they were alive in the encounter.\n\n- |cFFFFFFFFOverall|r: |cFFFF9900Mantain a list of players with their death and also the damage taken by spell before the death.")
+DeathGraphs:SetPluginDescription (Loc ["STRING_PLUGIN_DESC"])
 
 local combat_log_event_listener = CreateFrame ("frame")
 
@@ -111,7 +111,7 @@ local function CreatePluginFunctions()
 				
 --				/run DETAILS_PLUGIN_DEATH_GRAPHICS.db.first_run = nil
 				
-				local str = _detalhes.gump:CreateLabel (welcome, "Welcome to Advanced Death Logs!\n\n\n-|cFFFFFF00Current Encounter|r: show deaths from the last boss encouter, by default it stores deaths for the last two segments, you may increase this at the options panel.\n\n- |cFFFFFF00Timeline|r: Show where your raid is dying most at time, also shows the time for enemy abilities.\n\n- |cFFFFFF00Endurance|r: Measure player skill from who is dying first in a encounter, by default the first 5 players to die loses Endurance Percentage.\n\n- |cFFFFFF00Overall|r: show common death logs plus the overall damage taken before the player's death.\n\n\n- You can always close the window by clicking with the right mouse button!", 
+				local str = _detalhes.gump:CreateLabel (welcome, Loc ["STRING_PLUGIN_WELCOME"], 
 				nil, nil, "GameFontNormal")
 				str:SetPoint (15, -15)
 				str:SetWidth (370)
@@ -537,7 +537,7 @@ function DeathGraphs:GetLastHit (deathlog)
 end
 
 local build_options_panel = function()
-	local options_frame = DeathGraphs:CreatePluginOptionsFrame ("DeathGraphsOptionsWindow", "Advanced Death Logs Options", 1)
+	local options_frame = DeathGraphs:CreatePluginOptionsFrame ("DeathGraphsOptionsWindow", Loc ["STRING_OPTIONS"], 1)
 	options_frame:SetHeight (260)
 	
 	local menu = {
@@ -548,8 +548,8 @@ local build_options_panel = function()
 			min = 1,
 			max = 30,
 			step = 1,
-			desc = "The first |cFFFFFF00X|r players to die has their deaths registered into overall deaths.",
-			name = "Overall Deaths Threshold",
+			desc = Loc ["STRING_OVERALL_DEATHS_THRESHOLD_DESC"],
+			name = Loc ["STRING_OVERALL_DEATHS_THRESHOLD"],
 		},
 		{
 			type = "range",
@@ -558,8 +558,8 @@ local build_options_panel = function()
 			min = 1,
 			max = 30,
 			step = 1,
-			desc = "The first |cFFFFFF00X|r players to die loses endurance percentage.",
-			name = "Endurance Deaths Threshold",
+			desc = Loc ["STRING_ENDURANCE_DEATHS_THRESHOLD_DESC"],
+			name = Loc ["STRING_ENDURANCE_DEATHS_THRESHOLD"],
 		},
 		{
 			type = "range",
@@ -568,8 +568,8 @@ local build_options_panel = function()
 			min = 1,
 			max = 30,
 			step = 1,
-			desc = "The first |cFFFFFF00X|r deaths in the encounter are registered to show on the timeline graphic.",
-			name = "Timeline Deaths Threshold",
+			desc = Loc ["STRING_TIMELINE_DEATHS_THRESHOLD_DESC"],
+			name = Loc ["STRING_TIMELINE_DEATHS_THRESHOLD"],
 		},
 		{
 			type = "range",
@@ -578,15 +578,15 @@ local build_options_panel = function()
 			min = 1,
 			max = 10,
 			step = 1,
-			desc = "Maximum amount of segments to store on the 'Current Encounter' display.",
-			name = "Current Encounter Max Segments",
+			desc = Loc ["STRING_ENCOUNTER_MAXSEGMENTS_DESC"],
+			name = Loc ["STRING_ENCOUNTER_MAXSEGMENTS"],
 		},
 
 		{blank = true},
 		{
 			type = "toggle",
-			name = "Raid Finder",
-			desc = "Record deaths when you are playing on raid finder.",
+			name = Loc ["STRING_RAIDFINDER"],
+			desc = Loc ["STRING_RAIDFINDER_DESC"],
 			order = 1,
 			get = function() return DeathGraphs.db.captures[1] end,
 			set = function (self, val) 
@@ -595,8 +595,8 @@ local build_options_panel = function()
 		},
 		{
 			type = "toggle",
-			name = "Normal",
-			desc = "Record deaths when you are playing on normal difficulty.",
+			name = Loc ["STRING_NORMAL"],
+			desc = Loc ["STRING_NORMAL_DESC"],
 			order = 1,
 			get = function() return DeathGraphs.db.captures[2] end,
 			set = function (self, val) 
@@ -605,8 +605,8 @@ local build_options_panel = function()
 		},
 		{
 			type = "toggle",
-			name = "Heroic",
-			desc = "Record deaths when you are playing on heroic difficulty.",
+			name = Loc ["STRING_HEROIC"],
+			desc = Loc ["STRING_HEROIC_DESC"],
 			order = 1,
 			get = function() return DeathGraphs.db.captures[4] end,
 			set = function (self, val) 
@@ -615,8 +615,8 @@ local build_options_panel = function()
 		},
 		{
 			type = "toggle",
-			name = "Mythic",
-			desc = "Record deaths when you are playing on mythic difficulty.",
+			name = Loc ["STRING_MYTHIC"],
+			desc = Loc ["STRING_MYTHIC_DESC"],
 			order = 1,
 			get = function() return DeathGraphs.db.captures[4] end,
 			set = function (self, val) 

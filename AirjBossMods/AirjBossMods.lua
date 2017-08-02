@@ -777,7 +777,7 @@ function Core:ScanBossTarget(guid,func,includeTank,time)
         self:CancelTimer(timer)
       end
     end
-  ,0.05)
+  end,0.05)
 end
 
 function Core:GetPlayerGUID()

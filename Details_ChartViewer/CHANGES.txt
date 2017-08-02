@@ -1,7 +1,7 @@
-changeset:   38:af500463dc50
-tag:         a38-alpha
+changeset:   42:835fb1bb5041
+tag:         v42-release
 user:        Tercio
-date:        Mon May 08 17:01:42 2017 -0300
-summary:     - localization is now handled on curseforge.
+date:        Fri Jul 14 16:33:09 2017 -0300
+summary:     - another round of localizations.
 
 

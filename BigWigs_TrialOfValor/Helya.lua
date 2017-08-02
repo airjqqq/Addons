@@ -214,7 +214,7 @@ end
 -- Event Handlers
 --
 
-function mod:UNIT_SPELLCAST_SUCCEEDED(unit, spellName, _, _, spellId)
+function mod:UNIT_SPELLCAST_SUCCEEDED(_, _, _, _, spellId)
 	if spellId == 34098 then -- ClearAllDebuffs
 		phase = 2
 		self:Message("stages", "Neutral", "Long", CL.stage:format(2), false)
@@ -259,7 +259,8 @@ function mod:RAID_BOSS_EMOTE(event, msg, npcname)
 		msg = msg:gsub("|T[^|]+|t", "")
 		self:Message(228730, "Urgent", "Long", CL.count:format(msg:format(npcname), tentacleMsgCount), 228730)
 		tentacleMsgCount = tentacleMsgCount + 1
-		BigWigs:Print("Missing translation for tentacle strike.") -- XXX temp
+		BigWigs:Print("Missing translation for tentacle strike. Please report it on Discord/Curse/GitHub.") -- XXX temp
+		BigWigs:Error(("TELL THE AUTHORS: %s"):format(msg))
 	end
 end
 
@@ -337,7 +338,7 @@ do
 	end
 end
 
-function mod:OrbOfCorruption(args)
+function mod:OrbOfCorruption()
 	orbCount = orbCount + 1
 	local timer = self:Mythic() and 24.3 or self:Heroic() and 28 or self:Normal() and 31.5 or 32.8
 	if orbCount % 2 == 0 then
@@ -550,7 +551,7 @@ function mod:AnchorSlam(args)
 	self:Bar(args.spellId, self:Normal() and 14.6 or 12)
 end
 
-function mod:GrimelordDeath(args)
+function mod:GrimelordDeath()
 	if not self:LFR() then
 		self:StopBar(228519) -- Anchor Slam
 	end
@@ -578,7 +579,7 @@ function mod:GhostlyRage(args)
 	self:Bar(args.spellId, 9.7)
 end
 
-function mod:MarinerDeath(args)
+function mod:MarinerDeath()
 	self:StopBar(228633) -- Give No Quarter
 	if not self:Easy() then
 		self:StopBar(228619) -- Lantern of Darkness
@@ -613,7 +614,7 @@ end
 
 --[[ Stage Three: Helheim's Last Stand ]]--
 
-function mod:OrbOfCorrosion(args)
+function mod:OrbOfCorrosion()
 	orbCount = orbCount + 1
 	if orbCount % 2 == 0 then
 		self:Bar("orb_melee", self:Mythic() and timers["Orb of Corrosion"][orbCount] or 18, CL.count:format(L.orb_melee_bar, orbCount), 230267) -- Orb of Corruption

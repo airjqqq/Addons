@@ -1,7 +1,7 @@
-changeset:   32:355a793ee459
-tag:         a1.7.2-alpha
+changeset:   34:f865d094fdaa
+tag:         v1.8-release
 user:        Tercio
-date:        Mon May 08 17:00:44 2017 -0300
-summary:     - localization is now handled on curseforge.
+date:        Wed Jul 05 15:35:38 2017 -0300
+summary:     - plugin description and tracking phrases are now localized.
 
 

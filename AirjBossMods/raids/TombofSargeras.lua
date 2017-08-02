@@ -260,7 +260,8 @@ function R:OnEnable()
             Core:SetScreen(0.5,0,1)
             Core:SetTextT({text1 = "|cffff0000等待驱散: |cff00ffff{number}|r", text2 = "|cff00ff00驱散结束...|r",start = nil,expires = now+9})
             -- Core:SetVoice("runout")
-            Core:SetVoiceT({str="deng3          dai4          qu1        san4",time = now + 1})
+            Core:SetVoiceT({str="kuai4             jin4            nei4            chang5",time = now})
+            -- /run ABM:SetVoiceT({str="kuai4             jin4            nei4            chang5"})
             Core:SetPlayerAlpha({alpha = 0.5,start=now+0,removes=now+9})
             curableTime = now
           end
@@ -330,10 +331,13 @@ function R:OnEnable()
         end
         if spellId == 233431 then
           Core:ScanBossTarget(sourceGUID,function(unit,target)
-            Core:CreateCooldown({guid = guid, spellId = spellId,
+            local toGuid = UnitGUID(target)
+            Core:CreateCooldown({guid = toGuid, spellId = spellId,
             radius = 8, duration = 4, color = {1,1,0}, alpha = 0.4})
-            Core:CreateBeam({fromUnit= unit,toGUID = guid,width = 6,length = 40,color = {1,1,0},alpha = 0.2,removes = now + 4})
-            Core:SetFutureDamage({key=spellId, duration=0.1, start=now+4, guid = guid, damage=Core:GetDifficultyDamage(self.difficulty,250e4)})
+            Core:CreateBeam({fromUnit= unit,toGUID = toGuid,width = 6,length = 40,color = {1,1,0},alpha = 0.2,removes = now + 4})
+            if toGuid then
+              Core:SetFutureDamage({key=spellId, duration=0.1, start=now+4, guid = UnitGUID(target), damage=Core:GetDifficultyDamage(self.difficulty,250e4)})
+            end
             if UnitIsUnit(target,"player") then
               Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 4, size = 2, name = "钙化尖刺", reverse = true})
               Core:SetScreen(1,1,0)
@@ -643,7 +647,7 @@ function R:OnEnable()
       end
 
       if fixtime then
-        if not or now-fixsaytime > 1 then
+        if not fixsaytime or now-fixsaytime > 1 then
           fixsaytime = now
           Core:SetSay("{rt1}")
         end
@@ -678,6 +682,17 @@ function R:OnEnable()
     end
     function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
       local now = GetTime()
+
+      if (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_APPLIED_DOSE") then
+        if spellId == 236330 then
+          if Core:GetPlayerGUID() == destGUID then
+            local _,count = ...
+            count = count or 1
+            Core:SetIconT({index = 10, texture = GetSpellTexture(spellId), duration = 2, size = 1, name = "", reverse = true, count = count})
+            -- moon burn
+          end
+        end
+      end
       if event == "SPELL_AURA_APPLIED" then
         if spellId == 236305 then
           aoe()
@@ -689,7 +704,7 @@ function R:OnEnable()
           end
         end
         if spellId == 236519 then
-          if GetPlayerGUID() == destGUID then
+          if Core:GetPlayerGUID() == destGUID then
             -- moon burn
           end
         end

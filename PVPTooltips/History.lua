@@ -303,6 +303,15 @@ PVPTooltips_History = {
             {"WARLOCK", 198590, 1, 1.15, 1},
             {"WARRIOR", 197690, 1, -2, 1},
         },
+        ["2017-07-26"] = {
+            {"DRUID", 24858, 1, 0.625, 1},
+            {"DRUID", 202302, 1, 0.5, 1},
+            {"MAGE", 205708, 1, 0.8, 1},
+            {"MAGE", 235224, 1, 0.66666, 1},
+            {"PALADIN", 184575, 1, 0.90909, 1},
+            {"PRIEST", 139, 2, 1.75, 1},
+            {"SHAMAN", 61295, 1.3, 1.15, 1},
+        },
     },
     Templates = {
         ["2016-08-16"] = {
@@ -551,6 +560,21 @@ PVPTooltips_History = {
             {263, {primary = 1}, {primary = 0.95}},
             {265, {versatility = 0.25}, {versatility = 0.35}},
             {71, {primary = 1.1, versatility = 1.25}, {primary = 1.06, versatility = 1.22}},
+        },
+        ["2017-07-13"] = {
+            {105, {primary = 1.45}, {primary = 1.48}},
+            {270, {regen = 1.05}, {regen = 0.95}},
+            {65, {primary = 1.52}, {primary = 1.55}},
+            {257, {regen = 1}, {regen = 0.9}},
+            {264, {regen = 0.8}, {regen = 0.7}},
+        },
+        ["2017-07-26"] = {
+            {102, {armor = 1}, {armor = 0.9}},
+            {105, {primary = 1.48, mastery = 1}, {primary = 1.5, mastery = 1.2}},
+            {257, {primary = 1.5, mastery = 0.75}, {primary = 1.46, mastery = 0.45}},
+            {264, {primary = 1.37}, {primary = 1.34}},
+            {265, {primary = 1.1}, {primary = 1.14}},
+            {267, {armor = 1, versatility = 1}, {armor = 1.3, versatility = 1.05}},
         },
     },
 };

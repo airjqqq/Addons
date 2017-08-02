@@ -53,6 +53,23 @@ function F:OnInitialize()
     [SPELL_POWER_FURY]=L["Fury"],
     [SPELL_POWER_ARCANE_CHARGES]=L["Arcane C"],
   })
+  self:RegisterFilter("POWERPERCENT",L["Power Percent"],{unit= {},greater={},value={}},{
+    [SPELL_POWER_MANA]=L["Mana"],
+    [SPELL_POWER_MAELSTROM]=L["Maelstrom"],
+    [SPELL_POWER_RAGE]=L["Rage"],
+    [SPELL_POWER_COMBO_POINTS]=L["Combo Points"],
+    [SPELL_POWER_FOCUS]=L["Focus"],
+    [SPELL_POWER_ENERGY]=L["Energy"],
+    [SPELL_POWER_RUNIC_POWER]=L["Runic Power"],
+    [SPELL_POWER_SOUL_SHARDS]=L["Soul Shards"],
+    [SPELL_POWER_HOLY_POWER]=L["Holy Power"],
+    [SPELL_POWER_CHI]=L["Chi"],
+    [SPELL_POWER_PAIN]=L["Pain"],
+    [SPELL_POWER_INSANITY]=L["Insanity"],
+    [SPELL_POWER_LUNAR_POWER]=L["Lunar Power"],
+    [SPELL_POWER_FURY]=L["Fury"],
+    [SPELL_POWER_ARCANE_CHARGES]=L["Arcane C"],
+  })
   self:RegisterFilter("BOSSMANA",L["Boss Mana"],{unit= {},greater={},value={}})
 end
 
@@ -581,6 +598,21 @@ function F:POWER(filter)
     power = power/scale
   end
   return power
+end
+function F:POWERPERCENT(filter)
+  filter.unit = filter.unit or "player"
+  local powerType = filter.subtype or Cache:Call("UnitPowerType",filter.unit)
+  local power = Cache:Call("UnitPower",filter.unit,powerType)
+  local powermax = Cache:Call("UnitPowerMax",filter.unit,powerType)
+  local filterValue = Core:ParseValue(filter.value or 0)
+  if filterValue<0 then
+    -- local powermax = Cache:Call("UnitPowerMax",filter.unit,powerType)
+    power = power - powermax
+  else
+    local scale = 1
+    power = power/scale
+  end
+  return power/powermax
 end
 
 function F:BOSSMANA(filter)

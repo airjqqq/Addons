@@ -1,7 +1,7 @@
-changeset:   17:5e1b4adacc95
-tag:         a1.2.2-alpha
+changeset:   19:597a79d27697
+tag:         v1.2.3-release
 user:        Tercio
-date:        Mon May 08 17:00:13 2017 -0300
-summary:     - localization is now handled on curseforge.
+date:        Wed Jul 05 14:51:55 2017 -0300
+summary:     - localization update.
 
 

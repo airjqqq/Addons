@@ -27,9 +27,9 @@ local _GetSpellInfo = _detalhes.getspellinfo
 --> shortcut for current combat
 local _is_in_combat = false
 
-TimeLine:SetPluginDescription ("Shows a time line of cooldowns used by your raid members and debuffs applied by enemies in your raid.\nAlso show when each member died, with that, you may see the the player died without using cooldowns or if died after a combination of debuffs.")
+TimeLine:SetPluginDescription (Loc ["STRING_PLUGIN_DESC"])
 
-TimeLine.version_string = "v3.4"
+TimeLine.version_string = "v3.9"
 
 local menu_wallpaper_tex = {.6, 0.1, 0, 0.64453125}
 local menu_wallpaper_color = {1, 1, 1, 0.15}
@@ -342,7 +342,7 @@ local function CreatePluginFrames()
 		TimeLine.open = false
 		return true
 	end
-
+	
 	--> create the button to show on toolbar [1] function OnClick [2] texture [3] tooltip [4] width or 14 [5] height or 14 [6] frame name or nil
 	TimeLine.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (TimeLine.OpenWindow, [[Interface\Addons\Details_TimeLine\icon]], Loc ["STRING_PLUGIN_NAME"], Loc ["STRING_TOOLTIP"], 12, 12, "TIMELINE_BUTTON")
 	TimeLine.ToolbarButton.shadow = true
@@ -350,13 +350,13 @@ local function CreatePluginFrames()
 	--> setpoint anchors mod if needed
 	TimeLine.ToolbarButton.y = 0
 	TimeLine.ToolbarButton.x = 0
-
+	
 	--> build main frame
 	TimeLineFrame:SetFrameStrata ("HIGH")
 	TimeLineFrame:SetToplevel (true)
 	
 	TimeLineFrame:SetPoint ("center", UIParent, "center")
-
+	
 	TimeLineFrame.Width = 925 --718 old value
 	TimeLineFrame.Height = 498
 	
@@ -582,14 +582,14 @@ local function CreatePluginFrames()
 				TimeLine:CloseWindow()
 			end
 		end
-
-		local delete_button = framework:NewButton (TimeLineFrame, _, "$parentDeleteButton", "DeleteButton", 100, 20, delete_button_func, nil, nil, nil, "Reset Data", 1, options_button_template)
+		
+		local delete_button = framework:NewButton (TimeLineFrame, _, "$parentDeleteButton", "DeleteButton", 100, 20, delete_button_func, nil, nil, nil, Loc ["STRING_RESET"], 1, options_button_template)
 		delete_button:SetPoint ("bottomright", TimeLineFrame, "bottomright", -10, 10)
 		delete_button:SetIcon ([[Interface\Buttons\UI-StopButton]], nil, nil, nil, {0, 1, 0, 1}, nil, nil, 2)
 		delete_button:SetTextColor ("orange")
 		delete_button.textsize = 9
 		
-		local options_button = framework:NewButton (TimeLineFrame, _, "$parentOptionsPanelButton", "OptionsPanelButton", 100, 20, TimeLine.OpenOptionsPanel, nil, nil, nil, "Options", 1, options_button_template)
+		local options_button = framework:NewButton (TimeLineFrame, _, "$parentOptionsPanelButton", "OptionsPanelButton", 100, 20, TimeLine.OpenOptionsPanel, nil, nil, nil, Loc ["STRING_OPTIONS"], 1, options_button_template)
 		options_button:SetPoint ("right", delete_button, "left", 2, 0)
 		options_button:SetIcon ([[Interface\Buttons\UI-OptionsButton]], nil, nil, nil, {0, 1, 0, 1}, nil, nil, 2)
 		options_button:SetTextColor ("orange")
@@ -601,7 +601,7 @@ local function CreatePluginFrames()
 				TimeLine:Refresh()
 			end
 			
-			local useIconsText = framework:CreateLabel (TimeLineFrame, "Spell Icons", 10, "orange", nil, "UseIconsLabel", nil, "overlay")
+			local useIconsText = framework:CreateLabel (TimeLineFrame, Loc ["STRING_SPELLICONS"], 10, "orange", nil, "UseIconsLabel", nil, "overlay")
 			useIconsText:SetPoint ("right", options_button, "left", -2, 0)
 
 			local useIconsCheckbox = framework:CreateSwitch (TimeLineFrame, useIconsFunc, false)
@@ -1123,7 +1123,7 @@ local function CreatePluginFrames()
 		local i = 0
 		
 		if (not _table_to_use) then
-			TimeLine:Msg ("Failed to load this segment: data is corrupt.")
+			TimeLine:Msg (Loc ["STRING_DATAINVALID"])
 			return
 		end
 		
@@ -1304,7 +1304,7 @@ end
 
 local build_options_panel = function()
 	
-	local options_frame = TimeLine:CreatePluginOptionsFrame ("TimeLineOptionsWindow", "Time Line Options", 1)
+	local options_frame = TimeLine:CreatePluginOptionsFrame ("TimeLineOptionsWindow", Loc ["STRING_OPTIONS_TITLE"], 1)
 	
 	local menu = {
 	
@@ -1318,8 +1318,8 @@ local build_options_panel = function()
 			min = 3,
 			max = 25,
 			step = 1,
-			desc = "Limit of segments stored.",
-			name = "Max Segments"
+			desc = Loc ["STRING_OPTIONS_MAXSEGMENTS_DESC"],
+			name = Loc ["STRING_OPTIONS_MAXSEGMENTS"]
 		},
 		{
 			type = "color",
@@ -1329,8 +1329,8 @@ local build_options_panel = function()
 				current[1], current[2], current[3], current[4] = r, g, b, a
 				TimeLine:RefreshBackgroundColor()
 			end,
-			desc = "Select the background color.",
-			name = "Background Color"
+			desc = Loc ["STRING_OPTIONS_BGCOLOR_DESC"],
+			name = Loc ["STRING_OPTIONS_BGCOLOR"]
 		},
 		{
 			type = "range",
@@ -1339,8 +1339,8 @@ local build_options_panel = function()
 			min = 0.65,
 			max = 1.50,
 			step = 0.1,
-			desc = "Set the window size",
-			name = "Window Scale",
+			desc = Loc ["STRING_OPTIONS_WINDOWCOLOR_DESC"],
+			name = Loc ["STRING_OPTIONS_WINDOWCOLOR"],
 			usedecimals = true,
 		},
 		

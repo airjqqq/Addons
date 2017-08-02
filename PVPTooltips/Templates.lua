@@ -23,10 +23,10 @@ PVPTooltips_Templates = {
 	[581] = { role = "tank", caster = false, stat = AGI, vulnerability = 1.25, stamina = 0.80, mastery = 0.25, versatility = 0.00 }, -- Vengeance
 	
 	-- Druid
-	[102] = { role = "damager", caster = true, stat = INT, mastery = 0.25, versatility = 1.20, haste = 1.00, crit = 1.25 }, -- Balance
+	[102] = { role = "damager", caster = true, stat = INT, armor = 0.90, mastery = 0.25, versatility = 1.20, haste = 1.00, crit = 1.25 }, -- Balance
 	[103] = { role = "damager", caster = false, stat = AGI, primary = 0.87 }, -- Feral
 	[104] = { role = "tank", caster = false, stat = AGI, vulnerability = 1.10, primary = 0.90, stamina = 0.75, mastery = 0.25, versatility = 0.00 }, -- Guardian
-	[105] = { role = "healer", caster = true, stat = INT, damage = 0.70, primary = 1.45, haste = 1.50, crit = 0.50, regen = 0.70 }, -- Restoration
+	[105] = { role = "healer", caster = true, stat = INT, damage = 0.70, primary = 1.50, haste = 1.50, crit = 0.50, mastery = 1.20, regen = 0.70 }, -- Restoration
 
 	-- Hunter
 	[253] = { role = "damager", caster = false, stat = AGI, primary = 0.70, armor = 1.00, versatility = 1.25, mastery = 0.45, haste = 1.30, crit = 1.00 }, -- Beast Mastery
@@ -40,17 +40,17 @@ PVPTooltips_Templates = {
 
 	-- Monk
 	[268] = { role = "tank", caster = false, stat = AGI, vulnerability = 1.25, stamina = 0.80, mastery = 0.25, versatility = 0.30, haste = 1.25 }, -- Brewmaster
-	[270] = { role = "healer", caster = true, stat = INT, damage = 0.70, primary = 1.32, regen = 1.05, versatility = 1.30 }, -- Mistweaver
+	[270] = { role = "healer", caster = true, stat = INT, damage = 0.70, primary = 1.32, regen = 0.95, versatility = 1.30 }, -- Mistweaver
 	[269] = { role = "damager", caster = false, stat = AGI, primary = 0.90, versatility = 1.20, haste = 2.00, mastery = 0.25, crit = 1.00 }, -- Windwalker
 
 	-- Paladin
-	[65] = { role = "healer", caster = true, stat = INT, damage = 0.70, primary = 1.52, regen = 0.80, versatility = 0.75, mastery = 0.50, crit = 1.50, haste = 1.25 }, -- Holy
+	[65] = { role = "healer", caster = true, stat = INT, damage = 0.70, primary = 1.55, regen = 0.80, versatility = 0.75, mastery = 0.50, crit = 1.50, haste = 1.25 }, -- Holy
 	[66] = { role = "tank", caster = false, stat = STR, vulnerability = 1.25, damage = 0.95, primary = 0.80, stamina = 0.85, regen = 0.75, versatility = 0.50, mastery = 0.25, crit = 1.25, haste = 2.00 }, -- Protection
 	[70] = { role = "damager", caster = false, stat = STR, primary = 0.80, mastery = 0.25, haste = 1.50, versatility = 1.00, crit = 1.35 }, -- Retribution
 
 	-- Priest
 	[256] = { role = "healer", caster = true, stat = INT, damage = 0.82, primary = 1.40, mastery = 0.50, versatility = 1.50 }, -- Discipline
-	[257] = { role = "healer", caster = true, stat = INT, damage = 0.60, primary = 1.50, haste = 1.25, mastery = 0.75 }, -- Holy
+	[257] = { role = "healer", caster = true, stat = INT, damage = 0.60, primary = 1.46, haste = 1.25, mastery = 0.45, regen = 0.90 }, -- Holy
 	[258] = { role = "damager", caster = true, stat = INT, primary = 1.28, mastery = 0.75, versatility = 1.60, crit = 0.75 }, -- Shadow
 
 	-- Rogue
@@ -61,12 +61,12 @@ PVPTooltips_Templates = {
 	-- Shaman
 	[262] = { role = "damager", caster = true, stat = INT, armor = 1.20, stamina = 1.10, versatility = 1.75, mastery = 0.75, crit = 0.75, haste = 0.75 }, -- Elemental
 	[263] = { role = "damager", caster = false, stat = AGI, armor = 1.25, primary = 0.95, stamina = 1.10, versatility = 1.75, mastery = 0.25 }, -- Enhancement
-	[264] = { role = "healer", caster = true, stat = INT, damage = 0.75, primary = 1.37, armor = 1.30, crit = 1.20, versatility = 1.40, mastery = 1.60, regen = 0.80 }, -- Restoration
+	[264] = { role = "healer", caster = true, stat = INT, damage = 0.75, primary = 1.34, armor = 1.30, crit = 1.20, versatility = 1.40, mastery = 1.60, regen = 0.70 }, -- Restoration
 
 	-- Warlock
-	[265] = { role = "damager", caster = true, stat = INT, primary = 1.10, stamina = 1.20, mastery = 1.25, versatility = 0.35, haste = 1.50 }, -- Affliction
+	[265] = { role = "damager", caster = true, stat = INT, primary = 1.14, stamina = 1.20, mastery = 1.25, versatility = 0.35, haste = 1.50 }, -- Affliction
 	[266] = { role = "damager", caster = true, stat = INT, stamina = 1.05, mastery = 0.75, versatility = 0.75, haste = 1.50 }, -- Demonology
-	[267] = { role = "damager", caster = true, stat = INT, primary = 1.30, crit = 1.75, mastery = 0.25, stamina = 1.20 }, -- Destruction
+	[267] = { role = "damager", caster = true, stat = INT, primary = 1.30, armor = 1.30, versatility = 1.05, crit = 1.75, mastery = 0.25, stamina = 1.20 }, -- Destruction
 	
 	-- Warrior
 	[71] = { role = "damager", caster = false, stat = STR, primary = 1.06, stamina = 1.15, armor = 1.10, mastery = 0.25, haste = 1.25, versatility = 1.22, crit = 1.25 }, -- Arms

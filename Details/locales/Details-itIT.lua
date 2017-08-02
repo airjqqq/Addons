@@ -502,6 +502,8 @@ if not L then return end
 --Translation missing 
 -- L["STRING_GUILDDAMAGERANK_TUTORIAL_DESC"] = ""
 --Translation missing 
+-- L["STRING_GUILDDAMAGERANK_WINDOWALERT"] = ""
+--Translation missing 
 -- L["STRING_HEAL"] = ""
 --Translation missing 
 -- L["STRING_HEAL_ABSORBED"] = ""

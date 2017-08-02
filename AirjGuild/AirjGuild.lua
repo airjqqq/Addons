@@ -52,7 +52,7 @@ function Core:OnEnable()
   self.db = AirjGuildDB
   self.db.standbyList = {}
   self.worldTimer = self:ScheduleRepeatingTimer(self.WorldTimer,10,self)
-  self.gaTimer = self:ScheduleRepeatingTimer(self.GuildAnnouncementTimer,10,self)
+  -- self.gaTimer = self:ScheduleRepeatingTimer(self.GuildAnnouncementTimer,10,self)
   self:RegisterEvent("CHAT_MSG_CHANNEL")
   self:RegisterEvent("CHAT_MSG_OFFICER")
   self.worldLastTime = GetTime()
@@ -262,21 +262,21 @@ function Core:CHAT_MSG_WHISPER(event,message, sender, language, channelString, t
       self:UpdateGuildRosterInfo()
       if not guildRosterInfo[sender] and not nameToFullName[sender] then
         if not nextAutoGuildInfo[nrname] or nextAutoGuildInfo[nrname]<GetTime() then
-          self:ScheduleTimer(function()
-            self:ScheduleTimer(function()
-              SendChatMessage(RAID1DETAIL,"WHISPER",nil,sender)
-            end,1)
-            self:ScheduleTimer(function()
-              SendChatMessage(RAID2DETAIL,"WHISPER",nil,sender)
-            end,2)
-            self:ScheduleTimer(function()
-              if AirjHack and AirjHack:HasHacked() then
-                SendChatMessage("你好,回“JRGH”或“加入公会”自动邀请.咨询其他内容请留言,看到后第一时间回复","WHISPER",nil,sender)
-                -- RunMacroText("/ginvite "..sender)
-              end
-            end,3)
-          end,3)
-          nextAutoGuildInfo[nrname] = GetTime()+900
+          -- self:ScheduleTimer(function()
+          --   self:ScheduleTimer(function()
+          --     SendChatMessage(RAID1DETAIL,"WHISPER",nil,sender)
+          --   end,1)
+          --   self:ScheduleTimer(function()
+          --     SendChatMessage(RAID2DETAIL,"WHISPER",nil,sender)
+          --   end,2)
+          --   self:ScheduleTimer(function()
+          --     if AirjHack and AirjHack:HasHacked() then
+          --       SendChatMessage("你好,回“JRGH”或“加入公会”自动邀请.咨询其他内容请留言,看到后第一时间回复","WHISPER",nil,sender)
+          --       -- RunMacroText("/ginvite "..sender)
+          --     end
+          --   end,3)
+          -- end,3)
+          -- nextAutoGuildInfo[nrname] = GetTime()+900
         end
       end
     end

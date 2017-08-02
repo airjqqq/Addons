@@ -569,7 +569,7 @@ end
 Swatter.Error = CreateFrame("Frame", "SwatterErrorFrame", UIParent)
 Swatter.Error:Hide()
 Swatter.Error:SetPoint("CENTER", "UIParent", "CENTER")
-Swatter.Error:SetFrameStrata("TOOLTIP")
+Swatter.Error:SetFrameStrata("MEDIUM")
 Swatter.Error:SetHeight(280)
 Swatter.Error:SetWidth(500)
 Swatter.Error:SetBackdrop({
@@ -634,16 +634,19 @@ Swatter.Drag:SetScript("OnMouseUp", function() Swatter.Error:StopMovingOrSizing(
 
 Swatter.Error.Done = CreateFrame("Button", "", Swatter.Error, "OptionsButtonTemplate")
 Swatter.Error.Done:SetText("Close")
+Swatter.Error.Done:SetFrameStrata("HIGH")
 Swatter.Error.Done:SetPoint("BOTTOMRIGHT", Swatter.Error, "BOTTOMRIGHT", -10, 10)
 Swatter.Error.Done:SetScript("OnClick", Swatter.ErrorDone)
 
 Swatter.Error.Next = CreateFrame("Button", "", Swatter.Error, "OptionsButtonTemplate")
 Swatter.Error.Next:SetText("Next >")
+Swatter.Error.Next:SetFrameStrata("HIGH")
 Swatter.Error.Next:SetPoint("BOTTOMRIGHT", Swatter.Error.Done, "BOTTOMLEFT", -5, 0)
 Swatter.Error.Next:SetScript("OnClick", Swatter.ErrorNext)
 
 Swatter.Error.Prev = CreateFrame("Button", "", Swatter.Error, "OptionsButtonTemplate")
 Swatter.Error.Prev:SetText("< Prev")
+Swatter.Error.Prev:SetFrameStrata("HIGH")
 Swatter.Error.Prev:SetPoint("BOTTOMRIGHT", Swatter.Error.Next, "BOTTOMLEFT", -5, 0)
 Swatter.Error.Prev:SetScript("OnClick", Swatter.ErrorPrev)
 
@@ -665,6 +668,7 @@ Swatter.Error.Box:SetHeight(85)
 Swatter.Error.Box:SetMultiLine(true)
 Swatter.Error.Box:SetAutoFocus(false)
 Swatter.Error.Box:SetFontObject(GameFontHighlight)
+Swatter.Error.Box:SetFrameStrata("MEDIUM")
 Swatter.Error.Box:SetScript("OnEscapePressed", Swatter.ErrorDone)
 Swatter.Error.Box:SetScript("OnTextChanged", Swatter.ErrorUpdate)
 Swatter.Error.Box:SetScript("OnEditFocusGained", Swatter.ErrorClicked)

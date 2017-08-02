@@ -1,7 +1,7 @@
-changeset:   655:61f3bdbef2d6
-tag:         v7.2.5.4201.122-release
+changeset:   659:6890432b845c
+tag:         a7.2.5.4245.122-Alpha
 user:        Tercio
-date:        Tue Jun 27 15:36:27 2017 -0300
-summary:     - using GetServerTime() instead of time() to compare when a boss has died across guild members.
+date:        Wed Jul 12 13:39:04 2017 -0300
+summary:     - Fixed some issues with tooltiops popup when the user press SHIFT.
 
 

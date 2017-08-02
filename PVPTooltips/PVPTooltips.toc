@@ -1,8 +1,8 @@
 ## Interface: 70200
 ## Title: PVP Tooltips
 ## Authors: MrCool
-## Notes: Show PVP modifiers on tooltips. |cffff00ff[Update date: 2017-06-29]|r
-## Version: 2017-06-29
+## Notes: Show PVP modifiers on tooltips. |cffff00ff[Update date: 2017-07-26]|r
+## Version: 2017-07-26
 ## SavedVariables:
 ## Dependencies:
 ## OptionalDeps:

@@ -1,0 +1,15 @@
+## Interface: 70100
+## Title: Quest Notifier
+## Title-zhCN: 任务通报
+## Version: 7.0.0
+## Author: ElvUI, eui.cc, Wanghong
+## Notes: QuestNotifier sends a message as you advance in a quest.
+## Notes-zhCN: 在队伍中报告任务进度.
+## SavedVariables: QuestNotifierDB
+
+## OptionalDeps: Ace3
+
+Localization.lua
+
+QuestNotifier.lua
+Config.lua

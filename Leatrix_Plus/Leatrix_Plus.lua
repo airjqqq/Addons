@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------
--- 	Leatrix Plus 7.2.09 (5th July 2017, www.leatrix.com)
+-- 	Leatrix Plus 7.2.12 (27th July 2017, www.leatrix.com)
 ----------------------------------------------------------------------
 
 --	01:Functions	20:Live			50:Player		72:Profile		
@@ -20,7 +20,7 @@
 	local void
 
 --	Version
-	LeaPlusLC["AddonVer"] = "7.2.09"
+	LeaPlusLC["AddonVer"] = "7.2.12"
 
 ----------------------------------------------------------------------
 -- 	Locale
@@ -3828,7 +3828,6 @@
 		LeaPlusLC:LockOption("NoAlerts", "NoAlertsBtn", true)					-- Hide alerts
 		LeaPlusLC:LockOption("ViewPortEnable", "ModViewportBtn", true)			-- Enable viewport
 		LeaPlusLC:LockOption("EnableHotkey", "HotkeyBtn", true)					-- Enable hotkey
-
 	end
 
 ----------------------------------------------------------------------
@@ -3987,7 +3986,7 @@
 		end
 
 		----------------------------------------------------------------------
-		--	Block party invites
+		--	Block party invites and Party from friends
 		----------------------------------------------------------------------
 
 		if LeaPlusLC["NoPartyInvites"] == "On" or LeaPlusLC["AcceptPartyFriends"] == "On" then
@@ -8407,12 +8406,20 @@
 
 			-- Position general tooltip
 			hooksecurefunc("GameTooltip_SetDefaultAnchor", function()
+				local a,b,c,d,e = GameTooltip:GetPoint()
+				if a ~= "BOTTOMRIGHT" or c ~= "BOTTOMRIGHT" then
+					GameTooltip:ClearAllPoints()
+				end
 				GameTooltip:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", LeaPlusLC["TipOffsetX"], LeaPlusLC["TipOffsetY"]);
 			end)
 
 			-- Position pet battle ability tooltips
 			hooksecurefunc("PetBattleAbilityTooltip_Show", function(tooltip, parent)
 				if parent == UIParent then
+					local a,b,c,d,e = PetBattlePrimaryAbilityTooltip:GetPoint()
+					if a ~= "BOTTOMRIGHT" or c ~= "BOTTOMRIGHT" then
+						PetBattlePrimaryAbilityTooltip:ClearAllPoints()
+					end
 					PetBattlePrimaryAbilityTooltip:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", LeaPlusLC["TipOffsetX"], LeaPlusLC["TipOffsetY"]);
 				end
 			end)
@@ -9554,6 +9561,7 @@
 
 			-- Various
 			Zn("Various", "|cffffd800Various", {""})
+			Zn("Various", "Anduin's Theme"					, {	"|cffffd800Various: Anduin's Theme", "Legion\\MUS_70_AnduinPt1_A1#75", "Legion\\MUS_70_AnduinPt1_A2#113", "Legion\\MUS_70_AnduinPt1_B#141", "Legion\\MUS_70_AnduinPt1_C#138", "Legion\\MUS_70_AnduinPt1_D#90", "Legion\\MUS_70_AnduinPt1_E#71", "Legion\\MUS_70_AnduinPt1_H1#88", "Legion\\MUS_70_AnduinPt1_H2#116", "Legion\\MUS_70_AnduinPt2_B#111","Legion\\MUS_70_AnduinPt2_C#54", "Legion\\MUS_70_AnduinPt2_H#123",})
 			Zn("Various", "World of Warcraft"				, {	"|cffffd800Various: World of Warcraft", "GlueScreenMusic\\wow_main_theme#161", "GlueScreenMusic\\BC_main_theme#227", "GlueScreenMusic\\WotLK_main_title#544", "Cataclysm\\MUS_Shattering_UU01#726", "Pandaria\\MUS_50_HeartofPandaria_01#480", "Draenor\\MUS_60_ASiegeofWorlds_MainTitle#727", "Legion\\MUS_70_Kingdomswillburn_MainTitle#650", "Musical Moments\\haunted\\haunted01#62", "GlueScreenMusic\\BCCredits_Lament_of_the_Highborne#171",})
 
 			-- Show relevant list items

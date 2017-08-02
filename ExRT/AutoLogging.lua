@@ -11,7 +11,7 @@ module.db.minPartyMapID = 1456
 function module.options:Load()
 	self:CreateTilte()
 
-	self.enableChk = ELib:Check(self,L.LoggingEnable,VExRT.Logging.enabled):Point(5,-30):OnClick(function(self)
+	self.enableChk = ELib:Check(self,L.LoggingEnable,VExRT.Logging.enabled):Point(5,-30):OnClick(function(self) 
 		if self:GetChecked() then
 			VExRT.Logging.enabled = true
 			module:Enable()
@@ -20,12 +20,12 @@ function module.options:Load()
 			module:Disable()
 		end
 	end)
-
+		
 	self.shtml1 = ELib:Text(self," -"..L.S_ZoneT19Nightmare.."\n -"..L.S_ZoneT19ToV.."\n -"..L.S_ZoneT19Suramar.."\n -"..L.S_ZoneT20ToS,12):Size(620,0):Point("TOP",0,-65):Top()
 
 	self.shtml2 = ELib:Text(self,L.LoggingHelp1,12):Size(650,0):Point("TOP",self.shtml1,"BOTTOM",0,-15):Top()
-
-	self.enable5ppLegion = ELib:Check(self,DUNGEONS..": "..EXPANSION_NAME6.." ("..PLAYER_DIFFICULTY6..", "..PLAYER_DIFFICULTY6.."+)",VExRT.Logging.enable5ppLegion):Point("TOP",self.shtml2,"BOTTOM",0,-15):Point("LEFT",self,5,0):OnClick(function(self)
+	
+	self.enable5ppLegion = ELib:Check(self,DUNGEONS..": "..EXPANSION_NAME6.." ("..PLAYER_DIFFICULTY6..", "..PLAYER_DIFFICULTY6.."+)",VExRT.Logging.enable5ppLegion):Point("TOP",self.shtml2,"BOTTOM",0,-15):Point("LEFT",self,5,0):OnClick(function(self) 
 		if self:GetChecked() then
 			VExRT.Logging.enable5ppLegion = true
 		else
@@ -70,16 +70,16 @@ end
 
 local prevZone = false
 local function ZoneNewFunction()
-	local zoneForLogging = GetCurrentMapForLogging() and UnitIsGroupLeader("player")
+	local zoneForLogging = GetCurrentMapForLogging()
 	if zoneForLogging then
 		LoggingCombat(true)
 		print('==================')
-		print(ExRT.L.LoggingStart)
+		print(L.LoggingStart)
 		print('==================')
 	elseif prevZone and LoggingCombat() then
 		LoggingCombat(false)
 		print('==================')
-		print(ExRT.L.LoggingEnd)
+		print(L.LoggingEnd)
 		print('==================')
 	end
 	prevZone = zoneForLogging

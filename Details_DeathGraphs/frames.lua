@@ -19,6 +19,8 @@ do
 		local BUTTON_BACKGROUND_COLOR = {.5, .5, .5, .3}
 		local BUTTON_BACKGROUND_COLORHIGHLIGHT = {.5, .5, .5, .8}
 		
+		local Loc = LibStub ("AceLocale-3.0"):GetLocale ("Details_DeathGraphs")
+		
 		local debugmode = false
 		local cooltip_block_bg = {0, 0, 0, 1}
 		local _
@@ -857,7 +859,7 @@ do
 						--GameCooltip:AddIcon (spellicon, 1, 1, 16, 16)
 					end
 				else
-					GameCooltip:AddLine ("|cFF44FF44Flawless Player!|r")
+					GameCooltip:AddLine (Loc ["STRING_FLAWLESS"])
 					GameCooltip:AddIcon ([[Interface\COMMON\ReputationStar]], 1, 1, nil, nil, 0, 0.5, 0.03125, 0.5)
 				end
 			end
@@ -1259,14 +1261,14 @@ do
 			end
 		end
 		
-		local death_desc = "Show panel containing player deaths."
-		local endurance_desc = "Endurance is conceptual score where the goal is to tell who is surviving more during raid encounters.\n\nThe percentage of endurance is calculated taking into account only the first deaths (configurable under '|cFFFFDD00Config Death Limits|r')."
+		local death_desc = Loc ["STRING_DEATH_DESC"]
+		local endurance_desc = Loc ["STRING_ENDURANCE_DESC"]
 		
 		local type_menu = {
-			{value = 1, label = "Deaths", onclick = OnSelectType, icon = [[Interface\GROUPFRAME\UI-GROUP-MAINASSISTICON]], desc = death_desc},
-			{value = 2, label = "Endurance", onclick = OnSelectType, icon = [[Interface\GROUPFRAME\UI-GROUP-MAINASSISTICON]], desc = endurance_desc},
-			{value = 4, label = "Over Time", onclick = OnSelectType, icon = [[Interface\GROUPFRAME\UI-GROUP-MAINASSISTICON]], desc = endurance_desc},
-			{value = 3, label = "Latest", onclick = OnSelectType, icon = [[Interface\GROUPFRAME\UI-GROUP-MAINASSISTICON]], desc = endurance_desc},
+			{value = 1, label = Loc ["STRING_DEATHS"], onclick = OnSelectType, icon = [[Interface\GROUPFRAME\UI-GROUP-MAINASSISTICON]], desc = death_desc},
+			{value = 2, label = Loc ["STRING_ENDURANCE"], onclick = OnSelectType, icon = [[Interface\GROUPFRAME\UI-GROUP-MAINASSISTICON]], desc = endurance_desc},
+			{value = 4, label = Loc ["STRING_OVERTIME"], onclick = OnSelectType, icon = [[Interface\GROUPFRAME\UI-GROUP-MAINASSISTICON]], desc = endurance_desc},
+			{value = 3, label = Loc ["STRING_LATEST"], onclick = OnSelectType, icon = [[Interface\GROUPFRAME\UI-GROUP-MAINASSISTICON]], desc = endurance_desc},
 		}
 
 		local select_type_dropdown = framework:NewDropDown (f, nil, "$parentSegmentDropdown", "ModeDropdown", 150, 20, function() return type_menu end, DeathGraphs.db.showing_type)
@@ -1415,13 +1417,13 @@ do
 			
 		end
 		
-		local delete = framework:NewButton (f, _, "$parentDeleteButton", "DeleteButton", w, mode_buttons_height, wipe_data, nil, nil, nil, "Reset Data", 1, options_button_template)
+		local delete = framework:NewButton (f, _, "$parentDeleteButton", "DeleteButton", w, mode_buttons_height, wipe_data, nil, nil, nil, Loc ["STRING_RESET"], 1, options_button_template)
 		delete:SetPoint ("bottomright", f, "bottomright", -10, 10)
 		delete:SetIcon ([[Interface\Buttons\UI-StopButton]], nil, nil, nil, {0, 1, 0, 1}, nil, nil, 2)
 		delete:SetTextColor ("orange")
 
 	--> configure threshold
-		local threshold_config = framework:NewButton (f, _, "$parentOptionsPanelButton", "OptionsPanelButton", w, mode_buttons_height, DeathGraphs.OpenOptionsPanel, nil, nil, nil, "Options", 1, options_button_template)
+		local threshold_config = framework:NewButton (f, _, "$parentOptionsPanelButton", "OptionsPanelButton", w, mode_buttons_height, DeathGraphs.OpenOptionsPanel, nil, nil, nil, Loc ["STRING_OPTIONS"], 1, options_button_template)
 		threshold_config:SetPoint ("right", delete, "left", 2, 0)
 		threshold_config:SetIcon ([[Interface\Buttons\UI-OptionsButton]], nil, nil, nil, {0, 1, 0, 1}, nil, nil, 2)
 		threshold_config:SetTextColor ("orange")

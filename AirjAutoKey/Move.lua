@@ -106,14 +106,16 @@ function M:OnInitialize()
 			local unit = args[1]
 			local x,y = GetPlayerMapPosition(unit)
 			-- print(x,y)
-	    local mapId = GetCurrentMapAreaID()
-	    local _,_,_,l,r,t,b = GetAreaMapInfo(mapId)
-	    l = -l
-	    r = -r
-	    local px = l+(r-l)*x
-	    local py = t-(t-b)*y
-			local z = select(3,self:GetPlayPosition())
-	    AirjMove:MoveTo({px,py,z})
+			if x and x>0 then
+		    local mapId = GetCurrentMapAreaID()
+		    local _,_,_,l,r,t,b = GetAreaMapInfo(mapId)
+		    l = -l
+		    r = -r
+		    local px = l+(r-l)*x
+		    local py = t-(t-b)*y
+				local z = select(3,self:GetPlayPosition())
+		    AirjMove:MoveTo({px,py,z})
+			end
 		end
 	end)
 	self:RegisterChatCommand("aakw", function(str,...)
@@ -454,7 +456,7 @@ function M:MoveTimer()
 		-- end
 	end
 	-- print(moveDistanceXY,targetDistanceZ)
-	if targetDistanceXY and moveDistanceXY<5 and targetDistanceZ>1 and (self.goto.targetType == "point" or moveDistanceXY>1) or targetDistanceZ and targetDistanceZ>10 then
+	if targetDistanceXY and moveDistanceXY<5 and targetDistanceZ>1 and (self.goto.targetType == "point" or moveDistanceXY>0.2) or targetDistanceZ and targetDistanceZ>10 then
 		moves[7] = 1
 	end
 	if stop  and moveDistance < 15 then
@@ -1580,10 +1582,33 @@ function M:TurnAndCast(spellId,prejump,delay)
 end
 
 function M:GreenCast(...)
-
 	local ld = self.leftDown==1
 	local rd = self.rightDown==1
 	AirjHack:GreenCast(...)
+	if rd then
+		TurnOrActionStart()
+	end
+	if ld then
+		CameraOrSelectOrMoveStart()
+	end
+end
+
+function M:GreenCast2(...)
+	local ld = self.leftDown==1
+	local rd = self.rightDown==1
+	AirjHack:GreenCast2(...)
+	if rd then
+		TurnOrActionStart()
+	end
+	if ld then
+		CameraOrSelectOrMoveStart()
+	end
+end
+
+function M:GreenCast3(...)
+	local ld = self.leftDown==1
+	local rd = self.rightDown==1
+	AirjHack:GreenCast3(...)
 	if rd then
 		TurnOrActionStart()
 	end

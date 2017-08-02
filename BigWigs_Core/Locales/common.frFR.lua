@@ -38,7 +38,7 @@ L.other = "%s : %s"
 L.over = "%s terminé !"
 L.phase = "Phase %d"
 L.removed = "%s enlevé"
---L.removed_from = "%s Removed From %s"
+L.removed_from = "%s enlevé de %s"
 L.small_adds = "Petits adds"
 L.soon = "%s bientôt !"
 L.spawned = "%s apparu"
@@ -50,9 +50,15 @@ L.trash = "Trash"
 L.underyou = "%s en dessous de VOUS !"
 L.you = "%s sur VOUS !"
 
---L.active = "Active" -- When a boss becomes active, after speech finishes
+L.active = "Actif" -- When a boss becomes active, after speech finishes
 
 -- Common raid marking locale
 L.marker = "Marquage %s"
 L.marker_player_desc = "Marque les joueurs affectés par %s avec %s. Nécessite d'être assistant ou chef de raid."
 L.marker_npc_desc = "Marque %s avec %s. Nécessite d'être assistant ou chef de raid."
+
+-- Ability where two players have to move close to each other
+L.link = "Lié(e) avec %s"
+L.link_short = "Lié : %s"
+L.link_both = "%s est lié(e) avec %s"
+L.link_removed = "Lien enlevé"

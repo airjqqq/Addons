@@ -1,0 +1,14 @@
+## Interface: 70200
+## Author: p3lim
+## Version: 70200.30-Release
+## Title: QuickQuest
+## Notes: Quest automation wizardry
+## OptionalDeps: LibGossipQuestInfo, Wasabi
+## SavedVariables: QuickQuestDB, QuickQuestBlacklistDB
+
+libs\LibGossipQuestInfo\LibGossipQuestInfo.lua
+libs\Wasabi\embed.xml
+
+Localization.lua
+Config.lua
+QuickQuest.lua

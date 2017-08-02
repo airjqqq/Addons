@@ -1,7 +1,7 @@
-changeset:   61:00b9b61917c8
-tag:         a61-alpha
+changeset:   67:c7de59baafac
+tag:         v67-release
 user:        Tercio
-date:        Mon May 08 16:30:42 2017 -0300
-summary:     - localization is now handled on curseforge.
+date:        Tue Jul 25 13:53:03 2017 -0300
+summary:     - search for non localized strings in the code, everything should be localizde at this point.
 
 
