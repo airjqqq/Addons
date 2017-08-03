@@ -1,5 +1,5 @@
 local addonsname = "AirjBossMods"
-local Core = LibStub("AceAddon-3.0"):NewAddon(addonsname,"AceConsole-3.0","AceTimer-3.0","AceEvent-3.0","AceSerializer-3.0","AceComm-3.0")
+local Core = LibStub("AceAddon-3.0"):NewAddon(addonsname,"AceConsole-3.0","AceTimer-3.0","AceHook-3.0","AceEvent-3.0","AceSerializer-3.0","AceComm-3.0")
 _G[addonsname] = Core
 local Util = AirjUtil
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
@@ -10,7 +10,32 @@ local db
 
 Core.version = "v0.0.1"
 
+local anchors = {
+  "icon",
+  "text",
+  "timeline",
+  "info",
+  "board",
+  -- "map",
+}
+local anchorNames = {
+  icon = "图标锚点",
+  text = "文字锚点",
+  timeline = "时间轴锚点",
+  info = "信息锚点",
+  board = "战术板锚点",
+}
+local defaultAnchors = {
+  icon = {"TOP","UIParent","TOP",0,-20,400,20},
+  text = {"CENTER","UIParent","CENTER",0,150,400,20},
+  timeline = {"CENTER","UIParent","CENTER",-280,0,240,20},
+  info = {"CENTER","UIParent","CENTER",280,0,160,20},
+  board = {"CENTER","UIParent","CENTER",500,0,240,20},
+}
+
 local options
+-- local syncBoardOption
+local boardIndex = 0
 do-- Options
   options = {
     type = "group",
@@ -20,7 +45,7 @@ do-- Options
     func = "ExecuteOption",
     disabled = "DisabledOption",
     args = {
-      enable = {
+      testall = {
         type = "execute",
         order = 10,
         name = "模拟测试 /abm test",
@@ -159,6 +184,127 @@ do-- Options
             name = "放置于中间",
             descStyle = "inline",
             width = "full",
+          },
+        },
+      },
+      info={
+        name = "信息框",
+        type = "group",
+        order = 35,
+        args={
+          test = {
+            type = "execute",
+            order = 5,
+            name = "测试",
+            desc = "测试此功能",
+            descStyle = "inline",
+            width = "full",
+            -- disable = true,
+          },
+          lock = {
+            type = "toggle",
+            order = 10,
+            name = "锁定",
+            desc = "显示/隐藏锚点,用于拖动/放缩",
+            descStyle = "inline",
+            width = "full",
+          },
+          disable = {
+            type = "toggle",
+            order = 20,
+            name = "禁用",
+            desc = "启用/禁用功能",
+            descStyle = "inline",
+            width = "full",
+          },
+          reset = {
+            type = "execute",
+            order = 30,
+            name = "重置位置",
+            width = "full",
+          },
+          center = {
+            type = "execute",
+            order = 40,
+            name = "放置于中间",
+            descStyle = "inline",
+            width = "full",
+          },
+        },
+      },
+      board={
+        name = "战术板",
+        type = "group",
+        order = 38,
+        args={
+          lock = {
+            type = "toggle",
+            order = 10,
+            name = "锁定",
+            desc = "显示/隐藏锚点,用于拖动/放缩",
+            descStyle = "inline",
+            width = "full",
+          },
+          disable = {
+            type = "toggle",
+            order = 20,
+            name = "禁用",
+            desc = "启用/禁用功能",
+            descStyle = "inline",
+            width = "full",
+          },
+          reset = {
+            type = "execute",
+            order = 30,
+            name = "重置位置",
+            width = "full",
+          },
+          center = {
+            type = "execute",
+            order = 40,
+            name = "放置于中间",
+            descStyle = "inline",
+            width = "full",
+          },
+          editor = {
+            type = "group",
+            order = boardIndex,
+            name = "编辑",
+            width = "full",
+            args = {
+              editor = {
+                type = "input",
+                order = 10,
+                name = "战术文字",
+                width = "full",
+                multiline = 18,
+                set = function(info, value)
+                  Core.boardData.text = value
+                  Core:NotifyBoardChanged()
+                end,
+                get = function(info)
+                  return Core.boardData.text
+                end,
+              },
+              ra = {
+                name  = "/ra发送",
+                type = "execute",
+                width = "full",
+                order = 20,
+                func = function(...)
+                  Core:SendBoardToChat()
+                end,
+              },
+              sync = {
+                name  = "同步",
+                type = "execute",
+                width = "full",
+                order = 30,
+                func = function(...)
+                  Core:SendComm({type="board",value=Core.boardData})
+                end,
+              },
+            },
           },
         },
       },
@@ -328,10 +474,18 @@ do-- Options
         elseif anchorName == "text" then
           self:SetTextT({text1 = "|cffff0000测试警报: |cff00ffff{number}|r", text2 = "|cff00ff00警报结束|r",expires = now+9})
         elseif anchorName == "timeline" then
-          self.testing = true
-          local bossMod = self:GetTestBossMod()
-          bossMod.basetime = now
-          bossMod.phase = 1
+          -- self.testing = true
+          -- local bossMod = self:GetTestBossMod()
+          -- bossMod.basetime = now
+          -- bossMod.phase = 1
+          self:SetTimeline({text = "AOE - 1", expires = now+15, color = {0,1,1}})
+          self:SetTimeline({text = "技能冷却 - 1", expires = now+25, removes = now+35, color = {1,1,0}, color2 = {0,1,1,1}})
+        elseif anchorName == "info" then
+          self:SetInfo({
+            {left="  "..self:GetUnitString("player"),right=80},
+            {left="  "..(self:GetUnitString("target") or "test"),right=50},
+          })
+          -- dump(self.infoDatas)
         elseif anchorName == "say" then
           for i = 0,3 do
             self:SetSay(""..i,now + 3 - i)
@@ -362,27 +516,12 @@ function Core:ResetDatas()
   self.playerAlphaDatas = {}
   self.textDatas = {}
   self.timelineDatas = {}
+  self.infoDatas = {}
   self.futureDamageDatas = {}
   self.testing = nil
+  self:NotifyInfoChanged()
 end
 
-local anchors = {
-  "icon",
-  "text",
-  "timeline",
-  -- "board",
-  -- "map",
-}
-local anchorNames = {
-  icon = "图标锚点",
-  text = "文字锚点",
-  timeline = "时间轴锚点",
-}
-local defaultAnchors = {
-  icon = {"TOP","UIParent","TOP",0,-20,400,20},
-  text = {"CENTER","UIParent","CENTER",0,150,400,20},
-  timeline = {"CENTER","UIParent","CENTER",-280,0,300,20},
-}
 
 function Core:OnInitialize()
   _G[addonsname.."DB"] = _G[addonsname.."DB"] or {}
@@ -390,6 +529,7 @@ function Core:OnInitialize()
   self.anchors = {}
   self.icons = {}
   self.timelineRows = {}
+  self.infoRows = {}
   self:ResetDatas()
   self:RegisterChatCommand("abm", function(str)
     local key,value = string.split(" ",str,2)
@@ -418,6 +558,10 @@ function Core:OnInitialize()
   end)
 
   self.bossMods = {}
+  db.boardData = db.boardData or {}
+  self.boardData = db.boardData
+  self:NotifyBoardChanged()
+  self:ScheduleTimer(self.NotifyBoardChanged,2,self)
 
   AceConfigRegistry:RegisterOptionsTable(addonsname, options)
   AceConfigDialog:AddToBlizOptions(addonsname)
@@ -611,8 +755,26 @@ function Core:OnEnable()
       end
     end
   end
-end
 
+  self:SecureHook("SecureUnitButton_OnClick", function(frame,button)
+    if IsShiftKeyDown() then
+      local editor = GetCurrentKeyBoardFocus()
+      if editor then
+        local text = editor:GetText()
+        local insert = ""
+        if trim(text) ~= "" then
+          insert = insert .. ","
+        end
+        insert = insert..frame.name
+        -- editor:SetText(text)
+        editor:Insert(insert)
+      --   if editor.obj then
+    	--    editor.obj.button:Enable()
+      --  end
+      end
+    end
+  end)
+end
 --version
 function Core:CheckVersion()
   self.checkversion = {}
@@ -653,7 +815,6 @@ function Core:StartPull(time)
     self:SetVoiceT({str="qu3         xiao1            kai1             guai4"})
   end
 end
-
 --utils
 function Core:SendComm(data,target)
   self:SendCommMessage("AIRJ_BM_COMM",self:Serialize(data),target and "WHISPER" or IsInRaid() and "RAID" or "PARTY",target,"ALERT")
@@ -668,6 +829,14 @@ function Core:OnCommReceived(prefix,message,channel,sender)
     self.checkversion[sender] = data
   elseif data.type == "pull" then
     self:StartPull(data.time)
+  elseif data.type == "method" then
+    self[data.method](self,unpack(data.args or {}))
+  elseif data.type == "run" then
+    loadstring(data.string)(unpack(data.args or {}))
+  elseif data.type == "board" then
+    db.boardData = data.value or {}
+    self.boardData = db.boardData
+    self:NotifyBoardChanged()
   end
 end
 function Core:FindHelpUnitByName(name)
@@ -701,6 +870,42 @@ function Core:FindHelpUnitByName(name)
     if n then
       n2u[n] = u
       if n == name then
+        return u
+      end
+    end
+  end
+end
+
+function Core:FindHelpUnitByGuid(guid)
+  self.hg2u = self.hg2u or {}
+  local map = self.hg2u
+  local unit = map[name]
+  if unit then
+    if UnitGUID(unit) == guid then
+      return unit
+    else
+      map[guid] = nil
+    end
+  end
+  local groupNumber = GetNumGroupMembers()
+  local pre
+  if IsInRaid() then
+    pre = "raid"
+  else
+    pre = "party"
+    groupNumber = groupNumber - 1
+  end
+  local units = {}
+  for i = 1,groupNumber do
+    local u = pre..i
+    tinsert(units,u)
+  end
+  tinsert(units,"player")
+  for i,u in ipairs(units) do
+    local g = UnitGUID(u)
+    if g then
+      map[g] = u
+      if g == guid then
         return u
       end
     end
@@ -792,6 +997,37 @@ end
 function Core:GetPlayerRole()
   local i = GetSpecialization()
   return i and GetSpecializationRole(i)
+end
+
+function Core:GetUnitString(unit)
+  local name = UnitName(unit)
+  local _,class = UnitClass(unit)
+  if class then
+    local d = RAID_CLASS_COLORS[class]
+    if d then
+      name = "|c"..d.colorStr..name.."|r"
+    end
+  end
+  return name
+end
+local rtts = {
+	"|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_1:0|t",
+	"|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_2:0|t",
+	"|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_3:0|t",
+	"|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_4:0|t",
+	"|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_5:0|t",
+	"|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_6:0|t",
+	"|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_7:0|t",
+	"|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_8:0|t",
+}
+function Core:GetRaidTargetString(s)
+  local n = string.match(s,"{rt(%w+)}")
+  if n then
+    n = tonumber(n)
+    if n then
+      return rtts[n]
+    end
+  end
 end
 
 function Core:GetCid(guid)
@@ -891,6 +1127,8 @@ function Core:Update()
   self:UpdateIcons()
   self:UpdateText()
   self:UpdateTimeline()
+  self:UpdateInfo()
+  self:UpdateBoard()
   self:UpdateScreen()
   self:UpdateVoice()
   self:UpdateSay()
@@ -1082,8 +1320,13 @@ function Core:UpdateIcons()
         end
         if v.justSetUp then
           icon.castIconTexture:SetTexture(v.texture)
-          icon.castIconCooldown:SetCooldown(v.expires - v.duration, v.duration)
-          icon.castIconCooldown:SetReverse(v.reverse)
+          if v.duration ==0 and v.reverse then
+            icon.castIconCooldown:Hide()
+          else
+            icon.castIconCooldown:SetCooldown(v.expires - v.duration, v.duration)
+            icon.castIconCooldown:SetReverse(v.reverse)
+            icon.castIconCooldown:Show()
+          end
           icon:Show()
         end
         local formatCD = function(value)
@@ -1455,9 +1698,9 @@ function Core:SetTimeline(data)
   local datas = self.timelineDatas
   local text = data.text or ""
   local expires = data.expires or now + 15
-  local removes = data.removes or expires + 10
+  local removes = data.removes or expires + 5
   local start = data.start or expires - 15
-  local preshow = data.pershow or expires - 60
+  local preshow = data.preshow or expires - 60
   local color = data.color or {1,0,0,1}
   local color2 = data.color2 or {0,1,0,0.2}
   local phase = data.phase
@@ -1561,10 +1804,10 @@ function Core:UpdateTimeline()
       percent = (now - data.start)/duration
       color = data.color
       alpha = color[4] or 1
-    elseif now < data.expires + 10 then
+    elseif now < data.expires + 2 then
       percent = 1
       color = data.color2
-      local p = (now - data.expires)/10
+      local p = (now - data.expires)/2
       local a1 = data.color[4] or 1
       local a2 = data.color2[4] or 0.2
       alpha = p * a2 + (1-p) * a1
@@ -1574,9 +1817,9 @@ function Core:UpdateTimeline()
       alpha = color[4] or 0.2
     end
     if now < data.expires then
-      timeString = "|cffffff00 -"..self:GetTimeString(data.expires - now).."|r"
+      timeString = "|cffffff00 "..self:GetTimeString((data.expires - now)).."|r"
     else
-      timeString = "|cffffffff -"..self:GetTimeString(-(data.expires - now)).."|r"
+      timeString = "|cffffffff "..self:GetTimeString(-(data.expires - now)).."|r"
     end
     local text = data.text or ""
     text = self:FormatString(text)
@@ -1636,18 +1879,6 @@ function Core:UpdateTimelineB()
           end
         end
       end
-    else
-      -- if v.phase<phase then
-      --   if rownum == 0 then
-      --     rownum = rownum + 1
-      --   end
-      --   rowdata[rownum] = v
-      -- else
-      --   if rownum == 0 or not rowdata[rownum].phase then
-      --     rownum = rownum + 1
-      --     rowdata[rownum] = v
-      --   end
-      -- end
     end
   end
 
@@ -1728,10 +1959,240 @@ function Core:UpdateTimelineB()
     self.timelineRows[i]:Hide()
   end
 end
+-- info
+function Core:SetInfo(data)
+  local now = GetTime()
+  self.infoDatas = data or {}
+  self.infoDatas.justSetUp = true
+end
+function Core:NotifyInfoChanged()
+  if self.infoDatas then
+    self.infoDatas.justSetUp = true
+  end
+end
+function Core:UpdateInfo()
+  local disable = db.anchorDisables and db.anchorDisables.info
+  if disable then
+    for i = 1,#self.infoRows do
+      self.infoRows[i]:Hide()
+    end
+    self.infoDatas.justSetUp = true
+    return
+  end
+  local anchor = self.anchors.info
+  local resized = anchor.resizing
+  if resized then anchor.resizing = nil end
 
+  if not resized and not self.infoDatas.justSetUp then
+    return
+  end
+  self.infoDatas.justSetUp = nil
 
+  local rowdata = self.infoDatas
+  local rownum = #rowdata
+
+  local width = anchor:GetWidth()
+  local height = width/10
+
+  for i = 1,rownum do
+    local row = self.infoRows[i]
+    local data = rowdata[i]
+    if not row then
+      row = CreateFrame("Frame")
+      local texture = row:CreateTexture()
+      texture:SetAllPoints()
+      texture:SetColorTexture(0,0,0,0.8)
+
+      local fontstring
+
+      fontstring = row:CreateFontString(nil,"OVERLAY","GameFontHighlight")
+      fontstring:SetFont("Fonts\\ARKai_T.TTF",72,"MONOCHROME")
+    	fontstring:SetAllPoints()
+      fontstring:SetJustifyH("LEFT")
+      row.left = fontstring
+
+      fontstring = row:CreateFontString(nil,"OVERLAY","GameFontHighlight")
+      fontstring:SetFont("Fonts\\ARKai_C.TTF",72,"MONOCHROME")
+    	fontstring:SetAllPoints()
+      fontstring:SetJustifyH("RIGHT")
+      row.right = fontstring
+
+      self.infoRows[i] = row
+      row:Hide()
+    end
+    if resized or not row:IsShown() then
+      row:SetSize(width,height)
+      row:SetPoint("TOP",anchor,"BOTTOM",0,-(i-1)*height)
+      row.left:SetFont("Fonts\\ARKai_T.TTF",height*0.7,"OUTLINE")
+      row.right:SetFont("Fonts\\ARKai_C.TTF",height*0.7,"OUTLINE")
+    end
+
+    row.left:SetText(data.left)
+    row.right:SetText(data.right)
+    row:Show()
+    -- print(text,percent,alpha,now - data.expires)
+  end
+
+  for i = rownum+1,#self.infoRows do
+    self.infoRows[i]:Hide()
+  end
+end
+
+-- board
+local bk2s = {
+  g = "|cff00ff00分组",
+  r = "|cff00ffff团减",
+  s = "|cffff4000个减",
+  k = "|cffffff00打断",
+}
+
+local function boardK2S(key)
+  local head = string.sub(key,1,1)
+  local number = tonumber(string.sub(key,2))
+  if bk2s[head] then
+    return bk2s[head]..number.."|r"
+  end
+end
+local function boardK2SSay(key)
+  local head = string.sub(key,1,1)
+  local number = tonumber(string.sub(key,2))
+  if bk2s[head] then
+    return strsub(bk2s[head],11)..number
+  end
+end
+function Core:NotifyBoardChanged()
+  -- syncBoardOption(#self.boardData)
+  self.boardData.justSetUp = true
+end
+function Core:SendBoardToChat()
+  local datas = {strsplit("\n",self.boardData.text or "")}
+  for i,v in ipairs(datas) do
+    local data = {strsplit(" ",v)}
+    local line = " "
+    for j,s in ipairs(data) do
+      local ss = self:GetUnitString(s) or self:GetRaidTargetString(s)
+      if j == 1 then
+        local key = boardK2SSay(s)
+        if key then
+          line = line..key
+        else
+          line = line.." "..s
+        end
+      elseif j == #data or j == 2 then
+        line = line.." "..s
+      else
+        if ss then
+          line = line.." "..s
+        end
+      end
+    end
+    -- print(line)
+    SendChatMessage(line,IsInRaid() and "RAID" or IsInGroup() and "PARTY" or "SAY")
+  end
+end
+function Core:UpdateBoard()
+  local disable = db.anchorDisables and db.anchorDisables.board
+  if disable then
+    local frame = self.boardFrame
+    if frame then
+      frame:Hide()
+    end
+    self.boardData.justSetUp = true
+    return
+  end
+  local anchor = self.anchors.board
+  local resized = anchor.resizing
+  if resized then anchor.resizing = nil end
+  if not resized and not self.boardData.justSetUp then
+    return
+  end
+  local justSetUp = self.boardData.justSetUp
+  self.boardData.justSetUp = nil
+  local width = anchor:GetWidth()
+  local height = width/12
+  local frame = self.boardFrame
+  if not frame then
+    frame = CreateFrame("Frame")
+    -- frame:EnableMouse(true)
+    local texture = frame:CreateTexture()
+    texture:SetAllPoints()
+    texture:SetColorTexture(0,0,0,0.8)
+    local fontstring
+    fontstring = frame:CreateFontString(nil,"OVERLAY","GameFontHighlight")
+    fontstring:SetFont("Fonts\\ARKai_T.TTF",72,"MONOCHROME")
+  	fontstring:SetAllPoints()
+    fontstring:SetJustifyH("LEFT")
+    fontstring:SetWordWrap(true)
+    frame.text = fontstring
+
+    self.boardFrame = frame
+  end
+  if resized or justSetUp then
+    frame:SetWidth(width)
+    frame:SetPoint("TOP",anchor,"BOTTOM",0,0)
+    frame.text:SetFont("Fonts\\ARKai_T.TTF",height*0.6,"OUTLINE")
+  end
+  local str = ""
+  local datas = {strsplit("\n",self.boardData.text or "")}
+  for i,v in ipairs(datas) do
+    local data = {strsplit(" ",v)}
+    local line = " "
+    for j,s in ipairs(data) do
+      local ss = self:GetUnitString(s) or self:GetRaidTargetString(s)
+      if UnitName("player") == s then
+        ss = ss .. "|cffff0000(你)|r"
+      end
+      if j == 1 then
+        local key = boardK2S(s)
+        if key then
+          line = line..key
+        else
+          line = line.." "..(ss or s)
+        end
+      elseif j == #data or j == 2 then
+        line = line.." "..(ss or s)
+      else
+        if ss then
+          line = line.." "..ss
+        end
+      end
+    end
+    if i ~= 1 then
+      str = str .. "\n"
+    end
+    str = str.. line
+    -- print(line)
+  end
+  if trim(str) == "" then
+    frame:Hide()
+  else
+    frame.text:SetText(str)
+    frame:SetHeight(frame.text:GetNumLines()*height*0.8)
+    frame.text:SetSpacing(height*0.1)
+    frame:Show()
+  end
+end
+function Core:GetPlayerKeyFromBoardData(keyPre,unit)
+  local name = UnitName(unit or "player")
+  keyPre = keyPre or "g"
+  local datas = {strsplit("\n",self.boardData.text or "")}
+  for i,v in ipairs(datas) do
+    local data = {strsplit(" ",v)}
+    local ki
+    for j,s in ipairs(data) do
+      local ss = self:GetUnitString(s)
+      if ki and ss and name == s then
+        return ki
+      end
+      if j == 1 then
+        if strsub(s,1,1) == keyPre then
+          ki = tonumber(strsub(s,2))
+        end
+      end
+    end
+  end
+end
 -- furture damage
-
 function Core:SetFutureDamage(data)
   local now = GetTime()
   local key = data.key or getId()
@@ -1746,11 +2207,9 @@ function Core:SetFutureDamage(data)
     self.futureDamageDatas[key] = data
   end
 end
-
 function Core:ClearFutureDamage(key)
   self.futureDamageDatas[key] = nil
 end
-
 function Core:GetFutureDamage(guid,time)
   local damage = 0
   local now = GetTime()
@@ -1782,7 +2241,6 @@ function Core:GetFutureDamage(guid,time)
   end
   return damage
 end
-
 function Core:GetFutureDamageFrames(guid,time)
   local frames = {}
   local now = GetTime()
@@ -1802,7 +2260,6 @@ function Core:GetFutureDamageFrames(guid,time)
   sort(frames, function(a,b) return a.time < b.time end)
   return frames
 end
-
 function Core:GetDifficultyDamage(difficulty,mythic,heroic,normal,raidfinder)
   if difficulty == 16 then
     return mythic

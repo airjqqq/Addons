@@ -289,6 +289,7 @@ end
 local ignores = {
 	[91983] = true,
 	[92017] = true,
+	[91975] = true,
 }
 function mod:InteractUID(uid)
   if not self:HasHacked() then return end

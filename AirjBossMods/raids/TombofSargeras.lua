@@ -260,7 +260,7 @@ function R:OnEnable()
             Core:SetScreen(0.5,0,1)
             Core:SetTextT({text1 = "|cffff0000等待驱散: |cff00ffff{number}|r", text2 = "|cff00ff00驱散结束...|r",start = nil,expires = now+9})
             -- Core:SetVoice("runout")
-            Core:SetVoiceT({str="kuai4             jin4            nei4            chang5",time = now})
+            Core:SetVoiceT({str="deng3             dai4            qu1            san4",time = now})
             -- /run ABM:SetVoiceT({str="kuai4             jin4            nei4            chang5"})
             Core:SetPlayerAlpha({alpha = 0.5,start=now+0,removes=now+9})
             curableTime = now
@@ -658,10 +658,39 @@ function R:OnEnable()
   do --4     red arrow  | mythic buff | Silence Circle| need swap buff | week buff
     local bossmod = Core:NewBoss({encounterID = 2050})
     local aoeCnt = 0
+    local vulnHistory = {}
+    local function updateTimeLines(length)
+      local now = GetTime()
+      local space = length/8
+      local offset = -2
+      Core:SetTimeline({text = "满月 - "..(aoeCnt+1), expires = now+length, color = {0,1,1}})
+      local gi = Core:GetPlayerKeyFromBoardData()
+      for i=1,7 do
+        Core:SetTimeline({key = "swap"..i,text = "换区 - "..i, expires = now+space*i+offset, preshow = now+space*(i-1)+offset+2, start = now+space*(i-1)+offset, removes = now+space*(i+0)+offset+2, color = {0,0,1,0.6}})
+        if gi == i then
+          local name = GetSpellInfo(236330)
+          local timer
+          timer = Core:ScheduleRepeatingTimer(function()
+            if GetTime()>now+space*i+offset - 1 then
+              if not UnitDebuff("player",name) then
+                Core:SetVoiceT({file="changemoon"})
+                Core:SetScreen(1,1,0,0.3)
+                Core:CancelTimer(timer)
+              end
+            end
+          end,0.1)
+        elseif not gi then
+          for j = 1,3 do
+            Core:SetVoiceT({file="count\\"..i,time = now+space*i+offset+(j-2)*0.3})
+          end
+        end
+      end
+
+    end
     function bossmod:ENCOUNTER_START(event,encounterID, name, difficulty, size)
       local now = GetTime()
       aoeCnt = 0
-      Core:SetTimeline({text = "满月 - "..(aoeCnt+1), expires = now+48.3, color = {0,1,1}})
+      updateTimeLines(48.3)
       Core:SetFutureDamage({key="aoe"..":"..(aoeCnt+1),start=now+48.3,duration=12,damage=Core:GetDifficultyDamage(self.difficulty,600e4)})
 
       Core:RegisterAuraCooldown(236519,{color={0,1,1,0.2},radius=3}) -- moon burn
@@ -670,16 +699,21 @@ function R:OnEnable()
       Core:RegisterAuraCooldown(237561,{color={1,0,0,0.2},radius=5})  -- red arrow
       Core:RegisterAuraCooldown(236305,{color={0.5,0,1,0.2},radius=8})  -- purple line
 
-      Core:RegisterAuraBeam(237561,{width=2,color={1,0,0,0.3}})  -- red arrow
-      Core:RegisterAuraBeam(236305,{width=4,color={0.5,0,1,0.3}}) -- gathershare
+      Core:RegisterAuraBeam(237561,{width=2,color={1,0,0,0.1}})  -- red arrow
+      Core:RegisterAuraBeam(236305,{width=4,color={0.5,0,1,0.1}}) -- purple line
+      vulnHistory = {}
+      Core:SetInfo(vulnHistory)
     end
     local function aoe()
       local now = GetTime()
       aoeCnt = aoeCnt + 1
-      Core:SetTimeline({text = "满月 - "..(aoeCnt+1), expires = now+54.7, color = {0,1,1}})
+      updateTimeLines(54.7)
       Core:SetFutureDamage({key="aoe"..":"..(aoeCnt+0),start=now+0,duration=12,damage=Core:GetDifficultyDamage(self.difficulty,600e4)})
       Core:SetFutureDamage({key="aoe"..":"..(aoeCnt+1),start=now+54.7,duration=12,damage=Core:GetDifficultyDamage(self.difficulty,600e4)})
     end
+    local vulns = {}
+    local lastVulns = 0
+    local vulnCnt = 0
     function bossmod:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
       local now = GetTime()
 
@@ -689,7 +723,15 @@ function R:OnEnable()
             local _,count = ...
             count = count or 1
             Core:SetIconT({index = 10, texture = GetSpellTexture(spellId), duration = 2, size = 1, name = "", reverse = true, count = count})
-            -- moon burn
+          end
+        end
+      end
+      if (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_APPLIED_DOSE") then
+        if spellId == 234996 or spellId == 234995 then
+          if Core:GetPlayerGUID() == destGUID then
+            local _,count = ...
+            count = count or 1
+            Core:SetIconT({index = 3, texture = GetSpellTexture(spellId), duration = 0,removes = GetTime() + 30, count = count})
           end
         end
       end
@@ -698,40 +740,127 @@ function R:OnEnable()
           aoe()
           if Core:GetPlayerGUID() == destGUID then
             Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 6, size = 2, name = "紫线", reverse = true})
-            Core:SetVoiceT({str="zi3              xian4        dan1        chi1",time = now})
-            Core:SetVoiceT({file = "holdit", time = now + 3})
+            -- Core:SetVoiceT({file = "holdit", time = now + 3})
+            Core:SetVoiceT({str="zi5       xian4                 dian3         ni3"})
             Core:SetTextT({text1 = "|cff7f00ff紫线:|cff00ffff{number}|r",text2 = "|cff00ff00紫线结束|r", expires = now+6})
+            Core:SetScreen(0,0.5,1)
+            Core:SetPlayerAlpha({alpha = 0.5,start=now+0,removes=now+6})
+            for i = 0,3 do
+              Core:SetSay(""..i,now + 6 - i)
+            end
           end
         end
         if spellId == 236519 then
           if Core:GetPlayerGUID() == destGUID then
+            local _,count = ...
+            count = count or 1
+            Core:SetIconT({index = 13, texture = GetSpellTexture(spellId), duration = 30, size = 1, name = "", reverse = true})
             -- moon burn
           end
         end
         if spellId == 236550 then
-          -- tank debuff
+          if Core:GetPlayerGUID() == destGUID then
+            Core:SetIconT({index = 13, texture = GetSpellTexture(spellId), duration = 30, size = 1, name = "", reverse = true})
+            -- tank debuff
+          end
         end
         if spellId == 236712 then
-          -- p3 debuff
+          if Core:GetPlayerGUID() == destGUID then
+            Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 6, size = 2, name = "", reverse = true})
+            Core:SetVoiceT({file = "runout"})
+            Core:SetScreen(0.5,0,1)
+            for i = 0,3 do
+              Core:SetSay(""..i,now + 6 - i)
+            end
+            for i = 0,3 do
+              Core:SetSay(""..i,now + 10 - i)
+            end
+            -- p3 debuff
+          end
         end
         if spellId == 237561 then
-          -- red arrow
+          if Core:GetPlayerGUID() == destGUID then
+            Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 3, size = 2, name = "", reverse = true})
+            Core:SetVoiceT({str="fei1                 dao1          dian3         ni3"})
+            Core:SetScreen(1,0,0)
+            for i = 0,3 do
+              Core:SetSay(""..i,now + 3 - i)
+            end
+            Core:SetPlayerAlpha({alpha = 0.5,start=now+0,removes=now+3})
+            -- red arrow
+          end
+          Core:SetTimeline({text = "红箭头", expires = now+20, color = {1,0,0}, color2 = {0,1,0,1},removes = now+35,phase = bossmod.phase})
+        end
+      end
+      if event == "SPELL_AURA_REMOVED" then
+        if spellId == 236550 or spellId == 236519 then
+          if Core:GetPlayerGUID() == destGUID then
+            Core:ClearIcon(13)
+            -- tank debuff
+            -- moon burn
+          end
         end
       end
       if event == "SPELL_CAST_START" then
         if spellId == 239379 then
           aoe()
         end
+        if spellId == 236442 then
+
+          Core:ScanBossTarget(sourceGUID,function(unit,target)
+            local toGuid = UnitGUID(target)
+            Core:CreateCooldown({guid = toGuid, spellId = spellId,
+            radius = 8, duration = 3, color = {1,1,0}, alpha = 0.2})
+            if UnitIsUnit(target,"player") then
+              Core:SetIconT({index = 1, texture = GetSpellTexture(spellId), duration = 3, size = 2, name = "箭雨", reverse = true})
+              Core:SetScreen(0.5,0,1)
+              Core:SetTextT({text1 = "|cffff0000箭雨点你: |cff00ffff{number}|r", text2 = "|cff00ff00箭雨结束|r",start = nil,expires = now+4})
+              Core:SetVoiceT({str="jian4            yu3        dian3         ni3"})
+              for i = 0,3 do
+                Core:SetSay(""..i,now + 3 - i)
+              end
+              Core:SetPlayerAlpha({alpha = 0.5,start=now+0,removes=now+3})
+            end
+          end)
+        end
       end
       if event == "SPELL_CAST_SUCCESS" then
+        if spellId == 236442 then
+          Core:SetTimeline({text = "箭雨", expires = now+20, color = {1,1,0}, color2 = {0,1,0,1},removes = now+35,phase = bossmod.phase})
+        end
         if spellId == 233263 then
           aoe()
+        end
+        if spellId == 236330 or spellId == 200829 then
+          local last = vulns[sourceGUID] or 0
+          if now-last > 0.05 then
+            local unit = Core:FindHelpUnitByGuid(sourceGUID)
+            local interval = now-lastVulns
+            if interval < 2 then
+              vulnCnt = vulnCnt + 1
+            else
+              vulnCnt = 0
+            end
+            local color = interval<2 and "|cffff0000" or "|cff00ff00"
+            tinsert(vulnHistory,1,{left=Core:GetUnitString(unit),right=interval< 100 and ("["..vulnCnt.."] "..color..Core:GetTimeString(interval).."|r")})
+            vulnHistory[9] = nil
+            Core:NotifyInfoChanged()
+            vulns[sourceGUID] = now
+            lastVulns = now
+            if Core:GetPlayerGUID() == sourceGUID then
+              Core:SetScreen(0,1,0)
+              Core:SetVoiceT({file = "safenow"})
+            end
+          end
         end
       end
     end
     function bossmod:UNIT_SPELLCAST_SUCCEEDED(aceEvent, uId, spellName, _, spellGUID)
     	local spellId = tonumber(select(5, strsplit("-", spellGUID)), 10)
       local now = GetTime()
+      if spellId == 235268 then
+        bossmod.phase = bossmod.phase + 1
+      end
     end
     function bossmod:CHAT_MSG_RAID_BOSS_EMOTE(event, msg, sender, _, _, target)
       local now = GetTime()

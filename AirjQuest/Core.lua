@@ -26,6 +26,14 @@ function Core:OnEnable()
   -- self:RegisterEvent("UNIT_QUEST_LOG_CHANGED")
   -- self:RegisterEvent("QUEST_WATCH_OBJECTIVES_CHANGED")
 	self:RegisterComm("AIRJQUEST_COMM")
+  self:RegisterChatCommand("aqt", function(str)
+    local data = GetMouseFocus().taxiNodeData
+    if data then
+      local data = {object="AirjQuest",method="TakeTaxiByNoteId",args={data.nodeID}}
+      dump(data)
+      self:SetComm(data)
+    end
+  end)
   self:RegisterChatCommand("aqc", function(str)
     local name = GetMouseFocus():GetName()
     if name then
@@ -48,6 +56,16 @@ function Core:OnEnable()
   self:RegisterChatCommand("aqsellall", function(str)
     self:SellAllItem()
   end)
+end
+
+function Core:TakeTaxiByNoteId(id)
+  local nodes = GetAllTaxiNodes()
+  for k,v in pairs(nodes) do
+    if v.nodeID == id then
+      TakeTaxiNode(k)
+      return
+    end
+  end
 end
 
 
