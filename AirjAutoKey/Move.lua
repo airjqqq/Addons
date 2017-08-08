@@ -6,6 +6,8 @@ local stopName={"MoveForwardStop","MoveBackwardStop","StrafeLeftStop","StrafeRig
 AirjMove = M
 local stopAllMoves = {0,0,0,0,0,0,0,0,0,0}
 
+local turning
+
 function M:OnInitialize()
 	self.ignores = setmetatable({},{__index = function(t,k) t[k] = {} return t[k] end})
 	self.goto = {}
@@ -104,17 +106,24 @@ function M:OnInitialize()
 		local args = {strsplit(" ",str)}
 		if args[1] and args[1] ~= "" then
 			local unit = args[1]
-			local x,y = GetPlayerMapPosition(unit)
-			-- print(x,y)
-			if x and x>0 then
-		    local mapId = GetCurrentMapAreaID()
-		    local _,_,_,l,r,t,b = GetAreaMapInfo(mapId)
-		    l = -l
-		    r = -r
-		    local px = l+(r-l)*x
-		    local py = t-(t-b)*y
+			-- local x,y = GetPlayerMapPosition(unit)
+			-- -- print(x,y)
+			-- if x and x>0 then
+		  --   local mapId = GetCurrentMapAreaID()
+		  --   local _,_,_,l,r,t,b = GetAreaMapInfo(mapId)
+		  --   l = -l
+		  --   r = -r
+		  --   local px = l+(r-l)*x
+		  --   local py = t-(t-b)*y
+			-- 	local z = select(3,self:GetPlayPosition())
+			-- 	print(px,py)
+		  --   AirjMove:MoveTo({px,py,z})
+			-- end
+			local y,x = UnitPosition(unit)
+			if x then
+				x = -x
 				local z = select(3,self:GetPlayPosition())
-		    AirjMove:MoveTo({px,py,z})
+		    AirjMove:MoveTo({x,y,z})
 			end
 		end
 	end)
@@ -254,6 +263,9 @@ function M:MoveTimer()
 	if self.gifting then
 		return
 	end
+	if turning then
+		return
+	end
 	if self:IsHardMoving() then
 		if self.goto.targetType or self.goto.facingType or self.goto.templateTime then
 			self:MoveAsHard()
@@ -309,8 +321,10 @@ function M:MoveTimer()
 						if ox and oy then
 							local a = f
 							local sin,cos = math.sin,math.cos
-							x = x + ox*cos(a) - oy*sin(a)
-							y = y + oy*cos(a) + ox*sin(a)
+							if a then
+								x = x + ox*cos(a) - oy*sin(a)
+								y = y + oy*cos(a) + ox*sin(a)
+							end
 						end
 					end
 				end
@@ -1487,7 +1501,6 @@ function M:GoToAreaTriggers(ids,maxDistance)
 	end
 	return distance
 end
-local turning
 
 function M:TurnAndCast(spellId,prejump,delay)
 	if not AirjHack:HasHacked() then
@@ -1580,7 +1593,105 @@ function M:TurnAndCast(spellId,prejump,delay)
 		end
 	end
 end
+function M:TurnToCast(spellId,unit,offset,prejump,delay)
+	if not AirjHack:HasHacked() then
+		return
+	end
+	local spellName = GetSpellInfo(spellId)
+	local rerc,relc
+	if not spellName then return end
+	if not turning and (GetSpellCooldown(spellName) == 0 or 1) then
+		local f = GetPlayerFacing()
+		local fx,fy,fz = AirjHack:Position(UnitGUID(unit))
+		if not fx then
+			return
+		end
+		local fu = self:GetAngle(fx,fy,fz)
+		local f2 = (f + (fu+offset)/180*math.pi)%(2*math.pi)
+ 		local d = not (self.leftDown==1 or self.rightDown==1)
+ 		local d = true
+ 		local ld = self.leftDown==1
+ 		local rd = self.rightDown==1
+		local i = 0
+		local timer
+		delay = delay or 0.2
+		delay = math.floor(delay*100)
+		delay = math.max(delay,15)
+		local turn = function()
+			if i == 0 then
+				if d then FlipCameraYaw(fu+offset) end
+				if ld then
+					CameraOrSelectOrMoveStop()
+				end
+				if rd then
+					TurnOrActionStop()
+					-- CameraOrSelectOrMoveStart()
+					-- print("r->l start")
+					rerc = true
+				end
+			end
+			if i<10 then
+				AirjHack:SetFacing(f2)
+			else
+				AirjHack:SetFacing(f)
+			end
+			if i == 10 then
+				RunMacroText("/cast "..spellName)
+			end
+			if i == 10 then
+				if d then
+					FlipCameraYaw(360-(fu+offset))
+				end
+			end
+			if i == delay then
+				-- print("done")
+				turning = nil
+				if rerc then
+					-- CameraOrSelectOrMoveStop()
+					TurnOrActionStart()
+					-- print("r->l stop")
+				end
+				if relc then
+					CameraOrSelectOrMoveStart()
+				end
+				self:MoveAsHard()
+				if prejump then
+					AscendStop()
+				end
+				self:CancelTimer(timer)
+			end
+			if i>2 and i<delay-2 then
 
+				if self.leftDown == 1 then
+					CameraOrSelectOrMoveStop()
+					relc = true
+				end
+				if self.rightDown ==1 then
+					TurnOrActionStop()
+					rerc = true
+					-- CameraOrSelectOrMoveStart()
+				end
+				if i%2==0 then
+					self:Move(5,1)
+					self:Move(6,0)
+				else
+					self:Move(5,0)
+					self:Move(6,1)
+				end
+				-- if self.rightDown ==1 then
+				-- 	CameraOrSelectOrMoveStop()
+				-- 	TurnOrActionStart()
+				-- end
+			end
+			i = i + 1
+		end
+		timer = self:ScheduleRepeatingTimer(turn,0.01)
+			if prejump then
+				JumpOrAscendStart()
+			end
+		turning = 1
+	end
+end
 function M:GreenCast(...)
 	local ld = self.leftDown==1
 	local rd = self.rightDown==1

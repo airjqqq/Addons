@@ -1148,3 +1148,7 @@ function Core:StopIfNot(name)
     AirjHack:RunMacroText("/stopcasting")
   end
 end
+
+function Core:Auto(auto)
+  Core:SetParam("auto",auto and 1 or 0)
+end

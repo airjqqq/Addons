@@ -1,0 +1,16 @@
+------------------------------------------------------------------------
+r73 | galmok | 2016-08-28 14:59:32 +0000 (Sun, 28 Aug 2016) | 1 line
+Changed paths:
+   A /tags/r73-release (from /trunk:72)
+
+Tagging as r73-release
+------------------------------------------------------------------------
+r72 | galmok | 2016-08-28 14:36:27 +0000 (Sun, 28 Aug 2016) | 4 lines
+Changed paths:
+   M /trunk/LibCompress.lua
+
+Fixed: Symbol map decoding in Huffman was malfunctioning when the symbol length became too long.
+Added: huffman compression has received a number of checks for overflows. Remember to check for (nil,msg) compression result!
+Added: Store compression added to make a simple uncompressed string in case compression fails. Is basically the original string with a prefix byte.
+
+------------------------------------------------------------------------

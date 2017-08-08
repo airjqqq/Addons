@@ -56,6 +56,11 @@ function Core:OnEnable()
   self:RegisterChatCommand("aqsellall", function(str)
     self:SellAllItem()
   end)
+  self:RegisterChatCommand("aqaball", function(str)
+    self:AbandonAllQuest()
+  end)
+
+  RepopMe()
 end
 
 function Core:TakeTaxiByNoteId(id)
@@ -67,8 +72,21 @@ function Core:TakeTaxiByNoteId(id)
     end
   end
 end
-
-
+function Core:AbandonAllQuest()
+  local timer
+  local i = 30
+  timer = self:ScheduleRepeatingTimer(function()
+    SelectQuestLogEntry(i)
+    SetAbandonQuest()
+    AbandonQuest()
+    -- dump(GetNumQuestLogEntries())
+    i = i - 1
+    if i == 0 then
+      self:CancelTimer(timer)
+    end
+  end,0.1)
+  -- GetNumQuestLogEntries()
+end
 function Core:SellAllItem()
 
   -- Variables

@@ -24,6 +24,27 @@ function Core:OnInitialize()
     end
     self:OnChatCommmand(key,value,subString)
   end)
+  self:RegisterChatCommand("avrt", function(str)
+		local guids = AirjHack:GetObjects()
+		local duration = tonumber(str) or 15
+		for guid,type in pairs(guids) do
+	    local objectType,serverId,instanceId,zone,cid,spawn = self:GetGUIDInfo(guid)
+			local key = "Create - Cooldown - " .. guid
+			self:RemoveCreatedMeshByKey(key)
+			if duration > 0 then
+				local id = self:CreateCooldown({
+					guid = guid,
+					radius = 3,
+					duration = duration,
+					color = {0,1,0},
+					alpha = 0.1,
+					text = guid,
+				})
+				self.registerCreateMeshs[key] = id
+			end
+			-- print(guid)
+		end
+  end)
 end
 
 function Core:OnEnable()

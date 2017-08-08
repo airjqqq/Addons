@@ -29,6 +29,7 @@ end
 
 local buttons = {}
 function mod:WorldFrameButton(button,state)
+	if not button then return end
 	if state == 1 then
 		buttons[button] = true
 	else
@@ -135,7 +136,7 @@ function mod:UnitHealth(guid)
 	if max and max < 0 then
 		max = max + 2^32
 	end
-  return health, max, prediction, absorb, healAbsorb, isdead
+  return health, max, prediction, absorb, healAbsorb, isdead~=0
 end
 
 function mod:GetPitch()
@@ -210,7 +211,12 @@ function mod:GreenCast(spell,unit,maxrange,minrange,delta)
 	delta = delta or 0
 	local dx,dy,dz = tx-x,ty-y,tz-z
 	local d = sqrt(dx*dx+dy*dy+dz*dz)
-	local a,b,c = dx/d,dy/d,dz/d
+	local a,b,c
+	if d>0 then
+		a,b,c = dx/d,dy/d,dz/d
+	else
+		a,b,c = 0,0,0
+	end
 	local m = (d-ts+delta)
 	maxrange = maxrange or select(6,GetSpellInfo(spell)) or 35
 	if minrange then
@@ -219,6 +225,7 @@ function mod:GreenCast(spell,unit,maxrange,minrange,delta)
 	m = math.min(m,maxrange-0.5)
 	x,y,z = x+m*a,y+m*b,z+m*c
 	self:RunMacroText("/cast "..spellName)
+	print(x,y,z)
 	AirjHack:TerrainClick(x,y,z)
 	self:RunMacroText("/cancelspelltarget")
 end
@@ -241,7 +248,12 @@ function mod:GreenCast2(spell,unit,maxrange,minrange)
 	local x,y,z = AirjHack:Position(UnitGUID("player"))
 	local dx,dy,dz = tx-x,ty-y,tz-z
 	local d = sqrt(dx*dx+dy*dy+dz*dz)
-	local a,b,c = dx/d,dy/d,dz/d
+	local a,b,c
+	if d>0 then
+		a,b,c = dx/d,dy/d,dz/d
+	else
+		a,b,c = 0,0,0
+	end
 	local m = (d-ts)/2
 	maxrange = maxrange or select(6,GetSpellInfo(spell)) or 35
 	if minrange then
@@ -298,7 +310,7 @@ function mod:InteractUID(uid)
 	local playerGUID = UnitGUID("player")
 	for guid,t in pairs(guids) do
 		local ot,_,_,_,oid = self:GetGUIDInfo(guid)
-		if ot == "Creature" or ot == "GameObject" then
+		if ot == "Creature" or ot == "GameObject" or ot == "Vehicle" then
 		-- print(oid)
 			local interact
 			if not uid and not self:UnitCanAttack(playerGUID,guid) and not ignores[oid] then

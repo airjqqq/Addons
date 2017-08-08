@@ -8,4 +8,13 @@
 
 AirjBossMods.lua
 raids/TombofSargeras.lua
+raids/tombofSargeras/1.lua
+raids/tombofSargeras/2.lua
+raids/tombofSargeras/3.lua
+raids/tombofSargeras/4.lua
+raids/tombofSargeras/5.lua
+raids/tombofSargeras/6.lua
+raids/tombofSargeras/7.lua
+raids/tombofSargeras/8.lua
+raids/tombofSargeras/9.lua
 raids/TestBossMod.lua

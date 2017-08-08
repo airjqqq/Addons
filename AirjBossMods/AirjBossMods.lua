@@ -5,6 +5,8 @@ local Util = AirjUtil
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 local AceDBOptions = LibStub("AceDBOptions-3.0")
+local methods = getmetatable(CreateFrame("Cooldown", nil, nil, "CooldownFrameTemplate")).__index
+local Cooldown_SetCooldown = methods.SetCooldown
 ABM = Core
 local db
 
@@ -561,7 +563,7 @@ function Core:OnInitialize()
   db.boardData = db.boardData or {}
   self.boardData = db.boardData
   self:NotifyBoardChanged()
-  self:ScheduleTimer(self.NotifyBoardChanged,2,self)
+  self:ScheduleTimer(self.NotifyBoardChanged,5,self)
 
   AceConfigRegistry:RegisterOptionsTable(addonsname, options)
   AceConfigDialog:AddToBlizOptions(addonsname)
@@ -762,8 +764,8 @@ function Core:OnEnable()
       if editor then
         local text = editor:GetText()
         local insert = ""
-        if trim(text) ~= "" then
-          insert = insert .. ","
+        if string.trim(text) ~= "" then
+          insert = insert .. " "
         end
         insert = insert..frame.name
         -- editor:SetText(text)
@@ -817,7 +819,7 @@ function Core:StartPull(time)
 end
 --utils
 function Core:SendComm(data,target)
-  self:SendCommMessage("AIRJ_BM_COMM",self:Serialize(data),target and "WHISPER" or IsInRaid() and "RAID" or "PARTY",target,"ALERT")
+  self:SendCommMessage("AIRJ_BM_COMM",self:Serialize(data),target and "WHISPER" or IsInRaid() and "RAID" or IsInGroup() and "PARTY" or "GUILD",target,"ALERT")
 end
 function Core:OnCommReceived(prefix,message,channel,sender)
 	local match, data = self:Deserialize(message)
@@ -1323,7 +1325,8 @@ function Core:UpdateIcons()
           if v.duration ==0 and v.reverse then
             icon.castIconCooldown:Hide()
           else
-            icon.castIconCooldown:SetCooldown(v.expires - v.duration, v.duration)
+            -- icon.castIconCooldown:SetCooldown(v.expires - v.duration, v.duration)
+            Cooldown_SetCooldown(icon.castIconCooldown,v.expires - v.duration, v.duration)
             icon.castIconCooldown:SetReverse(v.reverse)
             icon.castIconCooldown:Show()
           end
@@ -2006,7 +2009,7 @@ function Core:UpdateInfo()
       local fontstring
 
       fontstring = row:CreateFontString(nil,"OVERLAY","GameFontHighlight")
-      fontstring:SetFont("Fonts\\ARKai_T.TTF",72,"MONOCHROME")
+      fontstring:SetFont("Fonts\\ARKai_C.TTF",72,"MONOCHROME")
     	fontstring:SetAllPoints()
       fontstring:SetJustifyH("LEFT")
       row.left = fontstring
@@ -2023,7 +2026,7 @@ function Core:UpdateInfo()
     if resized or not row:IsShown() then
       row:SetSize(width,height)
       row:SetPoint("TOP",anchor,"BOTTOM",0,-(i-1)*height)
-      row.left:SetFont("Fonts\\ARKai_T.TTF",height*0.7,"OUTLINE")
+      row.left:SetFont("Fonts\\ARKai_C.TTF",height*0.7,"OUTLINE")
       row.right:SetFont("Fonts\\ARKai_C.TTF",height*0.7,"OUTLINE")
     end
 
@@ -2119,7 +2122,7 @@ function Core:UpdateBoard()
     texture:SetColorTexture(0,0,0,0.8)
     local fontstring
     fontstring = frame:CreateFontString(nil,"OVERLAY","GameFontHighlight")
-    fontstring:SetFont("Fonts\\ARKai_T.TTF",72,"MONOCHROME")
+    fontstring:SetFont("Fonts\\ARKai_C.TTF",72,"MONOCHROME")
   	fontstring:SetAllPoints()
     fontstring:SetJustifyH("LEFT")
     fontstring:SetWordWrap(true)
@@ -2130,7 +2133,7 @@ function Core:UpdateBoard()
   if resized or justSetUp then
     frame:SetWidth(width)
     frame:SetPoint("TOP",anchor,"BOTTOM",0,0)
-    frame.text:SetFont("Fonts\\ARKai_T.TTF",height*0.6,"OUTLINE")
+    frame.text:SetFont("Fonts\\ARKai_C.TTF",height*0.6,"OUTLINE")
   end
   local str = ""
   local datas = {strsplit("\n",self.boardData.text or "")}
@@ -2139,7 +2142,7 @@ function Core:UpdateBoard()
     local line = " "
     for j,s in ipairs(data) do
       local ss = self:GetUnitString(s) or self:GetRaidTargetString(s)
-      if UnitName("player") == s then
+      if ss and UnitName("player") == s then
         ss = ss .. "|cffff0000(你)|r"
       end
       if j == 1 then
@@ -2163,7 +2166,7 @@ function Core:UpdateBoard()
     str = str.. line
     -- print(line)
   end
-  if trim(str) == "" then
+  if string.trim(str) == "" then
     frame:Hide()
   else
     frame.text:SetText(str)
@@ -2270,4 +2273,17 @@ function Core:GetDifficultyDamage(difficulty,mythic,heroic,normal,raidfinder)
   else
     return heroic or mythic and mythic*0.75
   end
+end
+
+
+do
+	local prev = 0
+	function Core:GroundEffectDamage(spellId)
+		local now = GetTime()
+		if now-prev > 1.5 then
+			prev = now
+      Core:SetVoice("runaway")
+      Core:SetTextT({text1="|cffff0000快躲开|r",expires = now+0.5,removes = now+0.5})
+		end
+	end
 end

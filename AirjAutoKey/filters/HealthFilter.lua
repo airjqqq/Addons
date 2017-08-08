@@ -139,6 +139,7 @@ function F:HEALTH(filter)
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+  -- print(health, max, prediction, absorb, healAbsorb, isdead)
   -- if health and health < 0 then
   --   health = 2^32+health
   -- end
@@ -623,13 +624,18 @@ function F:BOSSMANA(filter)
   local bossguid = UnitGUID(filter.unit)
   local bosshealth,powerPercent
   if bossguid then
-    local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(bossguid)
+    -- local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(bossguid)
+    local health = Cache:Call("UnitHealth",filter.unit,SPELL_POWER_MANA)
+    local max = Cache:Call("UnitHealthMax",filter.unit,SPELL_POWER_MANA)
     bosshealth = health/max
   end
   if power then
     powerPercent = power/maxPower
   end
   if bosshealth and powerPercent then
+    if filter.note then
+      -- print(powerPercent,bosshealth)
+    end
     return powerPercent - bosshealth
   end
   return true
