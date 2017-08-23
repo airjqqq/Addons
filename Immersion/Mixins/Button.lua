@@ -32,6 +32,10 @@ function Button:OnDragStart(button)
 	end
 end
 
+function Button:OnMouseWheel(delta)
+	self.Container:OnScroll(delta)
+end
+
 function Button:OnDragStop()
 	self.Container:StopMoving()
 end

@@ -1614,6 +1614,10 @@
 				instancia = self
 			end
 			
+			if (not forcar) then
+				_detalhes.LastUpdateTick = _detalhes._tempo
+			end
+			
 			if (instancia == -1) then
 	
 				--> update

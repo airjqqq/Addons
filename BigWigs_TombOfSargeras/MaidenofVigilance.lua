@@ -42,6 +42,11 @@ if L then
 	L.light = "Light"
 	L.felHammer = "Fel Hammer" -- Better name for "Hammer of Obliteration"
 	L.lightHammer = "Light Hammer" -- Better name for "Hammer of Creation"
+	L.absorb = "Absorb"
+	L.absorb_text = "%s (|cff%s%.0f%%|r)"
+	L.cast = "Cast"
+	L.cast_text = "%.1fs (|cff%s%.0f%%|r)"
+	L.stacks = "Stacks"
 end
 --------------------------------------------------------------------------------
 -- Initialization
@@ -59,7 +64,7 @@ function mod:GetOptions()
 		238408, -- Fel Remanence
 		235267, -- Mass Instability
 		248812, -- Blowback
-		235028, -- Titanic Bulwark
+		{235028, "INFOBOX"}, -- Titanic Bulwark
 		234891, -- Wrath of the Creators
 		239153, -- Spontaneous Fragmentation
 	},{
@@ -74,6 +79,7 @@ function mod:OnBossEnable()
 	-- General
 	self:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", nil, "boss1")
 	self:Log("SPELL_AURA_APPLIED", "UnstableSoul", 243276, 240209, 235117) -- Mythic, LFR, Normal/Heroic
+	self:Log("SPELL_AURA_REFRESH", "UnstableSoul", 243276, 240209, 235117) -- Mythic, LFR, Normal/Heroic
 	self:Log("SPELL_AURA_REMOVED", "UnstableSoulRemoved", 243276, 240209, 235117) -- Mythic, LFR, Normal/Heroic
 	self:Log("SPELL_AURA_APPLIED", "AegwynnsWardApplied", 241593, 236420) -- Heroic, Normal/LFR
 	self:Log("SPELL_AURA_APPLIED", "GroundEffectDamage", 238028, 238408) -- Light Remanence, Fel Remanence
@@ -127,7 +133,9 @@ function mod:OnEngage()
 	if self:Mythic() then
 		self:Bar(239153, 8, CL.count:format(self:SpellName(230932), orbCounter))
 	end
-	self:Berserk(480)
+	if not self:LFR() then
+		self:Berserk(480)
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -153,10 +161,20 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(_, spellName, _, _, spellId)
 	end
 end
 
-function mod:UnstableSoul(args)
-	if self:Me(args.destGUID) then
-		self:TargetMessage(235117, args.destName, "Personal", "Alarm")
-		self:TargetBar(235117, 8, args.destName)
+do
+	local prev = 0
+	function mod:UnstableSoul(args)
+		if self:Me(args.destGUID) then
+			local t = GetTime()
+			if t-prev > 1.5 then
+				prev = t
+				self:TargetMessage(235117, args.destName, "Personal", "Alarm")
+			end
+			-- Duration can be longer if the debuff gets refreshed
+			local _, _, _, _, _, _, expires = UnitDebuff(args.destName, args.spellName)
+			local remaining = expires-GetTime()
+			self:TargetBar(235117, remaining, args.destName)
+		end
 	end
 end
 
@@ -267,12 +285,55 @@ function mod:Blowback(args)
 	self:Message(args.spellId, "Important", "Warning")
 end
 
-function mod:TitanicBulwarkApplied()
-	wrathStacks = 0
-end
+do
+	local timer, castOver, maxAbsorb = nil, 0, 0
+	local red, yellow, green = {.6, 0, 0, .6}, {.7, .5, 0}, {0, .5, 0}
 
-function mod:TitanicBulwarkRemoved(args)
-	self:Message(args.spellId, "Positive", "Info", CL.removed:format(args.spellName))
+	local function updateInfoBox(self, spellId)
+		local castTimeLeft = castOver - GetTime()
+		local castPercentage = castTimeLeft / 50
+		local absorb = UnitGetTotalAbsorbs("boss1")
+		local absorbPercentage = absorb / maxAbsorb
+
+		local diff = castPercentage - absorbPercentage
+		local hexColor = "ff0000"
+		local rgbColor = red
+		if diff > 0.1 then -- over 10%
+			hexColor = "00ff00"
+			rgbColor = green
+		elseif diff > 0  then -- below 10%, so it's still close
+			hexColor = "ffff00"
+			rgbColor = yellow
+		end
+
+		self:SetInfoBar(spellId, 1, absorbPercentage, unpack(rgbColor))
+		self:SetInfo(spellId, 2, L.absorb_text:format(self:AbbreviateNumber(absorb), hexColor, absorbPercentage * 100))
+		self:SetInfoBar(spellId, 3, castPercentage)
+		self:SetInfo(spellId, 4, L.cast_text:format(castTimeLeft, hexColor, castPercentage * 100))
+		self:SetInfo(spellId, 6, ("%d/30"):format(wrathStacks))
+	end
+
+	function mod:TitanicBulwarkApplied(args)
+		wrathStacks = 0
+		if self:CheckOption(args.spellId, "INFOBOX") then
+			self:OpenInfo(args.spellId, args.spellName)
+			self:SetInfo(args.spellId, 1, L.absorb)
+			self:SetInfo(args.spellId, 3, L.cast)
+			self:SetInfo(args.spellId, 5, L.stacks)
+			castOver = GetTime() + 50 -- Time to 30 stacks
+			maxAbsorb = UnitGetTotalAbsorbs("boss1")
+			timer = self:ScheduleRepeatingTimer(updateInfoBox, 0.1, self, args.spellId)
+		end
+	end
+
+	function mod:TitanicBulwarkRemoved(args)
+		self:Message(args.spellId, "Positive", "Info", CL.removed:format(args.spellName))
+		self:CloseInfo(args.spellId)
+		if timer then
+			self:CancelTimer(timer)
+			timer = nil
+		end
+	end
 end
 
 function mod:WrathoftheCreators(args)

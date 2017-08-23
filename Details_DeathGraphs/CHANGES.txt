@@ -1,7 +1,7 @@
-changeset:   62:5d95cf5b0237
-tag:         v62-release
+changeset:   64:52837534af1e
+tag:         v64-release
 user:        Tercio
-date:        Tue Jul 25 14:20:35 2017 -0300
-summary:     - added all options panel string to be localized.
+date:        Fri Aug 11 16:21:06 2017 -0300
+summary:     - major revamp on the death log for current encounter.
 
 

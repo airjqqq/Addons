@@ -397,7 +397,7 @@ function mod:NewRotation(rotation,index)
 	elseif index == AirjAutoKey:GetParam("selectedRotationIndex") then
 		AirjAutoKey:SelectRotation(AirjAutoKey:GetParam("selectedRotationIndex") + 1)
 	end
-	AirjAutoKey:SelectRotation(self.currentRotationIndex)
+	AirjAutoKey:SetEditingRotation(self.currentRotationIndex)
 	self:UpdateRotationTreeGroup()
 end
 

@@ -1,0 +1,18 @@
+tag a472d28dd88aab59e7f47385487761e98b1d1cbe v5.12.13
+Author:	iceeagle <ciprianmihai.coman@gmail.com>
+Date:	Sat Jul 15 13:33:04 2017 +0300
+
+release v5.12.13
+
+commit 65bb14855b983f8e7c6439ee8a2617467cbfe291
+Author: iceeagle <ciprianmihai.coman@gmail.com>
+Date:   Sat Jul 15 13:32:36 2017 +0300
+
+    bump toc
+
+commit 9ed3f7ef879fafdfb44c2260749452894290b58d
+Author: iceeagle <ciprianmihai.coman@gmail.com>
+Date:   Sat Jul 15 13:01:08 2017 +0300
+
+    add tier 20 tokens
+

@@ -178,7 +178,7 @@ function mod:OnCommReceived(prefix,data,channel,sender)
 			self:RotationSelect()
 			local child = self.modChildren["RotationSelect"]
 			child.currentRotationIndex = child.currentRotationIndex + 1
-			child:NewRotation(data)
+			child:NewRotation(data,1)
 			group:Hide()
 		end)
 		button:SetWidth(100)

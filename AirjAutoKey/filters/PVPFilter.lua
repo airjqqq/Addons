@@ -613,12 +613,14 @@ local defensiveBuffs = {
   [116849] = {0.5,90,1,1},
   --
   [6940] = {0.3,90,1,1},
+  [199448] = {1,90,1,1},
   [1022] = {1,150,1,0},
   [498] = {0.2,60,1,1},
   [31821] = {0.2,180,1,1},
   [205191] = {0.35,180,1,0},
   [86659] = {0.5,300,1,1},
   [204018] = {0.5,180,0,1},
+  [228049] = {1,180,1,1},
   --
   [33206] = {0.4,210,1,1},
   [62618] = {0.25,180,1,1},
@@ -629,6 +631,7 @@ local defensiveBuffs = {
   [47585] = {0.7,80,1,1},
   --
   [31224] = {1,80,0,1},
+  [5277] = {1,80,1,0},
   --
   [108271] = {0.4,90,1,1},
   [198838] = {0.2,60,1,1},
@@ -919,9 +922,9 @@ function F:PVPDR(filter)
   if not guid then return false end
   local datas = drtimes[filter.subtype]
   local data = datas[guid]
-  if not data then return 0 end
+  if not data then return -10 end
   local value = data.t-GetTime()
-  return math.max(value,0)
+  return math.max(value,-10)
 end
 
 function F:PVPDRCOUNT(filter)

@@ -1,0 +1,25 @@
+------------------------------------------------------------------------
+r104 | nevcairiel | 2016-09-07 13:14:53 +0000 (Wed, 07 Sep 2016) | 1 line
+Changed paths:
+   A /tags/v1.10 (from /trunk:103)
+
+Tagging as v1.10
+------------------------------------------------------------------------
+r103 | nevcairiel | 2016-09-07 13:14:21 +0000 (Wed, 07 Sep 2016) | 1 line
+Changed paths:
+   M /trunk/GatherMate_Sharing.toc
+
+GatherMate_Sharing: ToC for 7.0
+------------------------------------------------------------------------
+r102 | nevcairiel | 2016-09-07 13:14:07 +0000 (Wed, 07 Sep 2016) | 1 line
+Changed paths:
+   M /trunk/GatherMate_Sharing.lua
+
+GatherMate_Sharing: Tweak some option layout
+------------------------------------------------------------------------
+r101 | nevcairiel | 2015-08-16 11:58:39 +0000 (Sun, 16 Aug 2015) | 1 line
+Changed paths:
+   M /trunk/GatherMate_Sharing.lua
+
+GatherMate_Sharing: remove unused localized zone name
+------------------------------------------------------------------------

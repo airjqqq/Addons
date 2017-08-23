@@ -1739,7 +1739,7 @@ L["STRING_PLUGINOPTIONS_TEXTSTYLE"] = "Estilo de fuente"
 --Translation missing 
 -- L["STRING_QUERY_INSPECT_FAIL1"] = ""
 --Translation missing 
--- L["STRING_QUERY_INSPECT_TALENTS"] = ""
+-- L["STRING_QUERY_INSPECT_REFRESH"] = ""
 --Translation missing 
 -- L["STRING_RAID_WIDE"] = ""
 --Translation missing 

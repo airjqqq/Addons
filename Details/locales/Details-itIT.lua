@@ -2267,7 +2267,7 @@ L["STRING_MINITUTORIAL_OPTIONS_PANEL6"] = "Selezionare qui che finestra che si d
 --Translation missing 
 -- L["STRING_QUERY_INSPECT_FAIL1"] = ""
 --Translation missing 
--- L["STRING_QUERY_INSPECT_TALENTS"] = ""
+-- L["STRING_QUERY_INSPECT_REFRESH"] = ""
 --Translation missing 
 -- L["STRING_RAID_WIDE"] = ""
 --Translation missing 

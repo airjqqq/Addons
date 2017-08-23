@@ -1254,6 +1254,20 @@ function boss:SetInfoTitle(key, title)
 	end
 end
 
+--- Show a background bar in an already open "Info Box".
+-- @param key the option key to check
+-- @number line the line to update, 1-10
+-- @number percentage width of the bar between 0 and 1
+-- @number[opt] r red part of rgb, 0-1
+-- @number[opt] g green part of rgb, 0-1
+-- @number[opt] b blue part of rgb, 0-1
+-- @number[opt] a alpha, 0-1
+function boss:SetInfoBar(key, line, percentage, r, g, b, a)
+	if checkFlag(self, key, C.INFOBOX) then
+		self:SendMessage("BigWigs_SetInfoBoxBar", self, line, percentage, r, g, b, a)
+	end
+end
+
 --- Open the "Info Box" display.
 -- @param key the option key to check
 -- @string title the title of the window
@@ -1840,6 +1854,35 @@ do
 					msg = msg .."^".. extra
 				end
 				SendAddonMessage("BigWigs", msg, IsInGroup(2) and "INSTANCE_CHAT" or "RAID")
+			end
+		end
+	end
+end
+
+do
+	local l = GetLocale()
+	if l == "zhCN" or l == "zhTW" or l == "koKR" then
+		function boss:AbbreviateNumber(amount)
+			if amount >= 100000000 then -- 100,000,000
+				return format(L.amount_one, amount/100000000)
+			elseif amount >= 10000 then -- 10,000
+				return format(L.amount_two, amount/10000)
+			elseif amount >= 1000 then -- 1,000
+				return format(L.amount_three, amount/1000)
+			else
+				return format("%d", amount)
+			end
+		end
+	else
+		function boss:AbbreviateNumber(amount)
+			if amount >= 1000000000 then -- 1,000,000,000
+				return format(L.amount_one, amount/1000000000)
+			elseif amount >= 1000000 then -- 1,000,000
+				return format(L.amount_two, amount/1000000)
+			elseif amount >= 1000 then -- 1,000
+				return format(L.amount_three, amount/1000)
+			else
+				return format("%d", amount)
 			end
 		end
 	end

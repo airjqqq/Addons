@@ -29,7 +29,7 @@ local _is_in_combat = false
 
 TimeLine:SetPluginDescription (Loc ["STRING_PLUGIN_DESC"])
 
-TimeLine.version_string = "v3.9"
+TimeLine.version_string = "v3.10"
 
 local menu_wallpaper_tex = {.6, 0.1, 0, 0.64453125}
 local menu_wallpaper_color = {1, 1, 1, 0.15}
@@ -66,7 +66,7 @@ local function CreatePluginFrames()
 	
 	local all_types = {type_cooldown, type_debuff}
 	local all_types_names = {Loc ["STRING_TYPE_COOLDOWN"], Loc ["STRING_TYPE_DEBUFF"]}
-	local current_type = all_types [1]
+	local current_type = all_types [2]
 	local current_segment = 1
 	
 	local class_icons_with_alpha = [[Interface\AddOns\Details\images\classes_small_alpha]]

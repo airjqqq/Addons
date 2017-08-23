@@ -1,7 +1,582 @@
-changeset:   659:6890432b845c
-tag:         a7.2.5.4245.122-Alpha
-user:        Tercio
-date:        Wed Jul 12 13:39:04 2017 -0300
-summary:     - Fixed some issues with tooltiops popup when the user press SHIFT.
+------------------------------------------------------------------------
+r10 | Tercioo | 2017-08-17 10:55:35 -0500 (Thu, 17 Aug 2017) | 1 line
+Changed paths:
+   M /trunk/boot.lua
+   M /trunk/classes/container_historico.lua
 
+- Attempt to fix the issue where the window doesn't update after entering a raid or reseting data.
+------------------------------------------------------------------------
+r9 | Tercioo | 2017-08-10 12:53:48 -0500 (Thu, 10 Aug 2017) | 7 lines
+Changed paths:
+   M /trunk/boot.lua
+   M /trunk/classes/classe_damage.lua
+   M /trunk/core/gears.lua
+   M /trunk/core/windows.lua
+   M /trunk/functions/boss.lua
+   M /trunk/functions/profiles.lua
+   M /trunk/gumps/janela_info.lua
+   M /trunk/gumps/janela_principal.lua
+
+- Added the player rank on the player detail window.
+- Warning alerts now default to 10 seconds (from 30 seconds).
+- Left button on the spec icon now open the rank window, right click refresh talents.
+
+- API: added Details.storage:HaveDataForEncounter (diff, encounter_id, guild_name) - check if exists stored data for this encounter.
+- API: added Details:GetRaidInfoFromEncounterID (encounterID, encounterEJID) - returns the raid info table for the raid which have this encounter.
+- API: added Details.PlayerDetailsWindow:SetTopRightTexts (text1, text2, size, color, font)
+------------------------------------------------------------------------
+r8 | Tercioo | 2017-08-10 08:10:08 -0500 (Thu, 10 Aug 2017) | 5 lines
+Changed paths:
+   M /trunk/boot.lua
+   M /trunk/classes/classe_instancia.lua
+   M /trunk/core/gears.lua
+   M /trunk/core/parser.lua
+   M /trunk/core/windows.lua
+   M /trunk/gumps/janela_principal.lua
+
+- fixed the report data of the dps rank window.
+- added the rank position into the role icon tooltip on damage or healing displays.
+- API: Details.storage:GetBestFromGuild (diff, encounter_id, role, dps, guild_name) added 'dps' and 'guild name' parameters.
+- API: Details.storage:GetPlayerGuildRank (diff, encounter_id, role, playername, dps, guild_name) added.
+
+------------------------------------------------------------------------
+r7 | Tercioo | 2017-08-09 11:04:12 -0500 (Wed, 09 Aug 2017) | 2 lines
+Changed paths:
+   M /trunk/boot.lua
+   M /trunk/core/gears.lua
+   M /trunk/functions/link.lua
+   M /trunk/gumps/janela_info.lua
+
+- dont LoadAddon during combat.
+- added create aura button on the Aura tab at the player details window.
+------------------------------------------------------------------------
+r6 | Tercioo | 2017-08-05 15:09:11 -0500 (Sat, 05 Aug 2017) | 8 lines
+Changed paths:
+   M /trunk/Libs/DF/panel.lua
+   A /trunk/Libs/LibDataBroker-1.1 (from /trunk/Libs/LibsLibDataBroker-1.1:5)
+   D /trunk/Libs/LibsLibDataBroker-1.1
+   M /trunk/boot.lua
+   M /trunk/core/gears.lua
+   M /trunk/core/windows.lua
+   M /trunk/functions/link.lua
+   M /trunk/gumps/janela_principal.lua
+
+- API: added _detalhes.OpenStorage() return the storage object.
+- Added the best damage or heal for the player on the current encounter on its spec icon tooltip.
+- Damage Rank Panel:
+ - won't reset after closing and reopening.
+ - added the difficulty on the report string.
+ - added the dps on the individual graph.
+ - guild rank now show numbers for rank positions.
+ - history now sort by player name.
+------------------------------------------------------------------------
+r5 | Tercioo | 2017-08-03 17:33:31 -0500 (Thu, 03 Aug 2017) | 2 lines
+Changed paths:
+   M /trunk/Libs/DF/fw.lua
+   M /trunk/functions/link.lua
+   M /trunk/functions/profiles.lua
+   A /trunk/images/dotted.blp
+   M /trunk/images/icons2.blp
+
+- framework update (icon selection screen should work okay now).
+- aura creation panel revamp.
+------------------------------------------------------------------------
+r4 | Tercioo | 2017-08-01 11:21:19 -0500 (Tue, 01 Aug 2017) | 2 lines
+Changed paths:
+   M /trunk/boot.lua
+   M /trunk/classes/classe_damage.lua
+   M /trunk/core/control.lua
+   M /trunk/functions/slash.lua
+
+- new debug tools for /details debug
+- fixed index 0 on player detail window
+------------------------------------------------------------------------
+r3 | Tercioo | 2017-07-26 09:14:55 -0500 (Wed, 26 Jul 2017) | 1 line
+Changed paths:
+   D /.pkgmeta
+   D /API Custom Displays.txt
+   D /API General.txt
+   D /API UI.txt
+   D /API.txt
+   D /Bindings.xml
+   D /Details.toc
+   D /Details.xml
+   D /Libs
+   D /boot.lua
+   D /classes
+   D /core
+   D /embeds.xml
+   D /fonts
+   D /functions
+   D /gumps
+   D /images
+   D /indent.lua
+   D /locales
+   D /plugins
+   D /sounds
+   D /startup.lua
+   A /trunk
+   A /trunk/.pkgmeta
+   A /trunk/API Custom Displays.txt
+   A /trunk/API General.txt
+   A /trunk/API UI.txt
+   A /trunk/API.txt
+   A /trunk/Bindings.xml
+   A /trunk/Details.toc
+   A /trunk/Details.xml
+   A /trunk/Libs
+   A /trunk/Libs/AceAddon-3.0
+   A /trunk/Libs/AceAddon-3.0/AceAddon-3.0.lua
+   A /trunk/Libs/AceAddon-3.0/AceAddon-3.0.xml
+   A /trunk/Libs/AceComm-3.0
+   A /trunk/Libs/AceComm-3.0/AceComm-3.0.lua
+   A /trunk/Libs/AceComm-3.0/AceComm-3.0.xml
+   A /trunk/Libs/AceComm-3.0/ChatThrottleLib.lua
+   A /trunk/Libs/AceLocale-3.0
+   A /trunk/Libs/AceLocale-3.0/AceLocale-3.0.lua
+   A /trunk/Libs/AceLocale-3.0/AceLocale-3.0.xml
+   A /trunk/Libs/AceSerializer-3.0
+   A /trunk/Libs/AceSerializer-3.0/AceSerializer-3.0.lua
+   A /trunk/Libs/AceSerializer-3.0/AceSerializer-3.0.xml
+   A /trunk/Libs/AceTimer-3.0
+   A /trunk/Libs/AceTimer-3.0/AceTimer-3.0.lua
+   A /trunk/Libs/AceTimer-3.0/AceTimer-3.0.xml
+   A /trunk/Libs/CallbackHandler-1.0
+   A /trunk/Libs/CallbackHandler-1.0/CallbackHandler-1.0.lua
+   A /trunk/Libs/CallbackHandler-1.0/CallbackHandler-1.0.xml
+   A /trunk/Libs/DF
+   A /trunk/Libs/DF/LibDFramework-1.0.toc
+   A /trunk/Libs/DF/addon.lua
+   A /trunk/Libs/DF/auras.lua
+   A /trunk/Libs/DF/background.tga
+   A /trunk/Libs/DF/border_1.tga
+   A /trunk/Libs/DF/border_2.tga
+   A /trunk/Libs/DF/border_3.tga
+   A /trunk/Libs/DF/button.lua
+   A /trunk/Libs/DF/button.xml
+   A /trunk/Libs/DF/colors.lua
+   A /trunk/Libs/DF/cooltip.lua
+   A /trunk/Libs/DF/cooltip.xml
+   A /trunk/Libs/DF/cooltip_background.tga
+   A /trunk/Libs/DF/dropdown.lua
+   A /trunk/Libs/DF/dropdown.xml
+   A /trunk/Libs/DF/embeds.xml
+   A /trunk/Libs/DF/feedback_sites.tga
+   A /trunk/Libs/DF/fw.lua
+   A /trunk/Libs/DF/help.lua
+   A /trunk/Libs/DF/icons.tga
+   A /trunk/Libs/DF/label.lua
+   A /trunk/Libs/DF/load.xml
+   A /trunk/Libs/DF/mail.tga
+   A /trunk/Libs/DF/math.lua
+   A /trunk/Libs/DF/normal_bar.lua
+   A /trunk/Libs/DF/normal_bar.xml
+   A /trunk/Libs/DF/panel.lua
+   A /trunk/Libs/DF/panel.xml
+   A /trunk/Libs/DF/picture.lua
+   A /trunk/Libs/DF/pictureedit.lua
+   A /trunk/Libs/DF/scrollbar.lua
+   A /trunk/Libs/DF/slider.lua
+   A /trunk/Libs/DF/split_bar.lua
+   A /trunk/Libs/DF/split_bar.xml
+   A /trunk/Libs/DF/textentry.lua
+   A /trunk/Libs/DF/textentry.xml
+   A /trunk/Libs/DF/tutorial_alert.xml
+   A /trunk/Libs/LibCompress
+   A /trunk/Libs/LibCompress/LibCompress.lua
+   A /trunk/Libs/LibCompress/LibCompress.toc
+   A /trunk/Libs/LibCompress/lib.xml
+   A /trunk/Libs/LibDBIcon-1.0
+   A /trunk/Libs/LibDBIcon-1.0/LibDBIcon-1.0.lua
+   A /trunk/Libs/LibDBIcon-1.0/lib.xml
+   A /trunk/Libs/LibGraph-2.0
+   A /trunk/Libs/LibGraph-2.0/1-1.tga
+   A /trunk/Libs/LibGraph-2.0/1-128.tga
+   A /trunk/Libs/LibGraph-2.0/1-16.tga
+   A /trunk/Libs/LibGraph-2.0/1-2.tga
+   A /trunk/Libs/LibGraph-2.0/1-32.tga
+   A /trunk/Libs/LibGraph-2.0/1-4.tga
+   A /trunk/Libs/LibGraph-2.0/1-64.tga
+   A /trunk/Libs/LibGraph-2.0/1-8.tga
+   A /trunk/Libs/LibGraph-2.0/LibGraph-2.0.lua
+   A /trunk/Libs/LibGraph-2.0/line.tga
+   A /trunk/Libs/LibGraph-2.0/sline.tga
+   A /trunk/Libs/LibGraph-2.0/triangle.tga
+   A /trunk/Libs/LibGroupInSpecT-1.1
+   A /trunk/Libs/LibGroupInSpecT-1.1/LibGroupInSpecT-1.1.lua
+   A /trunk/Libs/LibGroupInSpecT-1.1/LibGroupInSpecT-1.1.toc
+   A /trunk/Libs/LibGroupInSpecT-1.1/lib.xml
+   A /trunk/Libs/LibItemUpgradeInfo-1.0
+   A /trunk/Libs/LibItemUpgradeInfo-1.0/CHANGES.txt
+   A /trunk/Libs/LibItemUpgradeInfo-1.0/Core.lua
+   A /trunk/Libs/LibItemUpgradeInfo-1.0/LibItemUpgradeInfo-1.0.toc
+   A /trunk/Libs/LibItemUpgradeInfo-1.0/LibItemUpgradeInfo-1.0.xml
+   A /trunk/Libs/LibItemUpgradeInfo-1.0/LibStub
+   A /trunk/Libs/LibItemUpgradeInfo-1.0/LibStub/LibStub.lua
+   A /trunk/Libs/LibItemUpgradeInfo-1.0/LibStub/LibStub.toc
+   A /trunk/Libs/LibItemUpgradeInfo-1.0/LibStub/tests
+   A /trunk/Libs/LibItemUpgradeInfo-1.0/LibStub/tests/test.lua
+   A /trunk/Libs/LibItemUpgradeInfo-1.0/LibStub/tests/test2.lua
+   A /trunk/Libs/LibItemUpgradeInfo-1.0/LibStub/tests/test3.lua
+   A /trunk/Libs/LibItemUpgradeInfo-1.0/LibStub/tests/test4.lua
+   A /trunk/Libs/LibSharedMedia-3.0
+   A /trunk/Libs/LibSharedMedia-3.0/LibSharedMedia-3.0.lua
+   A /trunk/Libs/LibSharedMedia-3.0/lib.xml
+   A /trunk/Libs/LibStub
+   A /trunk/Libs/LibStub/LibStub.lua
+   A /trunk/Libs/LibWindow-1.1
+   A /trunk/Libs/LibWindow-1.1/LibWindow-1.1.lua
+   A /trunk/Libs/LibsLibDataBroker-1.1
+   A /trunk/Libs/LibsLibDataBroker-1.1/Changelog-libdatabroker-1-1-v1.1.4.txt
+   A /trunk/Libs/LibsLibDataBroker-1.1/LibDataBroker-1.1.lua
+   A /trunk/Libs/LibsLibDataBroker-1.1/README.textile
+   A /trunk/Libs/NickTag-1.0
+   A /trunk/Libs/NickTag-1.0/NickTag-1.0.lua
+   A /trunk/Libs/NickTag-1.0/NickTag-1.0.toc
+   A /trunk/Libs/NickTag-1.0/NickTag-1.0.xml
+   A /trunk/Libs/libs.xml
+   A /trunk/boot.lua
+   A /trunk/classes
+   A /trunk/classes/classe_combate.lua
+   A /trunk/classes/classe_custom.lua
+   A /trunk/classes/classe_damage.lua
+   A /trunk/classes/classe_damage_habilidade.lua
+   A /trunk/classes/classe_energy.lua
+   A /trunk/classes/classe_energy_habilidade.lua
+   A /trunk/classes/classe_error.lua
+   A /trunk/classes/classe_heal.lua
+   A /trunk/classes/classe_heal_habilidade.lua
+   A /trunk/classes/classe_instancia.lua
+   A /trunk/classes/classe_instancia_include.lua
+   A /trunk/classes/classe_others.lua
+   A /trunk/classes/classe_others_habilidade.lua
+   A /trunk/classes/classe_target.lua
+   A /trunk/classes/container_combatentes.lua
+   A /trunk/classes/container_habilidades.lua
+   A /trunk/classes/container_historico.lua
+   A /trunk/classes/container_pets.lua
+   A /trunk/classes/custom_damage_done.lua
+   A /trunk/classes/custom_damage_taken.lua
+   A /trunk/classes/custom_healing_done.lua
+   A /trunk/core
+   A /trunk/core/control.lua
+   A /trunk/core/gears.lua
+   A /trunk/core/meta.lua
+   A /trunk/core/network.lua
+   A /trunk/core/parser.lua
+   A /trunk/core/parserr.lua
+   A /trunk/core/plugins.lua
+   A /trunk/core/plugins_raid.lua
+   A /trunk/core/plugins_solo.lua
+   A /trunk/core/plugins_statusbar.lua
+   A /trunk/core/plugins_toolbar.lua
+   A /trunk/core/timemachine.lua
+   A /trunk/core/util.lua
+   A /trunk/core/windows.lua
+   A /trunk/embeds.xml
+   A /trunk/fonts
+   A /trunk/fonts/Accidental Presidency.ttf
+   A /trunk/fonts/FORCED SQUARE.ttf
+   A /trunk/fonts/HARRYP__.TTF
+   A /trunk/fonts/NuevaStd-Cond.otf
+   A /trunk/fonts/Oswald-Regular.otf
+   A /trunk/fonts/SIL Open Font License.txt
+   A /trunk/fonts/TrashHand.TTF
+   A /trunk/functions
+   A /trunk/functions/attributes.lua
+   A /trunk/functions/boss.lua
+   A /trunk/functions/buff.lua
+   A /trunk/functions/classes.lua
+   A /trunk/functions/events.lua
+   A /trunk/functions/hooks.lua
+   A /trunk/functions/link.lua
+   A /trunk/functions/loaddata.lua
+   A /trunk/functions/playerclass.lua
+   A /trunk/functions/profiles.lua
+   A /trunk/functions/report.lua
+   A /trunk/functions/rowanimation.lua
+   A /trunk/functions/savedata.lua
+   A /trunk/functions/skins.lua
+   A /trunk/functions/slash - Copy.lua
+   A /trunk/functions/slash.lua
+   A /trunk/functions/spellcache.lua
+   A /trunk/functions/spells.lua
+   A /trunk/functions/timedata.lua
+   A /trunk/gumps
+   A /trunk/gumps/anime.lua
+   A /trunk/gumps/anime.xml
+   A /trunk/gumps/fw_mods.lua
+   A /trunk/gumps/janela_copy.lua
+   A /trunk/gumps/janela_custom.lua
+   A /trunk/gumps/janela_info.lua
+   A /trunk/gumps/janela_news.lua
+   A /trunk/gumps/janela_options.lua
+   A /trunk/gumps/janela_principal.lua
+   A /trunk/gumps/janela_principal@624.lua
+   A /trunk/gumps/janela_principall.lua
+   A /trunk/gumps/janela_report.lua
+   A /trunk/gumps/janela_welcome.lua
+   A /trunk/gumps/switch.lua
+   A /trunk/gumps/toolbar_button.xml
+   A /trunk/images
+   A /trunk/images/BantoBar.blp
+   A /trunk/images/atributos_captures.blp
+   A /trunk/images/atributos_icones.blp
+   A /trunk/images/atributos_icones_damage.blp
+   A /trunk/images/atributos_icones_energyze.blp
+   A /trunk/images/atributos_icones_heal.blp
+   A /trunk/images/atributos_icones_misc.blp
+   A /trunk/images/autoshot.blp
+   A /trunk/images/background.blp
+   A /trunk/images/bar4.blp
+   A /trunk/images/bar4_glass.blp
+   A /trunk/images/bar4_reverse.blp
+   A /trunk/images/bar4_vidro.blp
+   A /trunk/images/bar_background.blp
+   A /trunk/images/bar_background2.blp
+   A /trunk/images/bar_detalhes2.blp
+   A /trunk/images/bar_detalhes2_end.blp
+   A /trunk/images/bar_flat.blp
+   A /trunk/images/bar_serenity.blp
+   A /trunk/images/bar_skyline.blp
+   A /trunk/images/border_1.blp
+   A /trunk/images/border_2.blp
+   A /trunk/images/border_3.blp
+   A /trunk/images/border_welcome.blp
+   A /trunk/images/button_disable_overlay.blp
+   A /trunk/images/classes.blp
+   A /trunk/images/classes_plus.blp
+   A /trunk/images/classes_small.blp
+   A /trunk/images/classes_small_alpha.blp
+   A /trunk/images/classes_small_alpha_bw.blp
+   A /trunk/images/classes_small_bw.blp
+   A /trunk/images/clock.blp
+   A /trunk/images/cooltip_selected.blp
+   A /trunk/images/copy.blp
+   A /trunk/images/custom_bg.blp
+   A /trunk/images/custom_icones.blp
+   A /trunk/images/default_button.blp
+   A /trunk/images/espadas.blp
+   A /trunk/images/highlight_leftright.blp
+   A /trunk/images/highlight_updown.blp
+   A /trunk/images/icone_bg.blp
+   A /trunk/images/icone_bg_fundo.blp
+   A /trunk/images/icones_barra.blp
+   A /trunk/images/icons.tga
+   A /trunk/images/icons2.blp
+   A /trunk/images/info_window_background.blp
+   A /trunk/images/info_window_damagetaken.blp
+   A /trunk/images/key_alt.blp
+   A /trunk/images/key_ctrl.blp
+   A /trunk/images/key_shift.blp
+   A /trunk/images/knob.blp
+   A /trunk/images/logotipo.tga
+   A /trunk/images/melee.blp
+   A /trunk/images/minimap.blp
+   A /trunk/images/modo_icones.blp
+   A /trunk/images/options_window.tga
+   A /trunk/images/overlay_detalhes.blp
+   A /trunk/images/report_button.blp
+   A /trunk/images/report_frame_icons.blp
+   A /trunk/images/reset_button2.blp
+   A /trunk/images/skins
+   A /trunk/images/skins/classic_skin.tga
+   A /trunk/images/skins/classic_skin_v1.tga
+   A /trunk/images/skins/default_skin.tga
+   A /trunk/images/skins/elvui.tga
+   A /trunk/images/skins/elvui_opaque.tga
+   A /trunk/images/skins/flat_skin.tga
+   A /trunk/images/skins/overwatch.tga
+   A /trunk/images/skins/simplygray_skin.tga
+   A /trunk/images/small_icons.blp
+   A /trunk/images/spec_icons_normal.tga
+   A /trunk/images/spec_icons_normal_alpha.tga
+   A /trunk/images/toolbar_icons.blp
+   A /trunk/images/toolbar_icons_shadow.blp
+   A /trunk/images/verticalline.blp
+   A /trunk/indent.lua
+   A /trunk/locales
+   A /trunk/locales/Details-deDE.lua
+   A /trunk/locales/Details-enUS.lua
+   A /trunk/locales/Details-esES.lua
+   A /trunk/locales/Details-esMX.lua
+   A /trunk/locales/Details-frFR.lua
+   A /trunk/locales/Details-itIT.lua
+   A /trunk/locales/Details-koKR.lua
+   A /trunk/locales/Details-ptBR.lua
+   A /trunk/locales/Details-ruRU.lua
+   A /trunk/locales/Details-zhCN.lua
+   A /trunk/locales/Details-zhTW.lua
+   A /trunk/plugins
+   A /trunk/plugins/Details_3DModelsPaths
+   A /trunk/plugins/Details_3DModelsPaths/Details_3DModelsPaths.lua
+   A /trunk/plugins/Details_3DModelsPaths/Details_3DModelsPaths.toc
+   A /trunk/plugins/Details_DataStorage
+   A /trunk/plugins/Details_DataStorage/Details_DataStorage.lua
+   A /trunk/plugins/Details_DataStorage/Details_DataStorage.toc
+   A /trunk/plugins/Details_DmgRank
+   A /trunk/plugins/Details_DmgRank/Details_DmgRank.lua
+   A /trunk/plugins/Details_DmgRank/Details_DmgRank.toc
+   A /trunk/plugins/Details_DmgRank/Libs
+   A /trunk/plugins/Details_DmgRank/Libs/AceLocale-3.0
+   A /trunk/plugins/Details_DmgRank/Libs/AceLocale-3.0/AceLocale-3.0.lua
+   A /trunk/plugins/Details_DmgRank/Libs/AceLocale-3.0/AceLocale-3.0.xml
+   A /trunk/plugins/Details_DmgRank/Libs/LibStub
+   A /trunk/plugins/Details_DmgRank/Libs/LibStub/LibStub.lua
+   A /trunk/plugins/Details_DmgRank/Libs/LibStub/LibStub.toc
+   A /trunk/plugins/Details_DmgRank/Libs/LibStub/tests
+   A /trunk/plugins/Details_DmgRank/Libs/LibStub/tests/test.lua
+   A /trunk/plugins/Details_DmgRank/Libs/LibStub/tests/test2.lua
+   A /trunk/plugins/Details_DmgRank/Libs/LibStub/tests/test3.lua
+   A /trunk/plugins/Details_DmgRank/Libs/LibStub/tests/test4.lua
+   A /trunk/plugins/Details_DmgRank/embeds.xml
+   A /trunk/plugins/Details_DmgRank/enUS.lua
+   A /trunk/plugins/Details_DmgRank/images
+   A /trunk/plugins/Details_DmgRank/images/badges.tga
+   A /trunk/plugins/Details_DmgRank/ptBR.lua
+   A /trunk/plugins/Details_DpsTuning
+   A /trunk/plugins/Details_DpsTuning/Details_DpsTuning.lua
+   A /trunk/plugins/Details_DpsTuning/Details_DpsTuning.toc
+   A /trunk/plugins/Details_EncounterDetails
+   A /trunk/plugins/Details_EncounterDetails/Details_EncounterDetails.lua
+   A /trunk/plugins/Details_EncounterDetails/Details_EncounterDetails.toc
+   A /trunk/plugins/Details_EncounterDetails/Libs
+   A /trunk/plugins/Details_EncounterDetails/Libs/AceLocale-3.0
+   A /trunk/plugins/Details_EncounterDetails/Libs/AceLocale-3.0/AceLocale-3.0.lua
+   A /trunk/plugins/Details_EncounterDetails/Libs/AceLocale-3.0/AceLocale-3.0.xml
+   A /trunk/plugins/Details_EncounterDetails/Libs/LibStub
+   A /trunk/plugins/Details_EncounterDetails/Libs/LibStub/LibStub.lua
+   A /trunk/plugins/Details_EncounterDetails/Libs/LibStub/LibStub.toc
+   A /trunk/plugins/Details_EncounterDetails/Libs/LibStub/tests
+   A /trunk/plugins/Details_EncounterDetails/Libs/LibStub/tests/test.lua
+   A /trunk/plugins/Details_EncounterDetails/Libs/LibStub/tests/test2.lua
+   A /trunk/plugins/Details_EncounterDetails/Libs/LibStub/tests/test3.lua
+   A /trunk/plugins/Details_EncounterDetails/Libs/LibStub/tests/test4.lua
+   A /trunk/plugins/Details_EncounterDetails/embeds.xml
+   A /trunk/plugins/Details_EncounterDetails/enUS.lua
+   A /trunk/plugins/Details_EncounterDetails/frames.lua
+   A /trunk/plugins/Details_EncounterDetails/images
+   A /trunk/plugins/Details_EncounterDetails/images/boss_bg.tga
+   A /trunk/plugins/Details_EncounterDetails/images/boss_bg_graphic.tga
+   A /trunk/plugins/Details_EncounterDetails/images/boss_frame_buttons.tga
+   A /trunk/plugins/Details_EncounterDetails/images/boss_icons.tga
+   A /trunk/plugins/Details_EncounterDetails/images/icon.tga
+   A /trunk/plugins/Details_EncounterDetails/images/icon_shadow.tga
+   A /trunk/plugins/Details_EncounterDetails/ptBR.lua
+   A /trunk/plugins/Details_RaidCheck
+   A /trunk/plugins/Details_RaidCheck/Details_RaidCheck.lua
+   A /trunk/plugins/Details_RaidCheck/Details_RaidCheck.toc
+   A /trunk/plugins/Details_RaidCheck/Libs
+   A /trunk/plugins/Details_RaidCheck/Libs/AceLocale-3.0
+   A /trunk/plugins/Details_RaidCheck/Libs/AceLocale-3.0/AceLocale-3.0.lua
+   A /trunk/plugins/Details_RaidCheck/Libs/AceLocale-3.0/AceLocale-3.0.xml
+   A /trunk/plugins/Details_RaidCheck/Libs/LibStub
+   A /trunk/plugins/Details_RaidCheck/Libs/LibStub/LibStub.lua
+   A /trunk/plugins/Details_RaidCheck/Libs/LibStub/LibStub.toc
+   A /trunk/plugins/Details_RaidCheck/Libs/LibStub/tests
+   A /trunk/plugins/Details_RaidCheck/Libs/LibStub/tests/test.lua
+   A /trunk/plugins/Details_RaidCheck/Libs/LibStub/tests/test2.lua
+   A /trunk/plugins/Details_RaidCheck/Libs/LibStub/tests/test3.lua
+   A /trunk/plugins/Details_RaidCheck/Libs/LibStub/tests/test4.lua
+   A /trunk/plugins/Details_RaidCheck/embeds.xml
+   A /trunk/plugins/Details_RaidCheck/icon.tga
+   A /trunk/plugins/Details_RaidCheck/icon_red.tga
+   A /trunk/plugins/Details_RaidCheck/icon_red_shadow.tga
+   A /trunk/plugins/Details_RaidCheck/icon_shadow.tga
+   A /trunk/plugins/Details_RaidInfo-EmeraldNightmare
+   A /trunk/plugins/Details_RaidInfo-EmeraldNightmare/Details_RaidInfo-EmeraldNightmare.lua
+   A /trunk/plugins/Details_RaidInfo-EmeraldNightmare/Details_RaidInfo-EmeraldNightmare.toc
+   A /trunk/plugins/Details_RaidInfo-EmeraldNightmare/boss_faces.tga
+   A /trunk/plugins/Details_RaidInfo-EmeraldNightmare/icon256x128.tga
+   A /trunk/plugins/Details_RaidInfo-Nighthold
+   A /trunk/plugins/Details_RaidInfo-Nighthold/Details_RaidInfo-Nighthold.lua
+   A /trunk/plugins/Details_RaidInfo-Nighthold/Details_RaidInfo-Nighthold.toc
+   A /trunk/plugins/Details_RaidInfo-Nighthold/boss_faces.tga
+   A /trunk/plugins/Details_RaidInfo-Nighthold/icon256x128.tga
+   A /trunk/plugins/Details_RaidInfo-TombOfSargeras
+   A /trunk/plugins/Details_RaidInfo-TombOfSargeras/Details_RaidInfo-TombOfSargeras.lua
+   A /trunk/plugins/Details_RaidInfo-TombOfSargeras/Details_RaidInfo-TombOfSargeras.toc
+   A /trunk/plugins/Details_RaidInfo-TombOfSargeras/boss_faces.tga
+   A /trunk/plugins/Details_RaidInfo-TombOfSargeras/icon256x128.tga
+   A /trunk/plugins/Details_RaidInfo-TrialOfValor
+   A /trunk/plugins/Details_RaidInfo-TrialOfValor/Details_RaidInfo-TrialOfValor.lua
+   A /trunk/plugins/Details_RaidInfo-TrialOfValor/Details_RaidInfo-TrialOfValor.toc
+   A /trunk/plugins/Details_RaidInfo-TrialOfValor/boss_faces.tga
+   A /trunk/plugins/Details_RaidInfo-TrialOfValor/icon256x128.tga
+   A /trunk/plugins/Details_Streamer
+   A /trunk/plugins/Details_Streamer/Details_Streamer.lua
+   A /trunk/plugins/Details_Streamer/Details_Streamer.toc
+   A /trunk/plugins/Details_Streamer/Libs
+   A /trunk/plugins/Details_Streamer/Libs/LibStub
+   A /trunk/plugins/Details_Streamer/Libs/LibStub/LibStub.lua
+   A /trunk/plugins/Details_Streamer/Libs/LibStub/LibStub.toc
+   A /trunk/plugins/Details_Streamer/Libs/LibStub/tests
+   A /trunk/plugins/Details_Streamer/Libs/LibStub/tests/test.lua
+   A /trunk/plugins/Details_Streamer/Libs/LibStub/tests/test2.lua
+   A /trunk/plugins/Details_Streamer/Libs/LibStub/tests/test3.lua
+   A /trunk/plugins/Details_Streamer/Libs/LibStub/tests/test4.lua
+   A /trunk/plugins/Details_Streamer/embeds.xml
+   A /trunk/plugins/Details_TimeAttack
+   A /trunk/plugins/Details_TimeAttack/Details_TimeAttack.lua
+   A /trunk/plugins/Details_TimeAttack/Details_TimeAttack.toc
+   A /trunk/plugins/Details_TimeAttack/Libs
+   A /trunk/plugins/Details_TimeAttack/Libs/AceLocale-3.0
+   A /trunk/plugins/Details_TimeAttack/Libs/AceLocale-3.0/AceLocale-3.0.lua
+   A /trunk/plugins/Details_TimeAttack/Libs/AceLocale-3.0/AceLocale-3.0.xml
+   A /trunk/plugins/Details_TimeAttack/Libs/LibStub
+   A /trunk/plugins/Details_TimeAttack/Libs/LibStub/LibStub.lua
+   A /trunk/plugins/Details_TimeAttack/Libs/LibStub/LibStub.toc
+   A /trunk/plugins/Details_TimeAttack/Libs/LibStub/tests
+   A /trunk/plugins/Details_TimeAttack/Libs/LibStub/tests/test.lua
+   A /trunk/plugins/Details_TimeAttack/Libs/LibStub/tests/test2.lua
+   A /trunk/plugins/Details_TimeAttack/Libs/LibStub/tests/test3.lua
+   A /trunk/plugins/Details_TimeAttack/Libs/LibStub/tests/test4.lua
+   A /trunk/plugins/Details_TimeAttack/embeds.xml
+   A /trunk/plugins/Details_TimeAttack/enUS.lua
+   A /trunk/plugins/Details_TimeAttack/ptBR.lua
+   A /trunk/plugins/Details_TinyThreat
+   A /trunk/plugins/Details_TinyThreat/Details_TinyThreat.lua
+   A /trunk/plugins/Details_TinyThreat/Details_TinyThreat.toc
+   A /trunk/plugins/Details_TinyThreat/Libs
+   A /trunk/plugins/Details_TinyThreat/Libs/AceLocale-3.0
+   A /trunk/plugins/Details_TinyThreat/Libs/AceLocale-3.0/AceLocale-3.0.lua
+   A /trunk/plugins/Details_TinyThreat/Libs/AceLocale-3.0/AceLocale-3.0.xml
+   A /trunk/plugins/Details_TinyThreat/Libs/LibStub
+   A /trunk/plugins/Details_TinyThreat/Libs/LibStub/LibStub.lua
+   A /trunk/plugins/Details_TinyThreat/Libs/LibStub/LibStub.toc
+   A /trunk/plugins/Details_TinyThreat/Libs/LibStub/tests
+   A /trunk/plugins/Details_TinyThreat/Libs/LibStub/tests/test.lua
+   A /trunk/plugins/Details_TinyThreat/Libs/LibStub/tests/test2.lua
+   A /trunk/plugins/Details_TinyThreat/Libs/LibStub/tests/test3.lua
+   A /trunk/plugins/Details_TinyThreat/Libs/LibStub/tests/test4.lua
+   A /trunk/plugins/Details_TinyThreat/embeds.xml
+   A /trunk/plugins/Details_TinyThreat/enUS.lua
+   A /trunk/plugins/Details_TinyThreat/ptBR.lua
+   A /trunk/plugins/Details_Vanguard
+   A /trunk/plugins/Details_Vanguard/Details_Vanguard.lua
+   A /trunk/plugins/Details_Vanguard/Details_Vanguard.toc
+   A /trunk/plugins/Details_Vanguard/Libs
+   A /trunk/plugins/Details_Vanguard/Libs/AceLocale-3.0
+   A /trunk/plugins/Details_Vanguard/Libs/AceLocale-3.0/AceLocale-3.0.lua
+   A /trunk/plugins/Details_Vanguard/Libs/AceLocale-3.0/AceLocale-3.0.xml
+   A /trunk/plugins/Details_Vanguard/Libs/LibStub
+   A /trunk/plugins/Details_Vanguard/Libs/LibStub/LibStub.lua
+   A /trunk/plugins/Details_Vanguard/Libs/LibStub/LibStub.toc
+   A /trunk/plugins/Details_Vanguard/Libs/LibStub/tests
+   A /trunk/plugins/Details_Vanguard/Libs/LibStub/tests/test.lua
+   A /trunk/plugins/Details_Vanguard/Libs/LibStub/tests/test2.lua
+   A /trunk/plugins/Details_Vanguard/Libs/LibStub/tests/test3.lua
+   A /trunk/plugins/Details_Vanguard/Libs/LibStub/tests/test4.lua
+   A /trunk/plugins/Details_Vanguard/embeds.xml
+   A /trunk/plugins/Details_Vanguard/enUS.lua
+   A /trunk/plugins/Details_Vanguard/ptBR.lua
+   A /trunk/sounds
+   A /trunk/sounds/sound_gun2.ogg
+   A /trunk/sounds/sound_gun3.ogg
+   A /trunk/sounds/sound_jedi1.ogg
+   A /trunk/sounds/sound_whip1.ogg
+   A /trunk/startup.lua
+
+- moving things to trunk
+------------------------------------------------------------------------
 

@@ -30,6 +30,7 @@ function F:OnInitialize()
     IGNOREUSABLE = L["Ignore usable"]
   },"FF7D0A")
   self:RegisterFilter("CD",L["Spell Cooldown"])
+  self:RegisterFilter("HASNAMEPLATE",L["Has nameplate"],{unit={}})
   self:RegisterFilter("CDDEF",L["CD Different"],{name={name="spell ID 1 | spell ID 2 | times"},greater= {},value= {}})
   self:RegisterFilter("SPELLCOUNT",L["Spell Count"])
   self:RegisterFilter("ICD",L["Item Cooldown"])
@@ -427,32 +428,63 @@ function F:FASTSPELL(filter)
     if not range then
       range = maxRange
     end
-    if ishelp and (range <=45) then
-      local now = GetTime()
-      if not notinrangeCache.t or now > notinrangeCache.t then
-        wipe(notinrangeCache)
-        notinrangeCache.t = now
-      end
-      local ni = notinrangeCache[guid]
-      if ni == nil then
-        local i,c = UnitInRange(filter.unit)
-        if c and not i then
-          ni = true
-        elseif c and i then
-          ni = false
-        else
-          ni = "unchecked"
+    if Cache.encounter and Cache.encounter.id == 2054 and false then
+
+      local playerinside = #Cache:GetDebuffs(Cache:PlayerGUID(),nil,{[235621]=1})>0
+      local targetinside
+      if ishelp then
+        targetinside = #Cache:GetDebuffs(guid,nil,{[235621]=1})>0
+      else
+        local ot,_,_,_,oid = AirjHack:GetGUIDInfo(guid)
+        if oid ~= 119072 then
+          -- print(playerinside,targetinside)
+          targetinside = playerinside
+        elseif oid == 118460 then
+          targetinside = false
+        elseif oid == 118462 then
+          targetinside = true
+        elseif oid == 119938 or oid == 119939 then
+          targetinside = false
+          if #Cache:GetBuffs(guid,nil,{[236351]=1})==0 and Cache.encounter.difficulty == 16 then
+            targetinside = not targetinside
+          end
+        elseif oid == 119940 or oid == 119941 then
+          targetinside = true
+          if #Cache:GetBuffs(guid,nil,{[236351]=1})==0 and Cache.encounter.difficulty == 16 then
+            targetinside = not targetinside
+          end
         end
-        notinrangeCache[guid] = ni
       end
-      if ni == true then
+      if playerinside and not targetinside or not playerinside and targetinside then
         return false
-      elseif ni == false then
-        if range >=40 and range <=45 then
-          -- return true
-        end
       end
     end
+    -- if ishelp and (range <=45) then
+    --   local now = GetTime()
+    --   if not notinrangeCache.t or now > notinrangeCache.t then
+    --     wipe(notinrangeCache)
+    --     notinrangeCache.t = now
+    --   end
+    --   local ni = notinrangeCache[guid]
+    --   if ni == nil then
+    --     local i,c = UnitInRange(filter.unit)
+    --     if c and not i then
+    --       ni = true
+    --     elseif c and i then
+    --       ni = false
+    --     else
+    --       ni = "unchecked"
+    --     end
+    --     notinrangeCache[guid] = ni
+    --   end
+    --   if ni == true then
+    --     return false
+    --   elseif ni == false then
+    --     if range >=40 and range <=45 then
+    --       -- return true
+    --     end
+    --   end
+    -- end
     -- local isdead = Cache:Call(UnitIsDeadOrGhost,filter.unit)
     local isdead = select(6,Cache:GetHealth(guid))
     if isdead then
@@ -464,28 +496,29 @@ function F:FASTSPELL(filter)
     assert(range)
     local mr,md = 5,1.33
     do
-      -- feral druid
+      -- druid
       local _,_,value = Cache:GetSpellCooldown(197488)
       if value then
         mr,md = 10, 6.33
       end
-      _,_,value = Cache:GetSpellCooldown(202790)
-      if value and (spellId == 1079 or spellId == 22570) then
-        mr = mr + 5
-        md = md + 5
-      end
+      -- _,_,value = Cache:GetSpellCooldown(202790)
+      -- if value and (spellId == 1079 or spellId == 22570) then
+      --   mr = mr + 5
+      --   md = md + 5
+      -- end
 
         --windwalker monk
-      _,_,value = Cache:GetSpellCooldown(205003)
-      if value and (spellId == 113656) then
-        mr = mr + 5
-        md = md + 5
-      end
+      -- _,_,value = Cache:GetSpellCooldown(205003)
+      -- if value and (spellId == 113656) then
+      --   mr = mr + 5
+      --   md = md + 5
+      -- end
       _,_,value = Cache:GetSpellCooldown(201769)
       if value and (spellId == 116095) then
         mr = mr + 7
         md = md + 7
       end
+      --warrior execute
       _,_,value = Cache:GetSpellCooldown(198500)
       if value and (spellId == 163201) then
         mr = mr + 10
@@ -511,6 +544,15 @@ function F:CD(filter)
   local name = filter.name and filter.name[1] or 61304
   local value = Cache:GetSpellCooldown(name)
   return value
+end
+
+function F:HASNAMEPLATE(filter)
+  filter.unit = filter.unit or "target"
+  for i = 1,20 do
+    if UnitIsUnit(filter.unit,"nameplate"..i) then
+      return true
+    end
+  end
 end
 
 function F:UNIT_POWER(event,unit,type)
@@ -1011,5 +1053,5 @@ end
 
 function F:INWORLD(filter)
   local a,b = IsInInstance()
-  return b~="raid"
+  return b~="raid" and b~="arena"
 end

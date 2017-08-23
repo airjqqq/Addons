@@ -75,14 +75,23 @@ local defaults = {
 local MAX_ICONS = 40
 
 local SkillHistory = GladiusEx:NewGladiusExModule("SkillHistory",
+-- {
+-- 	minShowSize = 1,
+-- 	AttachTo = "Frame",
+-- 	Anchor = "TOPRIGHT",
+-- 	RelativePoint = "TOPLEFT",
+-- 	GrowDirection = "LEFT",
+-- 	OffsetX = -0,
+-- 	OffsetY = -0,
+-- }
 	fn.merge(defaults, {
 		minShowSize = 1,
 		AttachTo = "Frame",
-		Anchor = "TOPRIGHT",
-		RelativePoint = "TOPLEFT",
-		GrowDirection = "LEFT",
-		OffsetX = -0,
-		OffsetY = -0,
+		Anchor = "TOPLEFT",
+		RelativePoint = "TOPRIGHT",
+		GrowDirection = "RIGHT",
+		OffsetX = 120,
+		OffsetY = 0,
 	}),
 	fn.merge(defaults, {
 		minShowSize = 1,
@@ -90,7 +99,7 @@ local SkillHistory = GladiusEx:NewGladiusExModule("SkillHistory",
 		Anchor = "TOPLEFT",
 		RelativePoint = "TOPRIGHT",
 		GrowDirection = "RIGHT",
-		OffsetX = 0,
+		OffsetX = 120,
 		OffsetY = 0,
 	}))
 

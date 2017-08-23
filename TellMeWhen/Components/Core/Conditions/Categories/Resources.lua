@@ -98,13 +98,27 @@ ConditionCategory:RegisterSpacer(3)
 
 -- Private Class Resources (other players can't see them)
 ConditionCategory:RegisterCondition(23, "SOUL_SHARDS", {
-	text = SOUL_SHARDS,
+	text = SOUL_SHARDS_POWER,
 	min = 0,
 	max = 6,
 	unit = PLAYER,
 	icon = "Interface\\Icons\\inv_misc_gem_amethyst_02",
 	tcoords = CNDT.COMMON.standardtcoords,
 	funcstr = ([[UnitPower("player", %d) c.Operator c.Level]]):format(Enum.PowerType.SoulShards),
+	events = function(ConditionObject, c)
+		return
+			ConditionObject:GenerateNormalEventString("UNIT_POWER", "player", "SOUL_SHARDS")
+	end,
+	hidden = pclass ~= "WARLOCK",
+})
+ConditionCategory:RegisterCondition(23.1, "SOUL_SHARD_FRAGMENTS", {
+	text = L["RESOURCE_FRAGMENTS"]:format(SOUL_SHARDS_POWER),
+	min = 0,
+	max = 60,
+	unit = PLAYER,
+	icon = "Interface\\Icons\\inv_misc_gem_amethyst_02",
+	tcoords = CNDT.COMMON.standardtcoords,
+	funcstr = ([[UnitPower("player", %d, true) c.Operator c.Level]]):format(Enum.PowerType.SoulShards),
 	events = function(ConditionObject, c)
 		return
 			ConditionObject:GenerateNormalEventString("UNIT_POWER", "player", "SOUL_SHARDS")
@@ -319,7 +333,7 @@ offset = pclass == "DRUID" and S or 0
 ConditionCategory:RegisterCondition(94 - offset, "LUNAR_POWER", {
 	text = LUNAR_POWER,
 	min = 0,
-	max = 100,
+	max = 130, -- Druid tier set increases this to 130
 	icon = "Interface\\Icons\\talentspec_druid_balance",
 	tcoords = CNDT.COMMON.standardtcoords,
 	funcstr = ([[UnitPower("player", %d) c.Operator c.Level]]):format(Enum.PowerType.LunarPower),

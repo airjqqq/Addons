@@ -130,22 +130,42 @@ local g2_defaults = MakeGroupDb {
 	cooldownsBackground = { r = 0, g = 0, b = 0, a = 0.3 },
 }
 local Cooldowns = GladiusEx:NewGladiusExModule("Cooldowns",
+-- {
+-- 	groups = {
+-- 		["group_1"] = fn.merge(g1_defaults, {
+-- 			cooldownsAttachTo = "Frame",
+-- 			cooldownsAnchor = "TOPLEFT",
+-- 			cooldownsRelativePoint = "TOPRIGHT",
+-- 			cooldownsGrow = "DOWNRIGHT",
+-- 			cooldownsOffsetX = 5,
+-- 			cooldownsOffsetY = -2,
+-- 		}),
+-- 		["group_2"] = fn.merge(g2_defaults, {
+-- 			cooldownsAttachTo = "Frame",
+-- 			cooldownsAnchor = "TOPLEFT",
+-- 			cooldownsRelativePoint = "TOPRIGHT",
+-- 			cooldownsGrow = "DOWNRIGHT",
+-- 			cooldownsOffsetX = 5,
+-- 			cooldownsOffsetY = -42,
+-- 		}),
+-- 	}
+-- }
 	fn.merge(defaults, {
 		groups = {
 			["group_1"] = fn.merge(g1_defaults, {
 				cooldownsAttachTo = "Frame",
-				cooldownsAnchor = "TOPLEFT",
-				cooldownsRelativePoint = "TOPRIGHT",
-				cooldownsGrow = "DOWNRIGHT",
-				cooldownsOffsetX = 5,
+				cooldownsAnchor = "TOPRIGHT",
+				cooldownsRelativePoint = "TOPLEFT",
+				cooldownsGrow = "DOWNLEFT",
+				cooldownsOffsetX = -5,
 				cooldownsOffsetY = -2,
 			}),
 			["group_2"] = fn.merge(g2_defaults, {
 				cooldownsAttachTo = "Frame",
-				cooldownsAnchor = "TOPLEFT",
-				cooldownsRelativePoint = "TOPRIGHT",
-				cooldownsGrow = "DOWNRIGHT",
-				cooldownsOffsetX = 5,
+				cooldownsAnchor = "TOPRIGHT",
+				cooldownsRelativePoint = "TOPLEFT",
+				cooldownsGrow = "DOWNLEFT",
+				cooldownsOffsetX = -5,
 				cooldownsOffsetY = -42,
 			}),
 		}

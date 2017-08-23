@@ -1,0 +1,21 @@
+## Interface: 70200
+## Title: EPGPAutoStandby
+## Notes: Automatically add selected online guild members to the EPGP standby list.
+## Author: safetee
+## Version: 0.2.5
+## SavedVariables: EPGPAutoStandbyDB
+## Dependencies: EPGP
+
+Libs\LibStub\LibStub.lua
+Libs\AceAddon-3.0\AceAddon-3.0.xml
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\AceEvent-3.0\AceEvent-3.0.xml
+Libs\AceConsole-3.0\AceConsole-3.0.xml
+Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\AceConfig-3.0\AceConfig-3.0.xml
+Libs\AceDB-3.0\AceDB-3.0.xml
+Libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+Libs\AceHook-3.0\AceHook-3.0.xml
+
+
+EPGPAutoStandby.lua

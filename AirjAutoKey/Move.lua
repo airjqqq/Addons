@@ -10,6 +10,7 @@ local turning
 
 function M:OnInitialize()
 	self.ignores = setmetatable({},{__index = function(t,k) t[k] = {} return t[k] end})
+	self.ignoreGuids = {}
 	self.goto = {}
 
 	self:RegisterChatCommand("aakm", function(str,...)
@@ -195,6 +196,8 @@ function M:OnEnable()
 	self.moveTimer = self:ScheduleRepeatingTimer(self.MoveTimer,0.01,self)
 	self.cruiseTimer = self:ScheduleRepeatingTimer(self.CruiseTimer,0.01,self)
 
+	self.stuckHistory = AirjUtil:NewFIFO(1000)
+
 	self:ScheduleRepeatingTimer(self.CheckGiftTrigged,0.01,self)
 	self:ScheduleRepeatingTimer(self.CheckATTrigged,0.01,self)
   self:RegisterMessage("AIRJ_HACK_OBJECT_CREATED",self.OnObjectCreated,self)
@@ -229,11 +232,8 @@ end
 local history = {}
 local hindex = 0
 local movinglast = 0
-local jumped
-local lefted
-local stuckedTimes = 0
-local lastStuckedPoint
 local historySize = 10000
+local lastMoves
 local function saveHistory()
 	local px,py,pz,pf = M:GetPlayPosition()
 	local speed = GetUnitSpeed("player")
@@ -242,7 +242,8 @@ local function saveHistory()
 	if hindex > historySize then
 		hindex = 1
 	end
-	history[hindex] = {px,py,pz,GetTime()}
+	history[hindex] = {px,py,pz,pf,speed,lastMoves,GetTime()}
+	lastMoves = nil
 end
 
 local function getHistory(offset)
@@ -261,9 +262,6 @@ function M:MoveTimer()
 	self.targetDistance = nil
 	self.targetAngle = nil
 	if self.gifting then
-		return
-	end
-	if turning then
 		return
 	end
 	if self:IsHardMoving() then
@@ -287,21 +285,26 @@ function M:MoveTimer()
 	-- 	return
 	-- end
 	local targetAngle,targetDistance,facingAngle,facingDistance,targetDistanceXY,targetDistanceZ,targetSize,targetPitch
+	local minDistance,is
 	local playFacing = GetPlayerFacing()
 	local speed = select(IsFlying() and 3 or IsSwimming() and 4 or 2 ,GetUnitSpeed("player"))
 	do
-		local type,data,minDistance,is
-		if self.goto.templateTime and self.goto.templateTime>GetTime() then
-			for i,v in ipairs(self.goto.targetTimeT) do
-				if GetTime()< v+self.goto.templateTime then
-					-- print(i)
-					type,data,minDistance = self.goto.targetTypeT[i],self.goto.targetDataT[i],self.goto.targetMinDistanceT and self.goto.targetMinDistanceT[i]
-					break
-				end
-			end
-		else
-
+		local _,type,data
+		_,type,data,minDistance,is = self:GetTemplatePoint()
+		if type then
+			-- dump(type,data)
 		end
+		-- if self.goto.templateTime and self.goto.templateTime>GetTime() then
+		-- 	for i,v in ipairs(self.goto.targetTimeT) do
+		-- 		if GetTime()< v+self.goto.templateTime then
+		-- 			-- print(i)
+		-- 			type,data,minDistance = self.goto.targetTypeT[i],self.goto.targetDataT[i],self.goto.targetMinDistanceT and self.goto.targetMinDistanceT[i]
+		-- 			break
+		-- 		end
+		-- 	end
+		-- else
+		--
+		-- end
 		if not type then
 			type,data,minDistance,is = self.goto.targetType,self.goto.targetData,self.goto.targetMinDistance,self.goto.incluedTargetSize
 			if minDistance then
@@ -311,7 +314,6 @@ function M:MoveTimer()
 		if type then
 			local x, y, z, f, s = self:GetPositionForType(type,data)
 			if x and y and z then
-
 				local offset = AirjAutoKey:GetParam("fof")
 				if offset then
 					local ox,oy = strsplit(":",offset)
@@ -347,7 +349,11 @@ function M:MoveTimer()
 			facingAngle = self:GetAngleFacing(data)
 		elseif type then
 			local x,y,z = self:GetPositionForType(type,data)
-			if x then
+			local nofacing
+			if type == "unit" and UnitIsDead(data) then
+				nofacing = true
+			end
+			if x and not nofacing then
 				facingDistance = self:GetDistanceFromPlayer(x,y,z)
 				facingAngle = self:GetAngle(x,y,z)
 			end
@@ -357,8 +363,14 @@ function M:MoveTimer()
 	local turnAngle = 0
 	local stop
 	local moveDistanceXY,moveDistance
+	if minDistance then
+		if GetUnitSpeed("player") > 0 then
+			minDistance = max(minDistance-1,0)
+		end
+	end
 	if targetDistanceXY then
 		moveDistanceXY = targetDistanceXY - (minDistance or 0.2) - (self.goto.incluedTargetSize and targetSize or 0)
+		-- dump({minDistance,moveDistanceXY})
 		moveDistance = targetDistance - (minDistance or 0.2) - (self.goto.incluedTargetSize and targetSize or 0)
 	else
 		moveDistanceXY = 0
@@ -375,11 +387,8 @@ function M:MoveTimer()
 	then
 		stop = true
 		if not facingAngle then
-		elseif facingAngle < 2 then
-			turnAngle = facingAngle or 0
 		else
-			turnAngle = facingAngle + 1
-			moves[6] = 1
+			turnAngle = facingAngle
 		end
 		if self.goto.targetStopAfterReach then
 			self:SetMoveTarget()
@@ -470,7 +479,7 @@ function M:MoveTimer()
 		-- end
 	end
 	-- print(moveDistanceXY,targetDistanceZ)
-	if targetDistanceXY and moveDistanceXY<5 and targetDistanceZ>1 and (self.goto.targetType == "point" or moveDistanceXY>0.2) or targetDistanceZ and targetDistanceZ>10 then
+	if self.goto.targetType == "unit" and UnitCanAssist("player",self.goto.targetData) and targetDistanceXY and moveDistanceXY<5 and targetDistanceZ>1 and (self.goto.targetType == "point" or moveDistanceXY>0.2) or targetDistanceZ and targetDistanceZ>10 then
 		moves[7] = 1
 	end
 	if stop  and moveDistance < 15 then
@@ -479,80 +488,65 @@ function M:MoveTimer()
 		movinglast = movinglast + 1
 	end
 	local stucked = self:CheckStuckedTime(1)
-	if stucked > 1 and (stucked-2)%3 <0.05 then
+	if stucked > 0.5 and (stucked+1)%1.5 <0.05 then
 		moves[7] = 1
-		-- jumped = GetTime()
-		print("jump")
 	end
 	-- local speed = GetUnitSpeed("player")
-	stucked = self:CheckStuckedTime(5)
-	local minTime = 5/speed
-	if targetDistanceXY and stucked >(IsFlying() and 3 or 0.5) + minTime and not (self.goto.templateTime and self.goto.templateTime + 1>GetTime()) then
 
-		if not (self.goto.templateTime and self.goto.templateTime+5+stuckedTimes>GetTime()) then
-			stuckedTimes = 0
-		end
-		if lastStuckedPoint then
-			local x,y,z = unpack(lastStuckedPoint)
-			local d = self:GetDistanceFromPlayer(x,y,z)
-			local a = self:GetAngle(x,y,z)
-			if d>10 then
-				if a >0 then
-					stuckedTimes = 0
-				else
-					stuckedTimes = 1
+	if not stop then
+		local wa,da = self:GetWallAngle(10)
+		local wa2,da2 = self:GetWallAngle(1)
+		-- print(wa)
+		if true and da and math.abs(da)>0.1*math.pi and da2 and math.abs(da2)>0.1*math.pi then
+			local range = 5
+			local now = GetTime()
+			if not self.lastWallTime or now - self.lastWallTime > 1 then
+				self:AddTemplatePoint(now+range/speed*0.95,speed,"point",{self:GetOffsetPointAbs(range,0,0,wa)})
+				self.lastWallTime = now
+				self.lastWallDirection = da>0 and 1 or -1
+			end
+		elseif not da then
+			if not AirjAutoKey or not AirjAutoKey:GetParam("nowalkaround") then
+				local now = GetTime()
+				if (not self.lastAroundTime or now - self.lastAroundTime > 1) and (not self.lastWallTime or now - self.lastWallTime > 1) then
+					local radius = 6
+					local minTime = radius/speed
+					stucked = self:CheckStuckedTime(radius)
+					local stucked2 = self:CheckStuckedTime(0.1)
+					if targetDistanceXY and stucked >(IsFlying() and 3 or 1) + minTime and stucked2 > 0.2 then
+						local lastStuckedData
+					  for v,k,i in self.stuckHistory:iterator() do
+							if now - v.t > 30 then
+								break
+							end
+							local x,y,z = unpack(v.point,1,3)
+							local distance = self:GetDistanceFromPlayer(x,y,z,not IsFlying() and not IsSwimming() and not IsFalling())
+							if distance < 1 then
+								lastStuckedData = v
+							end
+						end
+						local stuckedTimes = lastStuckedData and lastStuckedData.stuckedTimes or 0
+						stuckedTimes = stuckedTimes + 1
+						local direction = lastStuckedData and lastStuckedData.direction or self.lastWallDirection and -self.lastWallDirection or 1
+						direction = - direction
+						local range = math.floor(stuckedTimes/2+1.5)*5
+						local datas = {
+							{range*0.5/speed*0.95,{self:GetOffsetPointFacing(0,-range*0.5,0,self.targetAngle)}},
+							{range*1/speed*0.95,{self:GetOffsetPointFacing(direction*range,-range*0.5,0,self.targetAngle)}},
+							{range*1/speed*0.95,{self:GetOffsetPointFacing(direction*range, range*0.5,0,self.targetAngle)}},
+						}
+						local time = now
+						for i,data in ipairs(datas) do
+							time = time + data[1]
+							self:AddTemplatePoint(time,speed,"point",data[2])
+						end
+						self.lastAroundTime = time
+						self.stuckHistory:push({t=now,point={self:GetPlayPosition()},direction=direction,stuckedTimes=stuckedTimes})
+					end
 				end
 			end
-		end
-		local sc = min(stuckedTimes*0.5 + 0.5,4)
-		if stucked > sc + minTime then
-			stuckedTimes = stuckedTimes + 1
-			local time = math.floor(stuckedTimes/2+0.5)
-			self.goto.targetTypeT = {"point","point","point"}
-
-			local direction = stuckedTimes%2 == 0 and 1 or -1
-			self.goto.targetDataT = {
-				{self:GetOffsetPoint(0,-2,0,self.targetAngle)},
-				{self:GetOffsetPoint(direction*time*5,-2,0,self.targetAngle)},
-				{self:GetOffsetPoint(direction*time*5,time*2+1,0,self.targetAngle)}
-			}
-			local duration = 0
-			local durations = {0.4,time,time*0.4+0.6}
-			for i,v in ipairs(durations) do
-				duration = duration + v
-			end
-			self.goto.targetTimeT = {}
-			local started = 0
-			for i,v in ipairs(durations) do
-				self.goto.targetTimeT[i] = -duration + v + started
-				started = started + v
-			end
-			self.goto.templateTime = GetTime()+duration
-			lastStuckedPoint = {self:GetPlayPosition()}
-			if AVR then
-				local scene = AVR:GetTempScene(200)
-				for i,v in ipairs(self.goto.targetDataT) do
-					local m=AVRUnitMesh:New()
-					m:SetFollowUnit(false)
-					m:SetFollowRotation(false)
-					m:SetRadius(1.5)
-					m:SetMeshTranslate(unpack(v))
-					m:SetText("stuck "..i)
-					m:SetTimer(duration + self.goto.targetTimeT[i])
-			    scene:AddMesh(m,false,false)
-				end
-			end
-			-- print(stuckedTimes,floor(direction*time*20))
 		end
 	end
-	-- if stucked > 2 then
-	-- 	if lefted then
-	-- 		moves[3] = 1
-	-- 	else
-	-- 		moves[4] = 1
-	-- 	end
-	-- end
-
 	local nt
 	if stop then
 		nt = abs(turnAngle) > 30
@@ -561,24 +555,65 @@ function M:MoveTimer()
 	else
 		nt = abs(turnAngle) > 15
 	end
-	if nt then
-		if turnAngle > 0 then
-			turnAngle = turnAngle
-			self:Move(5,0)
-			moves[5] = 1
-		else
-			turnAngle= turnAngle
-			self:Move(6,0)
-			moves[6] = 1
-		end
+	if nt and not turning then
+		-- if turnAngle > 0 then
+		-- 	turnAngle = turnAngle
+		-- 	self:Move(5,0)
+		-- 	moves[5] = 1
+		-- else
+		-- 	turnAngle= turnAngle
+		-- 	self:Move(6,0)
+		-- 	moves[6] = 1
+		-- end
 		local facing = playFacing + turnAngle/180*math.pi
 		facing = (facing)%(math.pi*2)
 		AirjHack:SetFacing(facing)
+		print(facing)
 	else
 		moves[5] = 0
 		moves[6] = 0
 	end
 	self:DoMove(moves)
+	lastMoves = moves
+end
+
+function M:AddTemplatePoint(time,speed,type,data,minDistance,is)
+	self.goto.templatePoints = self.goto.templatePoints or {}
+	tinsert(self.goto.templatePoints,{time,type,data,minDistance,is})
+	if AVR then
+		local now = GetTime()
+		local scene = AVR:GetTempScene(200)
+		local m=AVRUnitMesh:New()
+		m:SetFollowUnit(false)
+		m:SetFollowRotation(false)
+		m:SetRadius(1.5)
+		m:SetMeshTranslate(unpack(data))
+		m:SetText("stuck")
+		m:SetTimer(time-now)
+		scene:AddMesh(m,false,false)
+	end
+end
+
+function M:GetTemplatePoint()
+	local points = self.goto.templatePoints
+	local now = GetTime()
+	local mintime,minpoint
+	if points then
+		for i,point in ipairs(points) do
+			local time,type,data,minDistance,is = unpack(point)
+			if time<now then
+				tremove(points,i)
+			else
+				if not mintime or time<mintime then
+					mintime = time
+					minpoint = point
+				end
+			end
+		end
+	end
+	if minpoint then
+		return unpack(minpoint)
+	end
 end
 
 function M:NeedBarCast()
@@ -607,12 +642,56 @@ function M:CheckStuckedTime(d)
 		if not x then
 			break
 		end
-		local distance = self:GetDistanceFromPlayer(x,y,z,not IsFlying() and not IsSwimming())
+		local distance = self:GetDistanceFromPlayer(x,y,z,not IsFlying() and not IsSwimming() and not IsFalling())
 		if distance>d then
 			return i/100
 		end
 	end
 	return movinglast/100
+end
+
+function M:GetWallAngle(count)
+	count = count or 1
+	local now = {getHistory(0)}
+	local history = {getHistory(count)}
+	if not now[1] or not history[1] then
+		return
+	end
+	local mx,my,mz,mt = now[1]-history[1], now[2] - history[2], now[3] - history[3], now[7] - history[7]
+	if not (mx == 0 and my == 0) then
+		local ma = math.atan2(my, mx)
+		local md = math.sqrt(mx^2+my^2)
+		local ms = history[6] or {}
+		local sa = 0
+		if ms[1]==1 and ms[2]==0 and ms[3]==0 and ms[4]==0 then
+			sa = 0
+		elseif ms[1]==1 and ms[2]==0 and ms[3]==1 and ms[4]==0 then
+			sa = math.pi/4
+		elseif ms[1]==0 and ms[2]==0 and ms[3]==1 and ms[4]==0 then
+			sa = 2*math.pi/4
+		elseif ms[1]==0 and ms[2]==1 and ms[3]==1 and ms[4]==0 then
+			sa = 3*math.pi/4
+		elseif ms[1]==0 and ms[2]==1 and ms[3]==0 and ms[4]==0 then
+			sa = 4*math.pi/4
+		elseif ms[1]==0 and ms[2]==1 and ms[3]==0 and ms[4]==1 then
+			sa = 5*math.pi/4
+		elseif ms[1]==0 and ms[2]==0 and ms[3]==0 and ms[4]==1 then
+			sa = 6*math.pi/4
+		elseif ms[1]==1 and ms[2]==0 and ms[3]==0 and ms[4]==1 then
+			sa = 7*math.pi/4
+		end
+		sa = sa + history[4] + math.pi/2
+		sa = sa%(2*math.pi)
+		local sd = history[5]*mt
+		local da = (ma - sa)%(2*math.pi)
+		if da > math.pi then
+			da = da - 2*math.pi
+		end
+		local mdp = sd * math.cos(da)
+		if math.abs((mdp-md)/md)<0.02 then
+			return ma,da
+		end
+	end
 end
 
 function M:DoMove (moves)
@@ -640,7 +719,9 @@ function M:GetPositionForType(type,data)
 end
 
 function M:ClearGoToTemplate()
-	self.goto.templateTime = GetTime()
+	if self.goto.templatePoints then
+		wipe(self.goto.templatePoints)
+	end
 end
 
 function M:SetMoveTarget (type,data,sar,minDistance,incluedTargetSize)
@@ -667,19 +748,11 @@ function M:ClearMoveFacing ()
 	self:SetMoveFacing()
 end
 
-function M:KeepGoToUnit(unit,...)
-	local x, y, z = AirjHack:Position(UnitGUID(unit))
-	if x then
-		self:SetMoveTarget("point",{x,y,z},nil,...)
-	end
-end
-
 function M:KeepFollowUnit(unit,...)
 	self:SetMoveTarget("unit",unit,nil,...)
 end
 
 function M:KeepFollowGUID(guid,...)
-	--local guid = UnitGUID(unit)
 	if guid and guid~=UnitGUID("player") then
 		self:SetMoveTarget("guid",guid,nil,...)
 	end
@@ -688,7 +761,6 @@ function M:KeepFacingUnit(unit,...)
 	self:SetMoveFacing("unit",unit,true,...)
 end
 function M:KeepFacingGUID(guid,...)
-	--local guid = UnitGUID(unit)
 	if guid and guid~=UnitGUID("player") then
 		self:SetMoveFacing("guid",guid,true,...)
 	end
@@ -716,7 +788,8 @@ function M:MoveToNearest(uid,parachute,ignore)
 			if ot == "Creature" or ot == "GameObject" or ot == "AreaTrigger" then
 				if uid and uid[oid] then
           local mignore = AirjMove.ignores[oid]
-          if not mignore or not mignore[guid] then
+					local nignore = (not mignore or not mignore[guid]) and not AirjMove.ignoreGuids[guid]
+          if nignore then
 						local x1,y1,z1,_,distance = AirjCache:GetPosition(guid)
 						if distance then
 							if not minDistance or distance<minDistance then
@@ -749,239 +822,218 @@ function M:MoveTo(point,parachute)
 			parachute = point[3] + 20
 		end
 		if self:GetDistance(point,{pd[1],pd[2],point[3]}) < 5 then
-			self:SetMoveTarget("point",point)
+			local a,b = pd[1]-point[1],pd[2]-point[2]
+			local s = math.sqrt(a^2+b^2)
+			a,b = a/s,b/s
+			self:SetMoveTarget("point",{point[1]+a*2,point[2]+b*2,point[3]},nil,3)
 		elseif pd[3] < parachute then
 			self:SetMoveTarget("point",{pd[1],pd[2],parachute + 5})
 		else
-			self:SetMoveTarget("point",{point[1],point[2],pd[3]})
+			self:SetMoveTarget("point",{point[1],point[2],pd[3]},nil,3)
 		end
 	else
 		self:SetMoveTarget("point",point)
 	end
 end
-
-function M:MoveToTemplate(...)
-	local data,durations,duration = {},{},0
-	local typeT,minDistance = {},{}
-	for i,d in ipairs({...}) do
-		local x,y,z,t,md = unpack(d)
-		typeT[i] = "point"
-		data[i] = {x,y,z}
-		minDistance[i] = md-0.1
-		durations[i] = t
-		duration = duration + t
-	end
-	self.goto.targetDataT = data
-	self.goto.targetTypeT = typeT
-	self.goto.targetMinDistanceT = minDistance
-	self.goto.targetTimeT = {}
-	local started = 0
-	for i,v in ipairs(durations) do
-		self.goto.targetTimeT[i] = -duration + v + started
-		started = started + v
-	end
-	self.goto.templateTime = GetTime()+duration
-end
-
 local defaultDB = {
 	["bwd"] = {
-	{
-		-3081.02880859375, -- [1]
-		-1853.51904296875, -- [2]
-		89.8387222290039, -- [3]
-		5.1521053314209, -- [4]
-		1.5, -- [5]
-	}, -- [1]
-	{
-		-3218.091796875, -- [1]
-		-1941.5078125, -- [2]
-		96.9859924316406, -- [3]
-		0.985560417175293, -- [4]
-		1.5, -- [5]
-	}, -- [2]
-	{
-		-3463.33642578125, -- [1]
-		-1773.2099609375, -- [2]
-		112.541709899902, -- [3]
-		0.78528094291687, -- [4]
-		1.5, -- [5]
-	}, -- [3]
-	{
-		-3551.31274414063, -- [1]
-		-1522.3974609375, -- [2]
-		85.1822814941406, -- [3]
-		0.16481614112854, -- [4]
-		1.5, -- [5]
-	}, -- [4]
-	{
-		-3486.67138671875, -- [1]
-		-1234.27978515625, -- [2]
-		87.4831390380859, -- [3]
-		5.98462677001953, -- [4]
-		1.5, -- [5]
-	}, -- [5]
-	{
-		-3344.228515625, -- [1]
-		-956.174682617188, -- [2]
-		165.626647949219, -- [3]
-		5.80397987365723, -- [4]
-		1.5, -- [5]
-	}, -- [6]
-	{
-		-3219.18359375, -- [1]
-		-752.619506835938, -- [2]
-		175.943572998047, -- [3]
-		6.01603507995606, -- [4]
-		1.5, -- [5]
-	}, -- [7]
-	{
-		-3274.33862304688, -- [1]
-		-440.619689941406, -- [2]
-		147.029800415039, -- [3]
-		0.361163377761841, -- [4]
-		1.5, -- [5]
-	}, -- [8]
-	{
-		-2877.08935546875, -- [1]
-		-425.656555175781, -- [2]
-		133.18962097168, -- [3]
-		4.7750883102417, -- [4]
-		1.5, -- [5]
-	}, -- [9]
-	{
-		-2777.55102539063, -- [1]
-		-672.516479492188, -- [2]
-		134.51545715332, -- [3]
-		4.59443330764771, -- [4]
-		1.5, -- [5]
-	}, -- [10]
-	{
-		-2408.78466796875, -- [1]
-		-740.125671386719, -- [2]
-		170.976776123047, -- [3]
-		4.47662448883057, -- [4]
-		1.5, -- [5]
-	}, -- [11]
-	{
-		-2217.96142578125, -- [1]
-		-712.13720703125, -- [2]
-		123.801368713379, -- [3]
-		0.0351943820714951, -- [4]
-		1.5, -- [5]
-	}, -- [12]
-	{
-		-2008.08532714844, -- [1]
-		-739.298400878906, -- [2]
-		97.4978790283203, -- [3]
-		4.78292322158814, -- [4]
-		1.5, -- [5]
-	}, -- [13]
-	{
-		-1654.45446777344, -- [1]
-		-696.827880859375, -- [2]
-		41.2684173583984, -- [3]
-		4.70438003540039, -- [4]
-		1.5, -- [5]
-	}, -- [14]
-	{
-		-1754.07739257813, -- [1]
-		-885.12841796875, -- [2]
-		145.654541015625, -- [3]
-		2.56809711456299, -- [4]
-		1.5, -- [5]
-	}, -- [15]
-	{
-		-1955.75805664063, -- [1]
-		-985.432678222656, -- [2]
-		181.560211181641, -- [3]
-		1.15045285224915, -- [4]
-		1.5, -- [5]
-	}, -- [16]
-	{
-		-1771.87841796875, -- [1]
-		-1186.23156738281, -- [2]
-		139.754531860352, -- [3]
-		3.9268364906311, -- [4]
-		1.5, -- [5]
-	}, -- [17]
-	{
-		-1641.05847167969, -- [1]
-		-1393.60925292969, -- [2]
-		45.2211494445801, -- [3]
-		4.00930213928223, -- [4]
-		1.5, -- [5]
-	}, -- [18]
-	{
-		-2045.3779296875, -- [1]
-		-1294.50561523438, -- [2]
-		131.096633911133, -- [3]
-		4.75150108337402, -- [4]
-		1.5, -- [5]
-	}, -- [19]
-	{
-		-2284.97338867188, -- [1]
-		-1203.49108886719, -- [2]
-		63.5874671936035, -- [3]
-		1.26040291786194, -- [4]
-		1.5, -- [5]
-	}, -- [20]
-	{
-		-2361.53393554688, -- [1]
-		-1066.31652832031, -- [2]
-		68.5908279418945, -- [3]
-		3.30243873596191, -- [4]
-		1.5, -- [5]
-	}, -- [21]
-	{
-		-2529.447265625, -- [1]
-		-1059.59558105469, -- [2]
-		140.443771362305, -- [3]
-		1.44889831542969, -- [4]
-		1.5, -- [5]
-	}, -- [22]
-	{
-		-2761.037109375, -- [1]
-		-1004.74145507813, -- [2]
-		135.226257324219, -- [3]
-		1.39391994476318, -- [4]
-		1.5, -- [5]
-	}, -- [23]
-	{
-		-2973.19775390625, -- [1]
-		-1061.90087890625, -- [2]
-		96.526252746582, -- [3]
-		1.69629836082459, -- [4]
-		1.5, -- [5]
-	}, -- [24]
-	{
-		-2943.66528320313, -- [1]
-		-1320.8515625, -- [2]
-		114.503120422363, -- [3]
-		3.3142192363739, -- [4]
-		1.5, -- [5]
-	}, -- [25]
-	{
-		-2842.46997070313, -- [1]
-		-1555.61279296875, -- [2]
-		128.365783691406, -- [3]
-		3.63230967521668, -- [4]
-		1.5, -- [5]
-	}, -- [26]
-	{
-		-2831.91259765625, -- [1]
-		-1752.84973144531, -- [2]
-		81.9350891113281, -- [3]
-		2.0575852394104, -- [4]
-		1.5, -- [5]
-	}, -- [27]
-	{
-		-3186.80151367188, -- [1]
-		-1663.20288085938, -- [2]
-		204.913238525391, -- [3]
-		0.694913148880005, -- [4]
-		1.5, -- [5]
-	}, -- [28]
-}
+		{
+			-3081.02880859375, -- [1]
+			-1853.51904296875, -- [2]
+			89.8387222290039, -- [3]
+			5.1521053314209, -- [4]
+			1.5, -- [5]
+		}, -- [1]
+		{
+			-3218.091796875, -- [1]
+			-1941.5078125, -- [2]
+			96.9859924316406, -- [3]
+			0.985560417175293, -- [4]
+			1.5, -- [5]
+		}, -- [2]
+		{
+			-3463.33642578125, -- [1]
+			-1773.2099609375, -- [2]
+			112.541709899902, -- [3]
+			0.78528094291687, -- [4]
+			1.5, -- [5]
+		}, -- [3]
+		{
+			-3551.31274414063, -- [1]
+			-1522.3974609375, -- [2]
+			85.1822814941406, -- [3]
+			0.16481614112854, -- [4]
+			1.5, -- [5]
+		}, -- [4]
+		{
+			-3486.67138671875, -- [1]
+			-1234.27978515625, -- [2]
+			87.4831390380859, -- [3]
+			5.98462677001953, -- [4]
+			1.5, -- [5]
+		}, -- [5]
+		{
+			-3344.228515625, -- [1]
+			-956.174682617188, -- [2]
+			165.626647949219, -- [3]
+			5.80397987365723, -- [4]
+			1.5, -- [5]
+		}, -- [6]
+		{
+			-3219.18359375, -- [1]
+			-752.619506835938, -- [2]
+			175.943572998047, -- [3]
+			6.01603507995606, -- [4]
+			1.5, -- [5]
+		}, -- [7]
+		{
+			-3274.33862304688, -- [1]
+			-440.619689941406, -- [2]
+			147.029800415039, -- [3]
+			0.361163377761841, -- [4]
+			1.5, -- [5]
+		}, -- [8]
+		{
+			-2877.08935546875, -- [1]
+			-425.656555175781, -- [2]
+			133.18962097168, -- [3]
+			4.7750883102417, -- [4]
+			1.5, -- [5]
+		}, -- [9]
+		{
+			-2777.55102539063, -- [1]
+			-672.516479492188, -- [2]
+			134.51545715332, -- [3]
+			4.59443330764771, -- [4]
+			1.5, -- [5]
+		}, -- [10]
+		{
+			-2408.78466796875, -- [1]
+			-740.125671386719, -- [2]
+			170.976776123047, -- [3]
+			4.47662448883057, -- [4]
+			1.5, -- [5]
+		}, -- [11]
+		{
+			-2217.96142578125, -- [1]
+			-712.13720703125, -- [2]
+			123.801368713379, -- [3]
+			0.0351943820714951, -- [4]
+			1.5, -- [5]
+		}, -- [12]
+		{
+			-2008.08532714844, -- [1]
+			-739.298400878906, -- [2]
+			97.4978790283203, -- [3]
+			4.78292322158814, -- [4]
+			1.5, -- [5]
+		}, -- [13]
+		{
+			-1654.45446777344, -- [1]
+			-696.827880859375, -- [2]
+			41.2684173583984, -- [3]
+			4.70438003540039, -- [4]
+			1.5, -- [5]
+		}, -- [14]
+		{
+			-1754.07739257813, -- [1]
+			-885.12841796875, -- [2]
+			145.654541015625, -- [3]
+			2.56809711456299, -- [4]
+			1.5, -- [5]
+		}, -- [15]
+		{
+			-1955.75805664063, -- [1]
+			-985.432678222656, -- [2]
+			181.560211181641, -- [3]
+			1.15045285224915, -- [4]
+			1.5, -- [5]
+		}, -- [16]
+		{
+			-1771.87841796875, -- [1]
+			-1186.23156738281, -- [2]
+			139.754531860352, -- [3]
+			3.9268364906311, -- [4]
+			1.5, -- [5]
+		}, -- [17]
+		{
+			-1641.05847167969, -- [1]
+			-1393.60925292969, -- [2]
+			45.2211494445801, -- [3]
+			4.00930213928223, -- [4]
+			1.5, -- [5]
+		}, -- [18]
+		{
+			-2045.3779296875, -- [1]
+			-1294.50561523438, -- [2]
+			131.096633911133, -- [3]
+			4.75150108337402, -- [4]
+			1.5, -- [5]
+		}, -- [19]
+		{
+			-2284.97338867188, -- [1]
+			-1203.49108886719, -- [2]
+			63.5874671936035, -- [3]
+			1.26040291786194, -- [4]
+			1.5, -- [5]
+		}, -- [20]
+		{
+			-2361.53393554688, -- [1]
+			-1066.31652832031, -- [2]
+			68.5908279418945, -- [3]
+			3.30243873596191, -- [4]
+			1.5, -- [5]
+		}, -- [21]
+		{
+			-2529.447265625, -- [1]
+			-1059.59558105469, -- [2]
+			140.443771362305, -- [3]
+			1.44889831542969, -- [4]
+			1.5, -- [5]
+		}, -- [22]
+		{
+			-2761.037109375, -- [1]
+			-1004.74145507813, -- [2]
+			135.226257324219, -- [3]
+			1.39391994476318, -- [4]
+			1.5, -- [5]
+		}, -- [23]
+		{
+			-2973.19775390625, -- [1]
+			-1061.90087890625, -- [2]
+			96.526252746582, -- [3]
+			1.69629836082459, -- [4]
+			1.5, -- [5]
+		}, -- [24]
+		{
+			-2943.66528320313, -- [1]
+			-1320.8515625, -- [2]
+			114.503120422363, -- [3]
+			3.3142192363739, -- [4]
+			1.5, -- [5]
+		}, -- [25]
+		{
+			-2842.46997070313, -- [1]
+			-1555.61279296875, -- [2]
+			128.365783691406, -- [3]
+			3.63230967521668, -- [4]
+			1.5, -- [5]
+		}, -- [26]
+		{
+			-2831.91259765625, -- [1]
+			-1752.84973144531, -- [2]
+			81.9350891113281, -- [3]
+			2.0575852394104, -- [4]
+			1.5, -- [5]
+		}, -- [27]
+		{
+			-3186.80151367188, -- [1]
+			-1663.20288085938, -- [2]
+			204.913238525391, -- [3]
+			0.694913148880005, -- [4]
+			1.5, -- [5]
+		}, -- [28]
+	}
 }
 function M:GetDB()
 	AirjAutoKey.db.cruiseData = AirjAutoKey.db.cruiseData or {}
@@ -1011,8 +1063,6 @@ function M:GetCruiseDate()
 		return testData
 	end
 end
-
-
 local meshs = {}
 function M:DrawCruiseData()
 	for i,v in pairs(meshs) do
@@ -1105,7 +1155,8 @@ function M:CruiseTimer()
 	-- print()
 	if minDistance then
 		local lastD = self.lastMinDistance or 1000
-		if (minDistance < 5 and lastD<4 or minDistance<2) or (minDistanceXY and minDistanceXY<2 and not IsFlying() and minDistanceZ and minDistanceZ < 2) then
+		local mind = IsFlying() and 5 or IsMounted() and 2 or 0.5
+		if (minDistance < mind and lastD<mind*0.5 or minDistance<mind*0.5) or (minDistanceXY and minDistanceXY<mind*0.5 and not IsFlying() and minDistanceZ and minDistanceZ < 2) then
 			self.lastMinDistance = minDistance
 			local i = minDistanceI
 			if lastI then
@@ -1180,6 +1231,45 @@ function M:GetDistance(p1,p2)
 	return sqrt((p1[1]-p2[1])^2 + (p1[2]-p2[2])^2 + (p1[3]-p2[3])^2)
 end
 
+function M:GetVector(f,t)
+	local vector = {}
+	for i,v in ipairs(f) do
+		if i<=3 then
+			vector[i] = t[i] - f[i]
+		end
+	end
+	return vector
+end
+
+function M:Cross(v1,v2)
+	return v1[1]*v2[2]-v1[2]*v2[1]
+end
+
+function M:Intersect(l1,l2)
+	local p,q = l1[1],l2[1]
+	local r,s = self:GetVector(l1[2],l1[1]),self:GetVector(l2[2],l2[1])
+	local rxs = self:Cross(r,s)
+	local pqxr = self:Cross(self:GetVector(p,q),r)
+	if rxs == 0 then
+		if pqxr == 0 then
+			return true
+		else
+			return false
+		end
+	else
+		local pqxs = self:Cross(self:GetVector(p,q),s)
+		local t = -pqxs/rxs
+		local u = -pqxr/rxs
+		if t>=0 and t<=1 and u>=0 and u<=1 then
+			return true
+		else
+			return false
+		end
+	end
+
+
+end
+
 function M:GetDistanceToLine(p1,p2,p,inline)
 	local t = 0
 	local dis = self:GetDistance(p1,p2)
@@ -1207,10 +1297,6 @@ function M:GetDistanceToLine(p1,p2,p,inline)
 	return d,t,d2,(p1[3]-p[3])+(p2[3]-p1[3])*t
 end
 
-
-
-
-
 function M:GetDistanceFromPlayer (x,y,z,xy)
 	local px, py, pz = self:GetPlayPosition()
 	return self:GetDistance({x,y,xy and pz or z},{px, py, pz})
@@ -1235,11 +1321,18 @@ function M:GetAngle(x,y,z)
 	return angle,theta
 end
 
-function M:GetOffsetPoint(x,y,z,a)
+function M:GetOffsetPointFacing(x,y,z,a)
 	local px, py, pz, pf = self:GetPlayPosition()
 	a = a or 0
 	local facing = pf*180/math.pi+a
 	return px-x*cos(facing)-y*sin(facing),py+y*cos(facing)-x*sin(facing),pz+z
+end
+
+function M:GetOffsetPointAbs(x,y,z,a)
+	a = a or 0
+	local px, py, pz, pf = self:GetPlayPosition()
+	local sin,cos = math.sin,math.cos
+	return px+x*cos(a)-y*sin(a),py+y*cos(a)+x*sin(a),pz+z
 end
 
 function M:GetGoToMoves (x, y, z)
@@ -1497,7 +1590,7 @@ function M:GoToAreaTriggers(ids,maxDistance)
 			return
 		end
 		local speed = select(IsFlying() and 3 or IsSwimming() and 4 or 2 ,GetUnitSpeed("player"))
-		self:MoveToTemplate({tx,ty,tz,distance/speed,tr-0.1})
+		-- self:MoveToTemplate({tx,ty,tz,distance/speed,tr-0.1})
 	end
 	return distance
 end
@@ -1593,7 +1686,9 @@ function M:TurnAndCast(spellId,prejump,delay)
 		end
 	end
 end
-function M:TurnToCast(spellId,unit,offset,prejump,delay)
+
+function M:TurnToCast(spellId,unit,offset,prejump,delay,movef)
+	offset = offset or 0
 	if not AirjHack:HasHacked() then
 		return
 	end
@@ -1632,11 +1727,14 @@ function M:TurnToCast(spellId,unit,offset,prejump,delay)
 			end
 			if i<10 then
 				AirjHack:SetFacing(f2)
+				if movef then
+					self:DoMove({1,0,0,0,0,0,0,0,0,0})
+				end
 			else
 				AirjHack:SetFacing(f)
 			end
 			if i == 10 then
-				RunMacroText("/cast "..spellName)
+				RunMacroText("/cast [@"..unit.."]"..spellName)
 			end
 			if i == 10 then
 				if d then
@@ -1692,6 +1790,22 @@ function M:TurnToCast(spellId,unit,offset,prejump,delay)
 		turning = 1
 	end
 end
+
+function M:RaidPillar(index,x,y,z)
+	index = index or 1
+	local timer
+	local fucn = function()
+		if UnitCastingInfo("player") or UnitChannelInfo("player") then
+		else
+			AirjHack:RunMacroText("/wm "..index)
+			AirjHack:TerrainClick(x,y,z)
+			self:CancelTimer(timer)
+		end
+	end
+	timer = self:ScheduleRepeatingTimer(fucn,0.2)
+	fucn()
+end
+
 function M:GreenCast(...)
 	local ld = self.leftDown==1
 	local rd = self.rightDown==1
@@ -1797,66 +1911,330 @@ function M:StepStun(unit)
 		end
 	end
 end
---
--- function M:TurnAndCast(spellId,prejump,delay)
--- 	local spellName = GetSpellInfo(spellId)
--- 	if not spellName then return end
--- 	if not turning and (GetSpellCooldown(spellName) == 0 or 1) then
--- 		local f = GetPlayerFacing()
--- 		local f2 = (f+math.pi*(1+1/180))%(2*math.pi)
---  		local d = not (self.leftDown==1 or self.rightDown==1)
--- 		local turn = function(f)
--- 			self:ScheduleTimer(function()
--- 				AirjHack:SetFacing(f)
--- 				self:Move(6,1)
--- 			end,0.01)
--- 			self:ScheduleTimer(function()
--- 				self:Move(6,0)
--- 				self:Move(5,1)
--- 			end,0.02)
--- 			self:ScheduleTimer(function()
--- 				self:Move(5,0)
--- 			end,0.03)
--- 		end
--- 		-- local ret = function()
--- 		-- 	self:ScheduleTimer(function()
--- 		-- 		AirjHack:SetFacing(f)
--- 		-- 		self:Move(5,1)
--- 		-- 	end,0.01)
--- 		-- 	self:ScheduleTimer(function()
--- 		-- 		self:Move(5,0)
--- 		-- 		self:Move(6,1)
--- 		-- 	end,0.02)
--- 		-- 	self:ScheduleTimer(function()
--- 		-- 		self:Move(6,0)
--- 		-- 	end,0.03)
--- 		-- end
--- 		self:ScheduleTimer(function()
--- 			if d then FlipCameraYaw(180) end
--- 		end,0.01)
--- 		local turntimer = self:ScheduleRepeatingTimer(turn,0.03,f2)
--- 		local rettimer
--- 		self:ScheduleTimer(function()
--- 			RunMacroText("/cast "..spellName)
--- 		end,0.1)
--- 		self:ScheduleTimer(function()
--- 			self:CancelTimer(turntimer)
--- 			rettimer = self:ScheduleRepeatingTimer(turn,0.03,f)
--- 			self:ScheduleTimer(function()
--- 				if d then FlipCameraYaw(180) end
--- 			end,0.01)
--- 			turn(f)
--- 		end,0.2)
--- 		turn(f2)
--- 		delay = delay or 0.3
--- 		self:ScheduleTimer(function()
--- 			self:CancelTimer(rettimer)
--- 			turning = nil
--- 			self:MoveAsHard()
--- 		end,delay)
--- 		turning = 1
--- 		if prejump then
--- 			JumpOrAscendStart()
--- 		end
--- 	end
--- end
+
+-- Native
+local testData
+function M:GenerateTestData()
+	local test = {}
+	local IMAX,JMAX = 4,4
+	local function getid(i,j)
+		return i*(JMAX+1) + j
+	end
+	for i = 0,IMAX do
+		for j = 0,JMAX do
+			if not ((i == 1 or i == 3) and (j==1 or j==3)) then
+				local points = {
+					{i-0.5,j-0.5,0},
+					{i+0.5,j-0.5,0},
+					{i+0.5,j+0.5,0},
+					{i-0.5,j+0.5,0},
+				}
+				test[getid(i,j)] = {points = points}
+			end
+		end
+	end
+	local function getEid(i,j)
+		local id = getid(i,j)
+		if test[id] then
+			return id
+		end
+	end
+	for i = 0,IMAX do
+		for j = 0,JMAX do
+			local id = getid(i,j)
+			if test[id] then
+				local edges = {}
+				edges[1] = j == 0 and {} or {to=getEid(i,j-1)}
+				edges[2] = i == IMAX and {} or {to=getEid(i+1,j)}
+				edges[3] = j == JMAX and {} or {to=getEid(i,j+1)}
+				edges[4] = i == 0 and {} or {to=getEid(i-1,j)}
+				test[id].edges = edges
+			end
+		end
+	end
+	local pp = {AirjHack:Position(UnitGUID("player"))}
+	for _,p in pairs(test) do
+		for _,point in pairs(p.points) do
+			for i = 1,3 do
+				point[i] = point[i]*10 + pp[i]
+			end
+		end
+	end
+	testData = test
+end
+
+function M:GetPolyDatas(mapid)
+	if not testData then self:GenerateTestData() end
+	return testData
+end
+
+local polymeshs = {}
+local id2range = {}
+function M:DrawPolyDatas(mapid)
+	for _,v in pairs (polymeshs) do
+    v.visible=false
+		if v.Remove then
+    	v:Remove()
+		end
+	end
+	wipe(polymeshs)
+	local datas = M:GetPolyDatas(mapid)
+	local scene = AVR:GetTempScene(200)
+	for id,poly in pairs(datas) do
+		local m = AVRPolygonMesh:New({poly.points})
+		m:SetColor(math.random(),math.random(),math.random(),0.2)
+    scene:AddMesh(m,false,false)
+		tinsert(polymeshs,m)
+		local scene = AVR:GetTempScene(200)
+
+
+		local a={0,0,0}
+		local c={0,0,0}
+		for i,p in ipairs(poly.points) do
+			for j=1,3 do
+				a[j] = a[j] + p[j]
+				c[j] = c[j] + 1
+			end
+		end
+		for j=1,3 do
+			a[j] = a[j]/c[j]
+		end
+		m=AVRUnitMesh:New()
+
+		m:SetColor(1,0,0,0)
+		m:SetColor2(1,0,0,0)
+		m:SetFollowUnit(false)
+		m:SetFollowRotation(false)
+		m:SetMeshTranslate(unpack(a))
+		local text = id..""
+		if id2range then
+			local d = id2range[id]
+			local r = d and d.range
+			if r then
+				text = text .. " - " .. r
+			end
+		end
+		m:SetText(text)
+		m:SetTimer(120)
+    scene:AddMesh(m,false,false)
+		tinsert(polymeshs,m)
+	end
+end
+
+function M:IsPointInPoly(point,poly)
+	local j = #poly.points
+	local inside=false
+	local px,py = point[1],point[2]
+	for i = 1,#poly.points do
+		local s,e = poly.points[i],poly.points[j]
+		if py>s[2] and py<=e[2] or py>e[2] and py<=s[2] then
+			local l,r = (px-s[1])*(e[2]-s[2]),(py-s[2])*(e[1]-s[1])
+			if e[2]>s[2] and l>r or e[2]<s[2] and l<r then
+				inside = not inside
+			end
+		end
+		j = i
+	end
+	return inside
+end
+
+function M:GetPolyRoutes(from,to,datas)
+	from = from or {AirjHack:Position(UnitGUID("player"))}
+	to = to or {AirjHack:Position(UnitGUID("target"))}
+	if not from[1] or not to[1] then
+		return
+	end
+	datas = datas or self:GetPolyDatas()
+	local fromId, toId
+	for id,v in pairs(datas) do
+		if not fromId and self:IsPointInPoly(from,v) then
+			fromId = id
+		end
+		if not toId and self:IsPointInPoly(to,v) then
+			toId = id
+		end
+		if fromId and toId then
+			break
+		end
+	end
+	if not fromId or not toId then
+		return
+	end
+	if fromId == toId then
+		return
+	end
+	wipe(id2range)
+	local i = 1
+	local range
+	id2range[fromId] = {range=1,from={{}}}
+	debug = 0
+	while true do
+		local i2r = {}
+		for id,rd in pairs(id2range) do
+			if rd.range == i then
+				local data = datas[id]
+				for ei,ed in ipairs(data.edges) do
+					if ed.to then
+						local tid = ed.to
+						if not id2range[tid] and not i2r[tid] then
+							i2r[tid] = {range = i+1,from={}}
+						end
+						local data = id2range[tid] or i2r[tid]
+						if data.range>i then
+							for j,r in ipairs(rd.from) do
+								local route = {unpack(r)}
+								tinsert(route,id)
+								-- dump(route)
+								tinsert(data.from,route)
+							end
+						end
+						if not range and tid == toId then
+							range = i
+						end
+					end
+				end
+			end
+		end
+		for id,v in pairs(i2r) do
+			id2range[id] = v
+		end
+		if range then
+			break
+		end
+		i = i + 1
+		debug = debug + 1
+		if debug > 100 then
+			print("debug id2range")
+			break
+		end
+	end
+	if not range then
+		return
+	end
+	local routes = {}
+	for i,r in ipairs(id2range[toId].from) do
+		local route = {unpack(r)}
+		tinsert(route,toId)
+		routes[i] = route
+	end
+	return routes
+end
+
+function M:GetConnerWays(routes,datas,from,to)
+	datas = datas or self:GetPolyDatas()
+	local allways = {}
+	local ways = {}
+	for _,route in ipairs(routes) do
+		local pointpairs = {}
+		for i,id in ipairs(route) do
+			local data = datas[id]
+			if data then
+				if i ~= #route then
+					local toid = route[i+1]
+					local pp
+					for ei,ed in ipairs(data.edges) do
+						if ed.to == toid then
+							local ni = ei+1
+							if ni > #data.points then ni = ni - #data.points  end
+							pp = {data.points[ei],data.points[ni]}
+							break
+						end
+					end
+					pointpairs[i] = pp or {}
+				end
+			end
+		end
+		for i = 1,2^(#pointpairs) do
+			local way = {from}
+			for j = 1,#pointpairs do
+				local pp = pointpairs[j]
+				way[j+1] = bit.band(i-1,bit.lshift(1,j-1)) == 0 and pp[1] or pp[2]
+			end
+			way.route = route
+			way.divide = pointpairs
+			tinsert(way,to)
+			tinsert(ways,way)
+		end
+	end
+	return ways
+end
+
+function M:RemoveUselessConners(way)
+	-- datas = datas or self:GetPolyDatas()
+	local pc = #way - 2
+	local divide = way.divide
+	local	ways = {}
+	for i = 1,2^pc do
+		local tw = {unpack(way)}
+		local faild
+		for j = 1,pc do
+			if bit.band(i-1,bit.lshift(1,j-1)) == 0 then
+				tw[j+1] = nil
+			end
+		end
+		for di,pp in ipairs(divide) do
+			if not tw[di] or not tw[di+1] then
+				local prepoint,nextpoint
+				for m = di,1,-1 do
+					if tw[m] then
+						prepoint = tw[m]
+						break
+					end
+				end
+				for m = di+1,#way do
+					if tw[m] then
+						nextpoint = tw[m]
+						break
+					end
+				end
+				if not self:Intersect({prepoint,nextpoint},pp) then
+					faild = true
+					break
+				end
+			end
+		end
+		if not faild then
+			tinsert(ways,tw)
+		end
+	end
+	return ways
+end
+
+function M:GetMinDistance(ways)
+	local minDistance, minDistanceWay
+	for i,way in ipairs(ways) do
+		local distance = 0
+		for i = 2,#way do
+			distance = distance + self:GetDistance(way[i],way[i-1])
+		end
+		if not minDistance or distance<minDistance then
+			minDistance = distance
+			minDistanceWay = way
+		end
+	end
+	return minDistanceWay
+end
+
+function M:Test()
+	local from = {AirjHack:Position(UnitGUID("player"))}
+	local to = {AirjHack:Position(UnitGUID("target"))}
+	local datas = self:GetPolyDatas()
+	local routes = self:GetPolyRoutes(from,to,datas)
+	local way
+	if routes then
+		local ways = self:GetConnerWays(routes,datas,from,to)
+		way = self:GetMinDistance(ways)
+		ways = self:RemoveUselessConners(way)
+		dump(ways)
+		way = self:GetMinDistance(ways)
+		if way then
+			self.cruiseName = "polyway"
+			self.isCruise = true
+			self:GetDB()[self.cruiseName] = way
+			way.noloop = true
+			self:DrawCruiseData()
+		end
+	end
+	self:DrawPolyDatas()
+	return way
+end

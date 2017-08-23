@@ -1,0 +1,12 @@
+tag 1f1a41d4085b63e640e7c141b65f68ea869ffe16 1.40.2
+Author:	Hendrik Leppkes <h.leppkes@gmail.com>
+Date:	Wed Jul 12 14:09:25 2017 +0200
+
+Tag as 1.40.2
+
+commit 77228124a4289ae7761c0dc6132c6fe7ddbe9d03
+Author: Hendrik Leppkes <h.leppkes@gmail.com>
+Date:   Wed Jul 12 14:03:03 2017 +0200
+
+    Switch to ignoring unlocalized strings
+

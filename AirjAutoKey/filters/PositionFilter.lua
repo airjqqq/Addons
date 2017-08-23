@@ -33,6 +33,11 @@ function F:OnInitialize()
   --   name = {name = "from unit"},
   --   unit = {},
   -- })
+  self:RegisterFilter("DELTAZ",L["Delta Z"],{
+    value = {},
+    greater = {},
+    unit = {},
+  })
   self:RegisterFilter("HANGLE",L["Face Angle(Deg)"],{
     value = {},
     greater = {},
@@ -74,6 +79,7 @@ function F:OnInitialize()
     greater = {},
   })
   self:RegisterFilter("NEARESTRANGE",L["Nearest Range"],{
+    name = {},
     value = {},
     greater = {},
   })
@@ -140,14 +146,31 @@ end
 function F:AAKFASTMOVE(filter)
 
   local uid = Core:ToKeyTable(filter.name)
+  local stopmoved = 0
+  do
+    local t = GetTime()
+    for v in AirjCache.cache.speed:iterator() do
+      if v.value ~= 0 then
+        stopmoved = t-v.t
+      end
+    end
+  end
+  local needIgnore
+  if (AirjMove.lastNearestDistance or 9999) < 5 and stopmoved > 5 then
+    needIgnore = true
+  end
   if AirjMove:CheckStuckedTime(5)>2 then
+    needIgnore = true
+  end
+  if needIgnore then
     local lu = AirjMove.lastNearestUid
     local lg = AirjMove.lastNearestGuid
     if lu and lg then
       AirjMove.ignores[lu][lg] = true
+      AirjMove.ignoreGuids[lg] = true
     end
   end
-  local g,u,d = AirjMove:MoveToNearest(uid,1)
+  local g,u,d = AirjMove:MoveToNearest(uid,true)
   if g then
     AirjMove.isCruise = false
     AirjHack:Interact(g)
@@ -175,7 +198,8 @@ function F:DISTACETONEAREST(filter)
   		if ot == "Creature" or ot == "GameObject" or ot == "AreaTrigger" then
   			if uid and uid[oid] then
           local mignore = AirjMove.ignores[oid]
-          if not mignore or not mignore[guid] then
+					local nignore = (not mignore or not mignore[guid]) and not AirjMove.ignoreGuids[guid]
+          if nignore then
     				local x1,y1,z1,_,distance = AirjCache:GetPosition(guid)
     				if distance then
     					if not minDistance or distance<minDistance then
@@ -229,6 +253,15 @@ function F:SAMEANGLE(filter)
     return false
   end
   return true
+end
+function F:DELTAZ(filter)
+  filter.unit = filter.unit or "target"
+  local guid = Cache:UnitGUID(filter.unit)
+  local pguid = Cache:PlayerGUID()
+  local px,py,pz,f = Cache:GetPosition(pguid)
+  local x,y,z,_,d,s = Cache:GetPosition(guid)
+  if not x then return end
+  return z-pz
 end
 function F:HANGLE(filter)
   filter.unit = filter.unit or "target"
@@ -385,11 +418,13 @@ function F:FOLLOWRANGE(filter)
   return d
 end
 function F:NEARESTRANGE(filter)
+  filter.name = filter.name or {5}
   local d = AirjMove.lastNearestDistance
   local guids = AirjHack:GetObjects()
   local guid = AirjMove.lastNearestGuid
+  -- print(guid)
   if guids[guid] then
-    if GetTime() - AirjMove.lastNearestTime < 15 then
+    if GetTime() - AirjMove.lastNearestTime < filter.name[1] then
       return d
     end
   end

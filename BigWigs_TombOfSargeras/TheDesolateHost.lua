@@ -30,6 +30,7 @@ local wailingSoulsCounter = 1
 local boneArmorCounter = 0
 local updateProximity = nil
 local updateRealms = nil
+local armorAppliedTimer, armorRemovedTimer = nil, nil
 local soulList = mod:NewTargetList()
 
 --------------------------------------------------------------------------------
@@ -42,6 +43,9 @@ if L then
 	L.armor_remaining = "%s Remaining (%d)" -- Bonecage Armor Remaining (#)
 	L.custom_on_mythic_armor = "Ignore Bonecage Armor on Reanimated Templars in Mythic Difficulty"
 	L.custom_on_mythic_armor_desc = "Leave this option enabled if you are offtanking Reanimated Templars to ignore warnings and counting the Bonecage Armor on the Ranimated Templars"
+	L.custom_on_armor_plates = "Bonecage Armor icon on Enemy Nameplate"
+	L.custom_on_armor_plates_desc = "Show an icon on the nameplate of Reanimated Templars who have Bonecage Armor.\nRequires the use of Enemy Nameplates. This feature is currently only supported by KuiNameplates."
+	L.custom_on_armor_plates_icon = 236513
 	L.tormentingCriesSay = "Cries" -- Tormenting Cries (short say)
 end
 --------------------------------------------------------------------------------
@@ -53,12 +57,13 @@ function mod:GetOptions()
 	return {
 		"infobox",
 		{239006, "PROXIMITY"}, -- Dissonance
-		236507, -- Quietus
+		236678, -- Quietus
 		{235924, "SAY"}, -- Spear of Anguish
 		235907, -- Collapsing Fissure
 		{238570, "SAY", "ICON"}, -- Tormented Cries
 		235927, -- Rupturing Slam
 		236513, -- Bonecage Armor
+		"custom_on_armor_plates",
 		"custom_on_mythic_armor",
 		236131, -- Wither
 		{236459, "ME_ONLY"}, -- Soulbind
@@ -83,7 +88,7 @@ function mod:OnBossEnable()
 	-- General
 	updateRealms(self)
 	self:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", nil, "boss1", "boss2", "boss3")
-	self:Log("SPELL_CAST_SUCCESS", "Quietus", 236507)
+	self:Log("SPELL_AURA_APPLIED", "Quietus", 236678)
 	self:Log("SPELL_AURA_APPLIED", "SpiritualBarrier", 235732)
 	self:Log("SPELL_AURA_REMOVED", "SpiritualBarrierRemoved", 235732)
 
@@ -116,6 +121,8 @@ function mod:OnBossEnable()
 	self:Log("SPELL_CAST_START", "DoomedSundering", 236544)
 	self:Log("SPELL_AURA_APPLIED", "Torment", 236548)
 	self:Log("SPELL_AURA_APPLIED_DOSE", "Torment", 236548)
+
+	self:Death("EngineDies", 118460)
 end
 
 function mod:OnEngage()
@@ -129,16 +136,25 @@ function mod:OnEngage()
 	boneArmorCounter = 0
 	tormentedCriesCounter = 1
 	wailingSoulsCounter = 1
+	armorAppliedTimer, armorRemovedTimer = nil, nil
 	wipe(soulList)
 
-	self:OpenInfo("infobox")
-	self:SetInfo("infobox", 1, self:SpellName(55336)) -- Bone Armor (Shorter Text)
-	self:SetInfo("infobox", 2, boneArmorCounter)
-	self:SetInfo("infobox", 6, L.infobox_players)
-	self:SetInfo("infobox", 7, self:SpellName(-14857)) -- Spirit Realm
-	self:SetInfo("infobox", 8, #phasedList)
-	self:SetInfo("infobox", 9, self:SpellName(-14856)) -- Corporeal Realm
-	self:SetInfo("infobox", 10, #unphasedList)
+	if self:Easy() then
+		self:OpenInfo("infobox", L.infobox_players)
+		self:SetInfo("infobox", 1, self:SpellName(-14857)) -- Spirit Realm
+		self:SetInfo("infobox", 2, #phasedList)
+		self:SetInfo("infobox", 3, self:SpellName(-14856)) -- Corporeal Realm
+		self:SetInfo("infobox", 4, #unphasedList)
+	else
+		self:OpenInfo("infobox")
+		self:SetInfo("infobox", 1, self:SpellName(55336)) -- Bone Armor (Shorter Text)
+		self:SetInfo("infobox", 2, boneArmorCounter)
+		self:SetInfo("infobox", 6, L.infobox_players)
+		self:SetInfo("infobox", 7, self:SpellName(-14857)) -- Spirit Realm
+		self:SetInfo("infobox", 8, #phasedList)
+		self:SetInfo("infobox", 9, self:SpellName(-14856)) -- Corporeal Realm
+		self:SetInfo("infobox", 10, #unphasedList)
+	end
 
 
 	self:CDBar(235907, 6) -- Collapsing Fissure
@@ -162,7 +178,7 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(_, spellName, _, _, spellId)
 			t = 65 + self:BarTimeLeft(238570) -- Time Left + 60s channel + 5s~ cooldown
 		end
 		self:Bar(235907, t)
-	elseif spellId == 239978 then -- Soul Palour // Stage 2
+	elseif spellId == 239978 then -- Soul Pallor // Stage 2
 		stage = 2
 
 		self:StopBar(236072) -- Wailing Souls
@@ -170,12 +186,11 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(_, spellName, _, _, spellId)
 		self:StopBar(CL.cast:format(self:SpellName(236072))) -- <cast: Wailing Souls>
 		self:StopBar(CL.cast:format(self:SpellName(238570))) -- <cast: Tormented Cries>
 
-		-- Assumed that other timers reset upon p2 start XXX Double Check
-		self:Bar(235907, 5) -- Collapsing Fissure
+		self:CDBar(235907, 2.5) -- Collapsing Fissure
 		if not self:Easy() then
-			self:Bar(235924, 6) -- Spear of Anguish
+			self:CDBar(235924, 8) -- Spear of Anguish
 		end
-		self:Bar(236459, 10) -- Soulbind
+		self:CDBar(236459, 9) -- Soulbind
 
 		self:CDBar(236542, 17) -- Sundering Doom
 		self:CDBar(236544, 28) -- Doomed Sundering
@@ -212,9 +227,14 @@ function updateProximity(self)
 end
 
 do
-	local function updateInfoBox()
-		mod:SetInfo("infobox", 8, #phasedList)
-		mod:SetInfo("infobox", 10, #unphasedList)
+	local function updateInfoBox(self)
+		if self:Easy() then
+			self:SetInfo("infobox", 2, #phasedList)
+			self:SetInfo("infobox", 4, #unphasedList)
+		else
+			self:SetInfo("infobox", 8, #phasedList)
+			self:SetInfo("infobox", 10, #unphasedList)
+		end
 	end
 
 	function mod:SpiritualBarrier(args)
@@ -227,7 +247,7 @@ do
 		if not self:Easy() then -- No Dissonance in LFR/Normal
 			updateProximity(self)
 		end
-		updateInfoBox()
+		updateInfoBox(self)
 	end
 
 	function mod:SpiritualBarrierRemoved(args)
@@ -240,7 +260,7 @@ do
 		if not self:Easy() then -- No Dissonance in LFR/Normal
 			updateProximity(self)
 		end
-		updateInfoBox()
+		updateInfoBox(self)
 	end
 end
 
@@ -308,18 +328,39 @@ do
 	end
 end
 
-function mod:BonecageArmor(args)
-	if self:Mythic() and self:GetOption("custom_on_mythic_armor") and self:MobId(args.destGUID) == 118715 then return end -- Reanimated Templar
-	boneArmorCounter = boneArmorCounter + 1
-	self:Message(args.spellId, "Important", "Alert", CL.count:format(args.spellName, boneArmorCounter))
-	self:SetInfo("infobox", 2, boneArmorCounter)
-end
+do
+	local function printArmorApplied(self, spellId, spellName)
+		armorAppliedTimer = nil
+		self:Message(spellId, "Attention", "Warning", CL.count:format(spellName, boneArmorCounter))
+	end
+	local function printArmorRemoved(self, spellId, spellName)
+		armorRemovedTimer = nil
+		self:Message(spellId, "Positive", "Info", L.armor_remaining:format(spellName, boneArmorCounter))
+	end
 
-function mod:BonecageArmorRemoved(args)
-	if self:Mythic() and self:GetOption("custom_on_mythic_armor") and self:MobId(args.destGUID) == 118715 then return end -- Reanimated Templar
-	boneArmorCounter = boneArmorCounter - 1
-	self:Message(args.spellId, "Positive", "Info", L.armor_remaining:format(args.spellName, boneArmorCounter))
-	self:SetInfo("infobox", 2, boneArmorCounter)
+	function mod:BonecageArmor(args)
+		if self:Mythic() and self:GetOption("custom_on_mythic_armor") and self:MobId(args.destGUID) == 118715 then return end -- Reanimated Templar
+		boneArmorCounter = boneArmorCounter + 1
+		self:SetInfo("infobox", 2, boneArmorCounter)
+		if self:GetOption("custom_on_armor_plates") then
+			self:AddPlateIcon(236513, args.sourceGUID) -- Display an armor icon above targets with armor
+		end
+		if not armorAppliedTimer then
+			armorAppliedTimer = self:ScheduleTimer(printArmorApplied, 0.1, self, args.spellId, args.spellName)
+		end
+	end
+
+	function mod:BonecageArmorRemoved(args)
+		if self:Mythic() and self:GetOption("custom_on_mythic_armor") and self:MobId(args.destGUID) == 118715 then return end -- Reanimated Templar
+		boneArmorCounter = boneArmorCounter - 1
+		self:SetInfo("infobox", 2, boneArmorCounter)
+		if self:GetOption("custom_on_armor_plates") then
+			self:RemovePlateIcon(236513, args.sourceGUID) -- Remove the armor icon
+		end
+		if not armorRemovedTimer then
+			armorRemovedTimer = self:ScheduleTimer(printArmorRemoved, 0.1, self, args.spellId, args.spellName)
+		end
+	end
 end
 
 function mod:Wither(args)
@@ -333,7 +374,7 @@ do
 	function mod:Soulbind(args)
 		soulList[#soulList+1] = args.destName
 		if #soulList == 1 then
-			local t = stage == 2 and 20 or 25
+			local t = stage == 2 and 19.4 or 24.3
 			if self:Easy() then
 				t = stage == 2 and 24 or 34
 			end
@@ -413,8 +454,13 @@ do
 		local t = GetTime()
 		if t-prev > 1 then
 			prev = t
-			local amount = args.amount or 1
-			self:StackMessage(args.spellId, args.destName, amount, "Attention", "Info")
+			self:StackMessage(args.spellId, args.destName, args.amount, "Attention", "Info")
 		end
 	end
+end
+
+function mod:EngineDies()
+	self:StopBar(236459) -- Soulbind
+	self:StopBar(235907) -- Collapsing Fissure
+	self:StopBar(235924) -- Spear of Anguish
 end

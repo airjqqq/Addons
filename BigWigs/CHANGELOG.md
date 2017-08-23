@@ -1,55 +1,6 @@
 # BigWigs
 
-## [v67](https://github.com/BigWigsMods/BigWigs/tree/v67) (2017-07-27)
-[Full Changelog](https://github.com/BigWigsMods/BigWigs/commits/v67)
+## [v69.1](https://github.com/BigWigsMods/BigWigs/tree/v69.1) (2017-08-17)
+[Full Changelog](https://github.com/BigWigsMods/BigWigs/compare/v69...v69.1)
 
-- TombOfSargeras: Update locale  
-- whitespace cleanup  
-- bump version  
-- cleanups  
-- Update koKR for FallenAvatar's warmup message (#335)  
-- frFR Update (#336)  
-- TombOfSargeras/TheDesolateHost: Fix throttle  
-- TombOfSargeras/Kiljaeden: Fix throttle  
-- TombOfSargeras/SistersoftheMoon: Fix typo (fixes #334)  
-- TombOfSargeras/FallenAvatar: Add warmup bar.  
-- TombOfSargeras/FallenAvatar: Only 1 Dark Mark on LFR.  
-- TombOfSargeras/MaidenofVigilance: Various LFR fixes.  
-- Antorus/WarCouncil: Update locale  
-- Antorus/WarCouncil: Drycode  
-- TombOfSargeras/Harjatan: Add another Draw In skip check  
-- TombOfSargeras/Harjatan: Keep bars running if Draw In is skipped  
-- Update toc load conditions  
-- TombOfSargeras/SistersoftheMoon: Allow Volley again after enough time has passed  
-- TombOfSargeras/Kiljaeden: Adjust Obelisk counter on Heroic and below  
-- Loader: Add some id verification.  
-- BrokenIsles/BigWigs_BrokenIsles.toc: Use X-BigWigs-ExtraMenu  
-- Loader: Remove support for X-BigWigs-LoadOn-SubMenu & X-BigWigs-Menu. Add support for X-BigWigs-ExtraMenu (add menu entry to GUI) & X-BigWigs-NoMenu (hide GUI menu entry added by instanceId). X-BigWigs-LoadOn-ZoneId is now marked as deprecated, use X-BigWigs-LoadOn-InstanceId.  
-- Options: remove old comment  
-- Options: Fix sub menu content (world bosses) not displaying correctly in the GUI.  
-- Update zhCN.lua (#332)  
-- BrokenIsles: Update menu entries to use negative ids  
-- Antorus: Cleanup comments  
-- Negative loading ids are now always map ids and positive loading ids are instance ids. Add new loading condition: X-BigWigs-LoadOn-InstanceId  
-- Antorus/Worldbreaker: Drycode  
-- Antorus/Felhounds: Drycode  
-- BigWigs: Add Antorus to packager  
-- Antorus: Add temporary hacks to load without map id  
-- Infobox: automatic resizing (#208)  
-- Antorus: Shorten names  
-- TombOfSargeras/Kiljaeden: Add missing parentheses  
-- AntorusTheBurningThrone: skeleton  
-- TombOfSargeras/Kiljaeden: Display the amount of Obelisk that will spawn on the bar and add a counter to Darkness  
-- Update zhTW.lua (#331)  
-- update zhCN. (#330)  
-- frFR Update (#329)  
-- Update koKR for linked message (#328)  
-- TombOfSargeras/DemonicInquisition: Fix fragment NPC id and add fixate nameplate option.  
-- TombOfSargeras/TheDesolateHost: Wipe the soulbind list on engage  
-- TombOfSargeras/TheDesolateHost: Fix Bonecage Armor tracking  
-- TheDesolateHost: Tweak message colors  
-- TheDesolateHost: Fix Soulbind removed message  
-- TheDesolateHost: Cleanup Soulbind messages  
-- Core/Locales: Add locales for link abilities  
-- TombOfSargeras/TheDesolateHost: whitespace cleanup  
-- TombOfSargeras/SistersoftheMoon: Fix Twilight Volley warnings after an Ultimate combo  
+- Kiljaeden: Fix Illidan's Sightless Gaze removed spam  

@@ -16,8 +16,11 @@ do
 		local CONST_DBTYPE_ENDURANCE = "endurance"
 		local CONST_COORDS_NO_BORDER = {5/64, 59/64, 5/64, 59/64}
 		
-		local BUTTON_BACKGROUND_COLOR = {.5, .5, .5, .3}
+		local BUTTON_BACKGROUND_COLOR = {.2, .2, .2, .75}
 		local BUTTON_BACKGROUND_COLORHIGHLIGHT = {.5, .5, .5, .8}
+		
+		local CONST_MIN_HEALINGDONE_DEATHLOG = 50000
+		local CONST_MAX_DEATH_EVENTS = 23
 		
 		local Loc = LibStub ("AceLocale-3.0"):GetLocale ("Details_DeathGraphs")
 		
@@ -2000,14 +2003,12 @@ do
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> search keys: ~current
 --> current deaths of latest try
-	
-	local MAX_DEATH_EVENTS = 23
 	local MAX_SUMMARY_SPELLS =  5
 	local BUTTON_TEXT_SIZE = 10
 	local BUTTON_TEXT_COLOR = {.9, .9, .9, 1}
 	local BUTTON_TEXT_HIGHLIGHT = "white"
 	local BUTTON_TEXT_PRESSED = "orange"
-	local BUTTON_BACKGROUND_COLOR = {.5, .5, .5, .3}
+	local BUTTON_BACKGROUND_COLOR = {.2, .2, .2, .75}
 	local BUTTON_BACKGROUND_COLORHIGHLIGHT = {.5, .5, .5, .8}	
 	
 	local currentFrame = CreateFrame ("frame", "DeathGraphsCurrentFrameDeaths", f)
@@ -2078,7 +2079,7 @@ do
 	end
 
 	--> create the lines for the death log
-	for i = 1, MAX_DEATH_EVENTS do
+	for i = 1, CONST_MAX_DEATH_EVENTS do
 		local column_frame = CreateFrame ("frame", nil, deathPanel)
 		--time before death
 		column_frame.hitTime = framework:CreateLabel (column_frame, "-10s", nil, "white", "GameFontHighlightSmall")
@@ -2094,8 +2095,11 @@ do
 		column_frame.hitSource = framework:CreateLabel (column_frame, "Sargeras", nil, "white", "GameFontHighlightSmall")
 		
 		--hp bar
+		column_frame.healthBarBackground = framework:CreateImage (column_frame, nil, 150, 12, "artwork")
+		column_frame.healthBarBackground:SetColorTexture (0, 0, 0, 0.5)
 		column_frame.healthBar = framework:CreateImage (column_frame, nil, 150, 12, "overlay")
-		column_frame.healthBar:SetColorTexture (0.6, 0, 0, 0.8)
+		--column_frame.healthBar:SetColorTexture (0.6, 0, 0, 0.8)
+		column_frame.healthBar:SetColorTexture (.8, .8, .8, 0.7)
 		
 		--> set points, height and script
 		column_frame:SetPoint ("topleft", deathPanel, "topleft", 0, (i-1)*16*-1)
@@ -2112,10 +2116,12 @@ do
 		column_frame.hitSpell:SetPoint ("left", column_frame, "left", 204, 0)
 		
 		column_frame.hitSource:SetPoint ("left", column_frame, "left", 345, 0)
+		
 		column_frame.healthBar:SetPoint ("left", column_frame, "left", 520, 0)
+		column_frame.healthBarBackground:SetPoint ("left", column_frame, "left", 520, 0)
 		
 		--> column backdrop
-		column_frame:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16})
+		column_frame:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})
 		
 		tinsert (deathColumns, column_frame)
 		
@@ -2216,73 +2222,101 @@ do
 				
 				local added = 1
 				local number_format_func = Details:GetCurrentToKFunction()
-				local NumOfEvents = min (#events, MAX_DEATH_EVENTS)
+				--local NumOfEvents = min (#events, CONST_MAX_DEATH_EVENTS)
 				
 				wipe (temp_summary_table)
-				local eventIndex = min (#events - NumOfEvents) + 1
+				--local eventIndex = min (#events - NumOfEvents) + 1
 				
-				for i = 1, NumOfEvents, 1 do
-					local ev = events [eventIndex]
-					local evtype = ev and ev [1] --event type
+				local eventsToShow = {}
+				for i = #events, 1, -1 do
 					
-					--> check if is really a damage or heal:
-					if (type (evtype) == "boolean") then
-						local spellid = ev [2] --spellid
-						local amount = ev [3] --amount healed or damaged
-						local clock = ev [4] --time
-						local life = ev [5] --health
-						local sourceName = ev [6] --source
-
-						local column = deathColumns [added]
+					local ev = events [i]
+					local evtype = ev and ev [1]
+					
+					if (type (evtype) == "boolean" and evtype) then
+						--> damage
+						tinsert (eventsToShow, {"damage", ev})
 						
-						--> hit time
-						column.hitTime.text = "-" .. string.format ("%.1f", time - clock)
-						
-						--> hit strength
-						if (evtype) then --> it's a damage
-							column.hitStrength.text = "-" .. number_format_func (_, amount)
-							column.hitStrength.textcolor = "white"
-							column.hitStrength.textsize = 11
-							column:SetBackdropColor (.8, .2, .2, .7)
-							column.backdropAlpha = 0.7
-							
-							--> add the damage to the summary temp table
-							temp_summary_table [spellid] = (temp_summary_table [spellid] or 0) + amount
-							
-						else --> it's a healing
-							column.hitStrength.text = "+" .. number_format_func (_, amount)
-							column.hitStrength.textcolor = {0.8, 1, 0.8, 0.9}
-							column.hitStrength.textsize = 10
-							column:SetBackdropColor (1, 1, 1, 0.05)
-							column.backdropAlpha = 0.05
+					elseif (type (evtype) == "boolean" and not evtype) then
+						--> healing
+						if (ev [3] > CONST_MIN_HEALINGDONE_DEATHLOG) then
+							tinsert (eventsToShow, {"healing", ev})
 						end
 						
-						--> set the spellname with the link
-						local spelllink = DeathGraphs:GetSpellLink (spellid)
-						local _, _, spellicon = DeathGraphs.GetSpellInfo (spellid)
-						column.hitSpell.text = spelllink
-						column.hitSpellIcon.texture = spellicon
-						column.hitSpellIcon.texcoord = CONST_COORDS_NO_BORDER
+					elseif (type (evtype) == "number" and evtype == 4) then	
+						--> debuff applied on the player
+						tinsert (eventsToShow, {"debuff", ev})
 						
-						--> the source name
-						sourceName = framework:RemoveRealmName (sourceName)
-						column.hitSource.text = sourceName
+					end
+				end
+				
+				for i = CONST_MAX_DEATH_EVENTS+1, #eventsToShow do
+					table.remove (eventsToShow, CONST_MAX_DEATH_EVENTS+1)
+				end
+				
+				local EventsList = Details.table.reverse (eventsToShow)
+				
+				for i = 1, #EventsList do
+					local t = EventsList [i]
+					local evtype_string = t [1]
+					local ev = t [2]
+					
+					local column = deathColumns [i]
+					
+					local spellid = ev [2] --spellid
+					local amount = ev [3] --amount healed or damaged
+					local clock = ev [4] --time
+					local life = ev [5] --health
+					local sourceName = ev [6] --source
+					
+					column.hitTime.text = "-" .. string.format ("%.1f", time - clock)
+					
+					if (evtype_string == "damage") then
+						column.hitStrength.text = "-" .. number_format_func (_, amount)
+						column.hitStrength.textcolor = "white"
+						column.hitStrength.textsize = 11
+						column:SetBackdropColor (1, 0, 0, 1)
+						column.backdropAlpha = 0.7
+						column:SetAlpha (1)
+						temp_summary_table [spellid] = (temp_summary_table [spellid] or 0) + amount
 						
-						--> set the life statusbar
-						column.healthBar.width = life / maxhealth * 100 * 1.5
+					elseif (evtype_string == "healing") then
+						column.hitStrength.text = "+" .. number_format_func (_, amount)
+						column.hitStrength.textcolor = {0.8, 1, 0.8, 0.9}
+						column.hitStrength.textsize = 10
+						column:SetBackdropColor (.2, 1, .2, 1)
+						column.backdropAlpha = 0.05
+						column:SetAlpha (.75)
 						
-						--> set the spell id
-						column.spellid = spellid
-
-						added = added + 1
-						column:Show()
+					elseif (evtype_string == "debuff") then
+						column.hitStrength.text = "x" .. amount
+						column.hitStrength.textcolor = "silver"
+						column.hitStrength.textsize = 10
+						column:SetBackdropColor (.8, .2, .8, 1)
+						column.backdropAlpha = 0.7
+						column:SetAlpha (1)
 						
-						if (added == MAX_DEATH_EVENTS) then
-							break
-						end
 					end
 					
-					eventIndex = eventIndex + 1
+					--> set the spellname with the link
+					local spelllink = DeathGraphs:GetSpellLink (spellid)
+					local _, _, spellicon = DeathGraphs.GetSpellInfo (spellid)
+					column.hitSpell.text = spelllink
+					column.hitSpellIcon.texture = spellicon
+					column.hitSpellIcon.texcoord = CONST_COORDS_NO_BORDER
+					
+					--> the source name
+					sourceName = framework:RemoveRealmName (sourceName)
+					column.hitSource.text = sourceName
+					
+					--> set the life statusbar
+					column.healthBar.width = math.min (life, maxhealth) / maxhealth * 100 * 1.5
+					
+					--> set the spell id
+					column.spellid = spellid
+
+					column:Show()
+					
 				end
 				
 				--> set the summary widgets
@@ -2361,7 +2395,7 @@ do
 		else
 			capsule.textcolor = BUTTON_TEXT_PRESSED
 		end
-		
+
 		self:SetBackdropColor (unpack (BUTTON_BACKGROUND_COLOR))
 	end
 	
@@ -2432,10 +2466,18 @@ do
 			playerName = framework:RemoveRealmName (playerName)
 			
 			local s = format_time (player.timeofdeath)
-			button:SetText ("[" .. s .. "] " .. playerName)
+			local color = RAID_CLASS_COLORS [player.class]
+			
+			if (color) then
+				button:SetText ("" .. s .. " |c" .. color.colorStr .. playerName .. "|r")
+			else
+				button:SetText ("" .. s .. " " .. playerName)
+			end
 			
 			local _, l, r, t, b = DeathGraphs:GetClassIcon (player.class)
-			button:SetIcon ([[Interface\AddOns\Details\images\classes_small_alpha]], 16, 16, "overlay", {l, r, t, b}, nil, 2, 2)
+			--button:SetIcon ([[Interface\AddOns\Details\images\classes_small_alpha]], 16, 16, "overlay", {l, r, t, b}, nil, 2, 2)
+			button:SetIcon ([[]], 1, 1, "overlay", {l, r, t, b}, nil, 2, 2)
+			
 			button.player_index = i
 
 			button:Show()

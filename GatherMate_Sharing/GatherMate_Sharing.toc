@@ -1,0 +1,25 @@
+﻿## Interface: 70000
+## Notes: Database sharing module for GatherMate2
+## Notes-ruRU: Модуль коллективного использования базы данных для GatherMate
+## Notes-frFR: Module de partage de base de données pour GatherMate.
+## Notes-zhTW: GatherMate 資料分享模組
+## Notes-zhCN: GatherMate 数据分享模块
+## Title: GatherMate_Sharing
+## Author: kagaro, Xinhuan
+## X-Email: sal.scotto@gmail.com
+## SavedVariables: GatherMate_SharingDB
+## X-Category: Map
+## Version: v1.10
+## OptionalDeps: Ace3, GatherMate2
+## Dependencies: GatherMate2
+## X-Embeds: Ace3
+## X-Curse-Packaged-Version: v1.10
+## X-Curse-Project-Name: GatherMate_Sharing
+## X-Curse-Project-ID: gathermate_sharing
+## X-Curse-Repository-ID: wow/gathermate_sharing/mainline
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+Locales.xml
+GatherMate_Sharing.lua

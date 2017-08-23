@@ -225,7 +225,7 @@ function mod:GreenCast(spell,unit,maxrange,minrange,delta)
 	m = math.min(m,maxrange-0.5)
 	x,y,z = x+m*a,y+m*b,z+m*c
 	self:RunMacroText("/cast "..spellName)
-	print(x,y,z)
+	-- print(x,y,z)
 	AirjHack:TerrainClick(x,y,z)
 	self:RunMacroText("/cancelspelltarget")
 end

@@ -74,19 +74,34 @@ local defaults = {
 }
 
 local CastBar = GladiusEx:NewGladiusExModule("CastBar",
+-- {
+-- 	castBarAttachTo = "Frame",
+-- 	castBarRelativePoint = "BOTTOMLEFT",
+-- 	castBarAnchor = "BOTTOMRIGHT",
+-- 	castBarOffsetX = -10,
+-- 	castBarOffsetY = 10,
+--
+-- 	castIconPosition = "LEFT",
+-- 	castTextAlign = "CENTER",
+-- 	castTextOffsetX = 2,
+-- 	castTextOffsetY = 0,
+-- 	castTimeTextAlign = "RIGHT",
+-- 	castTimeTextOffsetX = -2,
+-- 	castTimeTextOffsetY = 0,
+-- }
 	fn.merge(defaults, {
 		castBarAttachTo = "Frame",
-		castBarRelativePoint = "BOTTOMLEFT",
-		castBarAnchor = "BOTTOMRIGHT",
-		castBarOffsetX = -10,
+		castBarRelativePoint = "BOTTOMRIGHT",
+		castBarAnchor = "BOTTOMLEFT",
+		castBarOffsetX = 10,
 		castBarOffsetY = 10,
 
 		castIconPosition = "LEFT",
 		castTextAlign = "CENTER",
-		castTextOffsetX = 2,
+		castTextOffsetX = -2,
 		castTextOffsetY = 0,
 		castTimeTextAlign = "RIGHT",
-		castTimeTextOffsetX = -2,
+		castTimeTextOffsetX = 2,
 		castTimeTextOffsetY = 0,
 	}),
 	fn.merge(defaults, {

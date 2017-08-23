@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------
--- 	Leatrix Plus 7.2.12 (27th July 2017, www.leatrix.com)
+-- 	Leatrix Plus 7.2.16 (20th August 2017, www.leatrix.com)
 ----------------------------------------------------------------------
 
 --	01:Functions	20:Live			50:Player		72:Profile		
@@ -20,7 +20,7 @@
 	local void
 
 --	Version
-	LeaPlusLC["AddonVer"] = "7.2.12"
+	LeaPlusLC["AddonVer"] = "7.2.16"
 
 ----------------------------------------------------------------------
 -- 	Locale
@@ -1861,6 +1861,13 @@
 			--[[koKR]] "전체",
 			x)
 
+			Ln("No items with durability equipped.",
+			--[[zhCN]] "尚未装备任何带有耐久度的物品。",
+			--[[zhTW]] "沒有裝備有耐久度的物品。",
+			--[[ruRU]] "",
+			--[[koKR]] "",
+			x)
+
 		----------------------------------------------------------------------
 		-- Show pet save button
 		----------------------------------------------------------------------
@@ -2956,11 +2963,11 @@
 		--[[koKR]] "미니맵 버튼 표시",
 		x)
 
-		Ln("If checked, a minimap button will be available.\n\nLeft-click - Toggle options panel.\n\nRight-click - Toggle music player.\n\nSHIFT/Left-click - Toggle music.\n\nSHIFT/Right-click - Toggle coordinates (if enabled).\n\nCTRL/Left-click - Toggle minimap target tracking.\n\nCTRL/Right-click - Toggle errors (if enabled).\n\nCTRL/SHIFT/Left-click - Toggle Zygor (if installed).\n\nCTRL/SHIFT/Right-click - Toggle windowed mode.",
-		--[[zhCN]] "勾选后，小地图上将出现一个快捷按钮。\n\n左键：开关设置面板。\n\n右键：开关音乐播放器。\n\nSHIFT+左键：开关音乐。\n\nSHIFT+右键：开关坐标（需启用）。\n\nCTRL+左键：开关小地图目标追踪。\n\nCTRL+右键：开关错误信息（需启用）。\n\nCTRL+SHIFT+左键：开关Zygor插件（需安装）。\n\nCTRL+SHIFT+右键：开关窗口模式。",
-		--[[zhTW]] "勾選後，小地圖按鈕將可使用。\n\n左鍵點擊 – 開關選項面板。\n\n右鍵點擊 – 開關音樂播放器。\n\nSHIFT/左鍵點擊 – 開關音樂。\n\nSHIFT/右鍵點擊 – 開關座標(如果啟用)。\n\nCTRL/左鍵點擊 – 開關小地圖目標追蹤。\n\nCTRL/右鍵點擊 – 開關錯誤顯示(如果啟用)。\n\nCTRL/SHIFT/左鍵點擊 – 開關Zygor(如果安裝)。\n\nCTRL/SHIFT/右鍵點擊 – 切換視窗模式。",
+		Ln("If checked, a minimap button will be available.\n\nLeft-click - Toggle options panel.\n\nSHIFT/Left-click - Toggle music.\n\nSHIFT/Right-click - Toggle coordinates (if enabled).\n\nCTRL/Left-click - Toggle minimap target tracking.\n\nCTRL/Right-click - Toggle errors (if enabled).\n\nCTRL/SHIFT/Left-click - Toggle Zygor (if installed).\n\nCTRL/SHIFT/Right-click - Toggle windowed mode.",
+		--[[zhCN]] "勾选后，小地图上将出现一个快捷按钮。\n\n左键：开关设置面板。\n\nSHIFT+左键：开关音乐。\n\nSHIFT+右键：开关坐标（需启用）。\n\nCTRL+左键：开关小地图目标追踪。\n\nCTRL+右键：开关错误信息（需启用）。\n\nCTRL+SHIFT+左键：开关Zygor插件（需安装）。\n\nCTRL+SHIFT+右键：开关窗口模式。",
+		--[[zhTW]] "勾選後，小地圖按鈕將可使用。\n\n左鍵點擊 – 開關選項面板。\n\nSHIFT/左鍵點擊 – 開關音樂。\n\nSHIFT/右鍵點擊 – 開關座標(如果啟用)。\n\nCTRL/左鍵點擊 – 開關小地圖目標追蹤。\n\nCTRL/右鍵點擊 – 開關錯誤顯示(如果啟用)。\n\nCTRL/SHIFT/左鍵點擊 – 開關Zygor(如果安裝)。\n\nCTRL/SHIFT/右鍵點擊 – 切換視窗模式。",
 		--[[ruRU]] "",
-		--[[koKR]] "이 옵션을 선택하면 미니맵 버튼을 사용할수 있습니다.\n\n왼쪽 클릭-설정창 전환.\n\n오른쪽 클릭-음악 플레이어 전환.\n\nShift/왼쪽 클릭-음악 전환.\n\nShift/오른쪽 클릭-좌표 전환(활성된 경우).\n\nCtrl/왼쪽 클릭-미니맵 대상 추적 전환.\n\nCtrl/오른쪽 클릭-오류메시지 전환(활성된 경우).\n\nCtrl/Shift/왼쪽 클릭-Zygor 전환(설치된 경우).\n\nCrtl/Shift/오른쪽 클릭-원도우 모드 전환.",
+		--[[koKR]] "이 옵션을 선택하면 미니맵 버튼을 사용할수 있습니다.\n\n왼쪽 클릭-설정창 전환.\n\nShift/왼쪽 클릭-음악 전환.\n\nShift/오른쪽 클릭-좌표 전환(활성된 경우).\n\nCtrl/왼쪽 클릭-미니맵 대상 추적 전환.\n\nCtrl/오른쪽 클릭-오류메시지 전환(활성된 경우).\n\nCtrl/Shift/왼쪽 클릭-Zygor 전환(설치된 경우).\n\nCrtl/Shift/오른쪽 클릭-원도우 모드 전환.",
 		x)
 
 			----------------------------------------------------------------------
@@ -3020,24 +3027,6 @@
 			--[[koKR]] "Zygor 애드온 찾을수 없음.",
 			x)
 
-			----------------------------------------------------------------------
-			-- Tooltip
-			----------------------------------------------------------------------
-
-			Ln("Left: Options panel",
-			--[[zhCN]] "左键：设置面板",
-			--[[zhTW]] "左：選項面板",
-			--[[ruRU]] "",
-			--[[koKR]] "왼쪽: 설정창",
-			x)
-
-			Ln("Right: Music player",
-			--[[zhCN]] "右键：音乐播放器",
-			--[[zhTW]] "右：音樂播放器",
-			--[[ruRU]] "",
-			--[[koKR]] "오른쪽: 음악 플레이어",
-			x)
-
 		----------------------------------------------------------------------
 		-- Enable hotkey
 		----------------------------------------------------------------------
@@ -3049,11 +3038,11 @@
 		--[[koKR]] "단축키 사용",
 		x)
 
-		Ln("If checked, you will be able to open Leatrix Plus or the music player by pressing a designated hotkey.",
-		--[[zhCN]] "勾选后，你可以通过预设的快捷键来打开Leatrix Plus或者其音乐播放器。",
-		--[[zhTW]] "勾選後，你可以透過指定熱鍵開啟Leatrix Plus或音樂播放器。",
-		--[[ruRU]] "",
-		--[[koKR]] "지정된 단축키로 Leatrix Plus 또는 음악 플레이어를 열수 있습니다.",
+		Ln("If checked, you will be able to open Leatrix Plus by pressing a designated hotkey.",
+		--[[zhCN]] "勾选后，你可以绑定一个快捷键来打开Leatrix Plus。",
+		--[[zhTW]] "勾選後，你可以綁定一個快捷鍵來打開Leatrix Plus。",
+		--[[ruRU]] "Если флажок установлен, Вы сможете открыть Leatrix Plus нажатием назначенной клавиши.",
+		--[[koKR]] "지정된 단축키 사용으로 Leatrix Plus를 열 수 있습니다.",
 		x)
 
 			----------------------------------------------------------------------
@@ -3067,14 +3056,7 @@
 			--[[koKR]] "단축키",
 			x)
 
-			Ln("Music player",
-			--[[zhCN]] "音乐播放器",
-			--[[zhTW]] "音樂播放器",
-			--[[ruRU]] "",
-			--[[koKR]] "음악 플레이어",
-			x)
-
-			Ln("Select the hotkeys that you want to use.\n\nThis panel will close automatically if you enter combat.",
+			Ln("Select the hotkey that you want to use.\n\nThis panel will close automatically if you enter combat.",
 			--[[zhCN]] "请选择你想设置的快捷键。\n\n此面板在你进入战斗后自动关闭。",
 			--[[zhTW]] "選擇你想使用的熱鍵。\n\n此面板將在你進入戰鬥後自動關閉。",
 			--[[ruRU]] "",
@@ -3082,7 +3064,29 @@
 			x)
 
 	----------------------------------------------------------------------
-	-- 	LA9: Miscellaneous
+	-- 	LA9: Music
+	----------------------------------------------------------------------
+
+		----------------------------------------------------------------------
+		-- Panel
+		----------------------------------------------------------------------
+
+		Ln("Music",
+		--[[zhCN]] "音乐",
+		--[[zhTW]] "音樂",
+		--[[ruRU]] "Музыка",
+		--[[koKR]] "음악",
+		x)
+
+		Ln("Stop",
+		--[[zhCN]] "停止",
+		--[[zhTW]] "停止",
+		--[[ruRU]] "Стоп",
+		--[[koKR]] "중지",
+		x)
+
+	----------------------------------------------------------------------
+	-- 	LA10: Miscellaneous
 	----------------------------------------------------------------------
 
 		Ln("TranslatedBy",
@@ -3207,28 +3211,6 @@
 		--[[zhTW]] "由Leatrix Plus管理",
 		--[[ruRU]] "Управляется Leatrix Plus",
 		--[[koKR]] "Leatrix Plus 에서 설정",
-		x)
-
-		-- Music player
-		Ln("Music player for Leatrix Plus",
-		--[[zhCN]] "Leatrix Plus音乐播放器",
-		--[[zhTW]] "Leatrix Plus的音樂播放器",
-		--[[ruRU]] "",
-		--[[koKR]] "Leatrix Plus 음악 플레이어",
-		x)
-
-		Ln("Right-click anywhere to return to the zone list.",
-		--[[zhCN]] "右键点击任意区域返回区域列表",
-		--[[zhTW]] "任何地方點擊右鍵回到區域列表。",
-		--[[ruRU]] "",
-		--[[koKR]] "목록으로 돌아가려면 마우스 오른쪽 버튼 클릭합니다.",
-		x)
-
-		Ln("Stop player",
-		--[[zhCN]] "停止播放器",
-		--[[zhTW]] "停止播放器",
-		--[[ruRU]] "",
-		--[[koKR]] "플레이어 멈춤",
 		x)
 
 		----------------------------------------------------------------------
@@ -3451,7 +3433,7 @@
 
 --	Initialise variables
 	LeaPlusLC["ShowErrorsFlag"] = 1
-	LeaPlusLC["NumberOfPages"] = 8
+	LeaPlusLC["NumberOfPages"] = 9
 	LeaPlusLC["RaidColors"] = RAID_CLASS_COLORS
 
 --	Create event frame
@@ -4306,28 +4288,17 @@
 
 			-- Add dropdown menu (item names must match binding parameter names)
 			LeaPlusLC:CreateDropDown("HotkeyMenu", "Leatrix Plus", HotkeyPanel, 146, "TOPLEFT", 16, -112, {"CTRL-SHIFT-L", "CTRL-Z", "F7", "F12"}, "")
-			LeaPlusLC:CreateDropDown("MusicKeyMenu", "Music player", HotkeyPanel, 146, "TOPLEFT", 16, -172, {"CTRL-SHIFT-M", "CTRL-X", "F8", "F11"}, "")
 
 			-- Hide panel during combat
 			HotkeyPanel:RegisterEvent("PLAYER_REGEN_DISABLED")
 			HotkeyPanel:SetScript("OnEvent", function() 
 				LeaPlusCB["ListFrameHotkeyMenu"]:Hide()
-				LeaPlusCB["ListFrameMusicKeyMenu"]:Hide()
 				HotkeyPanel:Hide()
 			end)
 
 			-- Create global binding function
 			local BindBtn = CreateFrame("Button", "LeaPlusGlobalBinding", LeaPlusGlobalPanel)
 			BindBtn:SetScript("OnClick", function() LeaPlusLC:SlashFunc() end)
-
-			local BindMusicBtn = CreateFrame("Button", "LeaPlusGlobalBindingMusicPlayer", LeaPlusGlobalPanel)
-			BindMusicBtn:SetScript("OnClick", function()
-				if LeaPlusLC["MusicPlayer"]:IsShown() then
-					LeaPlusLC["MusicPlayer"]:Hide()
-				else
-					LeaPlusLC["MusicPlayer"]:Show()
-				end
-			end)
 
 			-- Function to set hotkeys
 			local function SetHotkeys()
@@ -4336,17 +4307,14 @@
 				-- Set hotkey according to dropdown choice
 				local key = LeaPlusLC["HotkeyMenu"]
 				SetOverrideBindingClick(LeaPlusGlobalPanel, true, LeaPlusLC["HotkeyMenuTable"][key], "LeaPlusGlobalBinding")
-				local key = LeaPlusLC["MusicKeyMenu"]
-				SetOverrideBindingClick(LeaPlusGlobalPanel, true, LeaPlusLC["MusicKeyMenuTable"][key], "LeaPlusGlobalBindingMusicPlayer")
 			end
 
 			-- Help button tooltip
-			HotkeyPanel.h.tiptext = LeaPlusLC:Translate("Select the hotkeys that you want to use.\n\nThis panel will close automatically if you enter combat.")
+			HotkeyPanel.h.tiptext = LeaPlusLC:Translate("Select the hotkey that you want to use.\n\nThis panel will close automatically if you enter combat.")
 
 			-- Back button handler
 			HotkeyPanel.b:SetScript("OnClick", function()
 				LeaPlusCB["ListFrameHotkeyMenu"]:Hide(); -- Hide the dropdown list
-				LeaPlusCB["ListFrameMusicKeyMenu"]:Hide(); -- Hide the dropdown list
 				HotkeyPanel:Hide(); LeaPlusLC["PageF"]:Show(); LeaPlusLC["Page8"]:Show()
 				return
 			end)
@@ -4356,9 +4324,7 @@
 
 				-- Reset dropdown
 				LeaPlusCB["ListFrameHotkeyMenu"]:Hide(); -- Hide the dropdown list
-				LeaPlusCB["ListFrameMusicKeyMenu"]:Hide(); -- Hide the dropdown list
 				LeaPlusLC["HotkeyMenu"] = 1
-				LeaPlusLC["MusicKeyMenu"] = 1
 				SetHotkeys()
 
 				-- Refresh configuration panel
@@ -4374,7 +4340,6 @@
 					if IsShiftKeyDown() and IsControlKeyDown() then
 						-- Preset profile
 						LeaPlusLC["HotkeyMenu"] = 2
-						LeaPlusLC["MusicKeyMenu"] = 2
 						SetHotkeys()
 					else
 						HotkeyPanel:Show()
@@ -4385,7 +4350,6 @@
 
 			-- Set hotkey when dropdown menu is closed and on startup
 			LeaPlusCB["ListFrameHotkeyMenu"]:HookScript("OnHide", SetHotkeys)
-			LeaPlusCB["ListFrameMusicKeyMenu"]:HookScript("OnHide", SetHotkeys)
 			SetHotkeys()
 
 		end
@@ -4876,6 +4840,8 @@
 					totalPrice, mBagID, mBagSlot = 0, -1, -1
 					-- Do nothing if shift key is held down
 					if IsShiftKeyDown() then return end
+					-- Cancel existing ticker if present
+					if SellJunkTicker then SellJunkTicker:Cancel() end
 					-- Sell grey items using ticker (ends when all grey items are sold or iteration count reached)
 					SellJunkTicker = C_Timer.NewTicker(0.2, SellJunkFunc, IterationCount)
 					SellJunkFrame:RegisterEvent("ITEM_LOCKED")
@@ -5847,12 +5813,17 @@
 					GameTooltip:AddLine("|cffffffff")
 				end
 
+				local validItems = false
+
 				-- Traverse equipment slots
 				for k, slotName in ipairs(Slots) do
 					if GetInventorySlotInfo(slotName) then
 						id = GetInventorySlotInfo(slotName)
 						duraval, duramax = GetInventoryItemDurability(id)
 						if duraval ~= nil then
+
+							-- At least one item has durability stat
+							validItems = true
 
 							-- Add to tooltip
 							if where == "tip" then
@@ -5871,33 +5842,44 @@
 				if duravaltotal > 0 and duramaxtotal > 0 then
 					durapercent = duravaltotal / duramaxtotal * 100
 				else
-					durapercent = -1
+					durapercent = 0
 				end
 
 				if where == "tip" then
 
-					-- Show overall durability in the tooltip
-					if durapercent >= 80 then valcol = "|cff00FF00"	elseif durapercent >= 60 then valcol = "|cff99FF00"	elseif durapercent >= 40 then valcol = "|cffFFFF00"	elseif durapercent >= 20 then valcol = "|cffFF9900"	elseif durapercent >= 0 then valcol = "|cffFF2000" else return end
+					if validItems == true then
+						-- Show overall durability in the tooltip
+						if durapercent >= 80 then valcol = "|cff00FF00"	elseif durapercent >= 60 then valcol = "|cff99FF00"	elseif durapercent >= 40 then valcol = "|cffFFFF00"	elseif durapercent >= 20 then valcol = "|cffFF9900"	elseif durapercent >= 0 then valcol = "|cffFF2000" else return end
 						_G["GameTooltipTextLeft3"]:SetText(LeaPlusLC:Translate("Overall") .. " " .. valcol)
 						_G["GameTooltipTextRight3"]:SetText(valcol .. string.format("%.0f", durapercent) .. "%")
 
 						-- Show lines of the tooltip
-						GameTooltipTextLeft1:Show(); GameTooltipTextRight1:Show();
-						GameTooltipTextLeft2:Show(); GameTooltipTextRight2:Show();
-						GameTooltipTextLeft3:Show(); GameTooltipTextRight3:Show();
+						GameTooltipTextLeft1:Show(); GameTooltipTextRight1:Show()
+						GameTooltipTextLeft2:Show(); GameTooltipTextRight2:Show()
+						GameTooltipTextLeft3:Show(); GameTooltipTextRight3:Show()
 						GameTooltipTextRight2:SetJustifyH"RIGHT";
 						GameTooltipTextRight3:SetJustifyH"RIGHT";
-						GameTooltip:Show();
+						GameTooltip:Show()
+					else
+						-- No items have durability stat
+						GameTooltip:ClearLines()
+						GameTooltip:AddLine("" .. LeaPlusLC:Translate("Durability"),1.0, 0.85, 0.0)
+						GameTooltip:AddLine("" .. LeaPlusLC:Translate("No items with durability equipped."), 1, 1, 1)
+						GameTooltip:Show()
+					end
 
 				elseif where == "status" then
-					-- Show simple status line instead
-					if tonumber(durapercent) >= 0 then -- Ensure character has some durability items equipped
-						LeaPlusLC:Print(LeaPlusLC:Translate("You have") .. " " .. string.format("%.0f", durapercent) .. "%" .. " " .. LeaPlusLC:Translate("durability") .. ".")
+					if validItems == true then
+						-- Show simple status line instead
+						if tonumber(durapercent) >= 0 then -- Ensure character has some durability items equipped
+							LeaPlusLC:Print(LeaPlusLC:Translate("You have") .. " " .. string.format("%.0f", durapercent) .. "%" .. " " .. LeaPlusLC:Translate("durability") .. ".")
+						end
 					end
+
 				end
 			end
 
-			-- Hover over the durability button to show the durabilit tooltip
+			-- Hover over the durability button to show the durability tooltip
 			cButton:SetScript("OnEnter", function()
 				GameTooltip:SetOwner(cButton, "ANCHOR_RIGHT");
 				ShowDuraStats("tip");
@@ -5909,6 +5891,10 @@
 			DeathDura:RegisterEvent("PLAYER_DEAD")
 			DeathDura:SetScript("OnEvent", function(self, event)
 				ShowDuraStats("status")
+				DeathDura:UnregisterEvent("PLAYER_DEAD")
+				C_Timer.After(2, function()
+					DeathDura:RegisterEvent("PLAYER_DEAD")
+				end)
 			end)
 
 			hooksecurefunc("AcceptResurrect", function()
@@ -6176,18 +6162,27 @@
 
 		if LeaPlusLC["ShowDressTab"] == "On" then
 
-			-- Add buttons to main dressup frame
-			LeaPlusLC:CreateButton("DressUpTabBtn", DressUpFrame, "Tabard", "BOTTOMLEFT", 26, 79, 80, 22, false, "")
-			LeaPlusCB["DressUpTabBtn"]:SetScript("OnClick", function()
-				DressUpModel:UndressSlot(19)
-			end)
-
+			-- Add nude button to dressing room frame (main)
 			LeaPlusLC:CreateButton("DressUpNudeBtn", DressUpFrame, "Nude", "BOTTOMLEFT", 106, 79, 80, 22, false, "")
+			if ClientVersion == "7.3.0" then
+				LeaPlusCB["DressUpNudeBtn"]:ClearAllPoints()
+				LeaPlusCB["DressUpNudeBtn"]:SetPoint("RIGHT", DressUpFrameResetButton, "LEFT", 0, 0)
+			end
 			LeaPlusCB["DressUpNudeBtn"]:SetScript("OnClick", function()
 				DressUpFrameResetButton:Click() -- Done first in case any slots refuse to clear
 				for i = 1, 19 do
 					DressUpModel:UndressSlot(i) -- Done this way to prevent issues with Undress
 				end
+			end)
+
+			-- Add tabard button to dressing room frame (main)
+			LeaPlusLC:CreateButton("DressUpTabBtn", DressUpFrame, "Tabard", "BOTTOMLEFT", 26, 79, 80, 22, false, "")
+			if ClientVersion == "7.3.0" then
+				LeaPlusCB["DressUpTabBtn"]:ClearAllPoints()
+				LeaPlusCB["DressUpTabBtn"]:SetPoint("RIGHT", LeaPlusCB["DressUpNudeBtn"], "LEFT", 0, 0)
+			end
+			LeaPlusCB["DressUpTabBtn"]:SetScript("OnClick", function()
+				DressUpModel:UndressSlot(19)
 			end)
 
 			local BtnStrata, BtnLevel = SideDressUpModelResetButton:GetFrameStrata(), SideDressUpModelResetButton:GetFrameLevel()
@@ -6254,9 +6249,6 @@
 				GameTooltip:ClearAllPoints()
 				GameTooltip:SetPoint(vhalf .. hhalf, minibtn, (vhalf == "TOP" and "BOTTOM" or "TOP") .. hhalf)
 				GameTooltip:SetText("Leatrix Plus", nil, nil, nil, nil, true)
-				local tipstr = LeaPlusLC:Translate("Left: Options panel") .. "\n"
-				tipstr = tipstr .. LeaPlusLC:Translate("Right: Music player")
-				GameTooltip:AddLine(tipstr, 1, 1, 1, 1)
 				GameTooltip:Show()
 			end)
 			minibtn:SetScript("OnLeave", GameTooltip_Hide)
@@ -6391,12 +6383,15 @@
 					
 					end
 
-					-- No modifier key toggles the music player
-					if LeaPlusLC["MusicPlayer"]:IsShown() then
-						LeaPlusLC["MusicPlayer"]:Hide()
+					-- No modifier key toggles the options panel
+					if LeaPlusLC:IsPlusShowing() then
+						LeaPlusLC:HideFrames()
+						LeaPlusLC:HideConfigPanels()
 					else
-						LeaPlusLC["MusicPlayer"]:Show()
+						LeaPlusLC:HideFrames()
+						LeaPlusLC["PageF"]:Show()
 					end
+					LeaPlusLC["Page"..LeaPlusLC["LeaStartPage"]]:Show()
 
 				end
 
@@ -6892,9 +6887,11 @@
 				["Stormheim"] = {"AggrammarsVault:199:185:361:210", "BlackbeakOverlook:297:210:154:129", "Dreadwake:215:247:457:412", "Dreyrgrot:132:145:689:266", "Greywatch:173:163:648:339", "HallsOfValor:252:280:585:372",	"Haustvald:200:174:612:187", "Hrydshal:631:315:0:353", "MawOfNashal:509:251:17:0", "Morheim:150:180:741:313", "Nastrondir:241:194:345:95", "QatchmansRock:135:162:623:81",	"Runewood:194:214:592:226", "ShieldsRest:289:172:689:0", "SkoldAshil:177:169:506:345", "StormsReach:180:160:510:118", "TalonRest:291:208:316:282",	"TideskornHarbor:205:199:479:183", "Valdisdall:186:158:522:288", "WeepingBluffs:386:314:56:185",},
 				["Suramar"] = {"Ambervale:222:311:132:179", "CrimsonThicket:327:381:492:0", "Falanaar:248:317:23:136", "FelsoulHold:289:363:183:305", "GrandPromenade:355:291:344:285", "Jandvik:419:538:583:0", "MoonguardStronghold:480:245:58:0", "MoonwhisperGulch:428:316:201:0", "RuinsOfEluneeth:221:224:264:226", "SuramarCity:470:337:390:331", "Telanor:387:372:327:0",},
 				["Valsharah"] = {"Andutalah:241:240:587:250", "BlackrookHold:250:253:262:175", "BradensBrook:311:244:259:275", "DreamGrove:294:364:283:0",	"GloamingReef:239:301:136:274",	"GroveOfCenarius:171:150:457:351", "Lorlathil:177:156:467:413",	"MoonclawVale:254:281:549:380",	"Shalanir:326:360:419:0", "Smolderhide:341:188:324:480", "TempleOfElune:216:219:459:240", "Thastalah:218:168:342:416",},
+				["ArgusCore"] = {"DefiledPath:626:385:293:0", "FelfireArmory:660:668:0:0", "Terminus:467:430:535:238",},
+				["ArgusMacAree"] = {"Conservatory:313:353:498:111", "RuinsOfOronaar:265:310:278:284", "SeatOfTriumvirate:463:519:265:54", "Shadowguard:498:461:0:0", "Triumvirates:284:264:410:375", "UpperTerrace:701:323:0:0",},
+				["ArgusSurface"] = {"AnnihilanPits:296:336:371:178", "KrokulHovel:307:304:428:364", "Nathraxas:835:422:167:0", "PetrifiedForest:445:379:557:289", "ShatteredFields:498:530:37:138",},
 
 			}
-
 
 			-- Initialise counters
 			local createdtex = 0
@@ -8627,6 +8624,38 @@
 			SetTipScale()
 
 			----------------------------------------------------------------------
+			-- Contribution frame
+			----------------------------------------------------------------------
+
+			local function ContributionTipFunc()
+
+				-- Function to set tooltip scale
+				local function SetContributionTipScale()
+					ContributionTooltip:SetScale(LeaPlusLC["LeaPlusTipSize"])
+					ContributionBuffTooltip:SetScale(LeaPlusLC["LeaPlusTipSize"])
+				end
+
+				-- Set tooltip scale when slider changes and on startup
+				LeaPlusCB["LeaPlusTipSize"]:HookScript("OnValueChanged", SetContributionTipScale)
+				SetContributionTipScale()
+
+			end
+
+			-- Run function when Blizzard addon has loaded
+			if IsAddOnLoaded("Blizzard_Contribution") then
+				ContributionTipFunc()
+			else
+				local waitFrame = CreateFrame("FRAME")
+				waitFrame:RegisterEvent("ADDON_LOADED")
+				waitFrame:SetScript("OnEvent", function(self, event, arg1)
+					if arg1 == "Blizzard_Contribution" then
+						ContributionTipFunc()
+						waitFrame:UnregisterAllEvents()
+					end
+				end)
+			end
+
+			----------------------------------------------------------------------
 			-- Pet Journal tooltips
 			----------------------------------------------------------------------
 
@@ -9436,7 +9465,7 @@
 			-- Create tables for list data and zone listing
 			local ListData, ZoneList, playlist, timelist = {}, {}, {}, {}
 			local scrollFrame, willPlay, musicHandle, ZonePage, LastPlayed, LastFolder, TempFolder, HeadingOfClickedTrack
-			local numButtons = 19
+			local numButtons = 15
 			local uframe = CreateFrame("FRAME")
 
 			-- Create a table for each heading
@@ -9575,8 +9604,8 @@
 						-- Show zone listing or track listing
 						button:SetText(ListData[offset].zone or ListData[offset])
 						-- Set width of highlight texture
-						if button:GetTextWidth() > 390 then
-							button.t:SetSize(390, 16)
+						if button:GetTextWidth() > 290 then
+							button.t:SetSize(290, 16)
 						else
 							button.t:SetSize(button:GetTextWidth(), 16)
 						end
@@ -9598,8 +9627,8 @@
 							button.s:Show()
 						end
 						-- Set width of highlight bar
-						if button:GetTextWidth() > 390 then
-							button.s:SetSize(390, 16)
+						if button:GetTextWidth() > 290 then
+							button.s:SetSize(290, 16)
 						else
 							button.s:SetSize(button:GetTextWidth(), 16)
 						end
@@ -9608,7 +9637,7 @@
 						-- Disable label click movement
 						button:SetPushedTextOffset(0, 0)
 						-- Disable word wrap and set width
-						button:GetFontString():SetWidth(390)
+						button:GetFontString():SetWidth(290)
 						button:GetFontString():SetWordWrap(false)
 					else
 						button:Hide()
@@ -9616,114 +9645,28 @@
 				end
 			end
 
-			-- Give function file level scope (it's used in SetPlusScale)
+			-- Give function file level scope (it's used in SetPlusScale to set the highlight bar scale)
 			LeaPlusLC.UpdateList = UpdateList
-
-			-- Function to return to the zone list for the current tracklist continent
-			local function BackClickFunc()
-				if type(ListData[1]) == "string" then
-					-- Strip the color code from the list data
-					local nocol = string.gsub(ListData[1], "|cffffd800", "")
-					-- Strip the zone
-					local backzone = strsplit(":", nocol, 2)
-					-- Show the tracklist continent 
-					if ZoneList[backzone] then ListData = ZoneList[backzone] end
-					UpdateList()
-					scrollFrame:SetVerticalScroll(ZonePage or 0)
-				end
-			end
-
-			-- Create music player frame
-			local frame = CreateFrame("Frame", nil, UIParent)
-
-			-- Make it a system frame
-			_G["LeaPlusGlobalPanel_MusicPlayer"] = frame
-			table.insert(UISpecialFrames, "LeaPlusGlobalPanel_MusicPlayer")
-
-			-- Set frame parameters
-			LeaPlusLC["MusicPlayer"] = frame
-			frame:SetSize(570, 370)
-			frame:Hide()
-			frame:SetFrameStrata("FULLSCREEN_DIALOG")
-			frame:SetClampedToScreen(false)
-			frame:EnableMouse(true)
-			frame:SetMovable(true)
-			frame:RegisterForDrag("LeftButton")
-			frame:SetScript("OnDragStart", frame.StartMoving)
-			frame:SetScript("OnDragStop", function()
-				frame:StopMovingOrSizing()
-				frame:SetUserPlaced(false)
-				-- Save panel position
-				LeaPlusLC["MainPanelA"], void, LeaPlusLC["MainPanelR"], LeaPlusLC["MainPanelX"], LeaPlusLC["MainPanelY"] = frame:GetPoint()
-			end)
-
-			-- Add right-click to show zone list
-			frame:SetScript("OnMouseDown", function(self, btn)
-				if btn == "RightButton" then
-					BackClickFunc()
-				end
-			end)
-
-			-- Add background color
-			frame.t = frame:CreateTexture(nil, "BACKGROUND")
-			frame.t:SetAllPoints()
-			frame.t:SetColorTexture(0.05, 0.05, 0.05, 0.9)
-
-			-- Add textures
-			LeaPlusLC:CreateBar("MusicFootTexture", frame, 570, 48, "BOTTOM", 0.5, 0.5, 0.5, 1.0, "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
-			LeaPlusLC:CreateBar("MusicMainTexture", frame, 440, 323, "TOPRIGHT", 0.7, 0.7, 0.7, 0.7,  "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
-			LeaPlusLC:CreateBar("MusicMenuTexture", frame, 130, 323, "TOPLEFT", 0.7, 0.7, 0.7, 0.7, "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png")
-
-			-- Set panel position when shown
-			frame:HookScript("OnShow", function() 
-				LeaPlusLC:HideConfigPanels()
-				LeaPlusLC["PageF"]:Hide()
-				frame:ClearAllPoints()
-				frame:SetPoint(LeaPlusLC["MainPanelA"], UIParent, LeaPlusLC["MainPanelR"], LeaPlusLC["MainPanelX"], LeaPlusLC["MainPanelY"])
-			end)
-
-			-- Hide music player when Leatrix Plus is shown
-			LeaPlusLC["PageF"]:HookScript("OnShow", function() frame:Hide() end)
-
-			-- Add title and description
-			local TitleText = frame:CreateFontString(nil, 'ARTWORK', 'GameFontNormalSmall')
-			TitleText:SetPoint("BOTTOMLEFT", 16, 24)
-			TitleText:SetText(LeaPlusLC:Translate("Music player for Leatrix Plus"))
-
-			local FooterText = frame:CreateFontString(nil, 'ARTWORK', 'GameFontHighlightSmall')
-			FooterText:SetPoint("BOTTOMLEFT", 16, 12)
-			FooterText:SetText(LeaPlusLC:Translate("Right-click anywhere to return to the zone list."))
-
-			-- Add close Button
-			local CloseB = CreateFrame("Button", nil, frame, "UIPanelCloseButton") 
-			CloseB:SetSize(30, 30)
-			CloseB:SetPoint("TOPRIGHT", 0, 0)
-			CloseB:SetScript("OnClick", function() frame:Hide() end) 
 
 			-- Function to make navigation menu buttons
 			local function MakeButton(where, y)
-				local mbtn = CreateFrame("Button", nil, frame)
+				local mbtn = CreateFrame("Button", nil, LeaPlusLC["Page9"])
 				mbtn:Show()
-				mbtn:SetSize(150, 16)
 				mbtn:SetAlpha(1.0)
-				mbtn:SetPoint("TOPLEFT", 16, y)
+				mbtn:SetPoint("TOPLEFT", 146, y)
 
 				-- Create hover texture
 				mbtn.t = mbtn:CreateTexture(nil, "BACKGROUND")
 				mbtn.t:SetColorTexture(0.3, 0.3, 0.00, 0.8)
 				mbtn.t:SetAlpha(0.7)
-				mbtn.t:ClearAllPoints()
-				mbtn.t:SetPoint("TOPLEFT", mbtn, "TOPLEFT", -10, 0)
-				mbtn.t:SetSize(124, 16)
+				mbtn.t:SetAllPoints()
 				mbtn.t:Hide()
 
 				-- Create highlight texture
 				mbtn.s = mbtn:CreateTexture(nil, "BACKGROUND")
 				mbtn.s:SetColorTexture(0.3, 0.3, 0.00, 0.8)
 				mbtn.s:SetAlpha(1.0)
-				mbtn.s:ClearAllPoints()
-				mbtn.s:SetPoint("TOPLEFT", mbtn, "TOPLEFT", -10, 0)
-				mbtn.s:SetSize(124, 16)
+				mbtn.s:SetAllPoints()
 				mbtn.s:Hide()
 
 				-- Create fontstring
@@ -9739,20 +9682,14 @@
 					mbtn.t:Hide()
 				end)
 
+				-- Set button size fo match fontstring width
+				mbtn:SetSize(mbtn.f:GetWidth(), 16)
+
 				mbtn:SetScript("OnClick", function()
 					-- Show zone listing for clicked item
 					ListData = ZoneList[where]
 					UpdateList()
 				end)
-
-				mbtn:SetScript("OnMouseDown", function(self, btn)
-					if btn == "RightButton" then
-						BackClickFunc()
-					end
-				end)
-
-				-- Limit click to label width
-				mbtn:SetHitRectInsets(0, 32, 0, 0)
 
 				return mbtn, mbtn.s
 
@@ -9764,15 +9701,31 @@
 				conbtn[q] = {}
 			end
 
-			conbtn["Eastern Kingdoms"], conbtn["Eastern Kingdoms"].s = MakeButton("Eastern Kingdoms", -8)
-			conbtn["Kalimdor"], conbtn["Kalimdor"].s = MakeButton("Kalimdor", -24)
-			conbtn["Outland"], conbtn["Outland"].s = MakeButton("Outland", -40)
-			conbtn["Northrend"], conbtn["Northrend"].s = MakeButton("Northrend", -56)
-			conbtn["Maelstrom"], conbtn["Maelstrom"].s = MakeButton("Maelstrom", -72)
-			conbtn["Pandaria"], conbtn["Pandaria"].s = MakeButton("Pandaria", -88)
-			conbtn["Draenor"], conbtn["Draenor"].s = MakeButton("Draenor", -104)
-			conbtn["Broken Isles"], conbtn["Broken Isles"].s = MakeButton("Broken Isles", -120)
-			conbtn["Various"], conbtn["Various"].s = MakeButton("Various", -136)
+			-- Create buttons
+			local function MakeButtonNow(title, anchor)
+				conbtn[title], conbtn[title].s = MakeButton(title, height)
+				conbtn[title]:ClearAllPoints()
+				if title == "Eastern Kingdoms" then
+					-- Set first button position and shorten title
+					conbtn[title]:SetPoint("TOPLEFT", LeaPlusLC["Page9"], "TOPLEFT", 146, -70)
+					conbtn[title].f:SetText("Eastern")
+				else
+					-- Set subsequent button positions
+					conbtn[title]:SetPoint("TOPLEFT", conbtn[anchor], "BOTTOMLEFT", 0, -00)
+					conbtn[title].f:SetText(title)
+				end
+				conbtn[title]:SetSize(conbtn[title].f:GetWidth(), 16)
+			end
+
+			MakeButtonNow("Eastern Kingdoms")
+			MakeButtonNow("Kalimdor", "Eastern Kingdoms")
+			MakeButtonNow("Outland", "Kalimdor")
+			MakeButtonNow("Northrend", "Outland")
+			MakeButtonNow("Maelstrom", "Northrend")
+			MakeButtonNow("Pandaria", "Maelstrom")
+			MakeButtonNow("Draenor", "Pandaria")
+			MakeButtonNow("Broken Isles", "Draenor")
+			MakeButtonNow("Various", "Broken Isles")
 
 			-- Show button highlight for clicked button
 			for q, w in pairs(ZoneList) do
@@ -9792,7 +9745,7 @@
 			end
 
 			-- Create scroll bar
-			scrollFrame = CreateFrame("ScrollFrame", "LeaPlusScrollFrame", frame, "FauxScrollFrameTemplate")
+			scrollFrame = CreateFrame("ScrollFrame", "LeaPlusScrollFrame", LeaPlusLC["Page9"], "FauxScrollFrameTemplate")
 			scrollFrame:SetPoint("TOPLEFT", 0, -32)
 			scrollFrame:SetPoint("BOTTOMRIGHT", -30, 50)
 			scrollFrame:SetScript("OnVerticalScroll", function(self, offset)
@@ -9800,7 +9753,9 @@
 			end)
 
 			-- Add stop button
-			local stopBtn = LeaPlusLC:CreateButton("StopMusicBtn", frame, "Stop player", "BOTTOMRIGHT", -16, 10, 0, 25, true, "")
+			local stopBtn = LeaPlusLC:CreateButton("StopMusicBtn", LeaPlusLC["Page9"], "Stop", "TOPRIGHT", -32, -31, 0, 25, true, "")
+			stopBtn:ClearAllPoints()
+			stopBtn:SetPoint("TOPLEFT", conbtn["Various"], "BOTTOMLEFT", 0, -70)
 			stopBtn:Hide(); stopBtn:Show()
 			LeaPlusLC:LockItem(stopBtn, true)
 			stopBtn:SetScript("OnClick", function()
@@ -9878,12 +9833,12 @@
 			-- Create list items
 			scrollFrame.buttons = {}
 			for i = 1, numButtons do
-				scrollFrame.buttons[i] = CreateFrame("Button", nil, frame)
+				scrollFrame.buttons[i] = CreateFrame("Button", nil, LeaPlusLC["Page9"])
 				local button = scrollFrame.buttons[i]
 
 				button:SetSize(470 - 14, 16)
 				button:SetNormalFontObject("GameFontHighlightLeft")
-				button:SetPoint("TOPLEFT", 146, -(i - 1) * 16 - 8)
+				button:SetPoint("TOPLEFT", 246, -62+ -(i - 1) * 16 - 8)
 
 				-- Create highlight bar texture
 				button.t = button:CreateTexture(nil, "BACKGROUND")
@@ -9913,8 +9868,10 @@
 					button.t:Hide()
 				end)
 
-				-- Click handler
-				button:SetScript("OnMouseDown", function(self, btn)
+				button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+
+				-- Click handler for track, zone and back button
+				button:SetScript("OnClick", function(self, btn)
 					if btn == "LeftButton" then
 						-- Get clicked track text
 						local item = self:GetText()
@@ -10001,7 +9958,17 @@
 							end
 						end
 					elseif btn == "RightButton" then
-						BackClickFunc()
+						-- Return to the current zone list (back button)
+						if type(ListData[1]) == "string" then
+							-- Strip the color code from the list data
+							local nocol = string.gsub(ListData[1], "|cffffd800", "")
+							-- Strip the zone
+							local backzone = strsplit(":", nocol, 2)
+							-- Show the tracklist continent 
+							if ZoneList[backzone] then ListData = ZoneList[backzone] end
+							UpdateList()
+							scrollFrame:SetVerticalScroll(ZonePage or 0)
+						end
 					end
 				end)
 
@@ -10027,8 +9994,8 @@
 			UpdateList()
 
 			-- Stop track at reload or logout
-			frame:RegisterEvent("PLAYER_LOGOUT")
-			frame:SetScript("OnEvent", function()
+			LeaPlusLC["Page9"]:RegisterEvent("PLAYER_LOGOUT")
+			LeaPlusLC["Page9"]:SetScript("OnEvent", function()
 				if musicHandle then
 					StopSound(musicHandle)
 				end
@@ -10050,7 +10017,6 @@
 		local function SetPlusAlpha()
 			-- Set panel alpha
 			LeaPlusLC["PageF"].t:SetAlpha(1 - LeaPlusLC["PlusPanelAlpha"])
-			LeaPlusLC["MusicPlayer"].t:SetAlpha(1 - LeaPlusLC["PlusPanelAlpha"])
 			-- Show formatted value
 			LeaPlusCB["PlusPanelAlpha"].f:SetFormattedText("%.0f%%", LeaPlusLC["PlusPanelAlpha"] * 100)
 		end
@@ -10073,20 +10039,14 @@
 				LeaPlusLC["PageF"]:Hide()
 				LeaPlusLC["PageF"]:Show()
 			end
-			if LeaPlusLC["MusicPlayer"]:IsShown() then
-				LeaPlusLC["MusicPlayer"]:Hide()
-				LeaPlusLC["MusicPlayer"]:Show()
-			end
 			-- Set panel scale
 			LeaPlusLC["PageF"]:SetScale(LeaPlusLC["PlusPanelScale"])
-			LeaPlusLC["MusicPlayer"]:SetScale(LeaPlusLC["PlusPanelScale"])
 			-- Update music player highlight bar scale
 			LeaPlusLC:UpdateList()
 		end
 
 		-- Set scale on startup
 		LeaPlusLC["PageF"]:SetScale(LeaPlusLC["PlusPanelScale"])
-		LeaPlusLC["MusicPlayer"]:SetScale(LeaPlusLC["PlusPanelScale"])
 
 		-- Set scale and reset panel position after changing slider
 		LeaPlusCB["PlusPanelScale"]:HookScript("OnMouseUp", SetPlusScale)
@@ -10713,7 +10673,6 @@
 				LeaPlusLC:LoadVarNum("MinimapIconPos", -158.1, -180, 180)	-- Minimap button slider
 				LeaPlusLC:LoadVarChk("EnableHotkey", "On")					-- Enable hotkey
 				LeaPlusLC:LoadVarNum("HotkeyMenu", 1, 1, 4)					-- Leatrix Plus hotkey
-				LeaPlusLC:LoadVarNum("MusicKeyMenu", 1, 1, 4)				-- Music player hotkey
 
 				LeaPlusLC:LoadVarNum("PlusPanelScale", 1, 1, 2)				-- Panel scale
 				LeaPlusLC:LoadVarNum("PlusPanelAlpha", 0, 0, 1)				-- Panel alpha
@@ -10723,12 +10682,6 @@
 				LeaPlusLC:LoadVarAnc("MainPanelR", "CENTER")				-- Panel relative
 				LeaPlusLC:LoadVarNum("MainPanelX", 0, -5000, 5000)			-- Panel X axis
 				LeaPlusLC:LoadVarNum("MainPanelY", 0, -5000, 5000)			-- Panel Y axis
-
-				-- Music player position
-				LeaPlusLC:LoadVarAnc("MusicPanelA", "CENTER")				-- Panel anchor
-				LeaPlusLC:LoadVarAnc("MusicPanelR", "CENTER")				-- Panel relative
-				LeaPlusLC:LoadVarNum("MusicPanelX", 0, -5000, 5000)			-- Panel X axis
-				LeaPlusLC:LoadVarNum("MusicPanelY", 0, -5000, 5000)			-- Panel Y axis
 
 				-- Start page
 				LeaPlusLC:LoadVarNum("LeaStartPage", 0, 0, LeaPlusLC["NumberOfPages"])
@@ -10936,7 +10889,6 @@
 			LeaPlusDB["MinimapIconPos"] 		= LeaPlusLC["MinimapIconPos"]
 			LeaPlusDB["EnableHotkey"] 			= LeaPlusLC["EnableHotkey"]
 			LeaPlusDB["HotkeyMenu"] 			= LeaPlusLC["HotkeyMenu"]
-			LeaPlusDB["MusicKeyMenu"] 			= LeaPlusLC["MusicKeyMenu"]
 
 			LeaPlusDB["PlusPanelScale"] 		= LeaPlusLC["PlusPanelScale"]
 			LeaPlusDB["PlusPanelAlpha"] 		= LeaPlusLC["PlusPanelAlpha"]
@@ -10946,12 +10898,6 @@
 			LeaPlusDB["MainPanelR"]				= LeaPlusLC["MainPanelR"]
 			LeaPlusDB["MainPanelX"]				= LeaPlusLC["MainPanelX"]
 			LeaPlusDB["MainPanelY"]				= LeaPlusLC["MainPanelY"]
-
-			-- Music player position
-			LeaPlusDB["MusicPanelA"]			= LeaPlusLC["MusicPanelA"]
-			LeaPlusDB["MusicPanelR"]			= LeaPlusLC["MusicPanelR"]
-			LeaPlusDB["MusicPanelX"]			= LeaPlusLC["MusicPanelX"]
-			LeaPlusDB["MusicPanelY"]			= LeaPlusLC["MusicPanelY"]
 
 			-- Start page
 			LeaPlusDB["LeaStartPage"]			= LeaPlusLC["LeaStartPage"]
@@ -11060,7 +11006,7 @@
 		ft:SetSize(width, height)  
 		ft:SetPoint(anchor)
 		ft:SetVertexColor(r ,g, b, alp)
-		if name == "MainTexture" or name == "MusicMainTexture" then
+		if name == "MainTexture" then
 			ft:SetTexCoord(0.09, 1, 0, 1);
 		end
 	end
@@ -11612,14 +11558,10 @@
 				LeaPlusLC["PlusPanelScale"] = 1
 				LeaPlusLC["PlusPanelAlpha"] = 0
 				LeaPlusLC["PageF"]:SetScale(1)
-				LeaPlusLC["MusicPlayer"]:SetScale(1)
 				LeaPlusLC["PageF"].t:SetAlpha(1 - LeaPlusLC["PlusPanelAlpha"])
-				LeaPlusLC["MusicPlayer"].t:SetAlpha(1 - LeaPlusLC["PlusPanelAlpha"])
 				-- Refresh panels
 				LeaPlusLC["PageF"]:ClearAllPoints()
 				LeaPlusLC["PageF"]:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-				LeaPlusLC["MusicPlayer"]:ClearAllPoints()
-				LeaPlusLC["MusicPlayer"]:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 				-- Reset currently showing configuration panel
 				for k, v in pairs(LeaConfigList) do 
 					if v:IsShown() then
@@ -11936,13 +11878,6 @@
 				-- Wipe cooldowns
 				LeaPlusDB["Cooldowns"] = nil
 				ReloadUI()
-			elseif str == "play" then
-				-- Music player
-				if LeaPlusLC["MusicPlayer"]:IsShown() then
-					LeaPlusLC["MusicPlayer"]:Hide()
-				else
-					LeaPlusLC["MusicPlayer"]:Show()
-				end
 			elseif str == "admin" then
 				-- Preset profile (used for testing)
 				LpEvt:UnregisterAllEvents()						-- Prevent changes
@@ -12095,7 +12030,6 @@
 
 				-- Settings
 				LeaPlusDB["HotkeyMenu"] = 2						-- Leatrix Plus hotkey
-				LeaPlusDB["MusicKeyMenu"] = 2					-- Music player hotkey
 
 				-- Function to assign cooldowns
 				local function setIcon(pclass, pspec, sp1, st1, pt1, sp2, st2, pt2, sp3, st3, pt3, sp4, st4, pt4, sp5, st5, pt5)
@@ -12292,6 +12226,7 @@
 	LeaPlusLC["Page6"] = LeaPlusLC:MakePage("Page6", "Frames"		, "LeaPlusNav6", "Frames"		, LeaPlusLC["PageF"], "TOPLEFT", 16, -212, 112, 20)
 	LeaPlusLC["Page7"] = LeaPlusLC:MakePage("Page7", "System"		, "LeaPlusNav7", "System"		, LeaPlusLC["PageF"], "TOPLEFT", 16, -232, 112, 20)
 	LeaPlusLC["Page8"] = LeaPlusLC:MakePage("Page8", "Settings"		, "LeaPlusNav8", "Settings"		, LeaPlusLC["PageF"], "TOPLEFT", 16, -272, 112, 20)
+	LeaPlusLC["Page9"] = LeaPlusLC:MakePage("Page9", "Music"		, "LeaPlusNav9", "Music"		, LeaPlusLC["PageF"], "TOPLEFT", 16, -292, 112, 20)
 
 	-- Page navigation mechanism
 	for i = 0, LeaPlusLC["NumberOfPages"] do
@@ -12500,8 +12435,8 @@
 	pg = "Page8";
 
 	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Addon"						, 146, -72);
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowMinimapIcon"			, "Show minimap button"				, 146, -92,		true,	"If checked, a minimap button will be available.\n\nLeft-click - Toggle options panel.\n\nRight-click - Toggle music player.\n\nSHIFT/Left-click - Toggle music.\n\nSHIFT/Right-click - Toggle coordinates (if enabled).\n\nCTRL/Left-click - Toggle minimap target tracking.\n\nCTRL/Right-click - Toggle errors (if enabled).\n\nCTRL/SHIFT/Left-click - Toggle Zygor (if installed).\n\nCTRL/SHIFT/Right-click - Toggle windowed mode.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "EnableHotkey"				, "Enable hotkey"					, 146, -112,	true,	"If checked, you will be able to open Leatrix Plus or the music player by pressing a designated hotkey.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "ShowMinimapIcon"			, "Show minimap button"				, 146, -92,		true,	"If checked, a minimap button will be available.\n\nLeft-click - Toggle options panel.\n\nSHIFT/Left-click - Toggle music.\n\nSHIFT/Right-click - Toggle coordinates (if enabled).\n\nCTRL/Left-click - Toggle minimap target tracking.\n\nCTRL/Right-click - Toggle errors (if enabled).\n\nCTRL/SHIFT/Left-click - Toggle Zygor (if installed).\n\nCTRL/SHIFT/Right-click - Toggle windowed mode.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "EnableHotkey"				, "Enable hotkey"					, 146, -112,	true,	"If checked, you will be able to open Leatrix Plus by pressing a designated hotkey.")
 
 	LeaPlusLC:MakeTx(LeaPlusLC[pg], "Scale", 340, -72);
 	LeaPlusLC:MakeSL(LeaPlusLC[pg], "PlusPanelScale", "", 1, 2, 0.1, 340, -92, "%.1f")

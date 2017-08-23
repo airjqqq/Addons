@@ -114,7 +114,7 @@ frame.ADDON_LOADED = function(self, name)
 
 		-- Set the module points
 		talkbox:SetPoint(L('boxpoint'), UIParent, L('boxoffsetX'), L('boxoffsetY'))
-		titles:SetPoint('CENTER', UIParent, 'CENTER', L('titleoffset'), 0)
+		titles:SetPoint('CENTER', UIParent, 'CENTER', L('titleoffset'), L('titleoffsetY'))
 
 		self:SetFrameStrata(L('strata'))
 		talkbox:SetFrameStrata(L('strata'))

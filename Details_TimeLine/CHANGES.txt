@@ -1,7 +1,7 @@
-changeset:   67:c7de59baafac
-tag:         v67-release
+changeset:   69:4405baea1bdd
+tag:         v69-release
 user:        Tercio
-date:        Tue Jul 25 13:53:03 2017 -0300
-summary:     - search for non localized strings in the code, everything should be localizde at this point.
+date:        Fri Aug 11 12:55:46 2017 -0300
+summary:     - debuffs are now selected by default instead of cooldowns.
 
 

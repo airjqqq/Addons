@@ -8,6 +8,7 @@ local L = setmetatable({},{__index = function(t,k) return k end})
 
 function F:OnInitialize()
   self:RegisterFilter("DAMGETAKENSPELL",L["DT By Spell"])
+  self:RegisterFilter("SERVERREFUSED",L["Server Refused"])
   self:RegisterFilter("CHANNELDAMAGE",L["Since Last Damage"])
   self:RegisterFilter("CHANNELHEAL",L["Since Last Heal"])
   self:RegisterFilter("NEXTSWING",L["Next Swing"],{
@@ -134,6 +135,19 @@ function F:DAMGETAKENSPELL(filter)
   else
     return 120
   end
+end
+function F:SERVERREFUSED(filter)
+  -- filter.name
+  filter.unit = filter.unit or "target"
+
+  local guid = Cache:UnitGUID(filter.unit)
+  if not guid then return false end
+
+  local t = Cache.cache.serverRefused:get(guid)
+  if not t then return false end
+  local data = Cache.cache.castSuccess:find({sourceGUID=Cache:PlayerGUID(),destGUID=guid},nil,nil,{t=t.t})
+  if data then return false end
+  return GetTime() - t.t
 end
 
 function F:CHANNELDAMAGE(filter)

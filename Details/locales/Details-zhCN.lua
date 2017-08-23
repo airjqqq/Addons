@@ -1465,7 +1465,7 @@ L["STRING_PLUGINOPTIONS_TEXTSTYLE"] = "文本样式"
 -- L["STRING_QUERY_INSPECT"] = ""
 L["STRING_QUERY_INSPECT_FAIL1"] = "在战斗中无法查询。"
 --Translation missing 
--- L["STRING_QUERY_INSPECT_TALENTS"] = ""
+-- L["STRING_QUERY_INSPECT_REFRESH"] = ""
 L["STRING_RAID_WIDE"] = "[*] raid wide cooldown"
 L["STRING_RAIDCHECK_PLUGIN_DESC"] = "当在一个团队副本中时，在Details!的标题栏上会出现一个图标显示合剂，食物，药水的使用。"
 L["STRING_RAIDCHECK_PLUGIN_NAME"] = "Raid 检查"

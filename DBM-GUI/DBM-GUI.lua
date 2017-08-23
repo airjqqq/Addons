@@ -43,7 +43,7 @@
 --
 
 
-local revision =("$Revision: 16437 $"):sub(12, -3)
+local revision =("$Revision: 16562 $"):sub(12, -3)
 local FrameTitle = "DBM_GUI_Option_"	-- all GUI frames get automatically a name FrameTitle..ID
 
 local PanelPrototype = {}
@@ -2263,8 +2263,12 @@ local function CreateOptionsMenu()
 					DBM.Bars:SetOption(option, self:GetValue())
 					self:SetValue(DBM.Bars:GetOption(option))
 				end
-
 			end
+		end
+		
+		local function resetDBTValueToDefault(slider, option)
+			DBM.Bars:SetOption(option, DBM.Bars:GetDefaultOption(option))
+			slider:SetValue(DBM.Bars:GetOption(option))
 		end
 
 		local FontSizeSlider = BarSetup:CreateSlider(L.Bar_FontSize, 7, 18, 1)
@@ -2304,7 +2308,7 @@ local function CreateOptionsMenu()
 		-----------------------
 		-- Small Bar Options --
 		-----------------------
-		local BarSetupSmall = BarSetupPanel:CreateArea(L.AreaTitle_BarSetupSmall, nil, 160, true)
+		local BarSetupSmall = BarSetupPanel:CreateArea(L.AreaTitle_BarSetupSmall, nil, 175, true)
 
 		local smalldummybar = DBM.Bars:CreateDummyBar()
 		smalldummybar.frame:SetParent(BarSetupSmall.frame)
@@ -2330,11 +2334,25 @@ local function CreateOptionsMenu()
 		BarOffsetYSlider:SetPoint("TOPLEFT", BarOffsetXSlider, "BOTTOMLEFT", 0, -10)
 		BarOffsetYSlider:SetScript("OnShow", createDBTOnShowHandler("BarYOffset"))
 		BarOffsetYSlider:HookScript("OnValueChanged", createDBTOnValueChangedHandler("BarYOffset"))
+		
+		local barResetbutton = BarSetup:CreateButton(L.SpecWarn_ResetMe, 120, 16)
+		barResetbutton:SetPoint('BOTTOMRIGHT', BarSetupSmall.frame, "BOTTOMRIGHT", -5, 5)
+		barResetbutton:SetNormalFontObject(GameFontNormalSmall)
+		barResetbutton:SetHighlightFontObject(GameFontNormalSmall)
+		barResetbutton:SetScript("OnClick", function()
+			resetDBTValueToDefault(BarWidthSlider, "Width")
+			resetDBTValueToDefault(BarScaleSlider, "Scale")
+			resetDBTValueToDefault(BarOffsetXSlider, "BarXOffset")
+			resetDBTValueToDefault(BarOffsetYSlider, "BarYOffset")
+			--TimerX
+			--TimerY
+			--TimerPoint
+		end)
 
 		-----------------------
 		-- Huge Bar Options --
 		-----------------------
-		local BarSetupHuge = BarSetupPanel:CreateArea(L.AreaTitle_BarSetupHuge, nil, 175, true)
+		local BarSetupHuge = BarSetupPanel:CreateArea(L.AreaTitle_BarSetupHuge, nil, 190, true)
 
 		local enablebar = BarSetupHuge:CreateCheckButton(L.EnableHugeBar, true, nil, nil, "HugeBarsEnabled")
 
@@ -2364,6 +2382,20 @@ local function CreateOptionsMenu()
 		HugeBarOffsetYSlider:SetPoint("TOPLEFT", HugeBarOffsetXSlider, "BOTTOMLEFT", 0, -10)
 		HugeBarOffsetYSlider:SetScript("OnShow", createDBTOnShowHandler("HugeBarYOffset"))
 		HugeBarOffsetYSlider:HookScript("OnValueChanged", createDBTOnValueChangedHandler("HugeBarYOffset"))
+		
+		local hugeBarResetbutton = BarSetupHuge:CreateButton(L.SpecWarn_ResetMe, 120, 16)
+		hugeBarResetbutton:SetPoint('BOTTOMRIGHT', BarSetupHuge.frame, "BOTTOMRIGHT", -5, 5)
+		hugeBarResetbutton:SetNormalFontObject(GameFontNormalSmall)
+		hugeBarResetbutton:SetHighlightFontObject(GameFontNormalSmall)
+		hugeBarResetbutton:SetScript("OnClick", function()
+			resetDBTValueToDefault(HugeBarWidthSlider, "HugeWidth")
+			resetDBTValueToDefault(HugeBarScaleSlider, "HugeScale")
+			resetDBTValueToDefault(HugeBarOffsetXSlider, "HugeBarXOffset")
+			resetDBTValueToDefault(HugeBarOffsetYSlider, "HugeBarYOffset")
+			--HugeTimerPoint
+			--HugeTimerX
+			--HugeTimerY
+		end)
 
 		BarSetupPanel:SetMyOwnHeight()
 	end
@@ -3446,10 +3478,9 @@ local function CreateOptionsMenu()
 		local AFKHealthWarning		= soundAlertsArea:CreateCheckButton(L.AFKHealthWarning, true, nil, "AFKHealthWarning")
 		local AutoReplySound		= soundAlertsArea:CreateCheckButton(L.AutoReplySound, true, nil, "AutoReplySound")
 
-		local generaltimeroptions	= extraFeaturesPanel:CreateArea(L.TimerGeneral, nil, 125, true)
+		local generaltimeroptions	= extraFeaturesPanel:CreateArea(L.TimerGeneral, nil, 105, true)
 
 		local SKT_Enabled		= generaltimeroptions:CreateCheckButton(L.SKT_Enabled, true, nil, "AlwaysShowSpeedKillTimer")
-		local CRT_Enabled		= generaltimeroptions:CreateCheckButton(L.CRT_Enabled, true, nil, "CRT_Enabled")
 		local RespawnTimer		= generaltimeroptions:CreateCheckButton(L.ShowRespawn, true, nil, "ShowRespawn")
 		local QueueTimer		= generaltimeroptions:CreateCheckButton(L.ShowQueuePop, true, nil, "ShowQueuePop")
 

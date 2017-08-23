@@ -51,6 +51,8 @@ function Cache:OnEnable()
 		end
 	end)
 	self:RegisterEvent("PLAYER_TARGET_CHANGED")
+	self:RegisterEvent("ENCOUNTER_START")
+	self:RegisterEvent("ENCOUNTER_END")
 
   self:RegisterMessage("AIRJ_HACK_OBJECT_CREATED",self.OnObjectChanged,self)
   self:RegisterMessage("AIRJ_HACK_OBJECT_DESTROYED",self.OnObjectChanged,self)
@@ -340,6 +342,15 @@ end
 
 --events
 do
+	function Cache:ENCOUNTER_START(event,encounterID, name, difficulty, size)
+		self.encounter = {id=encounterID,difficulty=difficulty,size=size}
+	end
+	function Cache:ENCOUNTER_END(...)
+		self.encounter = nil
+	end
+	function Cache:ENCOUNTER_END(event,encounterID, name, difficulty, size)
+		self.encounter = {id=encounterID,difficulty=difficulty,size=size}
+	end
 	local lasttargetguid
 	function Cache:PLAYER_TARGET_CHANGED(...)
 		local guid = UnitGUID("target")

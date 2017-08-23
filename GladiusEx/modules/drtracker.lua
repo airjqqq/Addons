@@ -26,12 +26,19 @@ local defaults = {
 }
 
 local DRTracker = GladiusEx:NewGladiusExModule("DRTracker",
+-- {
+-- 	drTrackerAttachTo = "Frame",
+-- 	drTrackerAnchor = "TOPRIGHT",
+-- 	drTrackerRelativePoint = "TOPLEFT",
+-- 	drTrackerGrowDirection = "LEFT",
+-- 	drTrackerOffsetX = -5,
+-- }
 	fn.merge(defaults, {
 		drTrackerAttachTo = "Frame",
-		drTrackerAnchor = "TOPRIGHT",
-		drTrackerRelativePoint = "TOPLEFT",
-		drTrackerGrowDirection = "LEFT",
-		drTrackerOffsetX = -5,
+		drTrackerAnchor = "TOPLEFT",
+		drTrackerRelativePoint = "TOPRIGHT",
+		drTrackerGrowDirection = "RIGHT",
+		drTrackerOffsetX = 5,
 	}),
 	fn.merge(defaults, {
 		drTrackerAttachTo = "Frame",

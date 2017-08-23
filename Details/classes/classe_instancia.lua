@@ -2825,7 +2825,10 @@ local function GetDpsHps (_thisActor, key)
 	end
 end
 
--- report_table: table sent to report func / data: numeric table {{value1, value2}} / f1: format value1 / f2: format value2
+-- table sent to report func / f1: format value1 / f2: format value2
+-- report_table = a table header: {"report results for:"}
+-- data = table with {{value1 (string), value2 ( the value)} , {value1 (string), value2 ( the value)}}
+
 local default_format_value1 = function (v) return v end
 local default_format_value2 = function (v) return v end
 local default_format_value3 = function (i, v1, v2) 

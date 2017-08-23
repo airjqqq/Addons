@@ -5,7 +5,7 @@ L["ABILITY_ID"] = "技能id"
 --Translation missing 
 -- L["STRING_"] = ""
 L["STRING_ABSORBED"] = "吸收"
-L["STRING_ACTORFRAME_NOTHING"] = "沒有資料可報告"
+L["STRING_ACTORFRAME_NOTHING"] = "沒有資料可報告 :("
 L["STRING_ACTORFRAME_REPORTAT"] = "在"
 L["STRING_ACTORFRAME_REPORTOF"] = "的"
 L["STRING_ACTORFRAME_REPORTTARGETS"] = "報告的對象"
@@ -51,7 +51,7 @@ L["STRING_ATTRIBUTE_HEAL_DONE"] = "造成治療"
 L["STRING_ATTRIBUTE_HEAL_ENEMY"] = "敵方造成治療"
 L["STRING_ATTRIBUTE_HEAL_HPS"] = "每秒治療"
 L["STRING_ATTRIBUTE_HEAL_OVERHEAL"] = "過量治療"
-L["STRING_ATTRIBUTE_HEAL_PREVENT"] = "減傷"
+L["STRING_ATTRIBUTE_HEAL_PREVENT"] = "傷害預防"
 L["STRING_ATTRIBUTE_HEAL_TAKEN"] = "承受治療"
 L["STRING_ATTRIBUTE_MISC"] = "雜項"
 L["STRING_ATTRIBUTE_MISC_BUFF_UPTIME"] = "增益覆蓋時間"
@@ -216,7 +216,7 @@ L["STRING_FORGE_BUTTON_PLAYERS_DESC"] = "列出目前戰鬥的玩家"
 L["STRING_FORGE_ENABLEPLUGINS"] = "請從遊戲選單>插件啟用Details!的團隊副本插件，比如: Details: Tomb of Sargeras。"
 L["STRING_FORGE_FILTER_BARTEXT"] = "計量條名稱"
 L["STRING_FORGE_FILTER_CASTERNAME"] = "施放者名稱"
-L["STRING_FORGE_FILTER_ENCOUNTERNAME"] = "副本名稱"
+L["STRING_FORGE_FILTER_ENCOUNTERNAME"] = "首領戰鬥名稱"
 L["STRING_FORGE_FILTER_ENEMYNAME"] = "敵人名稱"
 L["STRING_FORGE_FILTER_OWNERNAME"] = "擁有者名稱"
 L["STRING_FORGE_FILTER_PETNAME"] = "寵物名稱"
@@ -225,9 +225,9 @@ L["STRING_FORGE_FILTER_SPELLNAME"] = "技能名稱"
 L["STRING_FORGE_HEADER_BARTEXT"] = "計量條文字"
 L["STRING_FORGE_HEADER_CASTER"] = "施放者"
 L["STRING_FORGE_HEADER_CLASS"] = "職業"
-L["STRING_FORGE_HEADER_CREATEAURA"] = "建立光環"
-L["STRING_FORGE_HEADER_ENCOUNTERID"] = "副本ID"
-L["STRING_FORGE_HEADER_ENCOUNTERNAME"] = "副本名稱"
+L["STRING_FORGE_HEADER_CREATEAURA"] = "創建光環監控"
+L["STRING_FORGE_HEADER_ENCOUNTERID"] = "首領戰鬥ID"
+L["STRING_FORGE_HEADER_ENCOUNTERNAME"] = "首領戰鬥名稱"
 L["STRING_FORGE_HEADER_EVENT"] = "事件"
 L["STRING_FORGE_HEADER_FLAG"] = "Flag"
 L["STRING_FORGE_HEADER_GUID"] = "GUID"
@@ -240,8 +240,7 @@ L["STRING_FORGE_HEADER_OWNER"] = "擁有者"
 L["STRING_FORGE_HEADER_SCHOOL"] = "屬性"
 L["STRING_FORGE_HEADER_SPELLID"] = "技能ID"
 L["STRING_FORGE_HEADER_TIMER"] = "時間條"
---Translation missing 
--- L["STRING_FORGE_TUTORIAL_DESC"] = ""
+L["STRING_FORGE_TUTORIAL_DESC"] = "按下“|cFFFFFF00創建光環|r”，瀏覽法術及首領對戰模組計時器來創建光環。"
 --Translation missing 
 -- L["STRING_FORGE_TUTORIAL_TITLE"] = ""
 --Translation missing 
@@ -365,6 +364,7 @@ L["STRING_MINITUTORIAL_OPTIONS_PANEL6"] = "在此選擇你想改變哪個視窗�
 L["STRING_MINITUTORIAL_WINDOWS1"] = [=[你剛建立了一組視窗群組。
 點擊鎖頭圖示去分開它。]=]
 L["STRING_MINITUTORIAL_WINDOWS2"] = [=[視窗已被鎖定。
+
 點擊標題列去向上拖拉。]=]
 L["STRING_MIRROR_IMAGE"] = "鏡像"
 L["STRING_MISS"] = "未命中"
@@ -447,6 +447,7 @@ L["STRING_OPTIONS_BAR_BACKDROP_TEXTURE_DESC"] = "改變邊框外觀"
 L["STRING_OPTIONS_BAR_BCOLOR"] = "背景顏色"
 L["STRING_OPTIONS_BAR_BTEXTURE_DESC"] = "在頂部材質下方的材質總是和視窗寬度一樣"
 L["STRING_OPTIONS_BAR_COLOR_DESC"] = [=[該材質的顏色和透明度
+
 |cFFFFFF00重要|r: 當使用職業顏色時，顏色選擇將被忽略。]=]
 L["STRING_OPTIONS_BAR_COLORBYCLASS"] = "使用職業顏色"
 L["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"] = "當啟用時，總是使用玩家職業顏色的紋理"
@@ -459,6 +460,7 @@ L["STRING_OPTIONS_BAR_HEIGHT"] = "高度"
 L["STRING_OPTIONS_BAR_HEIGHT_DESC"] = "增加或減少計量條高度"
 L["STRING_OPTIONS_BAR_ICONFILE"] = "圖標檔案"
 L["STRING_OPTIONS_BAR_ICONFILE_DESC"] = [=[自定義圖標路徑
+
 圖檔副檔名需要是.tag，256*256畫素與alpha通道。]=]
 L["STRING_OPTIONS_BAR_ICONFILE_DESC2"] = "選擇圖示包使用。"
 L["STRING_OPTIONS_BAR_ICONFILE1"] = "沒有圖示"
@@ -504,7 +506,8 @@ Example:
 |cFFFFFF00跳脫序列|r: 用它來改變顏色或加入材質。搜尋“UI跳脫序列”以獲取更多資訊。]=]
 L["STRING_OPTIONS_BARS"] = "一般計量條設定"
 L["STRING_OPTIONS_BARS_CUSTOM_TEXTURE"] = "自訂材質檔案"
-L["STRING_OPTIONS_BARS_CUSTOM_TEXTURE_DESC"] = "|cFFFFFF00Important|r: 圖片必須為256x32像素。"
+L["STRING_OPTIONS_BARS_CUSTOM_TEXTURE_DESC"] = [=[
+|cFFFFFF00重要|r： 圖片必須為256x32像素。]=]
 L["STRING_OPTIONS_BARS_DESC"] = "這些選項設定計量條外觀"
 L["STRING_OPTIONS_BARSORT"] = "計量條排序"
 L["STRING_OPTIONS_BARSORT_DESC"] = "遞增或是遞減計量條排序。"
@@ -563,7 +566,7 @@ L["STRING_OPTIONS_CHART_IMPORT"] = "匯入"
 L["STRING_OPTIONS_CHART_IMPORTERROR"] = "無效的匯入字串"
 L["STRING_OPTIONS_CHART_NAME"] = "名稱"
 L["STRING_OPTIONS_CHART_NAMEERROR"] = "無效的名稱"
-L["STRING_OPTIONS_CHART_PLUGINWARNING"] = "載入圖表視窗顯示自訂圖表"
+L["STRING_OPTIONS_CHART_PLUGINWARNING"] = "安裝Chart Viewer組件來顯示自訂圖表。"
 L["STRING_OPTIONS_CHART_REMOVE"] = "移除"
 L["STRING_OPTIONS_CHART_SAVE"] = "儲存"
 L["STRING_OPTIONS_CHART_VERSION"] = "版本"
@@ -601,7 +604,7 @@ L["STRING_OPTIONS_COMBAT_ALPHA"] = "當"
 L["STRING_OPTIONS_COMBAT_ALPHA_1"] = "None"
 L["STRING_OPTIONS_COMBAT_ALPHA_2"] = "戰鬥中"
 L["STRING_OPTIONS_COMBAT_ALPHA_3"] = "脫離戰鬥"
-L["STRING_OPTIONS_COMBAT_ALPHA_4"] = "不在隊伍"
+L["STRING_OPTIONS_COMBAT_ALPHA_4"] = "當不在隊伍時"
 L["STRING_OPTIONS_COMBAT_ALPHA_5"] = "當不在副本時"
 L["STRING_OPTIONS_COMBAT_ALPHA_6"] = "當在副本時"
 L["STRING_OPTIONS_COMBAT_ALPHA_7"] = "團隊除錯"
@@ -687,8 +690,7 @@ L["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW"] = [=[關閉'全部顯示'選單
 -- L["STRING_OPTIONS_DISABLED_RESET"] = ""
 --Translation missing 
 -- L["STRING_OPTIONS_DTAKEN_EVERYTHING"] = ""
---Translation missing 
--- L["STRING_OPTIONS_DTAKEN_EVERYTHING_DESC"] = ""
+L["STRING_OPTIONS_DTAKEN_EVERYTHING_DESC"] = "受到傷害將一直顯示與 |cFFFFFF00全部|r  模式。"
 L["STRING_OPTIONS_ED"] = "刪除數據"
 L["STRING_OPTIONS_ED_DESC"] = [=[|cFFFFFF00手動|r: 使用者需要點擊重置按鈕。
 
@@ -726,10 +728,8 @@ L["STRING_OPTIONS_HOTCORNER_QUICK_CLICK_DESC"] = [=[啟用或禁用Hotcorners快
 Quick button is localized at the further top left pixel，並從任一處移動你的滑鼠到這, 點擊後設定左上角的動作將可被執行]=]
 L["STRING_OPTIONS_HOTCORNER_QUICK_CLICK_FUNC"] = "Quick Click On Click"
 L["STRING_OPTIONS_HOTCORNER_QUICK_CLICK_FUNC_DESC"] = "當Hotcorner的快速按钮被點擊時選擇做甚麼"
---Translation missing 
--- L["STRING_OPTIONS_IGNORENICKNAME"] = ""
---Translation missing 
--- L["STRING_OPTIONS_IGNORENICKNAME_DESC"] = ""
+L["STRING_OPTIONS_IGNORENICKNAME"] = "忽略全部暱稱及自定頭像"
+L["STRING_OPTIONS_IGNORENICKNAME_DESC"] = "如果開啟，您公會的成員所設定的暱稱及頭像將會被忽略。"
 --Translation missing 
 -- L["STRING_OPTIONS_ILVL_TRACKER"] = ""
 --Translation missing 
@@ -748,41 +748,30 @@ L["STRING_OPTIONS_INSTANCE_COLOR_DESC"] = [=[變更視窗的顏色和透明度
 |cFFFFFF00重要|r:  選擇的窗口颜色會覆盖任何自訂的狀態欄]=]
 L["STRING_OPTIONS_INSTANCE_CURRENT"] = "自動轉換到目前"
 L["STRING_OPTIONS_INSTANCE_CURRENT_DESC"] = "不管何時進入戰鬥，這個視窗會自動切換到目前的片段"
---Translation missing 
--- L["STRING_OPTIONS_INSTANCE_DELETE"] = ""
---Translation missing 
--- L["STRING_OPTIONS_INSTANCE_DELETE_DESC"] = ""
---Translation missing 
--- L["STRING_OPTIONS_INSTANCE_SKIN"] = ""
---Translation missing 
--- L["STRING_OPTIONS_INSTANCE_SKIN_DESC"] = ""
---Translation missing 
--- L["STRING_OPTIONS_INSTANCE_STATUSBAR_ANCHOR"] = ""
---Translation missing 
--- L["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR"] = ""
---Translation missing 
--- L["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR_DESC"] = ""
+L["STRING_OPTIONS_INSTANCE_DELETE"] = "刪除"
+L["STRING_OPTIONS_INSTANCE_DELETE_DESC"] = [=[永久移除一個窗口。
+在移除過程中你的遊戲界面可能會重載。]=]
+L["STRING_OPTIONS_INSTANCE_SKIN"] = "皮膚"
+L["STRING_OPTIONS_INSTANCE_SKIN_DESC"] = "基於一個皮膚主題來調整窗口效果"
+L["STRING_OPTIONS_INSTANCE_STATUSBAR_ANCHOR"] = "狀態條:"
+L["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR"] = "顏色及透明度"
+L["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR_DESC"] = [=[選擇狀態條的顏色。
+
+|cFFFFFF00重要|r: 這個選項將會覆蓋在 窗口顏色 中設定的顏色及透明度設置。]=]
 --Translation missing 
 -- L["STRING_OPTIONS_INSTANCE_STRATA"] = ""
 --Translation missing 
 -- L["STRING_OPTIONS_INSTANCE_STRATA_DESC"] = ""
 L["STRING_OPTIONS_INSTANCES"] = "視窗:"
---Translation missing 
--- L["STRING_OPTIONS_INTERFACEDIT"] = ""
---Translation missing 
--- L["STRING_OPTIONS_LEFT_MENU_ANCHOR"] = ""
---Translation missing 
--- L["STRING_OPTIONS_LOCKSEGMENTS"] = ""
---Translation missing 
--- L["STRING_OPTIONS_LOCKSEGMENTS_DESC"] = ""
---Translation missing 
--- L["STRING_OPTIONS_MANAGE_BOOKMARKS"] = ""
---Translation missing 
--- L["STRING_OPTIONS_MAXINSTANCES"] = ""
+L["STRING_OPTIONS_INTERFACEDIT"] = "接口編輯模式"
+L["STRING_OPTIONS_LEFT_MENU_ANCHOR"] = "菜單設定:"
+L["STRING_OPTIONS_LOCKSEGMENTS"] = "片段鎖定"
+L["STRING_OPTIONS_LOCKSEGMENTS_DESC"] = "如果開啟，改變一個戰鬥片段的時候會將其他窗口都切換到該片段。"
+L["STRING_OPTIONS_MANAGE_BOOKMARKS"] = "管理書籤"
+L["STRING_OPTIONS_MAXINSTANCES"] = "窗口數量"
 --Translation missing 
 -- L["STRING_OPTIONS_MAXINSTANCES_DESC"] = ""
---Translation missing 
--- L["STRING_OPTIONS_MAXSEGMENTS"] = ""
+L["STRING_OPTIONS_MAXSEGMENTS"] = "片段數量"
 --Translation missing 
 -- L["STRING_OPTIONS_MAXSEGMENTS_DESC"] = ""
 --Translation missing 
@@ -813,16 +802,12 @@ L["STRING_OPTIONS_INSTANCES"] = "視窗:"
 -- L["STRING_OPTIONS_MENU_ATTRIBUTE_ANCHORY_DESC"] = ""
 --Translation missing 
 -- L["STRING_OPTIONS_MENU_ATTRIBUTE_ENABLED_DESC"] = ""
---Translation missing 
--- L["STRING_OPTIONS_MENU_ATTRIBUTE_ENCOUNTERTIMER"] = ""
---Translation missing 
--- L["STRING_OPTIONS_MENU_ATTRIBUTE_ENCOUNTERTIMER_DESC"] = ""
---Translation missing 
--- L["STRING_OPTIONS_MENU_ATTRIBUTE_FONT"] = ""
+L["STRING_OPTIONS_MENU_ATTRIBUTE_ENCOUNTERTIMER"] = "首領戰鬥計時器"
+L["STRING_OPTIONS_MENU_ATTRIBUTE_ENCOUNTERTIMER_DESC"] = "如果開啟，在文字的左側將出現一個計時器"
+L["STRING_OPTIONS_MENU_ATTRIBUTE_FONT"] = "文字字體"
 --Translation missing 
 -- L["STRING_OPTIONS_MENU_ATTRIBUTE_FONT_DESC"] = ""
---Translation missing 
--- L["STRING_OPTIONS_MENU_ATTRIBUTE_SHADOW_DESC"] = ""
+L["STRING_OPTIONS_MENU_ATTRIBUTE_SHADOW_DESC"] = "啟用或是禁用文字陰影"
 --Translation missing 
 -- L["STRING_OPTIONS_MENU_ATTRIBUTE_SIDE"] = ""
 --Translation missing 
@@ -914,10 +899,10 @@ L["STRING_OPTIONS_MENU_AUTOHIDE_DESC"] = "當滑鼠經過或離開視窗時會�
 -- L["STRING_OPTIONS_MISCTITLE"] = ""
 --Translation missing 
 -- L["STRING_OPTIONS_MISCTITLE2"] = ""
---Translation missing 
--- L["STRING_OPTIONS_NICKNAME"] = ""
---Translation missing 
--- L["STRING_OPTIONS_NICKNAME_DESC"] = ""
+L["STRING_OPTIONS_NICKNAME"] = "暱稱"
+L["STRING_OPTIONS_NICKNAME_DESC"] = [=[給你自己設定一個暱稱。
+
+在傳遞Details!數據之時，你的人物名將會被暱稱所代替。]=]
 --Translation missing 
 -- L["STRING_OPTIONS_OPEN_ROWTEXT_EDITOR"] = ""
 --Translation missing 
@@ -1846,7 +1831,7 @@ L["STRING_OPTIONSMENU_LEFTMENU"] = "標題列:一般"
 --Translation missing 
 -- L["STRING_QUERY_INSPECT_FAIL1"] = ""
 --Translation missing 
--- L["STRING_QUERY_INSPECT_TALENTS"] = ""
+-- L["STRING_QUERY_INSPECT_REFRESH"] = ""
 --Translation missing 
 -- L["STRING_RAID_WIDE"] = ""
 L["STRING_RAIDCHECK_PLUGIN_DESC"] = "當進入團隊副本時，在Details!的標題列顯示一個圖示表示精練、食物、預用藥水的使用狀態。"
@@ -2165,32 +2150,24 @@ L["STRING_WAVE"] = "波"
 -- L["STRING_WELCOME_66"] = ""
 --Translation missing 
 -- L["STRING_WELCOME_67"] = ""
---Translation missing 
--- L["STRING_WELCOME_68"] = ""
---Translation missing 
--- L["STRING_WELCOME_69"] = ""
---Translation missing 
--- L["STRING_WELCOME_7"] = ""
---Translation missing 
--- L["STRING_WELCOME_70"] = ""
---Translation missing 
--- L["STRING_WELCOME_71"] = ""
---Translation missing 
--- L["STRING_WELCOME_72"] = ""
---Translation missing 
--- L["STRING_WINDOW_NOTFOUND"] = ""
---Translation missing 
--- L["STRING_WINDOW_NUMBER"] = ""
---Translation missing 
--- L["STRING_WINDOW1ATACH_DESC"] = ""
+L["STRING_WELCOME_68"] = [=[Details! 擁有相當多的插件。
+
+它們存在於各處並能幫助您完成各種任務。
+
+舉例：仇恨值監視表，DPS分析，首領戰鬥總覽，圖表生成等等。]=]
+L["STRING_WELCOME_69"] = "跳過"
+L["STRING_WELCOME_7"] = "用於排名，這個方式會使用已經產生的數據來預測全部團隊成員的DPS及HPS。"
+L["STRING_WELCOME_70"] = "標題條設定"
+L["STRING_WELCOME_71"] = "條設定"
+L["STRING_WELCOME_72"] = "窗口設定"
+L["STRING_WINDOW_NOTFOUND"] = "沒有找到窗口。"
+L["STRING_WINDOW_NUMBER"] = "窗口數"
+L["STRING_WINDOW1ATACH_DESC"] = "要創建窗口組，請拖拽窗口 #2 到窗口 #1 旁"
 --Translation missing 
 -- L["STRING_WIPE_ALERT"] = ""
 --Translation missing 
 -- L["STRING_WIPE_ERROR1"] = ""
---Translation missing 
--- L["STRING_WIPE_ERROR2"] = ""
---Translation missing 
--- L["STRING_WIPE_ERROR3"] = ""
---Translation missing 
--- L["STRING_YES"] = ""
+L["STRING_WIPE_ERROR2"] = "我們正處於一場團隊副本首領戰鬥之中"
+L["STRING_WIPE_ERROR3"] = "無法終止該首領戰鬥"
+L["STRING_YES"] = "好"
 

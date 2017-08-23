@@ -10,7 +10,9 @@ local CombatLogFilter
 function F:OnInitialize()
   CombatLogFilter = Filter:GetModule("CombatLogFilter")
   self:RegisterFilter("AIRTYPE",L["[P] Other Filter"],{name={}})
-  self:RegisterFilter("AIRSPECIFICUNIT",L["[P] Specific Unit"],{name={}})
+  self:RegisterFilter("AIRSPECIFICUNIT",L["[P] Specific Unit"],{name={},value={}})
+  self:RegisterFilter("AIRHEALER",L["[P] Healer"],{name={},value={}})
+  self:RegisterFilter("AIRPVPSPEC",L["[P] PVP Spec"],{value={}})
   self:RegisterFilter("AIRRANGE",L["[P] Range (near)"],{value={}})
   self:RegisterFilter("AIRLOWHEALTH",L["[P] Health (low)"],{value={}})
   self:RegisterFilter("AIRLOWHEALTHFUTURE",L["[P] Health Future (low)"],{name={},value={}})
@@ -102,14 +104,92 @@ function F:AIRSPECIFICUNIT(filter)
   end
   return value
 end
+function F:AIRHEALER(filter)
+  filter.value = filter.value or 0
+  filter.name = filter.name or {2}
+  local unitKeys = Core:ToKeyTable(filter.name)
+  local unit = Core:GetAirUnit()
+  local value = 1
+  local guid = Cache:UnitGUID(unit)
+  if not guid then return false end
+  local id, name, description, icon, role, class = Cache:GetSpecInfo(guid)
+  if role == "HEALER" then
+    value = filter.name[1]
+  else
+    value = 1
+  end
+  return value
+end
+local specP = {
+  [ 62] = 2,
+  [ 63] = 2,
+  [ 64] = 2,
+  [ 65] = 1.5,
+  [ 66] = 1,
+  [ 70] = 0.5,
+  [ 71] = 1,
+  [ 72] = 1,
+  [ 73] = 0.5,
+  [102] = 1,
+  [103] = 1.5,
+  [104] = 0.5,
+  [105] = 2,
+  [250] = 0.5,
+  [251] = 1.5,
+  [252] = 1,
+  [253] = 1,
+  [254] = 2,
+  [255] = 1.5,
+  [256] = 3,
+  [257] = 3,
+  [258] = 3,
+  [259] = 1.5,
+  [260] = 1.5,
+  [261] = 1.5,
+  [262] = 1.5,
+  [263] = 1,
+  [264] = 4,
+  [265] = 3,
+  [266] = 2,
+  [267] = 3,
+  [268] = 0.5,
+  [269] = 1.5,
+  [270] = 1.5,
+  [577] = 1,
+  [581] = 0.5,
+}
+function F:AIRPVPSPEC(filter)
+  filter.value = filter.value or 0
+  local unit = Core:GetAirUnit()
+  local value = 1
+  local guid = Cache:UnitGUID(unit)
+  if not guid then return false end
+  local id, name, description, icon, role, class = Cache:GetSpecInfo(guid)
+  value = specP[id] or 1
+  local dr = Core:GetDrData("STUN",guid)
+  local time = 0
+  if dr then
+    time = dr.t - GetTime()
+  end
+  if time <= 0 then
+    value = value * 1.5
+  elseif time > 16 then
+  elseif time > 12 then
+    value = value * 0.75
+  elseif time > 1 then
+    value = value * 0.5
+  end
+  return value
+end
 
 function F:AIRRANGE(filter)
+  -- filter.value = filter.value or 1
   local unit = Core:GetAirUnit()
   local guid = unit and Cache:UnitGUID(unit)
   if not guid then return end
   local x,y,z,f,d,s = Cache:GetPosition(guid)
   d = d or 0
-  return exp(-d)
+  return exp(-d/40)
 end
 
 function F:AIRLOWHEALTH(filter)

@@ -1,0 +1,25 @@
+## Interface: 70200
+## Title: ItemLevelDisplay
+## Notes: Displays item's levels in paperdoll and optionally bags
+## Notes-itIT: Mostra il livello degli items nella schermata del personaggio e opzionalmente nelle borse
+## Author: Alar of Runetotem
+## Version: 2.0.15 70200
+## X-Revision: e675258
+## eMail: alar@aspide.it
+## RequiredDeps:
+## OptionalDeps: LibInit,LibItemUpgradeInfo-1.0
+## X-Embeds:
+## DefaultState: Enabled
+## LoadOnDemand: 0
+## SavedVariables: dbILD
+## SavedVariablesPerCharacter: localdbILD
+## X-ID: ILD
+## X-Database: dbILD
+## X-Category: Bags and Inventory
+## X-License: GPL v3
+## X-eMail: alar@aspide.it
+## X-Date: 2017-03-28T16:06:34Z
+embeds.xml
+localization.lua
+ItemLevelDisplay.lua
+RelNotes.lua

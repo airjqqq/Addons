@@ -26,8 +26,10 @@ L = BigWigs:NewBossLocale("The Desolate Host", "frFR")
 if L then
 	L.infobox_players = "Joueurs"
 	L.armor_remaining = "%s restant (%d)" -- Bonecage Armor Remaining (#)
-	--L.custom_on_mythic_armor = "Ignore Bonecage Armor on Reanimated Templars in Mythic Difficulty"
-	--L.custom_on_mythic_armor_desc = "Leave this option enabled if you are offtanking Reanimated Templars to ignore warnings and counting the Bonecage Armor on the Ranimated Templars"
+	L.custom_on_mythic_armor = "Ignorer Armure thoracique sur les Templiers réanimés en Mythique"
+	L.custom_on_mythic_armor_desc = "Laissez cette option activée si vous off-tankez les Templiers réanimés afin d'ignorer les alertes et le comptage des Armures thoraciques sur les Templiers réanimés."
+	L.custom_on_armor_plates = "Icône Armure thoracique sur les barres d'info des ennemis"
+	L.custom_on_armor_plates_desc = "Affiche une icône sur la barre d'info des Templiers réanimés sous Armure thoracique.\nNécessite l'utlisation des barres d'info des ennemis. Cette fonctionnalité est actuellement uniquement supportée par KuiNameplates."
 	L.tormentingCriesSay = "Cris" -- Tormenting Cries (short say)
 end
 
@@ -39,6 +41,11 @@ if L then
 	L.light = "Lumière"
 	L.felHammer = "Marteau gangrené" -- Better name for "Hammer of Obliteration"
 	L.lightHammer = "Marteau de Lumière" -- Better name for "Hammer of Creation"
+	L.absorb = "Absorb."
+	L.absorb_text = "%s (|cff%s%.0f%%|r)"
+	L.cast = "Incant."
+	L.cast_text = "%.1fs (|cff%s%.0f%%|r)" -- s = seconds
+	L.stacks = "Cumuls"
 end
 
 L = BigWigs:NewBossLocale("Fallen Avatar", "frFR")
@@ -53,6 +60,11 @@ if L then
 	L.energy_leak_msg = "Fuite d'énergie ! (%d)"
 
 	--L.warmup_trigger = "The husk before you" -- The husk before you was once a vessel for the might of Sargeras. But this temple itself is our prize. The means by which we will reduce your world to cinders!
+
+	L.absorb = "Absorb."
+	L.absorb_text = "%s (|cff%s%.0f%%|r)"
+	L.cast = "Incant."
+	L.cast_text = "%.1fs (|cff%s%.0f%%|r)" -- s = seconds
 end
 
 L = BigWigs:NewBossLocale("Kil'jaeden", "frFR")
@@ -84,4 +96,5 @@ if L then
 	L.dresanoth = "Dresanoth"
 	L.sentry = "Factionnaire gardien"
 	L.acolyte = "Acolyte fantomatique"
+	L.ryul = "Ryul le Déclinant"
 end

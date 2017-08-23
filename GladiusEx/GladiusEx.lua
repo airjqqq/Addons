@@ -19,8 +19,8 @@ local arena_units = {
 	["arena2"] = true,
 	["arena3"] = true,
 	["arena4"] = true,
-	-- ["arena5"] = true,
-	["focus"] = true,
+	["arena5"] = true,
+	-- ["focus"] = true,
 }
 
 local party_units = {

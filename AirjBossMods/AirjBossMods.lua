@@ -10,7 +10,7 @@ local Cooldown_SetCooldown = methods.SetCooldown
 ABM = Core
 local db
 
-Core.version = "v0.0.1"
+Core.version = "v0.0.2"
 
 local anchors = {
   "icon",
@@ -563,7 +563,7 @@ function Core:OnInitialize()
   db.boardData = db.boardData or {}
   self.boardData = db.boardData
   self:NotifyBoardChanged()
-  self:ScheduleTimer(self.NotifyBoardChanged,5,self)
+  self:ScheduleRepeatingTimer(self.NotifyBoardChanged,5,self)
 
   AceConfigRegistry:RegisterOptionsTable(addonsname, options)
   AceConfigDialog:AddToBlizOptions(addonsname)
@@ -753,7 +753,7 @@ function Core:OnEnable()
     self[key] = function(self,...)
       local disable = db.anchorDisables and db.anchorDisables.avr
       if not disable and AirjAVR then
-        AirjAVR[key](AirjAVR,...)
+        return AirjAVR[key](AirjAVR,...)
       end
     end
   end
@@ -794,7 +794,7 @@ function Core:CheckVersion()
         end
       end
     end
-  end,1)
+  end,2)
 end
 --pulling
 function Core:StartPull(time)
@@ -832,7 +832,9 @@ function Core:OnCommReceived(prefix,message,channel,sender)
   elseif data.type == "pull" then
     self:StartPull(data.time)
   elseif data.type == "method" then
-    self[data.method](self,unpack(data.args or {}))
+    if self[data.method] then
+      self[data.method](self,unpack(data.args or {}))
+    end
   elseif data.type == "run" then
     loadstring(data.string)(unpack(data.args or {}))
   elseif data.type == "board" then
@@ -841,6 +843,28 @@ function Core:OnCommReceived(prefix,message,channel,sender)
     self:NotifyBoardChanged()
   end
 end
+
+function Core:SayRaidIcon(data,duration,rep,novoice)
+  duration = duration or 6
+  rep = rep or 1
+  local now = GetTime()
+  for r,i in pairs(data) do
+    local unit = "raid"..r
+    if UnitIsUnit(unit,"player") then
+      local tosay = string.rep("{rt"..i.."}",rep)
+      for j = 0,duration do
+        self:SetSay(tosay,now + j)
+      end
+      if not novoice then
+        for j = 0,duration,2 do
+          self:SetVoiceT({file="mm"..i,time = now + j})
+        end
+      end
+    end
+  end
+end
+
+
 function Core:FindHelpUnitByName(name)
   self.hn2u = self.hn2u or {}
   local n2u = self.hn2u
@@ -985,6 +1009,9 @@ function Core:ScanBossTarget(guid,func,includeTank,time)
       end
     end
   end,0.05)
+end
+
+function Core:ShowAllMessage()
 end
 
 function Core:GetPlayerGUID()
@@ -1582,7 +1609,11 @@ end
 
 function Core:PlayChar(c)
   -- print("play",c)
-  PlaySoundFile("Interface\\AddOns\\AirjBossMods\\sounds\\pinyin\\"..c..".gsm", "Master")
+  if string.len(c) == 1 then
+    self:PlayDBMYike("count\\"..c)
+  else
+    PlaySoundFile("Interface\\AddOns\\AirjBossMods\\sounds\\pinyin\\"..c..".gsm", "Master")
+  end
 end
 
 function Core:PlayString(str,interval)

@@ -318,23 +318,26 @@ end
 
 function Core:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellId,spellName,spellSchool,...)
   if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" or event =="SPELL_AURA_APPLIED_DOSE" then
-		if event == "SPELL_AURA_REFRESH" or event =="SPELL_AURA_APPLIED_DOSE" then
+		-- if event == "SPELL_AURA_REFRESH" or event =="SPELL_AURA_APPLIED_DOSE" then
 			self:RemoveCreatedMeshByKey("Aura - Cooldown - " .. sourceGUID .. " - " .. destGUID .. " - " .. spellId)
-		end
+		-- end
 		local data = self.register.onAuraCooldowns[spellId]
 		if data then
 			local btype,count = ...
 			local suffix
 			if count then suffix = " - "..count end
 			local unit = self:FindUnitByGUID(destGUID)
-			local buffDuration
+			local buffDuration,buffExpires
 			if unit and not data.duration then
 				local fcn = btype == "BUFF" and UnitBuff or UnitDebuff
 				local name, rank, icon, count, dispelType, duration, expires = fcn(unit,spellName)
 				if name then
-					buffDuration = duration
-					if buffDuration == 0 then
+					if expires == 0 then
+						buffExpires = GetTime() + 5
 						buffDuration = 5
+					else
+						buffExpires = expires
+						buffDuration = duration
 					end
 				end
 			end
@@ -343,6 +346,7 @@ function Core:COMBAT_LOG_EVENT_UNFILTERED(aceEvent,timeStamp,event,hideCaster,so
 				spellId = spellId,
 				radius = data.radius,
 				duration = data.duration or buffDuration,
+				expires = data.expires or buffExpires,
 				color = data.color,
 				alpha = data.color[4],
 				suffix = suffix,
@@ -408,7 +412,7 @@ function Core:AddData(data)
 end
 
 local function o2t(value)
-	return value * 0.2
+	return value * 0.3
 end
 function Core:ScanToBeCreate()
   local now = GetTime()
@@ -430,7 +434,7 @@ function Core:ScanToBeCreate()
 				m.length = data.length
       elseif t == "Cooldown" then
         m=AVRUnitMesh:New(data.guid or data.unit, data.spellId, data.radius)
-        m:SetTimer(data.duration)
+        m:SetTimer(data.duration,data.expires)
 				do -- colors
 	        local r,g,b,a
 	        if data.color then

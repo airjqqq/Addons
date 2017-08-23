@@ -6,6 +6,7 @@ local R = Core:NewModule(modulename,"AceEvent-3.0")
 -- maydiebuff  | mythic buff | Silence Circle| need swap buff | week buff
 function R:OnEnable()
   local bossmod = Core:NewBoss({encounterID = 2050})
+  bossmod.furtureDamage = true
   local aoeCnt = 0
   local vulnHistory = {}
   local function updateTimeLines(length)
@@ -13,7 +14,9 @@ function R:OnEnable()
     local space = length/8
     local offset = -2
     Core:SetTimeline({text = "满月 - "..(aoeCnt+1), expires = now+length, color = {0,1,1}})
-    Core:SetTimeline({text = "AOEING - "..(((aoeCnt-1)%4)+1), expires = now+12, color = {1,0,0}})
+    if aoeCnt > 0 then
+      Core:SetTimeline({text = "AOEING - "..(((aoeCnt-1)%4)+1), expires = now+12, color = {1,0,0}})
+    end
     local gi = Core:GetPlayerKeyFromBoardData()
     for i=1,7 do
       Core:SetTimeline({key = "swap"..i,text = "换区 - "..i, expires = now+space*i+offset, preshow = now+space*(i-1)+offset+2, start = now+space*(i-1)+offset, removes = now+space*(i+0)+offset+2, color = {0,0,1,0.6}})
@@ -40,13 +43,14 @@ function R:OnEnable()
     local now = GetTime()
     aoeCnt = 0
     updateTimeLines(48.3)
-    Core:SetFutureDamage({key="aoe"..":"..(aoeCnt+1),start=now+48.3+6,duration=6,damage=Core:GetDifficultyDamage(self.difficulty,600e4)})
+    Core:SetFutureDamage({key="aoe1"..":"..(aoeCnt+1),start=now+48.3,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,300e4)})
+    Core:SetFutureDamage({key="aoe2"..":"..(aoeCnt+1),start=now+48.3+6,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,300e4)})
 
-    Core:RegisterAuraCooldown(236519,{color={0,1,1,0.2},radius=3}) -- moon burn
-    Core:RegisterAuraCooldown(236550,{color={0,1,1,0.2},radius=3}) -- tank swap debuff
+    -- Core:RegisterAuraCooldown(236519,{color={0,1,1,0.2},radius=3}) -- moon burn
+    -- Core:RegisterAuraCooldown(236550,{color={0,1,1,0.2},radius=3}) -- tank swap debuff
     Core:RegisterAuraCooldown(236712,{color={0,1,0,0.2},radius=8})  --p3 out debuff
     Core:RegisterAuraCooldown(237561,{color={1,0,0,0.2},radius=5})  -- red arrow
-    Core:RegisterAuraCooldown(236305,{color={0.5,0,1,0.2},radius=8})  -- purple line
+    Core:RegisterAuraCooldown(236305,{color={0.5,1,0,0.2},radius=8})  -- purple line
 
     Core:RegisterAuraBeam(237561,{width=2,color={1,0,0,0.2}})  -- red arrow
     Core:RegisterAuraBeam(236305,{width=4,color={0.5,0,1,0.1}}) -- purple line
@@ -54,6 +58,7 @@ function R:OnEnable()
     Core:SetInfo(vulnHistory)
   end
   local lastaoe
+  -- local nextAoe
   local function aoe()
     local now = GetTime()
     if lastaoe and now - lastaoe < 10 then
@@ -62,9 +67,15 @@ function R:OnEnable()
     lastaoe = now
     aoeCnt = aoeCnt + 1
     updateTimeLines(54.7)
-    Core:SetFutureDamage({key="aoe"..":"..(aoeCnt+0),start=now+6,duration=6,damage=Core:GetDifficultyDamage(self.difficulty,600e4)})
-    Core:SetFutureDamage({key="aoe"..":"..(aoeCnt+1),start=now+54.7+6,duration=6,damage=Core:GetDifficultyDamage(self.difficulty,600e4)})
-    local rc = aoeCnt%4
+    -- Core:SetFutureDamage({key="aoe1"..":"..(aoeCnt+0),start=now+0,duration=6,damage=Core:GetDifficultyDamage(self.difficulty,300e4)})
+    if bossmod.phase ==1 or bossmod.phase == 2 then
+      Core:SetFutureDamage({key="aoe1"..":"..(aoeCnt+1),start=now+54.7+0,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,300e4)})
+    end
+    if bossmod.phase ==1 or bossmod.phase == 3  then
+      Core:SetFutureDamage({key="aoe2"..":"..(aoeCnt+0),start=now+6,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,200e4)})
+      Core:SetFutureDamage({key="aoe2"..":"..(aoeCnt+1),start=now+54.7+6,duration=0.1,damage=Core:GetDifficultyDamage(self.difficulty,200e4)})
+    end
+    local rc = (aoeCnt-1)%4+1
     local ri = Core:GetPlayerKeyFromBoardData("r")
     if ri == rc or Core:ShowAllMessage() or Core:GetPlayerRole() == "HEALER" then
       Core:SetTextT({text1 = "|cffffff00"..rc.."减伤|r",text2 = "", expires = now+2})
@@ -95,7 +106,7 @@ function R:OnEnable()
         if Core:GetPlayerGUID() == destGUID then
           local _,count = ...
           count = count or 1
-          Core:SetTextT({text1 = "|cff7f00ff月灼:|cff00ffff{number}|r",text2 = "|cff00ff00紫线结束|r", expires = now+6})
+          -- Core:SetTextT({text1 = "|cff7f00ff月灼:|cff00ffff{number}|r",text2 = "|cff00ff00紫线结束|r", expires = now+6})
         end
       end
     end
@@ -109,7 +120,7 @@ function R:OnEnable()
           Core:SetTextT({text1 = "|cff7f00ff紫线:|cff00ffff{number}|r",text2 = "|cff00ff00紫线结束|r", expires = now+6})
           Core:SetScreen(0,0.5,1)
           Core:SetPlayerAlpha({alpha = 0.5,start=now+0,removes=now+6})
-          Core:SetSay("紫线点我")
+          -- Core:SetSay("紫线点我")
           for i = 0,3 do
             Core:SetSay(""..i,now + 6 - i)
           end
@@ -241,11 +252,21 @@ function R:OnEnable()
       end
     end
   end
+  local lastPhaseChangeTime
   function bossmod:UNIT_SPELLCAST_SUCCEEDED(aceEvent, uId, spellName, _, spellGUID)
   	local spellId = tonumber(select(5, strsplit("-", spellGUID)), 10)
     local now = GetTime()
     if spellId == 235268 then
-      bossmod.phase = bossmod.phase + 1
+      if not lastPhaseChangeTime or now - lastPhaseChangeTime > 10 then
+        lastPhaseChangeTime = now
+        bossmod.phase = bossmod.phase + 1
+
+        if bossmod.phase == 3 then
+          Core:SetFutureDamage({key="aoe1"..":"..(aoeCnt+1),duration=0.1,damage=0})
+        elseif bossmod.phase == 2  then
+          Core:SetFutureDamage({key="aoe2"..":"..(aoeCnt+1),duration=0.1,damage=0})
+        end
+      end
     end
   end
   function bossmod:CHAT_MSG_RAID_BOSS_EMOTE(event, msg, sender, _, _, target)

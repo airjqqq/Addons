@@ -359,7 +359,7 @@
 			self.ponto4.y = _y + metade_altura + (statusbar_y_mod*-1)
 		end
 		
-		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
+		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaï¿½o para o final da janela
 		
 		return {altura = self.baseframe:GetHeight(), largura = self.baseframe:GetWidth(), x = _x, y = _y}
 	end
@@ -422,7 +422,7 @@
 			self.ponto4.y = _y + metade_altura + (statusbar_y_mod*-1)
 		end
 		
-		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
+		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaï¿½o para o final da janela
 
 		return {altura = self.baseframe:GetHeight(), largura = self.baseframe:GetWidth(), x = _x, y = _y}
 	end
@@ -438,7 +438,7 @@
 			self.baseframe:SetHeight (self.posicao[self.mostrando].h)
 			
 			self:RestoreLibWindow()
-			self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
+			self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaï¿½o para o final da janela
 			return
 		end
 	
@@ -490,7 +490,7 @@
 
 		self.baseframe:ClearAllPoints()
 		self.baseframe:SetPoint ("CENTER", _UIParent, "CENTER", novo_x + x, novo_y + y)
-		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
+		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaï¿½o para o final da janela
 	end
 	
 	function _detalhes:CreatePositionTable()
@@ -553,9 +553,9 @@
 		end
 
 		instancia.barraS = {nil, nil} --> zera o iterator
-		instancia.rows_showing = 0 --> resetou, então não esta mostranho nenhuma barra
+		instancia.rows_showing = 0 --> resetou, entï¿½o nï¿½o esta mostranho nenhuma barra
 		
-		for i = 1, instancia.rows_created, 1 do --> limpa a referência do que estava sendo mostrado na barra
+		for i = 1, instancia.rows_created, 1 do --> limpa a referï¿½ncia do que estava sendo mostrado na barra
 			local esta_barra= instancia.barras[i]
 			esta_barra.minha_tabela = nil
 			esta_barra.animacao_fim = 0
@@ -624,7 +624,7 @@
 				_detalhes:Freeze (self)
 			end
 		
-			-- -4 difere a precisão de quando a barra será adicionada ou apagada da barra
+			-- -4 difere a precisï¿½o de quando a barra serï¿½ adicionada ou apagada da barra
 			self.baseframe.BoxBarrasAltura = (self.baseframe:GetHeight()) - end_window_spacement
 
 			local T = self.rows_fit_in_window
@@ -632,7 +632,7 @@
 				T = _math_floor (self.baseframe.BoxBarrasAltura / self.row_height)
 			end
 			
-			--> reajustar o local do relógio
+			--> reajustar o local do relï¿½gio
 			local meio = self.baseframe:GetWidth() / 2
 			local novo_local = meio - 25
 			
@@ -662,8 +662,8 @@
 
 			--> verifica se precisa esconder ou mostrar alguma barra
 			local A = self.barraS[1]
-			if (not A) then --> primeira vez que o resize esta sendo usado, no caso no startup do addon ou ao criar uma nova instância
-				--> hida as barras não usadas
+			if (not A) then --> primeira vez que o resize esta sendo usado, no caso no startup do addon ou ao criar uma nova instï¿½ncia
+				--> hida as barras nï¿½o usadas
 				for i = 1, self.rows_created, 1 do
 					gump:Fade (self.barras [i], 1)
 					self.barras [i].on = false
@@ -677,8 +677,8 @@
 			--> novo iterator
 			local barras_diff = C - T --> aqui pega a quantidade de barras, se aumentou ou diminuiu
 			if (barras_diff > 0) then --> ganhou barras_diff novas barras
-				local fim_iterator = self.barraS[2] --> posição atual
-				fim_iterator = fim_iterator+barras_diff --> nova posição
+				local fim_iterator = self.barraS[2] --> posiï¿½ï¿½o atual
+				fim_iterator = fim_iterator+barras_diff --> nova posiï¿½ï¿½o
 				local excedeu_iterator = fim_iterator - X --> total que ta sendo mostrado - fim do iterator
 				if (excedeu_iterator > 0) then --> extrapolou
 					fim_iterator = X --> seta o fim do iterator pra ser na ultima barra
@@ -689,10 +689,10 @@
 						inicio_iterator = inicio_iterator-excedeu_iterator --> pega o novo valor do iterator
 						self.barraS[1] = inicio_iterator
 					else
-						self.barraS[1] = 1 --> se ganhou mais barras pra cima, ignorar elas e mover o iterator para a pocição inicial
+						self.barraS[1] = 1 --> se ganhou mais barras pra cima, ignorar elas e mover o iterator para a pociï¿½ï¿½o inicial
 					end
 				else
-					--> se não extrapolou esta okey e esta mostrando a quantidade de barras correta
+					--> se nï¿½o extrapolou esta okey e esta mostrando a quantidade de barras correta
 					self.barraS[2] = fim_iterator
 				end
 				
@@ -713,12 +713,12 @@
 				end
 				
 			elseif (barras_diff < 0) then --> perdeu barras_diff barras
-				local fim_iterator = self.barraS[2] --> posição atual
-				if (not (fim_iterator == X and fim_iterator < C)) then --> calcula primeiro as barras que foram perdidas são barras que não estavam sendo usadas
-					--> perdi X barras, diminui X posições no iterator
+				local fim_iterator = self.barraS[2] --> posiï¿½ï¿½o atual
+				if (not (fim_iterator == X and fim_iterator < C)) then --> calcula primeiro as barras que foram perdidas sï¿½o barras que nï¿½o estavam sendo usadas
+					--> perdi X barras, diminui X posiï¿½ï¿½es no iterator
 					local perdeu = _math_abs (barras_diff)
 					
-					if (fim_iterator == X) then --> se o iterator tiver na ultima posição
+					if (fim_iterator == X) then --> se o iterator tiver na ultima posiï¿½ï¿½o
 						perdeu = perdeu - (C - X)
 					end
 					
@@ -777,7 +777,7 @@
 				qual_barra = qual_barra+1
 			end
 			
-			--> força o próximo refresh
+			--> forï¿½a o prï¿½ximo refresh
 			self.showing[self.atributo].need_refresh = true
 
 		end	
@@ -1090,7 +1090,7 @@
 	end
 
 --> raid history window ~history
-	function _detalhes:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild, _player_base, _player_name)
+	function _detalhes:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild, _player_base, _player_name, _history_type)
 	
 		if (not _G.DetailsRaidHistoryWindow) then
 		
@@ -1195,7 +1195,7 @@
 			local guild_sync = function()
 				_detalhes.storage:DBGuildSync()
 				f.GuildSyncButton:Disable()
-
+				
 				if (not f.SyncTexture) then
 					local workingFrame = CreateFrame ("frame", nil, f)
 					f.WorkingFrame = workingFrame
@@ -1220,7 +1220,7 @@
 					local rotation = _detalhes.gump:CreateAnimation (animationHub, "ROTATION", 1, 3, -360)
 					rotation:SetTarget (f.SyncTextureCircle)
 					--_detalhes.gump:CreateAnimation (animationHub, "ALPHA", 1, 0.5, 0, 1)
-
+					
 					f.SyncText = workingFrame:CreateFontString (nil, "border", "GameFontNormal")
 					f.SyncText:SetPoint ("right", f.SyncTextureBackground, "left", 0, 0)
 					f.SyncText:SetText ("working")
@@ -1250,24 +1250,29 @@
 			GuildSyncButton:SetPoint ("topright", f, "topright", -20, -34)
 			GuildSyncButton:SetIcon ([[Interface\GLUES\CharacterSelect\RestoreButton]], 12, 12, "overlay", {0.2, .8, 0.2, .8}, nil, 4)
 			
-			
 			function f.BuildReport()
 				if (f.LatestResourceTable) then
 					local reportFunc = function (IsCurrent, IsReverse, AmtLines)
+
+						local bossName = f.select_boss.label:GetText()
+						local bossDiff = f.select_diff.label:GetText()
+						local reportTable = {"Details!: DPS Rank for: " .. (bossDiff or "") .. " " .. (bossName or "--x--x--")}
 						local result = {}
 						
-						local bossName = f.select_boss.label:GetText()
-						
-						tinsert (result, "Details!: Damage Rank for: " .. (bossName or "--x--x--"))
 						for i = 1, AmtLines do
 							if (f.LatestResourceTable[i]) then
-								tinsert (result, f.LatestResourceTable[i][1] .. ": " .. f.LatestResourceTable[i][2])
+								local playerName = f.LatestResourceTable[i][1]
+								playerName = playerName:gsub ("%|c%x%x%x%x%x%x%x%x", "")
+								playerName = playerName:gsub ("%|r", "")
+								playerName = playerName:gsub (".*%s", "")
+								tinsert (result, {playerName, f.LatestResourceTable[i][2]})
 							else
 								break
 							end
 						end
 					
-						Details:SendReportLines (result)
+						_detalhes:FormatReportLines (reportTable, result)
+						Details:SendReportLines (reportTable)
 					end
 					
 					Details:SendReportWindow (reportFunc, nil, nil, true)
@@ -1304,6 +1309,18 @@
 					self:StopMovingOrSizing()
 					self.isMoving = nil
 				end
+			end)
+			
+			f:SetScript ("OnHide", function()
+				--> save latest shown state
+				f.LatestSelection = f.LatestSelection or {}
+				f.LatestSelection.Raid = DetailsRaidHistoryWindow.select_raid.value
+				f.LatestSelection.Boss = DetailsRaidHistoryWindow.select_boss.value
+				f.LatestSelection.Diff = DetailsRaidHistoryWindow.select_diff.value
+				f.LatestSelection.Role = DetailsRaidHistoryWindow.select_role.value
+				f.LatestSelection.Guild = DetailsRaidHistoryWindow.select_guild.value
+				f.LatestSelection.PlayerBase = DetailsRaidHistoryWindow.select_player.value
+				f.LatestSelection.PlayerName = DetailsRaidHistoryWindow.select_player2.value
 			end)
 			
 			f.TitleText:SetText ("Details! Raid Ranking")
@@ -1611,40 +1628,26 @@
 							local player = roleTable [playerName]
 							
 							if (player) then
-								tinsert (data, {text = date, value = player[1], data = player, fulldate = encounter.date, elapsed = encounter.elapsed})
+							
+								--tinsert (data, {text = date, value = player[1], data = player, fulldate = encounter.date, elapsed = encounter.elapsed})
+								tinsert (data, {text = date, value = player[1]/encounter.elapsed, utext = _detalhes:ToK2 (player[1]/encounter.elapsed), data = player, fulldate = encounter.date, elapsed = encounter.elapsed})
 							end
 						end
 					end
 					
 					--> update graphic
 					if (not f.gframe) then
-					
-						local cooltip_block_bg = {0, 0, 0, 1}
-						local menu_wallpaper_tex = {.6, 0.1, 0, 0.64453125}
-						local menu_wallpaper_color = {1, 1, 1, 0.1}
 						
 						local onenter = function (self)
 							GameCooltip:Reset()
 							GameCooltip:SetType ("tooltip")
-							
-							GameCooltip:SetOption ("TextSize", _detalhes.tooltip.fontsize)
-							GameCooltip:SetOption ("TextFont",  _detalhes.tooltip.fontface)
-							GameCooltip:SetOption ("TextColor", _detalhes.tooltip.fontcolor)
-							GameCooltip:SetOption ("TextColorRight", _detalhes.tooltip.fontcolor_right)
-							GameCooltip:SetOption ("TextShadow", _detalhes.tooltip.fontshadow and "OUTLINE")
-							
-							GameCooltip:SetOption ("LeftBorderSize", -5)
-							GameCooltip:SetOption ("RightBorderSize", 5)
-							GameCooltip:SetOption ("MinWidth", 175)
-							GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_background]])
-							
-							GameCooltip:AddLine ("Total Done:", _detalhes:ToK2 (self.data.value))
-							GameCooltip:AddLine ("Dps:", _detalhes:ToK2 (self.data.value / self.data.elapsed))
-							GameCooltip:AddLine ("Item Level:", floor (self.data.data [2]))
-							GameCooltip:AddLine ("Date:", self.data.fulldate:gsub (".*%s", ""))
-							
-							GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
-							GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, cooltip_block_bg, _detalhes.tooltip_border_color)
+							GameCooltip:Preset (2)
+
+							GameCooltip:AddLine ("Total Done:", _detalhes:ToK2 (self.data.value), 1, "white")
+							GameCooltip:AddLine ("Dps:", _detalhes:ToK2 (self.data.value / self.data.elapsed), 1, "white")
+							GameCooltip:AddLine ("Item Level:", floor (self.data.data [2]), 1, "white")
+							GameCooltip:AddLine ("Date:", self.data.fulldate:gsub (".*%s", ""), 1, "white")
+
 							GameCooltip:SetOwner (self.ball.tooltip_anchor)
 							GameCooltip:Show()
 						end
@@ -1729,7 +1732,14 @@
 						t.ps,
 					})
 				end
+				
 				table.sort (sortTable, function(a, b) return a[8] > b[8] end)
+				
+				--> add the number before the player name
+				for i = 1, #sortTable do
+					local t = sortTable [i]
+					t [1] = i .. ". " .. t [1]
+				end
 				
 				fillpanel:SetFillFunction (function (index) return sortTable [index] end)
 				fillpanel:SetTotalFunction (function() return #sortTable end)
@@ -1789,6 +1799,9 @@
 						end
 					end
 				end
+				
+				--> sort alphabetical
+				table.sort (players, function(a, b) return a[1] < b[1] end)
 				
 				for index, playerTable in ipairs (players) do
 					for i = #playerTable, amt_encounters do
@@ -1882,11 +1895,39 @@
 		
 		end
 		
+		
+		--> table means some button send the request - nil for other ways
+		if (type (_raid) == "table" or (not _raid and not _boss and not _difficulty and not _role and not _guild and not _player_base and not _player_name)) then
+			local f = _G.DetailsRaidHistoryWindow
+			if (f.LatestSelection) then
+				_raid = f.LatestSelection.Raid
+				_boss = f.LatestSelection.Boss
+				_difficulty = f.LatestSelection.Diff
+				_role = f.LatestSelection.Role
+				_guild = f.LatestSelection.Guild
+				_player_base = f.LatestSelection.PlayerBase
+				_player_name = f.LatestSelection.PlayerBase
+			end
+		end
+		
 		_G.DetailsRaidHistoryWindow:UpdateDropdowns()
 		_G.DetailsRaidHistoryWindow:UpdateDropdowns()
 		
 		_G.DetailsRaidHistoryWindow:Refresh()
 		_G.DetailsRaidHistoryWindow:Show()
+		
+		if (_history_type == 1 or _history_type == 2) then
+			DetailsRaidHistoryWindow.Mode = _history_type
+			if (DetailsRaidHistoryWindow.Mode == 1) then
+				--overall
+				DetailsRaidHistoryWindow.HistoryCheckBox:SetValue (true)
+				DetailsRaidHistoryWindow.GuildRankCheckBox:SetValue (false)
+			elseif (DetailsRaidHistoryWindow.Mode == 2) then
+				--guild rank
+				DetailsRaidHistoryWindow.GuildRankCheckBox:SetValue (true)
+				DetailsRaidHistoryWindow.HistoryCheckBox:SetValue (false)
+			end
+		end
 		
 		if (_raid) then
 			DetailsRaidHistoryWindow.select_raid:Select (_raid)
@@ -1906,6 +1947,9 @@
 			_G.DetailsRaidHistoryWindow:Refresh()
 		end
 		if (_guild) then
+			if (type (_guild) == "boolean") then
+				_guild = GetGuildInfo ("player")
+			end
 			DetailsRaidHistoryWindow.select_guild:Select (_guild)
 			_G.DetailsRaidHistoryWindow:Refresh()
 		end
@@ -2197,7 +2241,7 @@
 					if (bookmark and bookmark.atributo and bookmark.sub_atributo) then
 						if (bookmark.atributo == 5) then --> custom
 							local CustomObject = _detalhes.custom [bookmark.sub_atributo]
-							if (not CustomObject) then --> ele já foi deletado
+							if (not CustomObject) then --> ele jï¿½ foi deletado
 								this_block.label.text = "-- x -- x --"
 								this_block.icon.texture = "Interface\\ICONS\\Ability_DualWield"
 								this_block.icon.texcoord = normal_coords

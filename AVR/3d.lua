@@ -564,6 +564,7 @@ do
 		if not tex then
 			tex=self.frame:CreateTexture("AVR_TRIANGLE_"..self.triangleCount,"ARTWORK")
 			tex:SetTexture("Interface\\AddOns\\AVR\\Textures\\triangle")
+			-- tex:SetBlendMode("BLEND")
 			insert(self.triangleTexCache,tex)
 			if not SetPoint then
 				SetPoint=tex.SetPoint

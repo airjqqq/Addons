@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(1903, "DBM-TombofSargeras", nil, 875)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 16471 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 16590 $"):sub(12, -3))
 mod:SetCreatureID(118523, 118374, 118518)--118523 Huntress kasparian, 118374 Captain Yathae Moonstrike, 118518 Prestess Lunaspyre
 mod:SetEncounterID(2050)
 mod:SetZone()
@@ -15,9 +15,9 @@ mod:RegisterCombat("combat")
 mod:RegisterEventsInCombat(
 	"SPELL_CAST_START 236442 236712 239379",
 	"SPELL_CAST_SUCCESS 236694 236547 236518 233263 237561 236672 239264 236442",
-	"SPELL_AURA_APPLIED 234995 234996 236550 236596 233264 233263 236712 239264 236519 237561 236305",
+	"SPELL_AURA_APPLIED 234995 234996 236550 236596 233264 233263 236712 239264 236519 237561 236305 243262",
 	"SPELL_AURA_APPLIED_DOSE 234995 234996 239264",
-	"SPELL_AURA_REMOVED 236712 233263 233264 236305",
+	"SPELL_AURA_REMOVED 236712 233263 236305",
 --	"SPELL_PERIODIC_DAMAGE",
 --	"SPELL_PERIODIC_MISSED",
 --	"CHAT_MSG_RAID_BOSS_EMOTE",
@@ -37,6 +37,7 @@ mod:RegisterEventsInCombat(
 local warnPhase2					= mod:NewPhaseAnnounce(2, 2)
 --local warnIncorporealShot			= mod:NewTargetAnnounce(236305, 3)
 local warnRapidShot					= mod:NewTargetAnnounce(236596, 3)
+local warnTwilightVolley			= mod:NewTargetAnnounce(236442, 2)
 --Priestess Lunaspyre
 local warnPhase3					= mod:NewPhaseAnnounce(3, 2)
 local warnLunarBeacon				= mod:NewTargetAnnounce(236712, 3)
@@ -45,6 +46,7 @@ local warnMoonBurn					= mod:NewTargetAnnounce(236519, 3)
 
 --All
 local specWarnFontofElune			= mod:NewSpecialWarningStack(236357, nil, 12, nil, 2, 1, 6)--Stack unknown
+local specWarnBerserk				= mod:NewSpecialWarningSpell(243262, nil, nil, nil, 3, 2)
 --Huntress Kasparian
 local specWarnGlaiveStorm			= mod:NewSpecialWarningDodge(239379, nil, nil, nil, 2, 2)
 local specWarnTwilightGlaiveOther	= mod:NewSpecialWarningTarget(237561, nil, nil, nil, 2, 2)
@@ -54,7 +56,8 @@ local specWarnDiscorporate			= mod:NewSpecialWarningMoveTo(236550, nil, nil, nil
 local specWarnDiscorporateSwap		= mod:NewSpecialWarningTaunt(236550, nil, nil, nil, 1, 2)
 --Captain Yathae Moonstrike
 local specWarnCallMoontalon			= mod:NewSpecialWarningSwitch(236694, "-Healer", nil, nil, 1, 2)
-local specWarnTwilightVolley		= mod:NewSpecialWarningDodge(236442, nil, nil, nil, 2, 2)
+local specWarnTwilightVolley		= mod:NewSpecialWarningClose(236442, nil, nil, nil, 2, 2)
+local specWarnTwilightVolleyYou		= mod:NewSpecialWarningYou(236442, nil, nil, nil, 1, 2)
 local yellTwilightVolley			= mod:NewShortYell(236442)
 local specWarnIncorpShot			= mod:NewSpecialWarningYou(236305, nil, nil, nil, 1, 2)
 local yellIncorpShot				= mod:NewYell(236305)
@@ -65,7 +68,7 @@ local yellRapidShot					= mod:NewYell(236596, nil, false, 2)
 local specWarnEmbraceofEclipse		= mod:NewSpecialWarningTarget(233264, "Dps|Healer", nil, nil, 3)
 local specWarnLunarBeacon			= mod:NewSpecialWarningMoveAway(236712, nil, nil, nil, 1, 2)
 local yellLunarBeacon				= mod:NewFadesYell(236712)
-local specWarnLunarFire				= mod:NewSpecialWarningStack(239264, nil, 4, nil, nil, 1, 2)
+local specWarnLunarFire				= mod:NewSpecialWarningStack(239264, nil, 2, nil, nil, 1, 2)
 local specWarnLunarFireOther		= mod:NewSpecialWarningTaunt(239264, nil, nil, nil, 1, 2)
 local specWarnMoonBurn				= mod:NewSpecialWarningMoveTo(236519, nil, DBM_CORE_AUTO_SPEC_WARN_OPTIONS.you:format(236519), nil, 1, 7)--Add voice filter when it has a voice
 
@@ -87,12 +90,13 @@ local timerLunarBeaconCD			= mod:NewCDTimer(20.6, 236712, nil, nil, nil, 3)--20.
 local timerLunarFireCD				= mod:NewCDTimer(11, 239264, nil, "Tank", nil, 5, nil, DBM_CORE_TANK_ICON)
 local timerMoonBurnCD				= mod:NewCDTimer(23, 236519, nil, nil, nil, 3)--Used while inactive
 
---local berserkTimer				= mod:NewBerserkTimer(300)
+local berserkTimer					= mod:NewBerserkTimer(660)
 
 --ALL
 local countdownSpecials				= mod:NewCountdown(54, 233264)
 
 --All
+local voicePhaseChange				= mod:NewVoice(nil, nil, DBM_CORE_AUTO_VOICE2_OPTION_TEXT)
 local voiceFontofElune				= mod:NewVoice(236357)--changemoon
 --Huntress Kasparian
 local voiceGlaiveStorm				= mod:NewVoice(239379)--watchstep
@@ -125,7 +129,14 @@ local astralPurge = GetSpellInfo(234998)
 function mod:VolleyTarget(targetname, uId)
 	if not targetname then return end
 	if targetname == UnitName("player") then
+		specWarnTwilightVolleyYou:Show()
+		voiceTwilightVolley:Play("runaway")
 		yellTwilightVolley:Yell()
+	elseif self:CheckNearby(10, targetname) then
+		specWarnTwilightVolley:Show(targetname)
+		voiceTwilightVolley:Play("watchstep")
+	else
+		warnTwilightVolley:Show(targetname)
 	end
 end
 
@@ -137,39 +148,6 @@ function mod:BeaconTarget(targetname, uId)
 		voiceLunarBeacon:Play("runout")
 	else
 		warnLunarBeacon:Show(targetname)
-	end
-end
-
-local updateInfoFrame
-do
-	local EclipseName = GetSpellInfo(233263)
-	local lines = {}
-	local sortedLines = {}
-	local function addLine(key, value)
-		-- sort by insertion order
-		lines[key] = value
-		sortedLines[#sortedLines + 1] = key
-	end
-	updateInfoFrame = function()
-		table.wipe(lines)
-		table.wipe(sortedLines)
-		for i = 1, 3 do
-			local uId = "boss"..i
-			if UnitExists(uId) then
-				local absorbAmount = select(17, UnitBuff(uId, EclipseName)) or select(17, UnitDebuff(uId, EclipseName))
-				if absorbAmount then
-					addLine(UnitName(uId), absorbAmount)
-					break
-				end
-			end
-		end
-		for uId in DBM:GetGroupMembers() do
-			local absorbAmount = select(17, UnitBuff(uId, EclipseName)) or select(17, UnitDebuff(uId, EclipseName))
-			if absorbAmount then
-				addLine(UnitName(uId), absorbAmount)
-			end
-		end
-		return lines, sortedLines
 	end
 end
 
@@ -191,6 +169,9 @@ function mod:OnCombatStart(delay)
 	countdownSpecials:Start(48-delay)
 	if not self:IsEasy() then
 		timerEmbraceofEclipseCD:Start(48-delay)--Secondary special for heroic/mythic
+		if self:IsMythic() then
+			berserkTimer:Start()--11 min
+		end
 	end
 end
 
@@ -206,11 +187,8 @@ end
 function mod:SPELL_CAST_START(args)
 	local spellId = args.spellId
 	if spellId == 236442 then
-		specWarnTwilightVolley:Show()
-		voiceTwilightVolley:Play("watchstep")
-		if self.vb.phase == 2 then
-			self:BossTargetScanner(args.sourceGUID, "VolleyTarget", 0.1, 9)
-		end
+		self:BossTargetScannerAbort(args.sourceGUID, "VolleyTarget")
+		self:ScheduleMethod(0.2, "BossTargetScanner", args.sourceGUID, "VolleyTarget", 0.1, 9, true, nil, nil, nil, true)
 	elseif spellId == 236712 then
 		self.vb.beaconCount = self.vb.beaconCount + 1
 		timerLunarBeaconCD:Start(20.7)
@@ -222,6 +200,12 @@ function mod:SPELL_CAST_START(args)
 		timerGlaiveStormCD:Start()
 		if self:AntiSpam(5, 2) then
 			countdownSpecials:Start()
+			for i = 1, 3 do
+	 			local unitGUID = UnitGUID("boss"..i)
+	 			if unitGUID then
+	 				self:BossTargetScannerAbort(unitGUID, "VolleyTarget")
+	 			end
+	 		end
 		end
 	end
 end
@@ -250,7 +234,7 @@ function mod:SPELL_CAST_SUCCESS(args)
 		timerMoonGlaiveCD:Start()
 	elseif spellId == 236518 then
 		if self.vb.phase == 3 then
-			timerMoonBurnCD:Start(17)
+			timerMoonBurnCD:Start(16)
 		else
 			timerMoonBurnCD:Start()
 		end
@@ -258,6 +242,12 @@ function mod:SPELL_CAST_SUCCESS(args)
 		timerEmbraceofEclipseCD:Start()
 		if self:AntiSpam(5, 2) then
 			countdownSpecials:Start()
+			for i = 1, 3 do
+	 			local unitGUID = UnitGUID("boss"..i)
+	 			if unitGUID then
+	 				self:BossTargetScannerAbort(unitGUID, "VolleyTarget")
+	 			end
+	 		end
 		end
 	elseif spellId == 236672 then
 		timerRapidShotCD:Start()
@@ -284,7 +274,7 @@ function mod:SPELL_AURA_APPLIED(args)
 		local uId = DBM:GetRaidUnitId(args.destName)
 		if self:IsTanking(uId) then
 			local amount = args.amount or 1
-			if amount >= 4 then--Lasts 30 seconds, unknown reapplication rate, fine tune!
+			if amount >= 2 then--Lasts 30 seconds, unknown reapplication rate, fine tune!
 				if args:IsPlayer() then--At this point the other tank SHOULD be clear.
 					specWarnLunarFire:Show(amount)
 					voiceLunarFire:Play("stackhigh")
@@ -297,9 +287,7 @@ function mod:SPELL_AURA_APPLIED(args)
 					end
 				end
 			else
-				if amount % 2 == 0 then
-					warnLunarFire:Show(args.destName, amount)
-				end
+				warnLunarFire:Show(args.destName, amount)
 			end
 		end
 	elseif spellId == 236550 then
@@ -338,16 +326,17 @@ function mod:SPELL_AURA_APPLIED(args)
 		end
 		if self:AntiSpam(5, 2) then
 			countdownSpecials:Start()
+			for i = 1, 3 do
+	 			local unitGUID = UnitGUID("boss"..i)
+	 			if unitGUID then
+	 				self:BossTargetScannerAbort(unitGUID, "VolleyTarget")
+	 			end
+	 		end
 		end
 	elseif spellId == 233264 then--Dpser Embrace of the Eclipse
-		self.vb.eclipseCount = self.vb.eclipseCount + 1
 		if not self:IsHealer() then
 			specWarnEmbraceofEclipse:Show(args.destName)
 			--voiceEmbraceofEclipse:Play("targetchange")
-		end
-		if self.Options.InfoFrame and not DBM.InfoFrame:IsShown() then
-			DBM.InfoFrame:SetHeader(args.spellName)
-			DBM.InfoFrame:Show(6, "function", updateInfoFrame)
 		end
 	elseif spellId == 233263 then--Healer Embrace of the Eclipse
 		self.vb.eclipseCount = self.vb.eclipseCount + 1
@@ -359,7 +348,7 @@ function mod:SPELL_AURA_APPLIED(args)
 		end
 		if self.Options.InfoFrame and not DBM.InfoFrame:IsShown() then
 			DBM.InfoFrame:SetHeader(args.spellName)
-			DBM.InfoFrame:Show(6, "function", updateInfoFrame)
+			DBM.InfoFrame:Show(6, "playerabsorb", args.spellName, select(17, UnitDebuff(args.destName, args.spellName)))
 		end
 	elseif spellId == 236712 then
 		if args:IsPlayer() then
@@ -389,6 +378,8 @@ function mod:SPELL_AURA_APPLIED(args)
 			specWarnTwilightGlaiveOther:Show(args.destName)
 			voiceTwilightGlaive:Play("farfromline")
 		end
+	elseif spellId == 243262 and self:AntiSpam(3, 4) then
+		specWarnBerserk:Show()
 	end
 end
 mod.SPELL_AURA_APPLIED_DOSE = mod.SPELL_AURA_APPLIED
@@ -397,7 +388,7 @@ function mod:SPELL_AURA_REMOVED(args)
 	local spellId = args.spellId
 	if spellId == 236712 and args:IsPlayer() then
 		yellLunarBeacon:Cancel()
-	elseif spellId == 233263 or spellId == 233264 then--Healer & boss Embrace of the Eclipse
+	elseif spellId == 233263 then
 		self.vb.eclipseCount = self.vb.eclipseCount - 1
 		if self.Options.InfoFrame and self.vb.eclipseCount == 0 then
 			DBM.InfoFrame:Hide()
@@ -433,6 +424,7 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, spellGUID)
 		self.vb.phase = 2
 		local elapsedMoon, totalMoon = timerIncorporealShotCD:GetTime()--Grab current special from phase 1 special timer first
 		warnPhase2:Show()
+		voicePhaseChange:Play("ptwo")
 		timerMoonGlaiveCD:Stop()
 		timerTwilightVolleyCD:Stop()
 		--timerTwilightGlaiveCD:Stop()
@@ -452,6 +444,7 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, spellGUID)
 		self.vb.phase = 3
 		local elapsedMoon, totalMoon = timerEmbraceofEclipseCD:GetTime()--Grab current special from phase 2 special timer first
 		warnPhase3:Show()
+		voicePhaseChange:Play("pthree")
 		timerRapidShotCD:Stop()
 		timerTwilightVolleyCD:Stop()
 		timerEmbraceofEclipseCD:Stop()--Stop phase 2 Special timer
@@ -469,6 +462,21 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, spellGUID)
 			timerGlaiveStormCD:Update(elapsedMoon, totalMoon)
 		else
 			timerIncorporealShotCD:Update(elapsedMoon, totalMoon)
+		end
+	elseif spellId == 61207 then--Sets all internal CDs back to 7 seconds
+		for i = 1, 3 do
+	 		local unitGUID = UnitGUID("boss"..i)
+	 		if unitGUID then
+	 			self:BossTargetScannerAbort(unitGUID, "VolleyTarget")
+	 		end
+	 	end
+		local elapsedVolley, totalVolley = timerTwilightVolleyCD:GetTime()
+		local remaining = totalVolley - elapsedVolley
+		local extend = 7 - (totalVolley-elapsedVolley)
+		if totalVolley == 0 then
+			timerTwilightVolleyCD:Start(7)
+		elseif remaining < 7 then
+			timerTwilightVolleyCD:Update(remaining, totalVolley+extend)
 		end
 	end
 end

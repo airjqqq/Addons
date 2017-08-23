@@ -1,14 +1,14 @@
 local L = BigWigs:NewBossLocale("Harjatan the Bludger", "zhTW")
 if not L then return end
 if L then
-	L.custom_on_fixate_plates = "在敵方姓名板顯示追擊圖示"
-	L.custom_on_fixate_plates_desc = "當你被凝視時，在敵方姓名板上顯示一個圖示。\n需要啟用敵方姓名板，此功能目前只支援KuiNameplates。"
+	L.custom_on_fixate_plates = "在敵方名條顯示追擊圖示"
+	L.custom_on_fixate_plates_desc = "當你被凝視時，在敵方名條上顯示一個圖示。\n需要啟用敵方名條，此功能目前只支援KuiNameplates。"
 end
 
 L = BigWigs:NewBossLocale("Demonic Inquisition", "zhTW")
 if L then
-	L.custom_on_fixate_plates = "在敵方姓名板顯示追擊圖示"
-	L.custom_on_fixate_plates_desc = "當你被凝視時，在敵方姓名板上顯示一個圖示。\n需要啟用敵方姓名板，此功能目前只支援KuiNameplates。"
+	L.custom_on_fixate_plates = "在敵方名條顯示追擊圖示"
+	L.custom_on_fixate_plates_desc = "當你被凝視時，在敵方明條上顯示一個圖示。\n需要啟用敵方名條，此功能目前只支援KuiNameplates。"
 
 	L.infobox_title_prisoners = "%d囚犯"
 
@@ -18,7 +18,7 @@ end
 
 L = BigWigs:NewBossLocale("Mistress Sassz'ine", "zhTW")
 if L then
-	L.inks_fed_count = "墨水(%d/%d)"
+	L.inks_fed_count = "墨水（%d/%d）"
 	L.inks_fed = "喂食墨水：%s" -- %s = List of players
 end
 
@@ -28,6 +28,8 @@ if L then
 	L.armor_remaining = "剩餘%s（%d）" -- Bonecage Armor Remaining (#)
 	L.custom_on_mythic_armor = "在傳奇難度中，忽略再活化的聖殿騎士的骨牢護甲"
 	L.custom_on_mythic_armor_desc = "如果你不是負責坦住「再活化的聖殿騎士」的坦克，請保持此選項啟用，以便忽略骨牢護甲的提示和計數。"
+	L.custom_on_armor_plates = "在敵方名條上顯示骨牢護甲"
+	L.custom_on_armor_plates_desc = "在敵方名條上顯示骨牢護甲和其層數。\n需要啟用敵方名條，此功能目前只支援KuiNameplates。"
 	L.tormentingCriesSay = "號哭" -- Tormenting Cries (short say)
 end
 
@@ -39,6 +41,11 @@ if L then
 	L.light = "聖光"
 	L.felHammer = "魔化錘" -- Better name for "Hammer of Obliteration"
 	L.lightHammer = "聖光錘" -- Better name for "Hammer of Creation"
+	L.absorb = "吸收"
+	L.absorb_text = "%s （|cff%s%.0f%%|r）"
+	L.cast = "施放"
+	L.cast_text = "%.1f秒 （|cff%s%.0f%%|r）" -- s = seconds
+	L.stacks = "層數"
 end
 
 L = BigWigs:NewBossLocale("Fallen Avatar", "zhTW")
@@ -53,6 +60,11 @@ if L then
 	L.energy_leak_msg = "能量外泄！（%d）"
 
 	--L.warmup_trigger = "The husk before you" -- The husk before you was once a vessel for the might of Sargeras. But this temple itself is our prize. The means by which we will reduce your world to cinders!
+
+	L.absorb = "吸收"
+	L.absorb_text = "%s （|cff%s%.0f%%|r）"
+	L.cast = "施放"
+	L.cast_text = "%.1f秒 （|cff%s%.0f%%|r）" -- s = seconds
 end
 
 L = BigWigs:NewBossLocale("Kil'jaeden", "zhTW")
@@ -84,4 +96,5 @@ if L then
 	L.dresanoth = "卓薩諾斯"
 	L.sentry = "守護者哨衛"
 	L.acolyte = "鬼魅侍僧"
+	L.ryul = "暗淡者萊由"
 end

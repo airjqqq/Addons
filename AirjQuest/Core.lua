@@ -60,7 +60,7 @@ function Core:OnEnable()
     self:AbandonAllQuest()
   end)
 
-  RepopMe()
+  -- RepopMe()
 end
 
 function Core:TakeTaxiByNoteId(id)

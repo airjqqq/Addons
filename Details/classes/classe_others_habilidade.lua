@@ -32,14 +32,19 @@
 		if (token == "BUFF_UPTIME" or token == "DEBUFF_UPTIME") then
 			_newMiscSpell.uptime = 0
 			_newMiscSpell.actived = false
-			_newMiscSpell.activedamt = 0
+			_newMiscSpell.activedamt = 0 --s�o quantos estao ativados no momento
 			_newMiscSpell.refreshamt = 0
+			_newMiscSpell.appliedamt = 0
+			
 		elseif (token == "SPELL_INTERRUPT") then
 			_newMiscSpell.interrompeu_oque = {}
+			
 		elseif (token == "SPELL_DISPEL" or token == "SPELL_STOLEN") then
 			_newMiscSpell.dispell_oque = {}
+			
 		elseif (token == "SPELL_AURA_BROKEN" or token == "SPELL_AURA_BROKEN_SPELL") then
 			_newMiscSpell.cc_break_oque = {}
+			
 		end	
 		
 		return _newMiscSpell
@@ -47,6 +52,8 @@
 
 	function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spellName)
 
+		--print (self.id, GetSpellInfo (self.id))
+	
 		if (spellID == "BUFF_OR_DEBUFF") then
 			
 			if (spellName == "COOLDOWN") then
@@ -74,6 +81,7 @@
 			elseif (spellName == "BUFF_UPTIME_IN" or spellName == "DEBUFF_UPTIME_IN") then
 				self.actived = true
 				self.activedamt = self.activedamt + 1
+				self.appliedamt = self.appliedamt + 1
 				
 				if (self.actived_at and self.actived and spellName == "DEBUFF_UPTIME_IN") then
 					--> ja esta ativo em outro mob e jogou num novo

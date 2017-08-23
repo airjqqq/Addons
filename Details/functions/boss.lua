@@ -18,6 +18,28 @@ do
 		end
 	end
 
+	--> return the full table with all data for the instance
+	function _detalhes:GetRaidInfoFromEncounterID (encounterID, encounterEJID)
+		for id, raidTable in pairs (_detalhes.EncounterInformation) do
+			if (encounterID) then
+				local ids = raidTable.encounter_ids2 --combatlog
+				if (ids) then
+					if (ids [encounterID]) then
+						return raidTable
+					end
+				end
+			end
+			if (encounterEJID) then
+				local ejids = raidTable.encounter_ids --encounter journal
+				if (ejids) then
+					if (ejids [encounterEJID]) then
+						return raidTable
+					end
+				end
+			end
+		end
+	end
+	
 	--> return the ids of trash mobs in the instance
 	function _detalhes:GetInstanceTrashInfo (mapid)
 		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].trash_ids

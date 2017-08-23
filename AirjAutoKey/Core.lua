@@ -436,7 +436,7 @@ do
         -- dump(rotation)
         return self:ExecuteGroupSequence(rotation.spellArray,unit)
       end
-      if rotation.class == "_TEMPLATE" and rotation.note == "all" then
+      if rotation.class == "_TEMPLATE" then
         for i,sequence in ipairs(rotation.spellArray) do
           if sequence.spell == name or sequence.note == name then
             return self:ExecuteSequence(sequence,unit)
