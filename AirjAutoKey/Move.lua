@@ -2151,7 +2151,7 @@ function M:GetConnerWays(routes,datas,from,to)
 				way[j+1] = bit.band(i-1,bit.lshift(1,j-1)) == 0 and pp[1] or pp[2]
 			end
 			way.route = route
-			way.divide = pointpairs
+			way.divides = pointpairs
 			tinsert(way,to)
 			tinsert(ways,way)
 		end
@@ -2161,19 +2161,18 @@ end
 
 function M:RemoveUselessConners(way)
 	-- datas = datas or self:GetPolyDatas()
-	local pc = #way - 2
-	local divide = way.divide
+	local divides = way.divides
 	local	ways = {}
 	for i = 1,2^pc do
 		local tw = {unpack(way)}
 		local faild
-		for j = 1,pc do
+		for j = 1,#divides do
 			if bit.band(i-1,bit.lshift(1,j-1)) == 0 then
 				tw[j+1] = nil
 			end
 		end
-		for di,pp in ipairs(divide) do
-			if not tw[di] or not tw[di+1] then
+		for di,pp in ipairs(divides) do
+			if not tw[di+1] then
 				local prepoint,nextpoint
 				for m = di,1,-1 do
 					if tw[m] then
@@ -2181,7 +2180,7 @@ function M:RemoveUselessConners(way)
 						break
 					end
 				end
-				for m = di+1,#way do
+				for m = di+2,#way do
 					if tw[m] then
 						nextpoint = tw[m]
 						break
@@ -2229,10 +2228,10 @@ function M:Test()
 		way = self:GetMinDistance(ways)
 		if way then
 			self.cruiseName = "polyway"
-			self.isCruise = true
 			self:GetDB()[self.cruiseName] = way
 			way.noloop = true
 			self:DrawCruiseData()
+			self.isCruise = true
 		end
 	end
 	self:DrawPolyDatas()
