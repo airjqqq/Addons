@@ -40,6 +40,9 @@ function F:OnInitialize()
     ROOT = L["Root"],
   })
   self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+  self:RegisterFilter("PVPHARMMAGICPERCENT",L["PVP M P"],{greater= {},value= {}})
+  self:RegisterFilter("PVPMELEEPRE",L["PVP Melee C"],{greater= {},value= {}})
+  self:RegisterFilter("PVPSPEC",L["PVP Spec C"],{name={},greater= {},value= {}})
 end
 
 function F:RegisterFilter(key,name,keys,subtypes,c)
@@ -108,6 +111,7 @@ local buffs = {
 		[  1022] = "IPDAMAGE IPDEBUFF", -- Blessing of Protection
 		[   642] = "IPDAMAGE IPDEBUFF IMDAMAGE IMDEBUFF", -- Divine Shield
 		[228049] = "IPDAMAGE IMDAMAGE", -- Guardian of the Forgotten Queen
+		[210256] = "ISTUN",
   },
   priest = {
     SHEILD = {
@@ -135,6 +139,7 @@ local buffs = {
 				 61295, -- Riptide
     },
     [23920] = "IMDEBUFF ICAST", -- Grounding
+    [8178] = "IMDEBUFF ICAST", -- Grounding
     [210918] = "IPDAMAGE", -- Grounding
   },
   warrior = {
@@ -283,6 +288,7 @@ local debuffs = {
 			  122, -- Frost Nova (root)
 			33395, -- Freeze (Water Elemental) (root)
   	 157997, -- Ice Nova (root) -- TODO: check category
+  	 198121,
 		},
 		DISORIENT = {
 		},
@@ -592,26 +598,36 @@ local offensiveDebuffs = {
 
 local defensiveBuffs = {
   --deathnight
-  [207319] = {0.5,60,1,1},
+  [207319] = {0.5,60,1,1,0.2},
   [51052] = {0.6,120,0,1},
   [48707] = {0.5,60,0,1},
   [48792] = {0.2,60,1,1},
   --dh
   [212800] = {0.35,60,1,1},
   [196555] = {1,120,1,1},
-  [196718] = {0.15,180,1,1},
-  --
+  [196718] = {0.3,180,1,1},
+  --druid
+  [200851] = {0.25,60,1,1},
   [22812] = {0.2,60,1,1},
   [61336] = {0.5,180,1,1},
   [102342] = {0.5,60,1,1},
+  [5487] = {0.3,1,1,0},
   --
   --
-  [198111] = {0.5,45,1,1},
+  --maga
+  [ 45438] = {1,180,1,1},
+  [ 198065] = {0.5,30,0,1},
+  -- [198111] = {0.2,45,1,1},
+  --hunter
+  [186265] = {1,180,1,1},
   --monk
+  [125174] = {1,90,1,1},
+  [122470] = {1,90,1,1},
   [122783] = {0.6,45,0,1},
   [201318] = {0.2,90,1,1},
-  [116849] = {0.5,90,1,1},
-  --
+  [116849] = {0.5,90,1,1,0.2},
+  -- pally
+  [642] = {1,300,1,1},
   [6940] = {0.3,90,1,1},
   [199448] = {1,90,1,1},
   [1022] = {1,150,1,0},
@@ -619,31 +635,33 @@ local defensiveBuffs = {
   [31821] = {0.2,180,1,1},
   [205191] = {0.35,180,1,0},
   [86659] = {0.5,300,1,1},
-  [204018] = {0.5,180,0,1},
+  [204018] = {1,180,0,1},
   [228049] = {1,180,1,1},
-  --
-  [33206] = {0.4,210,1,1},
+  -- preist
+  [33206] = {0.6,210,1,1},
   [62618] = {0.25,180,1,1},
-  [47788] = {0.4,96,1,1},
-  [197268] = {0.6,60,1,1},
-  [213602] = {1,30,1,1},
+  [47788] = {0.4,96,1,1,0.4},
+  [197268] = {0.6,60,1,1,0.5},
   [213602] = {1,30,1,1},
   [47585] = {0.7,80,1,1},
-  --
+  -- rogue
   [31224] = {1,80,0,1},
-  [5277] = {1,80,1,0},
-  --
+  -- [5277] = {1,80,1,0},
+  -- shaman
   [108271] = {0.4,90,1,1},
   [198838] = {0.2,60,1,1},
-  --
+  [210918] = {1,60,1,0},
+  -- warlock
   [104773] = {0.4,60,1,1},
   [212295] = {1,45,0,1},
-  --
+  -- warrior
   [23920] = {1,30,0,1},
-  --
   [118038] = {0.35,180,1,1},
   [871] = {0.35,180,1,1},
+  [197690] = {0.2,10,1,1},
 }
+
+Core.defensiveBuffs = defensiveBuffs
 
 local castings = {
 
@@ -943,6 +961,44 @@ function F:PVPDRCOUNT(filter)
   end
 end
 
+function F:PVPHARMMAGICPERCENT(filter)
+  local specMP = Core.spec2MagicDamagePercent
+  local md,mc = 0,0
+  for i = 1,3 do
+    local id = GetArenaOpponentSpec(i)
+    if specMP[id] then
+      md = md + specMP[id]
+      mc = mc + 1
+    end
+  end
+  if mc > 0 then
+    return md/mc
+  end
+end
+
+function F:PVPMELEEPRE(filter)
+  local md,mc = 0,0
+  for i = 1,3 do
+    local id = GetArenaOpponentSpec(i)
+    if Core.specIsMelee[id] then
+      mc = mc + 1
+    end
+  end
+  return mc
+end
+
+function F:PVPSPEC(filter)
+  local specs = Core:ToKeyTable(filter.name)
+  local md,mc = 0,0
+  for i = 1,3 do
+    local id = GetArenaOpponentSpec(i)
+    if specs[id] then
+      mc = mc + 1
+    end
+  end
+  return mc
+end
+
 
 function F:PVPBUFF(filter)
   filter.name = filter.name or {"IMPORT","TARGET","BIGHOT","SHEILD","HOT"}
@@ -980,15 +1036,60 @@ function F:PVPBUFF(filter)
   return false
 end
 
+
+function Filter:GetDefensivedHealth(unit,magicPecent,evPecent)
+  magicPecent = magicPecent or 0.5
+  evPecent = evPecent or 0.5
+
+  local guid = Cache:UnitGUID(unit)
+  if not guid then return false end
+
+  local buffs = Cache:GetBuffs(guid,unit)
+  local damageTaken = 1
+  local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+  health = (health-healAbsorb)
+  local th = 0
+  local durth = 0.4
+  for i, v in pairs(buffs) do
+    local name, rank, icon, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod, value1, value2, value3 = unpack(v)
+    if defensiveBuffs[spellID] then
+      local remain
+      if expires == 0 then
+        remain = 5
+      else
+        remain = expires - GetTime()
+      end
+      if defensiveBuffs[spellID][2] >= th and remain > durth then
+        local data = defensiveBuffs[spellID]
+        if data[5] then
+          health = health + max*data[5]
+        else
+          local dr = data[1] * data[3] * (1-magicPecent) + data[1] * data[4] * (magicPecent)
+          damageTaken = damageTaken * math.max(0,1-dr)
+        end
+      end
+    end
+  end
+  if evPecent > 0 then
+    if Filter:IsEvasioning(unit) then
+      damageTaken = damageTaken * math.max(0,1-evPecent)
+    end
+  end
+
+  damageTaken = math.max(damageTaken,1e-9)
+  return health/damageTaken
+
+end
+
 function F:PVPDEFENSIVE(filter)
   filter.unit = filter.unit or "target"
   filter.name = filter.name or {30}
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
-  local types = Core:ToKeyTable({"DISORIENT","INCAPACITATE","STUN"})
-  local spells = getSpellIs(debuffs,types)
-  local debuffs = Cache:GetDebuffs(guid,filter.unit,spells)
-  if #debuffs>0 then return false end
+  -- local types = Core:ToKeyTable({"DISORIENT","INCAPACITATE","STUN"})
+  -- local spells = getSpellIs(debuffs,types)
+  -- local debuffs = Cache:GetDebuffs(guid,filter.unit,spells)
+  -- if #debuffs>0 then return false end
   local buffs = Cache:GetBuffs(guid,filter.unit)
   local total = 0
   local th = filter.name[1] or 30
@@ -1015,10 +1116,10 @@ function F:PVPOFFENSIVE(filter)
   filter.name = filter.name or {30}
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
-  local types = Core:ToKeyTable({"DISORIENT","INCAPACITATE","STUN"})
-  local spells = getSpellIs(debuffs,types)
-  local debuffs = Cache:GetDebuffs(guid,filter.unit,spells)
-  if #debuffs>0 then return false end
+  -- local types = Core:ToKeyTable({"DISORIENT","INCAPACITATE","STUN"})
+  -- local spells = getSpellIs(debuffs,types)
+  -- local debuffs = Cache:GetDebuffs(guid,filter.unit,spells)
+  -- if #debuffs>0 then return false end
   local buffs = Cache:GetBuffs(guid,filter.unit)
   local total = 0
   local th = filter.name[1] or 30
@@ -1045,10 +1146,10 @@ function F:PVPOFFENSIVEDEBUFF(filter)
   filter.name = filter.name or {30}
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
-  local types = Core:ToKeyTable({"DISORIENT","INCAPACITATE","STUN"})
-  local spells = getSpellIs(debuffs,types)
-  local debuffs = Cache:GetDebuffs(guid,filter.unit,spells)
-  if #debuffs>0 then return false end
+  -- local types = Core:ToKeyTable({"DISORIENT","INCAPACITATE","STUN"})
+  -- local spells = getSpellIs(debuffs,types)
+  -- local debuffs = Cache:GetDebuffs(guid,filter.unit,spells)
+  -- if #debuffs>0 then return false end
   local buffs = Cache:GetDebuffs(guid,filter.unit)
   local total = 0
   local th = filter.name[1] or 30
@@ -1070,22 +1171,22 @@ function F:PVPOFFENSIVEDEBUFF(filter)
   return total
 end
 
+Core.evasionDebuffs  = {
+  [118038] = true, -- [1]
+  [226364] = true, -- [2]
+  [  5277] = true, -- [3]
+  [192422] = true, -- [4]
+  [199754] = true, -- [5]
+  [212800] = true, -- [6]
+  [210655] = true, -- [6]
+}
 
-function F:PVPEVASION(filter)
+function Filter:IsEvasioning(unit)
   local pi = math.pi
-  local buffids = {
-    [118038] = true, -- [1]
-    [226364] = true, -- [2]
-    [  5277] = true, -- [3]
-    [192422] = true, -- [4]
-    [199754] = true, -- [5]
-    [212800] = true, -- [6]
-    [210655] = true, -- [6]
-  }
-  filter.unit = filter.unit or "target"
-  local guid = Cache:UnitGUID(filter.unit)
+  local buffids = Core.evasionDebuffs
+  local guid = Cache:UnitGUID(unit)
   if not guid then return false end
-  local buffs = Cache:GetBuffs(guid,filter.unit,buffids)
+  local buffs = Cache:GetBuffs(guid,unit,buffids)
   if #buffs == 0 then return false end
   local pguid = Cache:PlayerGUID()
   local px,py,pz = Cache:GetPosition(pguid)
@@ -1105,6 +1206,11 @@ function F:PVPEVASION(filter)
   local debuffs = Cache:GetDebuffs(guid,filter.unit,spells)
   if #debuffs>0 then return false end
   return true
+end
+
+function F:PVPEVASION(filter)
+  filter.unit = filter.unit or "target"
+  return Filter:IsEvasioning(filter.unit)
 end
 
 

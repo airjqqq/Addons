@@ -6,6 +6,8 @@ local stopName={"MoveForwardStop","MoveBackwardStop","StrafeLeftStop","StrafeRig
 AirjMove = M
 local stopAllMoves = {0,0,0,0,0,0,0,0,0,0}
 
+local PATHTOEDGE = 1
+
 local turning
 
 function M:OnInitialize()
@@ -77,7 +79,7 @@ function M:OnInitialize()
 			self.cruiseName = args[1]
 			local data = self:GetCruiseDate()
 			if not data then
-				M:GetDB()[self.cruiseName] = {}
+				M:GetCruiseDB()[self.cruiseName] = {}
 			end
 		end
 		self:DrawCruiseData()
@@ -192,8 +194,26 @@ end
 
 local hardMoving = {0,0,0,0,0,0,0,0,0,0}
 
-function M:OnEnable()
+function M:RestartMoveTimer()
+  if self.moveTimer then
+    self:CancelTimer(self.moveTimer,true)
+    self.moveTimer = nil
+  end
 	self.moveTimer = self:ScheduleRepeatingTimer(self.MoveTimer,0.01,self)
+end
+
+function M:OnEnable()
+
+	self.mainTimerProtectorTimer = self:ScheduleRepeatingTimer(function()
+		if GetTime() - (self.lastMoveTime or 0) > 0.21 then
+			if self.lastMoveTime then
+			else
+				self:Print("Restart Move Timer")
+			end
+			self.lastMoveTime = GetTime()
+			self:RestartMoveTimer()
+		end
+	end,0.01)
 	self.cruiseTimer = self:ScheduleRepeatingTimer(self.CruiseTimer,0.01,self)
 
 	self.stuckHistory = AirjUtil:NewFIFO(1000)
@@ -234,6 +254,7 @@ local hindex = 0
 local movinglast = 0
 local historySize = 10000
 local lastMoves
+local lastWayTime
 local function saveHistory()
 	local px,py,pz,pf = M:GetPlayPosition()
 	local speed = GetUnitSpeed("player")
@@ -253,11 +274,32 @@ local function getHistory(offset)
 	return unpack(history[i] or {})
 end
 
+local lastFollowGUID
+
+function M:CheckAndResetStuck()
+	local t,d = self.goto.targetType,self.goto.targetData
+	local guid
+	if t == "unit" then
+		guid = UnitGUID(d)
+	elseif t == "guid" then
+		guid = d
+	end
+	if guid then
+		if guid ~= lastFollowGUID then
+			lastFollowGUID = guid
+			movinglast = 0
+		end
+	end
+end
+
 function M:MoveTimer()
+	self.lastMoveTime = GetTime()
 	if not AirjHack:HasHacked() then
 		return
 	end
+  local now = GetTime()
 	saveHistory()
+	self:CheckAndResetStuck()
 	self.moveAngle = nil
 	self.targetDistance = nil
 	self.targetAngle = nil
@@ -288,28 +330,19 @@ function M:MoveTimer()
 	local minDistance,is
 	local playFacing = GetPlayerFacing()
 	local speed = select(IsFlying() and 3 or IsSwimming() and 4 or 2 ,GetUnitSpeed("player"))
+
+	local moves = {0,0,0,0,0,0,0,0,0,0}
 	do
+    local isTemplate
 		local _,type,data
 		_,type,data,minDistance,is = self:GetTemplatePoint()
-		if type then
-			-- dump(type,data)
-		end
-		-- if self.goto.templateTime and self.goto.templateTime>GetTime() then
-		-- 	for i,v in ipairs(self.goto.targetTimeT) do
-		-- 		if GetTime()< v+self.goto.templateTime then
-		-- 			-- print(i)
-		-- 			type,data,minDistance = self.goto.targetTypeT[i],self.goto.targetDataT[i],self.goto.targetMinDistanceT and self.goto.targetMinDistanceT[i]
-		-- 			break
-		-- 		end
-		-- 	end
-		-- else
-		--
-		-- end
 		if not type then
 			type,data,minDistance,is = self.goto.targetType,self.goto.targetData,self.goto.targetMinDistance,self.goto.incluedTargetSize
 			if minDistance then
 				minDistance = max(0.02*speed,minDistance)
 			end
+    else
+      isTemplate = true
 		end
 		if type then
 			local x, y, z, f, s = self:GetPositionForType(type,data)
@@ -330,20 +363,55 @@ function M:MoveTimer()
 						end
 					end
 				end
+
+				local way = self:GetNavigate({x,y,z},GetMinimapZoneText())
+				local useWay = way and #way>2 and not isTemplate
+				if useWay then
+					minDistance = max(0.02*speed,0.1)
+					is = nil
+					local wx,wy,wz = unpack(way[2])
+					if minDistance>self:GetDistanceFromPlayer(wx,wy,wz,true) then
+						if way[3] then
+							wx,wy,wz = unpack(way[3])
+						end
+					end
+					x,y,z = wx,wy,wz
+          local range = self:GetDistanceFromPlayer(x,y,z,true)
+          if range < PATHTOEDGE*3 + 0.5 and (not lastWayTime or now - lastWayTime > 0.2) then
+            lastWayTime = now+range/speed*0.98
+            self:AddTemplatePoint(lastWayTime,speed,"point",{x,y,z},nil,nil,"way")
+          end
+				end
+				if way and way.jump then
+					if way.jump<speed*0.3 + 1 then
+						if GetUnitSpeed("player") > 0 then
+							moves[7] = 1
+						end
+					end
+				end
 				local px, py, pz = self:GetPlayPosition()
 				targetDistanceXY = self:GetDistanceFromPlayer(x,y,pz)
 				targetDistanceZ = z - pz
 				targetDistance = self:GetDistanceFromPlayer(x,y,z)
 				targetAngle = self:GetAngle(x,y,z)
 				targetPitch = math.asin(targetDistanceZ/targetDistance)
-				self.targetDistance = targetDistanceXY
 				self.targetAngle = targetAngle
 				targetSize = s
+				if useWay then
+					targetDistanceXY = way.distance
+					targetDistance = way.distance
+				end
 			end
 		end
 	end
 	do
-		local type,data,minAngle = self.goto.facingType,self.goto.facingData,self.goto.facingMinAngle
+		local _,type,data = self:GetTemplateFacing()
+
+		if not type or not data then
+			type,data = self.goto.facingType,self.goto.facingData
+		else
+			-- dump(type,data)
+		end
 		if type == "facing" then
 			facingDistance = 40
 			facingAngle = self:GetAngleFacing(data)
@@ -359,7 +427,6 @@ function M:MoveTimer()
 			end
 		end
 	end
-	local moves = {0,0,0,0,0,0,0,0,0,0}
 	local turnAngle = 0
 	local stop
 	local moveDistanceXY,moveDistance
@@ -375,6 +442,9 @@ function M:MoveTimer()
 	else
 		moveDistanceXY = 0
 		moveDistance = 0
+	end
+	if moveDistanceXY>0 then
+		self.targetDistance = moveDistanceXY
 	end
 	local moveAngle
 	local castDontMoveRange = AirjAutoKey:GetParam("cdm") and tonumber(AirjAutoKey:GetParam("cdm")) or 1
@@ -487,21 +557,24 @@ function M:MoveTimer()
 	else
 		movinglast = movinglast + 1
 	end
-	local stucked = self:CheckStuckedTime(1)
-	if stucked > 0.5 and (stucked+1)%1.5 <0.05 then
+	local stucked, stuckedDistance = self:CheckStuckedTime(0.05)
+	if stucked > 1 and (stucked+0.5)%1.5 <0.05 then
 		moves[7] = 1
+		if (stucked+0.5)%1.5 >0.02 then
+			moves[1] = 1
+		end
+		print("jump",stucked)
 	end
 	-- local speed = GetUnitSpeed("player")
 
 	if not stop then
-		local wa,da = self:GetWallAngle(10)
-		local wa2,da2 = self:GetWallAngle(1)
+		local wa,da = self:GetWallAngle(4)
+		local wa2,da2 = self:GetWallAngle(2)
 		-- print(wa)
 		if true and da and math.abs(da)>0.1*math.pi and da2 and math.abs(da2)>0.1*math.pi then
-			local range = 5
-			local now = GetTime()
+			local range = min(5,math.abs(2/ math.cos(da)))
 			if not self.lastWallTime or now - self.lastWallTime > 1 then
-				self:AddTemplatePoint(now+range/speed*0.95,speed,"point",{self:GetOffsetPointAbs(range,0,0,wa)})
+				self:AddTemplatePoint(now+range/speed*0.95,speed,"point",{self:GetOffsetPointAbs(range,0,0,wa)},nil,nil,"wall")
 				self.lastWallTime = now
 				self.lastWallDirection = da>0 and 1 or -1
 			end
@@ -509,11 +582,11 @@ function M:MoveTimer()
 			if not AirjAutoKey or not AirjAutoKey:GetParam("nowalkaround") then
 				local now = GetTime()
 				if (not self.lastAroundTime or now - self.lastAroundTime > 1) and (not self.lastWallTime or now - self.lastWallTime > 1) then
-					local radius = 6
+					local radius = 3
 					local minTime = radius/speed
-					stucked = self:CheckStuckedTime(radius)
-					local stucked2 = self:CheckStuckedTime(0.1)
-					if targetDistanceXY and stucked >(IsFlying() and 3 or 1) + minTime and stucked2 > 0.2 then
+					stucked, stuckedDistance = self:CheckStuckedTime(radius)
+					local stucked2 = self:CheckStuckedTime(1)
+					if targetDistanceXY and stucked >(IsFlying() and 3 or 1) + minTime and stuckedDistance>radius and stucked2 > 0.4 then
 						local lastStuckedData
 					  for v,k,i in self.stuckHistory:iterator() do
 							if now - v.t > 30 then
@@ -523,17 +596,20 @@ function M:MoveTimer()
 							local distance = self:GetDistanceFromPlayer(x,y,z,not IsFlying() and not IsSwimming() and not IsFalling())
 							if distance < 1 then
 								lastStuckedData = v
+								break
 							end
 						end
 						local stuckedTimes = lastStuckedData and lastStuckedData.stuckedTimes or 0
 						stuckedTimes = stuckedTimes + 1
 						local direction = lastStuckedData and lastStuckedData.direction or self.lastWallDirection and -self.lastWallDirection or 1
 						direction = - direction
-						local range = math.floor(stuckedTimes/2+1.5)*5
+						local range = math.floor(stuckedTimes/2+0.5)*3
 						local datas = {
-							{range*0.5/speed*0.95,{self:GetOffsetPointFacing(0,-range*0.5,0,self.targetAngle)}},
-							{range*1/speed*0.95,{self:GetOffsetPointFacing(direction*range,-range*0.5,0,self.targetAngle)}},
-							{range*1/speed*0.95,{self:GetOffsetPointFacing(direction*range, range*0.5,0,self.targetAngle)}},
+							{range*0.25/speed*1,{self:GetOffsetPointFacing(0,-range*0.25,0,self.targetAngle)}},
+							{range*0.36/speed*1,{self:GetOffsetPointFacing(direction*range*0.25,-range*0.5,0,self.targetAngle)}},
+							{range*0.5/speed*1,{self:GetOffsetPointFacing(direction*range*0.75,-range*0.5,0,self.targetAngle)}},
+							{range*0.36/speed*1,{self:GetOffsetPointFacing(direction*range,-range*0.25,0,self.targetAngle)}},
+							{range*0.75/speed*1,{self:GetOffsetPointFacing(direction*range, range*0.5,0,self.targetAngle)}},
 						}
 						local time = now
 						for i,data in ipairs(datas) do
@@ -568,7 +644,7 @@ function M:MoveTimer()
 		local facing = playFacing + turnAngle/180*math.pi
 		facing = (facing)%(math.pi*2)
 		AirjHack:SetFacing(facing)
-		print(facing)
+		-- print(facing)
 	else
 		moves[5] = 0
 		moves[6] = 0
@@ -577,7 +653,7 @@ function M:MoveTimer()
 	lastMoves = moves
 end
 
-function M:AddTemplatePoint(time,speed,type,data,minDistance,is)
+function M:AddTemplatePoint(time,speed,type,data,minDistance,is,text)
 	self.goto.templatePoints = self.goto.templatePoints or {}
 	tinsert(self.goto.templatePoints,{time,type,data,minDistance,is})
 	if AVR then
@@ -588,9 +664,38 @@ function M:AddTemplatePoint(time,speed,type,data,minDistance,is)
 		m:SetFollowRotation(false)
 		m:SetRadius(1.5)
 		m:SetMeshTranslate(unpack(data))
-		m:SetText("stuck")
+    text = text or "stuck"
+		m:SetText(text)
 		m:SetTimer(time-now)
 		scene:AddMesh(m,false,false)
+	end
+end
+
+function M:AddTemplateFacing(time,type,data)
+	self.goto.templateFacings = self.goto.templateFacings or {}
+	tinsert(self.goto.templateFacings,{time,type,data})
+
+end
+
+function M:GetTemplateFacing()
+	local facings = self.goto.templateFacings
+	local now = GetTime()
+	local mintime,minfacing
+	if facings then
+		for i,facing in ipairs(facings) do
+			local time,type,data = unpack(facing)
+			if time<now then
+				tremove(facings,i)
+			else
+				if not mintime or time<mintime then
+					mintime = time
+					minfacing = facing
+				end
+			end
+		end
+	end
+	if minfacing then
+		return unpack(minfacing)
 	end
 end
 
@@ -620,34 +725,25 @@ function M:NeedBarCast()
 
 end
 
-function M:CheckStuckedTime2(d)
-	d = d or 1
-	for i = 10,movinglast,10 do
-		local x,y,z = getHistory(i)
-		if not x then
-			break
-		end
-		local distance = self:GetDistanceFromPlayer(x,y,z,not IsFlying() and not IsSwimming())
-		if distance>d then
-			return i/100
-		end
-	end
-	return movinglast/100
-end
-
 function M:CheckStuckedTime(d)
 	d = d or 1
+	local now = GetTime()
+	local earliest = now
+	local sumdistance = 0
 	for i = 10,movinglast,10 do
-		local x,y,z = getHistory(i)
+		local x,y,z,f,speed,lm,t = getHistory(i)
 		if not x then
 			break
 		end
+		local duration = earliest - t
+		sumdistance = sumdistance + duration * speed
+		earliest = t
 		local distance = self:GetDistanceFromPlayer(x,y,z,not IsFlying() and not IsSwimming() and not IsFalling())
 		if distance>d then
-			return i/100
+			break
 		end
 	end
-	return movinglast/100
+	return now - earliest,sumdistance-d
 end
 
 function M:GetWallAngle(count)
@@ -1035,14 +1131,14 @@ local defaultDB = {
 		}, -- [28]
 	}
 }
-function M:GetDB()
+function M:GetCruiseDB()
 	AirjAutoKey.db.cruiseData = AirjAutoKey.db.cruiseData or {}
 	return  AirjAutoKey.db.cruiseData
 end
-local testData
+local cruiseTestData
 function M:GetCruiseDate()
 	if not self.cruiseName then return end
-	local db = M:GetDB()
+	local db = M:GetCruiseDB()
 	if self.cruiseName~="test" then
 
 		if db[self.cruiseName] then
@@ -1055,12 +1151,12 @@ function M:GetCruiseDate()
 		end
 	else
 		local x,y,z = self:GetPlayPosition()
-		if testData then return testData end
-		testData = {}
+		if cruiseTestData then return cruiseTestData end
+		cruiseTestData = {}
 		for i=1,5 do
-			tinsert(testData,{x+(math.random()-0.5)*500,y+(math.random()-0.5)*500,z+(math.random()-0.5)*50})
+			tinsert(cruiseTestData,{x+(math.random()-0.5)*500,y+(math.random()-0.5)*500,z+(math.random()-0.5)*50})
 		end
-		return testData
+		return cruiseTestData
 	end
 end
 local meshs = {}
@@ -1082,6 +1178,7 @@ function M:DrawCruiseData()
 		m:SetFollowUnit(false)
 		m:SetFollowRotation(false)
 		m:SetMeshTranslate(unpack(data[i]))
+    m:SetRadius(2)
 		local text = i..""
 		if data[i].wait then
 			text = text.." - w("..data[i].wait..")"
@@ -1091,7 +1188,7 @@ function M:DrawCruiseData()
 			m:SetColor(1,0,0,0.2)
 			m:SetColor2(1,0,0,0.4)
 		end
-		m:SetTimer(120)
+		m:SetTimer(3600)
     scene:AddMesh(m,false,false)
 		if i ~= 1 or not data.noloop then
 			local l = AVRPolygonMesh:New({{
@@ -1123,11 +1220,12 @@ function M:CruiseTimer()
 	local data = self:GetCruiseDate()
 	if not data then return end
 	local j = #data
-	local minDistance,minDistanceT,minDistanceI,minDistanceJ,minDistanceData,minDistance2,minDistanceXY,minDistanceZ
+	local minDistance,minDistanceT,minDistanceI,minDistanceJ,minDistanceData,minDistance2,minDistanceXY,minDistanceZ,minDistanceL
 	-- local dd={}
 	for i = 1,#data do
 		if i ~= 1 or not data.noloop then
 			local d,t,d2,dz = self:GetDistanceToLine(data[i],data[j],nil,true)
+			local l = self:GetDistance(data[i],data[j])
 			-- dd[i] = d
 			local continueOffset = 0
 			if lastI then
@@ -1145,25 +1243,28 @@ function M:CruiseTimer()
 				minDistanceT = t
 				minDistanceI = i
 				minDistanceJ = j
+				minDistanceL = l
 				minDistanceData = data[i]
 			end
 		end
 		j = i
 	end
-	-- print(minDistanceI,lastI,minDistance)
+	-- print(minDistanceI,lastI,minDistanceT)
 	-- dump (dd)
 	-- print()
 	if minDistance then
 		local lastD = self.lastMinDistance or 1000
 		local mind = IsFlying() and 5 or IsMounted() and 2 or 0.5
-		if (minDistance < mind and lastD<mind*0.5 or minDistance<mind*0.5) or (minDistanceXY and minDistanceXY<mind*0.5 and not IsFlying() and minDistanceZ and minDistanceZ < 2) then
+		local D2E = minDistanceT*minDistanceL
+		if (minDistance < mind and lastD<mind*0.5 or minDistance<mind*0.5) or (minDistanceXY and minDistanceXY<mind*0.5 and not IsFlying() and minDistanceZ and minDistanceZ < 2) or D2E<mind then
+			-- print("")
 			self.lastMinDistance = minDistance
 			local i = minDistanceI
 			if lastI then
 				local lastData = data[lastI]
 				if lastData then
 					local toTdistance = self:GetDistanceFromPlayer(unpack(lastData))
-					if toTdistance<2 then
+					if toTdistance<mind or D2E<mind then
 						i = minDistanceI + 1
 					end
 				end
@@ -1240,6 +1341,20 @@ function M:GetVector(f,t)
 	end
 	return vector
 end
+function M:GetMetaVector(f,t)
+	local vector = {}
+	local l = self:GetDistance(f,t)
+	for i,v in ipairs(f) do
+		if i<=3 then
+			vector[i] = (t[i] - f[i])/l
+		end
+	end
+	return vector
+end
+function M:RotateVector(v,a)
+  local s,c = math.sin(a),math.cos(a)
+  return {v[1]*c - v[2]*s, v[1]*s+v[2]*c,v[3]}
+end
 
 function M:Cross(v1,v2)
 	return v1[1]*v2[2]-v1[2]*v2[1]
@@ -1261,13 +1376,11 @@ function M:Intersect(l1,l2)
 		local t = -pqxs/rxs
 		local u = -pqxr/rxs
 		if t>=0 and t<=1 and u>=0 and u<=1 then
-			return true
+			return true,t,u
 		else
-			return false
+			return false,t,u
 		end
 	end
-
-
 end
 
 function M:GetDistanceToLine(p1,p2,p,inline)
@@ -1912,22 +2025,33 @@ function M:StepStun(unit)
 	end
 end
 
--- Native
-local testData
-function M:GenerateTestData()
+-- Navigate
+
+local function getCircleDatas(data,from,count)
+	local d = {}
+	for i = 1,count do
+		local index = (from+i-2)%(#data)+1
+		d[i] = data[index]
+	end
+	return d
+end
+local navigateTestData
+function M:GenerateTestNavigateData()
 	local test = {}
-	local IMAX,JMAX = 4,4
+	local IMAX,JMAX = 6,6
 	local function getid(i,j)
 		return i*(JMAX+1) + j
 	end
+	local recta = 0.5
 	for i = 0,IMAX do
 		for j = 0,JMAX do
-			if not ((i == 1 or i == 3) and (j==1 or j==3)) then
+			-- if i == 0 or i==IMAX or j==0 or j==JMAX or ((i == 2 or i==IMAX-2) and j>=2 and j<=JMAX-2) or j==3 and i~=3 then
+			if i%2==0 or j%2==0 then
 				local points = {
-					{i-0.5,j-0.5,0},
-					{i+0.5,j-0.5,0},
-					{i+0.5,j+0.5,0},
-					{i-0.5,j+0.5,0},
+					{i-(recta+(math.random()-0.5)*0.2),j-(recta+(math.random()-0.5)*0.2),0},
+					{i+(recta+(math.random()-0.5)*0.2),j-(recta+(math.random()-0.5)*0.2),0},
+					{i+(recta+(math.random()-0.5)*0.2),j+(recta+(math.random()-0.5)*0.2),0},
+					{i-(recta+(math.random()-0.5)*0.2),j+(recta+(math.random()-0.5)*0.2),0},
 				}
 				test[getid(i,j)] = {points = points}
 			end
@@ -1956,21 +2080,213 @@ function M:GenerateTestData()
 	for _,p in pairs(test) do
 		for _,point in pairs(p.points) do
 			for i = 1,3 do
-				point[i] = point[i]*10 + pp[i]
+				point[i] = point[i]*7 + pp[i]
 			end
 		end
 	end
-	testData = test
+	navigateTestData = test
+	return test
 end
 
-function M:GetPolyDatas(mapid)
-	if not testData then self:GenerateTestData() end
-	return testData
+function M:GetNavigateDB()
+	AirjAutoKey.db.navigateData = AirjAutoKey.db.navigateData or {}
+	return  AirjAutoKey.db.navigateData
+end
+function M:CreateNavigateData()
+	local db = self:GetNavigateDB()
+	local zone = GetMinimapZoneText()
+	if not db[zone] then
+		db[zone] = {}
+	end
+	return db[zone]
+end
+function M:GetNavigateData(zone)
+	zone = zone or self.navigateZone
+	zone = zone or GetMinimapZoneText()
+	self.navigateZone = zone
+	if zone == "test" then
+		if not navigateTestData then self:GenerateTestNavigateData() end
+		return navigateTestData
+	end
+	if self.defaultPolys[zone] then
+		-- db[zone] = self.defaultPolys[zone]
+		return self.defaultPolys[zone]
+	end
+	local db = self:GetNavigateDB()
+	if db[zone] then
+		return db[zone]
+	end
+end
+
+function M:NewPolyByCruiseData(ids,id)
+	local cruiseData = self:GetCruiseDate()
+	local navigateData = self:CreateNavigateData()
+	local px, py, pz = self:GetPlayPosition()
+	local points = {}
+	local edges = {}
+	if ids then
+		for i,id in ipairs(ids) do
+			local p = {cruiseData[id][1],cruiseData[id][2],pz}
+			points[i] = p
+			edges[i] = {}
+		end
+	else
+		for i,point in ipairs(cruiseData) do
+			local p = {point[1],point[2],pz}
+			points[i] = p
+			edges[i] = {}
+		end
+	end
+	local cd = {points=points,edges=edges}
+	if id then
+		navigateData[id] = cd
+	else
+		tinsert(navigateData,cd)
+	end
+	self:DrawPolyDatas()
+end
+function M:InsertPoint(id,index,distance)
+	local navigateData = self:CreateNavigateData()
+	local p = getCircleDatas(navigateData[id].points,index,2)
+	local v = self:GetMetaVector(p[1],p[2])
+	local ip = {}
+	local ei
+	if distance > 0 then
+		for i=1,3 do
+			ip[i] = p[1][i] + v[i]*distance
+		end
+		ei = index
+	else
+		for i=1,3 do
+			ip[i] = p[2][i] + v[i]*distance
+		end
+		ei = index+1
+	end
+	tinsert(navigateData[id].points,index+1,ip)
+	tinsert(navigateData[id].edges,ei,{})
+	self:DrawPolyDatas()
+end
+function M:RotatePoint(id,index,deg,usenext)
+	local navigateData = self:CreateNavigateData()
+	local p = getCircleDatas(navigateData[id].points,index-1,3)
+	if usenext then
+		local v = self:GetVector(p[3],p[2])
+		v = self:RotateVector(v,deg*math.pi/180)
+		for i=1,3 do
+			p[2][i] = p[3][i] + v[i]
+		end
+	else
+		local v = self:GetVector(p[1],p[2])
+		v = self:RotateVector(v,deg*math.pi/180)
+		for i=1,3 do
+			p[2][i] = p[1][i] + v[i]
+		end
+	end
+	self:DrawPolyDatas()
+end
+function M:SetPolyEdgeTo(id,index,to)
+	local navigateData = self:CreateNavigateData()
+	navigateData[id].edges[index].to = to
+	self:DrawPolyDatas()
+end
+function M:SetPolyEdgeJump(id,index,jump)
+	local navigateData = self:CreateNavigateData()
+	navigateData[id].edges[index].jump = jump
+	self:DrawPolyDatas()
+end
+function M:SetPolyMaxZ(id,maxz)
+	local navigateData = self:CreateNavigateData()
+	navigateData[id].maxz=maxz
+	self:DrawPolyDatas()
+end
+function M:SetPolyAllEdges(zone)
+
+	zone = zone or GetMinimapZoneText()
+	local datas = M:GetNavigateData(zone)
+	if not datas then return end
+	for id,poly in pairs(datas) do
+		local a = poly.center
+		for ei,ed in ipairs(poly.edges) do
+			if true then
+				local ni = ei+1
+				if ni > #poly.points then ni = ni - #poly.points  end
+				local sp,ep = poly.points[ei],poly.points[ni]
+				local ec = {}
+				for i = 1,3 do
+					ec[i] = (sp[i]+ep[i])/2
+				end
+				local vm = self:RotateVector(self:GetMetaVector(sp,ep),-math.pi/2)
+				local tp = {}
+				for i = 1,3 do
+					tp[i] = ec[i] + vm[i]*0.1
+				end
+				local z = poly.points[1][3]
+				local toId
+				for id2,poly2 in pairs(datas) do
+					local z2 = poly.points[1][3]
+					if self:IsPointInPoly(tp,poly2) and z>z2-0.5 then
+						toId = id2
+						break
+					end
+				end
+				if toId then
+					ed.to = toId
+				end
+			end
+		end
+	end
+	self:DrawPolyDatas(zone)
+end
+
+function M:SetPolyZ(id)
+	local navigateData = self:CreateNavigateData()
+	local data = navigateData[id].points
+	local px, py, pz = self:GetPlayPosition()
+  for i,p in ipairs(data) do
+    p[3] = pz
+  end
+	self:DrawPolyDatas()
+end
+
+function M:OffsetPolyEdge(id,offset,iStart,iCount)
+  iCount = iCount or 1
+	local navigateData = self:CreateNavigateData()
+	local data = navigateData[id]
+  local count = 3+iCount
+  local p = getCircleDatas(data.points,iStart-1,count)
+  local vr,vl,ve = self:GetMetaVector(p[1],p[2]),self:GetMetaVector(p[#p],p[#p-1]),self:GetMetaVector(p[2],p[#p-1])
+  local lr,ll = self:Cross(vr,ve),self:Cross(vl,ve)
+  if lr>0 then lr = 1/lr else lr = 0 end
+  if ll>0 then ll = 1/ll else ll = 0 end
+  local vm = self:RotateVector(ve,-math.pi/2)
+  -- dump(lr,ll,p)
+  for i = 2,#p-1 do
+    for j=1,2 do
+      if i == 2 then
+        p[i][j] = p[i][j] + vr[j]*lr*offset
+      elseif i == #p-1 then
+        p[i][j] = p[i][j] + vl[j]*ll*offset
+      else
+        p[i][j] = p[i][j] + vm[j]*offset
+      end
+    end
+  end
+  -- dump(p)
+	self:DrawPolyDatas()
+end
+
+function M:CopyPoint(id1,i1,id2,i2)
+  local navigateData = self:CreateNavigateData()
+  local data1 = navigateData[id1]
+  local data2 = navigateData[id2]
+  data1.points[i1] = data2.points[i2]
+	self:DrawPolyDatas()
 end
 
 local polymeshs = {}
 local id2range = {}
-function M:DrawPolyDatas(mapid)
+
+function M:ClearPolyDatas()
 	for _,v in pairs (polymeshs) do
     v.visible=false
 		if v.Remove then
@@ -1978,7 +2294,18 @@ function M:DrawPolyDatas(mapid)
 		end
 	end
 	wipe(polymeshs)
-	local datas = M:GetPolyDatas(mapid)
+end
+function M:DrawPolyDatas(zone,aid)
+	zone = zone or GetMinimapZoneText()
+	for _,v in pairs (polymeshs) do
+    v.visible=false
+		if v.Remove then
+    	v:Remove()
+		end
+	end
+	wipe(polymeshs)
+	local datas = M:GetNavigateData(zone)
+	if not datas then return end
 	local scene = AVR:GetTempScene(200)
 	for id,poly in pairs(datas) do
 		local m = AVRPolygonMesh:New({poly.points})
@@ -1987,26 +2314,24 @@ function M:DrawPolyDatas(mapid)
 		tinsert(polymeshs,m)
 		local scene = AVR:GetTempScene(200)
 
-
-		local a={0,0,0}
-		local c={0,0,0}
-		for i,p in ipairs(poly.points) do
-			for j=1,3 do
-				a[j] = a[j] + p[j]
-				c[j] = c[j] + 1
+		if not poly.center then
+			local a={0,0,0}
+			local c={0,0,0}
+			for i,p in ipairs(poly.points) do
+				for j=1,3 do
+					a[j] = a[j] + p[j]
+					c[j] = c[j] + 1
+				end
 			end
+			for j=1,3 do
+				a[j] = a[j]/c[j]
+			end
+			poly.center = a
 		end
-		for j=1,3 do
-			a[j] = a[j]/c[j]
-		end
-		m=AVRUnitMesh:New()
-
-		m:SetColor(1,0,0,0)
-		m:SetColor2(1,0,0,0)
-		m:SetFollowUnit(false)
-		m:SetFollowRotation(false)
-		m:SetMeshTranslate(unpack(a))
 		local text = id..""
+		if poly.maxz then
+			text = text .. " maxz(" .. poly.maxz..")"
+		end
 		if id2range then
 			local d = id2range[id]
 			local r = d and d.range
@@ -2014,14 +2339,76 @@ function M:DrawPolyDatas(mapid)
 				text = text .. " - " .. r
 			end
 		end
-		m:SetText(text)
-		m:SetTimer(120)
+		m=AVRTextMesh:New(text,2)
+		m:SetMeshTranslate(unpack(poly.center))
     scene:AddMesh(m,false,false)
 		tinsert(polymeshs,m)
 	end
+
+	for id,poly in pairs(datas) do
+		local a = poly.center
+		for ei,ed in ipairs(poly.edges) do
+			if not aid or id==aid then
+				local ni = ei+1
+				if ni > #poly.points then ni = ni - #poly.points  end
+				local sp,ep = poly.points[ei],poly.points[ni]
+				local ec = {}
+				for i = 1,3 do
+					ec[i] = (sp[i]+ep[i])/2
+				end
+				local ac = {}
+				local ec2c = self:GetDistance(ec,a)
+				for i = 1,3 do
+					ac[i] = ec[i] - (ec[i]-a[i])*1/ec2c
+				end
+				local text = ei..""
+				if ed.to then
+					text = text.." ("..ed.to..")"
+					if ed.jump then
+						text = text.." - jump"
+					end
+					if id == aid then
+						m=AVRArrowMesh:New(0,1,2)
+						local tc = datas[ed.to].center
+						m.length = self:GetDistance(ac,tc)
+						local acc = {}
+						for i = 1,3 do
+							acc[i] = ac[i] - (ac[i]-tc[i])*0.5
+						end
+						m:SetMeshTranslate(unpack(acc))
+						local aa = math.atan2(tc[2]-ac[2],tc[1]-ac[1]) - math.pi/2
+						-- aa = 180*aa/math.pi
+						m:SetMeshRotation(aa)
+				    scene:AddMesh(m,false,false)
+						tinsert(polymeshs,m)
+					end
+				end
+				m=AVRTextMesh:New(text,1)
+				if ed.to then
+					m:SetColor(0,1,0)
+				else
+					m:SetColor(1,0,0)
+				end
+				m:SetMeshTranslate(unpack(ac))
+		    scene:AddMesh(m,false,false)
+				tinsert(polymeshs,m)
+			end
+		end
+	end
+end
+
+function M:DrawArrow(id)
+
 end
 
 function M:IsPointInPoly(point,poly)
+  local z = poly.points[1][3]
+  if point[3]<z-1 then
+    return false
+  end
+	if poly.maxz then
+		if point[3]>z+poly.maxz then return false end
+	end
 	local j = #poly.points
 	local inside=false
 	local px,py = point[1],point[2]
@@ -2037,14 +2424,15 @@ function M:IsPointInPoly(point,poly)
 	end
 	return inside
 end
-
+local MAXRANGEINCREASE = 2
 function M:GetPolyRoutes(from,to,datas)
 	from = from or {AirjHack:Position(UnitGUID("player"))}
 	to = to or {AirjHack:Position(UnitGUID("target"))}
 	if not from[1] or not to[1] then
 		return
 	end
-	datas = datas or self:GetPolyDatas()
+	datas = datas or self:GetNavigateData()
+	if not datas then return end
 	local fromId, toId
 	for id,v in pairs(datas) do
 		if not fromId and self:IsPointInPoly(from,v) then
@@ -2066,30 +2454,34 @@ function M:GetPolyRoutes(from,to,datas)
 	wipe(id2range)
 	local i = 1
 	local range
-	id2range[fromId] = {range=1,from={{}}}
+	id2range[fromId] = {range=1,from={}}
+	local debug
 	debug = 0
 	while true do
 		local i2r = {}
 		for id,rd in pairs(id2range) do
 			if rd.range == i then
 				local data = datas[id]
-				for ei,ed in ipairs(data.edges) do
-					if ed.to then
-						local tid = ed.to
-						if not id2range[tid] and not i2r[tid] then
-							i2r[tid] = {range = i+1,from={}}
-						end
-						local data = id2range[tid] or i2r[tid]
-						if data.range>i then
-							for j,r in ipairs(rd.from) do
-								local route = {unpack(r)}
-								tinsert(route,id)
-								-- dump(route)
-								tinsert(data.from,route)
+				if data then
+					for ei,ed in ipairs(data.edges) do
+						if ed.to then
+							local tid = ed.to
+							if not id2range[tid] and not i2r[tid] then
+								i2r[tid] = {range = i+1,from={}}
 							end
-						end
-						if not range and tid == toId then
-							range = i
+							local data = id2range[tid] or i2r[tid]
+							if data.range+MAXRANGEINCREASE>i then
+								-- for j,r in ipairs(rd.from) do
+								-- 	local route = {unpack(r)}
+								-- 	tinsert(route,id)
+								-- 	-- dump(route)
+								-- 	tinsert(data.from,route)
+								-- end
+								tinsert(data.from,id)
+							end
+							if not range and tid == toId then
+								range = i+1
+							end
 						end
 					end
 				end
@@ -2098,7 +2490,7 @@ function M:GetPolyRoutes(from,to,datas)
 		for id,v in pairs(i2r) do
 			id2range[id] = v
 		end
-		if range then
+		if range and i+1>=range + MAXRANGEINCREASE then
 			break
 		end
 		i = i + 1
@@ -2112,16 +2504,66 @@ function M:GetPolyRoutes(from,to,datas)
 		return
 	end
 	local routes = {}
-	for i,r in ipairs(id2range[toId].from) do
-		local route = {unpack(r)}
-		tinsert(route,toId)
-		routes[i] = route
+	local checknext
+	local chosen = setmetatable({},{__index=function(t,k) t[k] = {} return t[k] end})
+	local route = {toId}
+	local been = {[toId] = true}
+	local back = function()
+		local cid = route[#route]
+		tremove(route)
+		been[cid] = nil
+		chosen[#route + 1] = nil
 	end
+	local save = function()
+		local r ={}
+		for i = #route,1,-1 do
+			tinsert(r,route[i])
+		end
+		tinsert(routes,r)
+	end
+	checknext = function()
+		-- print(table.concat(route,","))
+		-- dump(chosen)
+		local cid = route[#route]
+		if cid == fromId then
+			save()
+			back()
+			return true
+		end
+		if #route + id2range[cid].range - 1> range + MAXRANGEINCREASE then
+			-- print("out of range",#route,range,MAXRANGEINCREASE)
+			back()
+			return true
+		end
+		for i,fid in ipairs(id2range[cid].from) do
+			if not been[fid] and not chosen[#route][fid] then
+				chosen[#route][fid] = true
+				tinsert(route,fid)
+				been[fid] = true
+				return true
+			end
+		end
+		if cid == toId then
+			return false
+		else
+			back()
+			return true
+		end
+	end
+	debug = 0
+	while checknext() do
+		debug = debug + 1
+		if debug > 200 then
+			print("debug get routes")
+			break
+		end
+	end
+  -- dump(routes)
 	return routes
 end
 
-function M:GetConnerWays(routes,datas,from,to)
-	datas = datas or self:GetPolyDatas()
+function M:ParseWaysFromRoutes(routes,datas,from,to)
+	datas = datas or self:GetNavigateData()
 	local allways = {}
 	local ways = {}
 	for _,route in ipairs(routes) do
@@ -2132,15 +2574,76 @@ function M:GetConnerWays(routes,datas,from,to)
 				if i ~= #route then
 					local toid = route[i+1]
 					local pp
+					local ignore
 					for ei,ed in ipairs(data.edges) do
 						if ed.to == toid then
-							local ni = ei+1
-							if ni > #data.points then ni = ni - #data.points  end
-							pp = {data.points[ei],data.points[ni]}
+							local c = 1
+							for j = ei+1,#data.edges do
+								if data.edges[j].to == toid then
+									c = c + 1
+								else
+									break
+								end
+							end
+							local p = getCircleDatas(data.points,ei-1,3+c)
+							local e = getCircleDatas(data.edges,ei-1,2+c)
+							local v1 = self:GetMetaVector(p[1],p[2])
+							local v2 = self:GetMetaVector(p[c+3],p[c+2])
+							local ve = self:GetMetaVector(p[2],p[c+2])
+							local lp,rp = {},{}
+							if not e[1].to then
+								local va = self:RotateVector(v1,math.pi/4)
+								if i == 1 and self:Cross(ve,va) > 0 then
+                  local vp = self:GetMetaVector(p[2],{self:GetPlayPosition()})
+                  if self:Cross(vp,va) > 0 then
+									  va = self:RotateVector(v1,-math.pi/4)
+                  end
+								end
+								for j = 1,3 do
+									rp[j] = p[2][j] + va[j]*PATHTOEDGE
+								end
+							else
+								for j = 1,3 do
+									rp[j] = p[2][j]
+								end
+							end
+							if not e[2+c].to then
+								local va = self:RotateVector(v2,-math.pi/4)
+								if i == 1 and self:Cross(ve,va) > 0 then
+                  local vp = self:GetMetaVector(p[c+2],{self:GetPlayPosition()})
+                  if self:Cross(vp,va) < 0 then
+									  va = self:RotateVector(v2,math.pi/4)
+                  end
+								end
+								for j = 1,3 do
+									lp[j] = p[c+2][j] + va[j]*PATHTOEDGE
+								end
+							else
+								for j = 1,3 do
+									lp[j] = p[c+2][j]
+								end
+							end
+							pp = {lp,rp}
+							if i == 1 and ed.jump then
+								local d = self:GetDistanceToLine(lp,rp,from,true)
+								-- print(d)
+								if d<10 then
+									pp.jump = d
+								end
+							end
+							if i == #route - 1 then
+								local newPoly = {p[2],rp,lp,p[c+2]}
+								-- dump(newPoly)
+								if self:IsPointInPoly(to,{points=newPoly}) then
+									ignore = true
+								end
+							end
 							break
 						end
 					end
-					pointpairs[i] = pp or {}
+					if not ignore then
+						pointpairs[i] = pp or {}
+					end
 				end
 			end
 		end
@@ -2159,11 +2662,11 @@ function M:GetConnerWays(routes,datas,from,to)
 	return ways
 end
 
-function M:RemoveUselessConners(way)
-	-- datas = datas or self:GetPolyDatas()
+function M:ParseWaysByRemoveUnnecessaryPoints(way)
+	-- datas = datas or self:GetNavigateData()
 	local divides = way.divides
 	local	ways = {}
-	for i = 1,2^pc do
+	for i = 1,2^#divides do
 		local tw = {unpack(way)}
 		local faild
 		for j = 1,#divides do
@@ -2186,54 +2689,100 @@ function M:RemoveUselessConners(way)
 						break
 					end
 				end
-				if not self:Intersect({prepoint,nextpoint},pp) then
+				local intersect,t,u = self:Intersect({prepoint,nextpoint},pp)
+				if not intersect then
 					faild = true
 					break
 				end
 			end
 		end
+
 		if not faild then
-			tinsert(ways,tw)
+			local rw = {}
+			for j = 1,#way do
+				if tw[j] then
+					tinsert(rw,tw[j])
+				end
+			end
+			if divides[1] and divides[1].jump then
+				rw.jump = divides[1].jump
+			end
+			tinsert(ways,rw)
 		end
 	end
 	return ways
 end
 
-function M:GetMinDistance(ways)
+function M:SortWays(ways)
 	local minDistance, minDistanceWay
+	local wayDatas = {}
 	for i,way in ipairs(ways) do
-		local distance = 0
-		for i = 2,#way do
-			distance = distance + self:GetDistance(way[i],way[i-1])
-		end
-		if not minDistance or distance<minDistance then
-			minDistance = distance
-			minDistanceWay = way
+		if not way.distance then
+			local distance = 0
+			for j = 2,#way do
+				distance = distance + self:GetDistance(way[j],way[j-1])
+			end
+			way.distance = distance
 		end
 	end
-	return minDistanceWay
+	table.sort(ways,function(a,b)
+		if a == nil or b == nil then
+			return false
+		end
+		if a == b then
+			return false
+		end
+		if a.distance == b.distance then
+			if a.route and b.route then
+				return #a.route<#b.route
+			end
+		end
+		return a.distance<b.distance
+	end)
+	return ways
 end
 
-function M:Test()
+function M:GetNavigate(to,zone)
 	local from = {AirjHack:Position(UnitGUID("player"))}
-	local to = {AirjHack:Position(UnitGUID("target"))}
-	local datas = self:GetPolyDatas()
+	to = to or {AirjHack:Position(UnitGUID("target"))}
+	local datas = self:GetNavigateData(zone)
 	local routes = self:GetPolyRoutes(from,to,datas)
 	local way
 	if routes then
-		local ways = self:GetConnerWays(routes,datas,from,to)
-		way = self:GetMinDistance(ways)
-		ways = self:RemoveUselessConners(way)
-		dump(ways)
-		way = self:GetMinDistance(ways)
-		if way then
-			self.cruiseName = "polyway"
-			self:GetDB()[self.cruiseName] = way
-			way.noloop = true
-			self:DrawCruiseData()
-			self.isCruise = true
+		local ways = self:ParseWaysFromRoutes(routes,datas,from,to)
+		self:SortWays(ways)
+		local aws = {}
+		for i,w in ipairs(ways) do
+			if i > 6 then
+				break
+			end
+			local ws = self:ParseWaysByRemoveUnnecessaryPoints(w)
+			-- self:SortWays(ws)
+			for i,v in ipairs(ws) do
+				tinsert(aws,v)
+			end
 		end
+		self:SortWays(aws)
+		way = aws[1]
+		-- if way.jump then
+		-- 	print("jumping")
+		-- end
+		return way
+		-- dump(ways)
 	end
-	self:DrawPolyDatas()
+
+end
+
+function M:Test()
+	local zone -- = "test"
+	local way = self:GetNavigate({AirjHack:Position(UnitGUID("target"))},zone)
+	if way then
+		self.cruiseName = "polyway"
+		self:GetCruiseDB()[self.cruiseName] = way
+		way.noloop = true
+		self:DrawCruiseData()
+		-- self.isCruise = true
+	end
+	self:DrawPolyDatas(zone)
 	return way
 end

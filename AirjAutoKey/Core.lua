@@ -55,6 +55,12 @@ function Core:OnEnable()
     self:OnChatCommmand(key,value,subString)
   end)
 
+  self:RegisterChatCommand("aaklt", function(str)
+    local c,r,pvp = strsplit(" ",str)
+    c = tonumber(c)
+    r = tonumber(r)
+    self:LearnTalent(c,r,pvp)
+  end)
   self:RegisterChatCommand("aaki", function(str)
     local ids = {strsplit(" ",str)}
     local keys
@@ -525,11 +531,20 @@ do
         return true
       end
     elseif sequence.group then
+
+      if sequence.setfacing then
+        local u = unit or "target"
+        AirjMove:AddTemplateFacing(GetTime()+0.2,"unit",u)
+      end
       return self:ExecuteGroupSequence(sequence,unit)
     else
       local macroText, spellName, spellId = self:ToBasicMacroText(sequence.spell,unit)
       self:ExecuteMacro(macroText,unit)
       self:CachePassedInfo(spellId,unit)
+      if sequence.setfacing then
+        local u = unit or "target"
+        AirjMove:AddTemplateFacing(GetTime()+0.2,"unit",u)
+      end
       if not sequence.continue then
         found[groupDeep] = true
         self:SetAirUnit()
@@ -691,6 +706,13 @@ do
       priority = priority or 1
       if type(value) ~= "number" then
         value = 1
+      else
+        if filter.note and filter.note ~= "" then
+          if strfind(filter.note,"debug") then
+            local str = string.format("%.3f",value)
+            self:Print(AirjHack:GetDebugChatFrame(),filter.note,str)
+          end
+        end
       end
       if filter.value then
         value = value + filter.value
@@ -1151,4 +1173,15 @@ end
 
 function Core:Auto(auto)
   Core:SetParam("auto",auto and 1 or 0)
+end
+
+function Core:LearnTalent(c,r,pvp)
+  -- dump(c,r,pvp)
+  if pvp then
+    local tid = GetPvpTalentInfo(c,r,1)
+    LearnPvpTalent(tid)
+  else
+    local tid = GetTalentInfo(c,r,1)
+    LearnTalent(tid)
+  end
 end

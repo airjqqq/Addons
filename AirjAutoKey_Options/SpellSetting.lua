@@ -225,6 +225,12 @@ local spellConfigWidgets = {
 		step = 1,
 		desc = "",
 	},
+	{
+		key = "setfacing",
+		widget = "CheckBox",
+		text = L["Set Facing"],
+		desc = "",
+	},
 }
 local filterConfigWidgets = {
 	{
@@ -482,6 +488,10 @@ function mod:CreateMainConfigGroup()
 	end)
 	group.isr:SetCallback("OnValueChanged",function(widget,event,value)
 		mod:GetCurrentSpell().isr = value or nil
+		self:UpdateSpellTreeGroup()
+	end)
+	group.setfacing:SetCallback("OnValueChanged",function(widget,event,value)
+		mod:GetCurrentSpell().setfacing = value or nil
 		self:UpdateSpellTreeGroup()
 	end)
 	group.group:SetCallback("OnValueChanged",function(widget,event,value)
@@ -1273,6 +1283,7 @@ function mod:UpdateMainConfigGroup()
 	group.continue:SetValue(spell.continue or false)
 	group.pollall:SetValue(spell.pollall or false)
 	group.isr:SetValue(spell.isr or false)
+	group.setfacing:SetValue(spell.setfacing or false)
 	group.group:SetValue(spell.group or false)
 	group.note:SetText(spell.note or "")
 	local spellName = strsplit("_", spell.spell or "")

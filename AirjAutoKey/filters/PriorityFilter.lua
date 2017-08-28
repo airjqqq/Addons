@@ -121,43 +121,85 @@ function F:AIRHEALER(filter)
   return value
 end
 local specP = {
-  [ 62] = 2,
-  [ 63] = 2,
-  [ 64] = 2,
-  [ 65] = 1.5,
-  [ 66] = 1,
-  [ 70] = 0.5,
-  [ 71] = 1,
-  [ 72] = 1,
-  [ 73] = 0.5,
-  [102] = 1,
-  [103] = 1.5,
-  [104] = 0.5,
-  [105] = 2,
-  [250] = 0.5,
-  [251] = 1.5,
-  [252] = 1,
-  [253] = 1,
-  [254] = 2,
-  [255] = 1.5,
-  [256] = 3,
-  [257] = 3,
-  [258] = 3,
-  [259] = 1.5,
-  [260] = 1.5,
-  [261] = 1.5,
-  [262] = 1.5,
-  [263] = 1,
-  [264] = 4,
-  [265] = 3,
-  [266] = 2,
-  [267] = 3,
-  [268] = 0.5,
-  [269] = 1.5,
-  [270] = 1.5,
-  [577] = 1,
-  [581] = 0.5,
+  [62] = 4,--奥术 -- [1]
+  [63] = 6,--火焰 -- [2]
+  [64] = 6,--冰霜 -- [3]
+  [65] = 5,--神圣 -- [4]
+  [66] = 15,--防护 -- [5]
+  [70] = 4,--惩戒 -- [6]
+  [71] = 4,--武器 -- [7]
+  [72] = 4,--狂怒 -- [8]
+  [73] = 1,--防护 -- [9]
+  [102] = 4,--平衡 -- [13]
+  [103] = 5,--野性 -- [14]
+  [104] = 3,--守护 -- [15]
+  [105] = 3,--恢复 -- [16]
+  [250] = 1,--鲜血 -- [17]
+  [251] = 3,--冰霜 -- [18]
+  [252] = 4,--邪恶 -- [19]
+  [253] = 6,--野兽控制 -- [20]
+  [254] = 5,--射击 -- [21]
+  [255] = 5,--生存 -- [22]
+  [256] = 8,--戒律 -- [23]
+  [257] = 8,--神圣 -- [24]
+  [258] = 10,--暗影 -- [25]
+  [259] = 5,--刺杀 -- [26]
+  [260] = 3,--狂徒 -- [27]
+  [261] = 6,--敏锐 -- [28]
+  [262] = 6,--元素 -- [29]
+  [263] = 4,--增强 -- [30]
+  [264] = 10,--恢复 -- [31]
+  [265] = 6,--痛苦 -- [32]
+  [266] = 6,--恶魔学识 -- [33]
+  [267] = 50,--毁灭 -- [34]
+  [268] = 1,--酒仙 -- [35]
+  [269] = 4,--踏风 -- [36]
+  [270] = 5,--织雾 -- [37]
+  [577] = 4,--浩劫 -- [41]
+  [581] = 1,--复仇 -- [42]
 }
+
+local specMP = {
+  [62] = 1,--奥术 -- [1]
+  [63] = 1,--火焰 -- [2]
+  [64] = 1,--冰霜 -- [3]
+  -- [65] = 10,--神圣 -- [4]
+  [66] = 0.8,--防护 -- [5]
+  [70] = 0.5,--惩戒 -- [6]
+  [71] = 0,--武器 -- [7]
+  [72] = 0,--狂怒 -- [8]
+  [73] = 0,--防护 -- [9]
+  [102] = 1,--平衡 -- [13]
+  [103] = 0,--野性 -- [14]
+  [104] = 0,--守护 -- [15]
+  -- [105] = 6,--恢复 -- [16]
+  [250] = 0,--鲜血 -- [17]
+  [251] = 0.5,--冰霜 -- [18]
+  [252] = 0.8,--邪恶 -- [19]
+  [253] = 0,--野兽控制 -- [20]
+  [254] = 0,--射击 -- [21]
+  [255] = 0.2,--生存 -- [22]
+  -- [256] = 10,--戒律 -- [23]
+  -- [257] = 10,--神圣 -- [24]
+  [258] = 1,--暗影 -- [25]
+  [259] = 0,--刺杀 -- [26]
+  [260] = 0,--狂徒 -- [27]
+  [261] = 0,--敏锐 -- [28]
+  [262] = 1,--元素 -- [29]
+  [263] = 0.5,--增强 -- [30]
+  -- [264] = 10,--恢复 -- [31]
+  [265] = 1,--痛苦 -- [32]
+  [266] = 1,--恶魔学识 -- [33]
+  [267] = 1,--毁灭 -- [34]
+  [268] = 0,--酒仙 -- [35]
+  [269] = 0,--踏风 -- [36]
+  -- [270] = 8,--织雾 -- [37]
+  [577] = 0.5,--浩劫 -- [41]
+  [581] = 1,--复仇 -- [42]
+}
+
+Core.spec2MagicDamagePercent = specMP
+
 function F:AIRPVPSPEC(filter)
   filter.value = filter.value or 0
   local unit = Core:GetAirUnit()
@@ -165,21 +207,71 @@ function F:AIRPVPSPEC(filter)
   local guid = Cache:UnitGUID(unit)
   if not guid then return false end
   local id, name, description, icon, role, class = Cache:GetSpecInfo(guid)
+  if not id then return false end
   value = specP[id] or 1
+  local playerid = Cache:GetSpecInfo(Cache:PlayerGUID())
+  local mp = specMP[playerid]
+
+  local health, maxHealth = Cache:GetHealth(Cache:PlayerGUID())
+  local dh = Filter:GetDefensivedHealth(unit,mp,mp<=0.5 and 1 or mp<1 and 0.5 or 0)
+  local dhp = exp(-dh/maxHealth)
+  value = value * dhp
   local dr = Core:GetDrData("STUN",guid)
-  local time = 0
+  local time = -10
   if dr then
     time = dr.t - GetTime()
   end
-  if time <= 0 then
-    value = value * 1.5
-  elseif time > 16 then
-  elseif time > 12 then
-    value = value * 0.75
-  elseif time > 1 then
-    value = value * 0.5
+  local drp
+  if time < 0 then
+    drp = 1
+  elseif time> 16 then
+    drp = 1.2
+  else
+    drp = exp(-time/96)
+  end
+  value = value * drp
+
+  local ps = {0,0,0}
+  local cnt = 0
+  local hps = {"player","party1","party2"}
+  for i,hp in ipairs(hps) do
+    local hguid = UnitGUID(hp)
+    if hguid then
+      local id, name, description, icon, role, class = Cache:GetSpecInfo(hguid)
+      local c = 1
+      if role == "DAMAGER" then
+        c = 1
+      else
+        c = 0.5
+      end
+
+      local hp = {Cache:GetPosition(hguid)}
+      if hp[1] then
+        for j = 1,3 do
+          ps[j] = ps[j] + hp[j] * c
+        end
+        cnt = cnt + c
+      end
+    end
+  end
+  if cnt > 0 then
+    for j = 1,3 do
+      ps[j] = ps[j]/cnt
+    end
+    local ap = {Cache:GetPosition(guid)}
+    local d = Core:GetDistance(ps,ap)
+    local rp
+    if d > 45 then
+      rp = exp(-d/10+3.75)
+    else
+      rp = exp(-d/60)
+    end
+    value = value * rp
   end
   return value
+end
+function Core:GetDistance(p1,p2)
+	return sqrt((p1[1]-p2[1])^2 + (p1[2]-p2[2])^2 + (p1[3]-p2[3])^2)
 end
 
 function F:AIRRANGE(filter)

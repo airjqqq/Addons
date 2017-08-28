@@ -1189,7 +1189,7 @@ function _BW_Start(encounterID,encounterName)
 
 	_graphSectionTimer = 0
 	_graphSectionTimerRounded = 0
-	_graphRaidSnapshot = {"boss1","boss2","boss3","boss4","boss5","target","focus"}
+	_graphRaidSnapshot = {"boss1","boss2","boss3","boss4","boss5","boss1","arena1","arena2","arena3","target","focus"}
 	_graphRaidEnergy = {
 		module.db.energyPerClass["NO"][1],
 		module.db.energyPerClass["NO"][1],
@@ -1392,7 +1392,7 @@ do
 					}
 					data[name] = currData
 
-					local energy = _graphRaidEnergy[i]
+					local energy = _graphRaidEnergy[i] or {}
 					for j=1,#energy do
 						local powerID = energy[j]
 						local power = UnitPower(name,powerID)
@@ -11568,8 +11568,8 @@ function BWInterfaceFrameLoad()
 		local newScale = oldScale + delta * 0.25
 		if newScale < 1 then
 			newScale = 1
-		elseif newScale > 7 then
-			newScale = 7
+		elseif newScale > 20 then
+			newScale = 20
 		end
 		self.C:SetScale( newScale )
 
@@ -11929,7 +11929,7 @@ function BWInterfaceFrameLoad()
 	end
 
 	tab.unitFrames = {}
-	for i=1,5 do
+	for i=1,8 do
 		local frame = CreateFrame("Button",nil,tab.scroll)
 		tab.unitFrames[i] = frame
 		frame:SetSize(95,20)
@@ -12023,7 +12023,7 @@ function BWInterfaceFrameLoad()
 			knownMap = PositionsTab_Variables.BossToMap[encounterID]
 		end
 		knownMap = PositionsTab_Variables.SelectedMap or knownMap
-
+		AIT5 = CurrentFight
 
 		if knownMap and not PositionsTab_Variables.DisableMap then
 			tab.minX = knownMap[1]
@@ -12039,8 +12039,11 @@ function BWInterfaceFrameLoad()
 			tab.maxX = mapInfo.xR
 			tab.minY = mapInfo.yT
 			tab.maxY = mapInfo.yB
-			for i=1,12 do
-				tab.scroll.C.backgrounds[i]:SetTexture("Interface\\WorldMap\\"..mapInfo.map.."\\"..mapInfo.map..(mapInfo.level and mapInfo.level.."_" or "")..i)
+			if mapInfo.map or ture then
+				local map = mapInfo.map or ""
+				for i=1,12 do
+					tab.scroll.C.backgrounds[i]:SetTexture("Interface\\WorldMap\\"..map.."\\"..map..(mapInfo.level and mapInfo.level.."_" or "")..i)
+				end
 			end
 		else
 			-- airj add
@@ -12065,15 +12068,21 @@ function BWInterfaceFrameLoad()
 					end
 				end
 			end
-			-- print(minX,maxX,minY,maxY)
-			if minX - maxX < 80 then
-				minX = minX + (80 - (minX - maxX))/2
-				maxX = maxX - (80 - (minX - maxX))/2
-			end
-			if minY - maxY < 60 then
-				minY = minY + (60 - (minY - maxY))/2
-				maxY = maxY - (60 - (minY - maxY))/2
-			end
+			print(minX,maxX,minY,maxY)
+			local cx,cy = (minX + maxX)/2,(minY + maxY)/2
+			-- if minX - maxX < 80 then
+			-- 	minX = minX + (80 - (minX - maxX))/2
+			-- 	maxX = maxX - (80 - (minX - maxX))/2
+			-- end
+			-- if minY - maxY < 60 then
+			-- 	minY = minY + (60 - (minY - maxY))/2
+			-- 	maxY = maxY - (60 - (minY - maxY))/2
+			-- end
+			local w =max(minX - maxX,(minY - maxY)*4/3,80)
+			minX = cx+w/2
+			maxX = cx-w/2
+			minY = cy+w/2*3/4
+			maxY = cy-w/2*3/4
 			-- airj end
 			tab.minX = minX
 			tab.maxX = maxX
@@ -12202,6 +12211,10 @@ function BWInterfaceFrameLoad()
 				tab.unitFrames[i].Unit = "boss"..i
 				tab.unitFrames[i]:Update(1)
 			end
+			for i=1,3 do
+				tab.unitFrames[i+5].Unit = "arena"..i
+				tab.unitFrames[i+5]:Update(1)
+			end
 		else
 			for i=1,40 do
 				tab.raidFrames[i].Unit = nil
@@ -12216,7 +12229,7 @@ function BWInterfaceFrameLoad()
 		local distanceEarned = {}
 		for i=1,#positionsData do
 			distanceEarned[i] = {}
-			for name,data in pairs(positionsData[i]) do
+			for name,data in pairs(positionsData[i] or {}) do
 				local prevData = positionsData[i-1] and positionsData[i-1][name]
 				distanceEarned[i][name] = 0
 				if prevData then

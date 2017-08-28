@@ -186,8 +186,9 @@ function F:RAIDTARGET(filter)
   local index = GetRaidTargetIndex(filter.unit) or 0
   return indexes[index] or false
 end
-
+--AirjAutoKeyDBT.spec
 --/run for i =1,1000 do local c,d = GetSpecializationInfoByID(i) if c then print(c,d) end end
+--/run AirjAutoKeyDBT.spec = {} for i =1,1000 do local c,d = GetSpecializationInfoByID(i) if c then tinsert(AirjAutoKeyDBT.spec,"["..c.."] = 1,--"..d.."") end end
 function F:UNITSPEC(filter)
   filter.unit = filter.unit or "target"
   local guid = Cache:UnitGUID(filter.unit)
@@ -220,6 +221,8 @@ local melee = {
   [269] = true,
   [577] = true,
 }
+
+Core.specIsMelee = melee
 
 function F:UNITISMELEE(filter)
   filter.unit = filter.unit or "target"

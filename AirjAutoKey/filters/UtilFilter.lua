@@ -428,7 +428,7 @@ function F:FASTSPELL(filter)
     if not range then
       range = maxRange
     end
-    if Cache.encounter and Cache.encounter.id == 2054 and false then
+    if Cache.encounter and Cache.encounter.id == 2054 then
 
       local playerinside = #Cache:GetDebuffs(Cache:PlayerGUID(),nil,{[235621]=1})>0
       local targetinside
@@ -459,32 +459,32 @@ function F:FASTSPELL(filter)
         return false
       end
     end
-    -- if ishelp and (range <=45) then
-    --   local now = GetTime()
-    --   if not notinrangeCache.t or now > notinrangeCache.t then
-    --     wipe(notinrangeCache)
-    --     notinrangeCache.t = now
-    --   end
-    --   local ni = notinrangeCache[guid]
-    --   if ni == nil then
-    --     local i,c = UnitInRange(filter.unit)
-    --     if c and not i then
-    --       ni = true
-    --     elseif c and i then
-    --       ni = false
-    --     else
-    --       ni = "unchecked"
-    --     end
-    --     notinrangeCache[guid] = ni
-    --   end
-    --   if ni == true then
-    --     return false
-    --   elseif ni == false then
-    --     if range >=40 and range <=45 then
-    --       -- return true
-    --     end
-    --   end
-    -- end
+    if ishelp and (range <=45) then
+      local now = GetTime()
+      if not notinrangeCache.t or now > notinrangeCache.t then
+        wipe(notinrangeCache)
+        notinrangeCache.t = now
+      end
+      local ni = notinrangeCache[guid]
+      if ni == nil then
+        local i,c = UnitInRange(filter.unit)
+        if c and not i then
+          ni = true
+        elseif c and i then
+          ni = false
+        else
+          ni = "unchecked"
+        end
+        notinrangeCache[guid] = ni
+      end
+      if ni == true then
+        return false
+      elseif ni == false then
+        if range >=40 and range <=45 then
+          -- return true
+        end
+      end
+    end
     -- local isdead = Cache:Call(UnitIsDeadOrGhost,filter.unit)
     local isdead = select(6,Cache:GetHealth(guid))
     if isdead then
@@ -515,8 +515,8 @@ function F:FASTSPELL(filter)
       -- end
       _,_,value = Cache:GetSpellCooldown(201769)
       if value and (spellId == 116095) then
-        mr = mr + 7
-        md = md + 7
+        mr = mr + 5
+        md = md + 5
       end
       --warrior execute
       _,_,value = Cache:GetSpellCooldown(198500)

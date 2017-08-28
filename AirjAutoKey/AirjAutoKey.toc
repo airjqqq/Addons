@@ -14,6 +14,7 @@ Core.lua
 Filter.lua
 ModKeyPressing.lua
 Move.lua
+DefaultPolys.lua
 KickSync.lua
 GUI.lua
 filters\UtilFilter.lua

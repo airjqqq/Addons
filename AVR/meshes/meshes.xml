@@ -13,5 +13,6 @@
 	<Script file="IconMesh.lua"/>
 	<Script file="LinkMesh.lua"/>
 	<Script file="UnitMesh.lua"/>
+	<Script file="TextMesh.lua"/>
 	<Script file="PolygonMesh.lua"/>
 </Ui>

@@ -139,6 +139,7 @@ function F:HEALTH(filter)
   local guid = Cache:UnitGUID(filter.unit)
   if not guid then return false end
   local health, max, prediction, absorb, healAbsorb, isdead = Cache:GetHealth(guid)
+  -- Cache:GetBuffs(guid,filter.unit,{[236021]=true})
   -- print(health, max, prediction, absorb, healAbsorb, isdead)
   -- if health and health < 0 then
   --   health = 2^32+health
